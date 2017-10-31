@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <servlet>
+    <servlet-name>greetServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.GreetingServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>greetServlet</servlet-name>
+    <url-pattern>/biostdwebapp/greet</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>BioStdWebApp.html</welcome-file>
+  </welcome-file-list>
+
+  <servlet>
+    <description></description>
+    <display-name>DumpServlet</display-name>
+    <servlet-name>DumpServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.DumpServlet</servlet-class>
+    
+    <multipart-config>
+     <!--   location>/tmp</location> -->
+     <max-file-size>20848820</max-file-size>
+     <max-request-size>418018841</max-request-size>
+     <file-size-threshold>2000000</file-size-threshold>
+    </multipart-config>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DumpServlet</servlet-name>
+    <url-pattern>/biostdadm/upload</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <description></description>
+    <display-name>AuthServlet</display-name>
+    <servlet-name>AuthServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.auth.AuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AuthServlet</servlet-name>
+    <url-pattern>/auth/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>Preferences manager servlet</display-name>
+    <servlet-name>PrefsServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.prefs.PrefsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PrefsServlet</servlet-name>
+    <url-pattern>/prefs/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>DirServlet</display-name>
+    <servlet-name>DirServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.dir.DirServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DirServlet</servlet-name>
+    <url-pattern>/dir</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>AdminServiceGWTServlet</display-name>
+    <servlet-name>AdminServiceGWTServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.AdminServiceGWTServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AdminServiceGWTServlet</servlet-name>
+    <url-pattern>/biostdadm/adminServiceGWT</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>SubmitServlet</display-name>
+    <servlet-name>SubmitServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.submit.SubmitServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SubmitServlet</servlet-name>
+    <url-pattern>/submit/*</url-pattern>
+  </servlet-mapping>
+ 
+   <servlet>
+    <description></description>
+    <display-name>HTML form submit servlet</display-name>
+    <servlet-name>FormSubmitServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.submit.FormSubmitServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FormSubmitServlet</servlet-name>
+    <url-pattern>/formsubmit</url-pattern>
+  </servlet-mapping>
+ 
+  
+  <servlet>
+    <description>Stores and retrieves user defined data</description>
+    <display-name>UserDataServlet</display-name>
+    <servlet-name>UserDataServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.userdata.UserDataServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UserDataServlet</servlet-name>
+    <url-pattern>/userdata/*</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet>
+    <description></description>
+    <display-name>SubmissionListServlet</display-name>
+    <servlet-name>SubmissionListServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.submission.SubmissionListServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SubmissionListServlet</servlet-name>
+    <url-pattern>/sbmlist</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>SubmissionServlet</display-name>
+    <servlet-name>SubmissionServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.submission.SingleSubmissionServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SubmissionServlet</servlet-name>
+    <url-pattern>/submission/*</url-pattern>
+  </servlet-mapping>
+  
+   <servlet>
+    <description></description>
+    <display-name>FileUploadServlet</display-name>
+    <servlet-name>FileUploadServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.submit.FileUploadServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FileUploadServlet</servlet-name>
+    <url-pattern>/fileUpload</url-pattern>
+  </servlet-mapping>
+  
+   <servlet>
+    <description></description>
+    <display-name>AccessTagsServlet</display-name>
+    <servlet-name>AccessTagsServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.auth.AccessTagsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AccessTagsServlet</servlet-name>
+    <url-pattern>/checkAccess</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>ExportControlServlet</display-name>
+    <servlet-name>ExportControlServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.export.ExportControlServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExportControlServlet</servlet-name>
+    <url-pattern>/export/*</url-pattern>
+  </servlet-mapping>
+  
+    <servlet>
+    <description></description>
+    <display-name>ToolsServlet</display-name>
+    <servlet-name>ToolsServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.tools.ToolsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ToolsServlet</servlet-name>
+    <url-pattern>/tools/*</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet>
+    <description></description>
+    <display-name>SubscribeServlet</display-name>
+    <servlet-name>SubscribeServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.subscription.SubscribeServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SubscribeServlet</servlet-name>
+    <url-pattern>/subscription/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <description></description>
+    <display-name>SubscribeAttributeServlet</display-name>
+    <servlet-name>SubscribeAttributeServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.subscription.SubscribeAttributeServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SubscribeAttributeServlet</servlet-name>
+    <url-pattern>/attribute-subscription/*</url-pattern>
+  </servlet-mapping>
+
+
+  <servlet>
+    <description></description>
+    <display-name>TagsServlet</display-name>
+    <servlet-name>TagsServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.tags.TagsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TagsServlet</servlet-name>
+    <url-pattern>/tags/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <description></description>
+    <display-name>AttachmentHostServlet</display-name>
+    <servlet-name>AttachmentHostServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.attachhost.AttachHostListServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AttachmentHostServlet</servlet-name>
+    <url-pattern>/atthost</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <description></description>
+    <display-name>AccNoReserveServlet</display-name>
+    <servlet-name>AccNoReserveServlet</servlet-name>
+    <servlet-class>uk.ac.ebi.biostd.webapp.server.endpoint.reserve.AccNoReserveServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AccNoReserveServlet</servlet-name>
+    <url-pattern>/reserve</url-pattern>
+  </servlet-mapping>
+
+<!-- 
+  <filter>
+   <filter-name>CorsFilter</filter-name>
+   <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+  </filter>
+
+ <filter-mapping>
+  <filter-name>CorsFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+ </filter-mapping>
+-->
+  
+  <listener>
+    <listener-class>uk.ac.ebi.biostd.webapp.server.WebAppInit</listener-class>
+  </listener>
+  
+</web-app>
