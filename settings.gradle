@@ -1,0 +1,3 @@
+rootProject.name = 'BioStd-Backend'
+
+include 'Commons', 'SpreadsheetReaders', 'BioStdCoreModel', 'BackendWebApp'
