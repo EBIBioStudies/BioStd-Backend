@@ -1,0 +1,32 @@
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
+group = 'ConvertTool'
+version = '0.0.1'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+    compile project(":SpreadsheetReaders")
+    compile project(":BioStdCoreModel")
+    compile group: 'com.lexicalscope.jewelcli', name: 'jewelcli', version: '[0.8.9,)'
+}
+
+shadowJar {
+    baseName = 'ConvertTool'
+    classifier = null
+}

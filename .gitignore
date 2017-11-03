@@ -1,0 +1,10 @@
+# Build outputs
+.idea/
+out/
+.gradle/
+build/
+target/
+
+
+# Exceptions
+!/BioStdCoreModel/src/main/java/uk/ac/ebi/biostd/out/
