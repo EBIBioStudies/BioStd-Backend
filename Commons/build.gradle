@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-group = 'uk.ac.ebi.mg'
+group = 'uk.ac.ebi.biostd'
 version = '0.0.1-SNAPSHOT'
 description = "Commons"
 

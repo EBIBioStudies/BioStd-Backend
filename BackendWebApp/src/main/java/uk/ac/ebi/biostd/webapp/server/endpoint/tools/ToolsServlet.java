@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.endpoint.tools;
 
 import java.io.IOException;
@@ -50,16 +35,16 @@ import uk.ac.ebi.biostd.webapp.server.mng.FileManager;
 /**
  * Servlet implementation class ToolsServlet
  */
-
 public class ToolsServlet extends ServiceServlet {
 
     private static final long serialVersionUID = 1L;
-    private static Logger log = LoggerFactory.getLogger(ToolsServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(ToolsServlet.class);
     private volatile boolean moreWorkToDo = true;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
             throws ServletException, IOException {
+
         if (sess == null || sess.isAnonymouns()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().print("FAIL User not logged in");
@@ -72,8 +57,68 @@ public class ToolsServlet extends ServiceServlet {
             return;
         }
 
-        Operation act = null;
+        Operation act = getAction(req, resp);
 
+        if (act == null) {
+            return;
+        }
+
+        switch (act) {
+            case FIX_FILE_TYPE:
+                resp.setContentType("text/plain");
+                fixFileType(resp.getWriter());
+                break;
+
+            case FIX_FILE_SIZE:
+                resp.setContentType("text/plain");
+                fixFileSize(resp.getWriter());
+                break;
+
+            case FIX_DIRECTORY_SIZE:
+                resp.setContentType("text/plain");
+                fixDirectorySize(resp.getWriter());
+                break;
+
+            case FIX_SECRET_KEY:
+                resp.setContentType("text/plain");
+                fixSecretKey(resp.getWriter());
+                break;
+
+            case UPDATE_USER_DIR_LAYOUT:
+                resp.setContentType("text/plain");
+                updateUserDirLayout(resp.getWriter(), req.getParameter("OldDir"));
+                break;
+
+            case REVERSE_USER_DIR_LAYOUT:
+                resp.setContentType("text/plain");
+                reverseUserDirLayout(resp.getWriter(), req.getParameter("OldDir"));
+                break;
+
+            case RELINK_DROPBOXES:
+                resp.setContentType("text/plain");
+                relinkDropboxes(resp.getWriter());
+                break;
+
+            case CLEAN_EXP_USERS:
+                BackendConfig.getServiceManager().getSecurityManager().removeExpiredUsers();
+                break;
+
+            case REFRESH_USERS:
+                BackendConfig.getServiceManager().getSecurityManager().refreshUserCache();
+                break;
+
+            case REGENERATE_JSON:
+                resp.setContentType("text/plain");
+                regenerateJsonFilesNoThreads(resp.getWriter());
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private Operation getAction(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Operation act = null;
         String pi = req.getPathInfo();
 
         if (pi != null && pi.length() > 1) {
@@ -91,82 +136,10 @@ public class ToolsServlet extends ServiceServlet {
         if (act == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().print("FAIL Invalid path: " + pi);
-            return;
+            return null;
         }
 
-        switch (act) {
-            case FIX_FILE_TYPE:
-
-                resp.setContentType("text/plain");
-                fixFileType(resp.getWriter());
-
-                break;
-
-            case FIX_FILE_SIZE:
-
-                resp.setContentType("text/plain");
-                fixFileSize(resp.getWriter());
-
-                break;
-
-            case FIX_DIRECTORY_SIZE:
-
-                resp.setContentType("text/plain");
-                fixDirectorySize(resp.getWriter());
-
-                break;
-
-            case FIX_SECRET_KEY:
-
-                resp.setContentType("text/plain");
-                fixSecretKey(resp.getWriter());
-
-                break;
-
-            case UPDATE_USER_DIR_LAYOUT:
-
-                resp.setContentType("text/plain");
-                updateUserDirLayout(resp.getWriter(), req.getParameter("OldDir"));
-
-                break;
-
-            case REVERSE_USER_DIR_LAYOUT:
-
-                resp.setContentType("text/plain");
-                reverseUserDirLayout(resp.getWriter(), req.getParameter("OldDir"));
-
-                break;
-
-            case RELINK_DROPBOXES:
-
-                resp.setContentType("text/plain");
-                relinkDropboxes(resp.getWriter());
-
-                break;
-
-            case CLEAN_EXP_USERS:
-
-                BackendConfig.getServiceManager().getSecurityManager().removeExpiredUsers();
-
-                break;
-
-            case REFRESH_USERS:
-
-                BackendConfig.getServiceManager().getSecurityManager().refreshUserCache();
-
-                break;
-
-            case REGENERATE_JSON:
-
-                resp.setContentType("text/plain");
-                //regenerateJsonFiles(resp.getWriter());
-                regenerateJsonFilesNoThreads(resp.getWriter());
-
-                break;
-            default:
-                break;
-        }
-
+        return act;
     }
 
     private void fixSecretKey(PrintWriter writer) {
@@ -850,7 +823,7 @@ public class ToolsServlet extends ServiceServlet {
         log.info("Finished regenerating json files!");
     }
 
-    private enum Operation {
+    enum Operation {
         RELINK_DROPBOXES,
         FIX_SECRET_KEY,
         FIX_FILE_TYPE,
@@ -865,9 +838,9 @@ public class ToolsServlet extends ServiceServlet {
 
     public class RegenerateJsonOuputRunnable implements Runnable {
 
-        private PrintWriter servletOut;
-        private int offset;
-        private int blockSz;
+        private final PrintWriter servletOut;
+        private final int offset;
+        private final int blockSz;
 
         public RegenerateJsonOuputRunnable(int offset, int blockSz, PrintWriter servletOut) {
             this.offset = offset;
@@ -875,6 +848,7 @@ public class ToolsServlet extends ServiceServlet {
             this.servletOut = servletOut;
         }
 
+        @Override
         public void run() {
 
             String threadName = Thread.currentThread().getName();

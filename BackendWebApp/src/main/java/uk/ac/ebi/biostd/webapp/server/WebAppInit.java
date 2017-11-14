@@ -104,5 +104,4 @@ public class WebAppInit implements ServletContextListener {
         BackendConfig.setConfigValid(true);
     }
 
-
 }

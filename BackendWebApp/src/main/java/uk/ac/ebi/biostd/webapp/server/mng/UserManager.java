@@ -46,11 +46,11 @@ public interface UserManager {
 
     void storeUserData(UserData ud);
 
-    boolean activateUser(ActivationInfo ainf) throws UserMngException;
+    boolean activateUser(ActivationInfo activationInfo) throws UserMngException;
 
     void passwordResetRequest(User usr, String resetURL) throws UserMngException;
 
-    void resetPassword(ActivationInfo ainf, String pass) throws UserMngException;
+    void resetPassword(ActivationInfo activationInfo, String pass) throws UserMngException;
 
     List<UserData> getAllUserData(User user);
 
@@ -61,6 +61,4 @@ public interface UserManager {
     void addGroup(UserGroup ug) throws UserMngException;
 
     void removeGroup(String grName) throws UserMngException;
-
-
 }

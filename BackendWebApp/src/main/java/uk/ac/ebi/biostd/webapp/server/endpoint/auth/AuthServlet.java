@@ -23,9 +23,9 @@ import java.util.UUID;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaFactory;
 import net.tanesha.recaptcha.ReCaptchaResponse;
@@ -33,8 +33,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
@@ -54,88 +52,49 @@ import uk.ac.ebi.biostd.webapp.shared.util.KV;
 /**
  * Servlet implementation class AuthServlet
  */
+@Slf4j
 public class AuthServlet extends ServiceServlet {
 
-    public static final String ActionParameter = "action";
-    public static final String NameParameter = "name";
-    public static final String ProjectParameter = "project";
-    public static final String DescriptionParameter = "description";
-    public static final String SessionIdParameter = "sessid";
-    public static final String UserLoginParameter = "login";
-    public static final String UserEmailParameter = "email";
-    public static final String SuperuserParameter = "superuser";
-    public static final String PasswordParameter = "password";
-    public static final String SSOTokenParameter = "ssotoken";
-    public static final String PasswordHashParameter = "passhash";
-    public static final String UsernameParameter = "username";
-    public static final String DropboxParameter = "dropbox";
-    public static final String FormatParameter = "format";
-    public static final String ReCaptchaChallengeParameter = "recaptcha_challenge";
-    public static final String ReCaptchaResponseParameter = "recaptcha_response";
-    public static final String ReCaptcha2ResponseParameter = BackendConfig.googleClientResponseParameter;
-    public static final String ActivationURLParameter = "activationURL";
-    public static final String PassResetURLParameter = "resetURL";
-    public static final String SuccessURLParameter = "successURL";
-    public static final String FailURLParameter = "failURL";
-    public static final String ResetKeyParameter = "key";
-    public static final String AuxParameter = "aux";
-    public static final String UserParameter = "user";
-    public static final String GroupParameter = "group";
-    public static final String AuxParameterSeparator = ":";
+    private static final String SessionIdParameter = "sessid";
+    private static final String UserLoginParameter = "login";
+    private static final String UserEmailParameter = "email";
+    private static final String SuperuserParameter = "superuser";
+    private static final String PasswordParameter = "password";
+    private static final String SSOTokenParameter = "ssotoken";
+    private static final String PasswordHashParameter = "passhash";
+    private static final String UsernameParameter = "username";
+    private static final String DropboxParameter = "dropbox";
+    private static final String ReCaptchaChallengeParameter = "recaptcha_challenge";
+    private static final String ReCaptchaResponseParameter = "recaptcha_response";
+    private static final String ReCaptcha2ResponseParameter = BackendConfig.googleClientResponseParameter;
+    private static final String ActivationURLParameter = "activationURL";
+    private static final String PassResetURLParameter = "resetURL";
+    private static final String SuccessURLParameter = "successURL";
+    private static final String FailURLParameter = "failURL";
+    private static final String ResetKeyParameter = "key";
+    private static final String AuxParameter = "aux";
+    private static final String AuxParameterSeparator = ":";
     private static final long serialVersionUID = 1L;
     private static final String SSOnickname = "nickname";
     private static final String SSOname = "name";
     private static final String SSOemail = "email";
-    private static Logger log;
 
-
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public AuthServlet() {
-        if (log == null) {
-            log = LoggerFactory.getLogger(getClass());
-        }
-        // TODO Auto-generated constructor stub
-    }
-
-    public static String getCookieSessId(HttpServletRequest req) {
-        String sessId = req.getHeader(BackendConfig.getSessionTokenHeader());
-
-        if (sessId != null) {
-            return sessId;
-        }
-
-        Cookie[] cuks = req.getCookies();
-
-        if (cuks != null && cuks.length != 0) {
-            for (int i = cuks.length - 1; i >= 0; i--) {
-                if (cuks[i].getName().equals(BackendConfig.getSessionCookieName())) {
-                    return cuks[i].getValue();
-                }
-            }
-        }
-
-        return null;
-    }
-
-    // SSO stuff
+    static final String NameParameter = "name";
+    static final String ProjectParameter = "project";
+    static final String DescriptionParameter = "description";
+    static final String UserParameter = "user";
+    static final String GroupParameter = "group";
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-
-//  System.out.println( "Contex path: " + config.getServletContext().getContextPath() );
     }
 
-    /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-     */
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response, Session sess)
             throws ServletException, IOException {
-        Action act = Action.check;
 
+        Action act = Action.check;
         String pi = request.getPathInfo();
 
         if (pi != null && pi.length() > 1) {
@@ -188,7 +147,26 @@ public class AuthServlet extends ServiceServlet {
         } else if (act == Action.remuserfromgroup) {
             GroupActions.remUserFromGroup(rqrs, sess);
         }
+    }
 
+    private static String getCookieSessId(HttpServletRequest req) {
+        String sessId = req.getHeader(BackendConfig.getSessionTokenHeader());
+
+        if (sessId != null) {
+            return sessId;
+        }
+
+        Cookie[] cuks = req.getCookies();
+
+        if (cuks != null && cuks.length != 0) {
+            for (int i = cuks.length - 1; i >= 0; i--) {
+                if (cuks[i].getName().equals(BackendConfig.getSessionCookieName())) {
+                    return cuks[i].getValue();
+                }
+            }
+        }
+
+        return null;
     }
 
     private void checkLoggedIn(ReqResp rqrs) throws IOException {
@@ -272,9 +250,7 @@ public class AuthServlet extends ServiceServlet {
 
             if (user == null) {
                 // user doesn't exist - create
-
                 user = new User();
-
                 user.setLogin(ssoLogin);
                 user.setEmail(ssoEmail);
                 user.setPassword(UUID.randomUUID().toString());
@@ -527,25 +503,22 @@ public class AuthServlet extends ServiceServlet {
             actvURL = prms.getParameter(ActivationURLParameter);
         }
 
-        User u = new User();
-
-        u.setLogin(login);
-        u.setEmail(email);
-        u.setPassword(pass);
-        u.setFullName(prms.getParameter(UsernameParameter));
+        User user = new User();
+        user.setLogin(login);
+        user.setEmail(email);
+        user.setPassword(pass);
+        user.setFullName(prms.getParameter(UsernameParameter));
 
         try {
             BackendConfig.getServiceManager().getUserManager()
-                    .addUser(u, aux, BackendConfig.isMandatoryAccountActivation(), actvURL);
+                    .addUser(user, aux, BackendConfig.isMandatoryAccountActivation(), actvURL);
+
         } catch (Throwable t) {
             resp.respond(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "FAIL", "Add user error: " + t.getMessage());
-
             return;
         }
 
-        resp.respond(HttpServletResponse.SC_OK, "OK", null, new KV(UsernameParameter, u.getFullName()));
-//  resp.respond(HttpServletResponse.SC_OK, "OK");
-
+        resp.respond(HttpServletResponse.SC_OK, "OK", null, new KV(UsernameParameter, user.getFullName()));
     }
 
 
@@ -789,8 +762,6 @@ public class AuthServlet extends ServiceServlet {
             succURL = prms.getParameter(SuccessURLParameter);
             failURL = prms.getParameter(FailURLParameter);
         }
-
-//  actKey = actKey.substring(actKey.lastIndexOf('/')+1);
 
         if (!checkRecaptchas(rqrs, failURL)) {
             return;

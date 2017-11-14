@@ -50,40 +50,6 @@ import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityException;
 
 public class JPAUserManager implements UserManager, SessionListener {
 
-
-    public JPAUserManager() {
-    }
-
-    private User getUserByLoginDB(String uName) {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
-
-        EntityTransaction trn = null;
-
-        try {
-            trn = em.getTransaction();
-
-            trn.begin();
-
-            Query q = em.createNamedQuery(User.GetByLoginQuery);
-
-            q.setParameter(User.LoginQueryParameter, uName);
-
-            @SuppressWarnings("unchecked")
-            List<User> res = q.getResultList();
-
-            if (res.size() != 0) {
-                return res.get(0);
-            }
-        } finally {
-            if (trn != null && trn.isActive()) {
-                trn.commit();
-            }
-        }
-
-        return null;
-
-    }
-
     @Override
     public User getUserByEmail(String email) {
         return BackendConfig.getServiceManager().getSecurityManager().getUserByEmail(email);
@@ -104,70 +70,50 @@ public class JPAUserManager implements UserManager, SessionListener {
         return BackendConfig.getServiceManager().getSecurityManager().getGroup(name);
     }
 
-
-    private User getUserByEmailDB(String prm) {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
-
-        Query q = em.createNamedQuery(User.GetByEMailQuery);
-
-        q.setParameter(User.EmailQueryParameter, prm);
-
-        @SuppressWarnings("unchecked")
-        List<User> res = q.getResultList();
-
-        if (res.size() != 0) {
-            return res.get(0);
-        }
-
-        return null;
-
-    }
-
     @Override
     public int getUsersNumber() {
         return BackendConfig.getServiceManager().getSecurityManager().getUsersNumber();
     }
 
     @Override
-    public synchronized void addUser(User u, List<String[]> aux, boolean validateEmail, String validateURL)
+    public synchronized void addUser(User user, List<String[]> aux, boolean validateEmail, String validateURL)
             throws UserMngException {
 
-        u.setSecret(UUID.randomUUID().toString());
+        user.setSecret(UUID.randomUUID().toString());
 
         UUID actKey = UUID.randomUUID();
 
         if (validateEmail) {
-            u.setActive(false);
-            u.setActivationKey(actKey.toString());
-            u.setKeyTime(System.currentTimeMillis());
+            user.setActive(false);
+            user.setActivationKey(actKey.toString());
+            user.setKeyTime(System.currentTimeMillis());
 
             if (aux != null) {
-                u.setAuxProfileInfo(UserAuxXMLFormatter.buildXML(aux));
+                user.setAuxProfileInfo(UserAuxXMLFormatter.buildXML(aux));
             }
 
-            if (!AccountActivation.sendActivationRequest(u, actKey, validateURL)) {
+            if (!AccountActivation.sendActivationRequest(user, actKey, validateURL)) {
                 throw new SystemUserMngException("Email confirmation request can't be sent. Please try later");
             }
         } else {
-            u.setActive(true);
+            user.setActive(true);
         }
 
         try {
-            BackendConfig.getServiceManager().getSecurityManager().addUser(u);
+            BackendConfig.getServiceManager().getSecurityManager().addUser(user);
         } catch (ServiceException e) {
             throw new SystemUserMngException("System error", e);
         }
 
         if (!validateEmail) {
             try {
-                createUserDropbox(u);
+                createUserDropbox(user);
             } catch (IOException e) {
                 Log.error("User directories/links were not created: " + e.getMessage(), e);
                 e.printStackTrace();
             }
         }
     }
-
 
     @Override
     public synchronized void removeGroup(String gName) throws UserMngException {
@@ -261,7 +207,6 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     }
 
-
     @Override
     public void sessionOpened(User u) {
     }
@@ -301,7 +246,6 @@ public class JPAUserManager implements UserManager, SessionListener {
         return res;
     }
 
-
     @Override
     public List<UserData> getUserDataByTopic(User user, String topic) {
         if (topic.length() == 0) {
@@ -319,7 +263,6 @@ public class JPAUserManager implements UserManager, SessionListener {
 
         return res;
     }
-
 
     @Override
     public void storeUserData(UserData ud) {
@@ -348,7 +291,7 @@ public class JPAUserManager implements UserManager, SessionListener {
     }
 
     @Override
-    public boolean activateUser(ActivationInfo ainf) throws UserMngException {
+    public boolean activateUser(ActivationInfo activationInfo) throws UserMngException {
         EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
@@ -360,9 +303,8 @@ public class JPAUserManager implements UserManager, SessionListener {
 
             Query q = em.createNamedQuery(User.GetByEMailQuery);
 
-            q.setParameter(User.EmailQueryParameter, ainf.email);
+            q.setParameter(User.EmailQueryParameter, activationInfo.email);
 
-            @SuppressWarnings("unchecked")
             List<User> res = q.getResultList();
 
             if (res.size() != 0) {
@@ -378,7 +320,7 @@ public class JPAUserManager implements UserManager, SessionListener {
                 throw new UserAlreadyActiveException();
             }
 
-            if (!ainf.key.equals(u.getActivationKey())) {
+            if (!activationInfo.key.equals(u.getActivationKey())) {
                 u = null;
                 throw new InvalidKeyException();
             }
@@ -463,7 +405,7 @@ public class JPAUserManager implements UserManager, SessionListener {
     }
 
     @Override
-    public void resetPassword(ActivationInfo ainf, String pass) throws UserMngException {
+    public void resetPassword(ActivationInfo activationInfo, String pass) throws UserMngException {
         EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
@@ -475,9 +417,8 @@ public class JPAUserManager implements UserManager, SessionListener {
 
             Query q = em.createNamedQuery(User.GetByEMailQuery);
 
-            q.setParameter(User.EmailQueryParameter, ainf.email);
+            q.setParameter(User.EmailQueryParameter, activationInfo.email);
 
-            @SuppressWarnings("unchecked")
             List<User> res = q.getResultList();
 
             if (res.size() != 0) {
@@ -495,7 +436,7 @@ public class JPAUserManager implements UserManager, SessionListener {
 
             String dbKey = u.getActivationKey();
 
-            if (dbKey == null || dbKey.length() == 0 || !ainf.key.equals(dbKey)) {
+            if (dbKey == null || dbKey.length() == 0 || !activationInfo.key.equals(dbKey)) {
                 u = null;
                 throw new InvalidKeyException();
             }
@@ -559,7 +500,6 @@ public class JPAUserManager implements UserManager, SessionListener {
         }
 
         sess.setSSOToken(ssoToken);
-
         return sess;
     }
 
@@ -609,7 +549,6 @@ public class JPAUserManager implements UserManager, SessionListener {
         }
     }
 
-
     @Override
     public void passwordResetRequest(User usr, String resetURL) throws UserMngException {
         EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
@@ -626,7 +565,6 @@ public class JPAUserManager implements UserManager, SessionListener {
 
                 q.setParameter(User.EmailQueryParameter, usr.getEmail());
 
-                @SuppressWarnings("unchecked")
                 List<User> res = q.getResultList();
 
                 if (res.size() != 0) {
@@ -637,7 +575,6 @@ public class JPAUserManager implements UserManager, SessionListener {
 
                 q.setParameter(User.LoginQueryParameter, usr.getLogin());
 
-                @SuppressWarnings("unchecked")
                 List<User> res = q.getResultList();
 
                 if (res.size() != 0) {
@@ -686,6 +623,4 @@ public class JPAUserManager implements UserManager, SessionListener {
             }
         }
     }
-
-
 }
