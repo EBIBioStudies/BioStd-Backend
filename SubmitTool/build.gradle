@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-group = 'uk.ac.ebi.mg'
+group = 'uk.ac.ebi.biostd'
 version = '0.0.1-SNAPSHOT'
 description = "SubmitTool"
 
@@ -24,6 +24,15 @@ repositories {
 dependencies {
     compile project(":BioStdCoreModel")
     compile group: 'com.lexicalscope.jewelcli', name: 'jewelcli', version: '[0.8.9,)'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'uk.ac.ebi.biostd.tools.submit.Main'
+        )
+    }
 }
 
 shadowJar {

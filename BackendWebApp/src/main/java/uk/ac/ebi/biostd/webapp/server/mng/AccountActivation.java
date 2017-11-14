@@ -91,11 +91,10 @@ public class AccountActivation {
         return res;
     }
 
-    public static boolean sendRequestEmail(User u, UUID key, String url, Resource txtFile, Resource htmlFile,
+    private static boolean sendRequestEmail(User u, UUID key, String url, Resource txtFile, Resource htmlFile,
             String subj) {
 
         String textBody = null;
-
         String htmlBody = null;
 
         String actKey = AccountActivation.createActivationKey(u.getEmail(), key);
@@ -103,86 +102,57 @@ public class AccountActivation {
         try {
             if (txtFile != null) {
                 textBody = txtFile.readToString(Charsets.UTF_8);
-
-                if (url != null) {
-                    textBody = textBody.replaceAll(BackendConfig.ActivateURLPlaceHolderRx, url);
-                }
-
-                textBody = textBody.replaceAll(BackendConfig.ActivateKeyPlaceHolderRx, actKey);
-
-                if (u.getFullName() != null) {
-                    textBody = textBody.replaceAll(BackendConfig.UserNamePlaceHolderRx, u.getFullName());
-                } else {
-                    textBody = textBody.replaceAll(BackendConfig.UserNamePlaceHolderRx, "");
-                }
-
-                String from = BackendConfig.getEmailConfig().get(ConfigurationManager.EmailInquiresParameter)
-                        .toString();
-
-                if (from == null) {
-                    from = BackendConfig.getEmailConfig().get("from").toString();
-                }
-
-                if (from == null) {
-                    from = "";
-                }
-
-                textBody = textBody.replaceAll(BackendConfig.MailToPlaceHolderRx, from);
-
-                String uiURL = BackendConfig.getUIURL();
-
-                if (uiURL == null) {
-                    uiURL = "";
-                }
-
-                textBody = textBody.replaceAll(BackendConfig.UIURLPlaceHolderRx, uiURL);
+                textBody = getBodyString(u, url, textBody, actKey);
             }
 
             if (htmlFile != null) {
                 htmlBody = htmlFile.readToString(Charsets.UTF_8);
-
-                if (url != null) {
-                    htmlBody = htmlBody.replaceAll(BackendConfig.ActivateURLPlaceHolderRx, url);
-                }
-
-                htmlBody = htmlBody.replaceAll(BackendConfig.ActivateKeyPlaceHolderRx, actKey);
-
-                if (u.getFullName() != null) {
-                    htmlBody = htmlBody.replaceAll(BackendConfig.UserNamePlaceHolderRx, u.getFullName());
-                } else {
-                    htmlBody = htmlBody.replaceAll(BackendConfig.UserNamePlaceHolderRx, "");
-                }
-
-                String from = BackendConfig.getEmailConfig().get(ConfigurationManager.EmailInquiresParameter)
-                        .toString();
-
-                if (from == null) {
-                    from = BackendConfig.getEmailConfig().get("from").toString();
-                }
-
-                if (from == null) {
-                    from = "";
-                }
-
-                htmlBody = htmlBody.replaceAll(BackendConfig.MailToPlaceHolderRx, from);
-
-                String uiURL = BackendConfig.getUIURL();
-
-                if (uiURL == null) {
-                    uiURL = "";
-                }
-
-                htmlBody = htmlBody.replaceAll(BackendConfig.UIURLPlaceHolderRx, uiURL);
+                htmlBody = getBodyString(u, url, htmlBody, actKey);
 
             }
         } catch (Exception e) {
             e.printStackTrace();
-
             return false;
         }
 
         return BackendConfig.getServiceManager().getEmailService()
                 .sendMultipartEmail(u.getEmail(), subj, textBody, htmlBody);
+    }
+
+    private static String getBodyString(User u, String url, String textBody, String actKey) {
+        if (url != null) {
+            textBody = textBody.replaceAll(BackendConfig.ActivateURLPlaceHolderRx, url);
+        }
+
+        textBody = textBody.replaceAll(BackendConfig.ActivateKeyPlaceHolderRx, actKey);
+
+        if (u.getFullName() != null) {
+            textBody = textBody.replaceAll(BackendConfig.UserNamePlaceHolderRx, u.getFullName());
+        } else {
+            textBody = textBody.replaceAll(BackendConfig.UserNamePlaceHolderRx, "");
+        }
+
+        String from = BackendConfig.getEmailConfig().get(ConfigurationManager.EmailInquiresParameter)
+                .toString();
+
+        if (from == null) {
+            from = BackendConfig.getEmailConfig().get("from").toString();
+        }
+
+        if (from == null) {
+            from = "";
+        }
+
+        textBody = textBody.replaceAll(BackendConfig.MailToPlaceHolderRx, from);
+
+        String uiURL = BackendConfig.getUIURL();
+
+        if (uiURL == null) {
+            uiURL = "";
+        }
+
+        textBody = textBody.replaceAll(BackendConfig.UIURLPlaceHolderRx, uiURL);
+        return textBody;
     }
 
     public static boolean sendActivationRequest(User u, UUID key, String url) {
@@ -195,33 +165,10 @@ public class AccountActivation {
                 BackendConfig.getPassResetEmailHtmlFile(), BackendConfig.getPassResetEmailSubject());
     }
 
-    static void testActivationKey(String[] args) {
-        String email = "ebi@ebi.ac.uk";
-        UUID uu = UUID.randomUUID();
-
-        System.out.println("Mail: " + email + " UUID: " + uu);
-
-        String key = createActivationKey(email, uu);
-
-        System.out.println("Key: " + key);
-
-        ActivationInfo ainf = decodeActivationKey(key);
-
-        if (ainf != null && email.equals(ainf.email) && uu.equals(ainf.uuidkey)) {
-            System.out.println("OK");
-        } else {
-            System.out.println("FAIL");
-        }
-
-        System.out.println("Mail: " + ainf.email + " UUID: " + ainf.uuidkey + " UUIDstr: " + ainf.key);
-    }
-
     public static class ActivationInfo {
 
         public String email;
         public String key;
         public UUID uuidkey;
     }
-
-
 }

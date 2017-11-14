@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-group = 'ConvertTool'
+group = 'uk.ac.ebi.biostd'
 version = '0.0.1'
 
 sourceCompatibility = 1.8
