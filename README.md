@@ -13,6 +13,12 @@ Contains utility methods and classes.
 ### Spreadsheet Readers library
 Contains utility methods and classes used to read submissions input files.
 
+### Submit Tools
+Help perform submissions thought terminal
+
+### Convert tool
+Helps to converts between different submissions formats
+
 ## Coding standards
 Project follow google [java coding standards](https://google.github.io/styleguide/javaguide.html)
 
