@@ -10,9 +10,9 @@ spring:
     hikari:
       connection-timeout: 60000
       maximum-pool-size: 20
-      jdbcUrl:
-      username:
-      password:
+      jdbcUrl: # set at parameter when executed
+      username: # set at parameter when executed
+      password: # set at parameter when executed
       data-source-properties:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
