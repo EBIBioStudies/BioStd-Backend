@@ -1,0 +1,43 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.7.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+group = 'uk.ac.ebi.biostd'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-jdbc')
+    compile('org.springframework.boot:spring-boot-configuration-processor')
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.springframework.boot:spring-boot-starter-web")
+
+    compile('org.easybatch:easybatch-core:5.1.0')
+    compile('org.easybatch:easybatch-jdbc:5.1.0')
+    compile('com.google.guava:guava:23.0')
+    compile('com.fasterxml.jackson.core:jackson-core:2.9.1')
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+    compile(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.1')
+    compile(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.1')
+    compile(group: 'com.zaxxer', name: 'HikariCP', version: '2.7.1')
+
+    compile('mysql:mysql-connector-java')
+    compileOnly('org.projectlombok:lombok')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
