@@ -15,6 +15,8 @@
 
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
+import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
+import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCNO;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ID;
 import static uk.ac.ebi.biostd.in.pageml.PageMLElements.SUBMISSION;
@@ -36,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -45,6 +48,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
@@ -60,11 +64,7 @@ import org.apache.lucene.search.WildcardQuery;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.AccessTag;
-import uk.ac.ebi.biostd.authz.SystemAction;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.in.AccessionMapping;
@@ -98,13 +98,23 @@ import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.AccNoMatcher.Match;
 import uk.ac.ebi.biostd.webapp.server.search.SearchMapper;
 import uk.ac.ebi.biostd.webapp.server.util.AccNoUtil;
+import uk.ac.ebi.biostd.webapp.server.util.DatabaseUtil;
 import uk.ac.ebi.biostd.webapp.server.util.ExceptionUtil;
 import uk.ac.ebi.biostd.webapp.server.vfs.InvalidPathException;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathInfo;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
 import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
 
+@Slf4j
 public class JPASubmissionManager implements SubmissionManager {
+
+    private static final String ACCESS_TAG_QUERY = "select t from AccessTag t";
+
+    private static final String GET_ALL_HOST = "select sb from Submission sb join sb.rootSection rs where rs"
+            + ".type=:type and sb.version > 0";
+
+    private static final String GET_HOST_SUB_BY_TYPE_QUERY = "select sb from Submission sb join sb"
+            + ".rootSection rs join sb.accessTags at where rs.type=:type and at.id in :allow and sb.version > 0";
 
     private enum SubmissionDirState {
         ABSENT,
@@ -119,32 +129,7 @@ public class JPASubmissionManager implements SubmissionManager {
         Path historyPath;
         Path submissionPathTmp;
         Path historyPathTmp;
-
         SubmissionDirState state;
-    }
-
-    private static final String GetHostSubByTypeQuery = "select sb from Submission sb join sb.rootSection rs where rs"
-            + ".type=:type and sb.version > 0";
-
-    private static final String GetHostSubByTypeOwnerQuery = "select sb from Submission sb join sb.rootSection rs "
-            + "where rs.type=:type and sb.owner.id=:owner and sb.version > 0";
-
-    private static final String GetHostSubByTypeOwnerAllowQuery =
-            "select distinct sb from Submission sb join sb.rootSection rs join sb.accessTags at where rs.type=:type "
-                    + "and (sb.owner.id=:owner OR at.id in :allow) and sb.version > 0";
-
-// private static final String GetHostSubByTypeOwnerDenyQuery = null;
-//
-// private static final String GetHostSubByTypeOwnerAllowDenyQuery = "select sb from Submission sb join sb
-// .rootSection rs join sb.accessTags at where rs.type=:type "
-//   + "and ( sb.owner.id=:owner OR ( at.";
-
-    private static Logger log;
-
-    enum SourceType {
-        XML,
-        JSON,
-        PageTab
     }
 
     static class LockInfo {
@@ -153,31 +138,23 @@ public class JPASubmissionManager implements SubmissionManager {
         Set<String> waiters;
     }
 
-    private Map<String, LockInfo> lockedSmbIds = new HashMap<>();
-    private Set<String> lockedSecIds = new HashSet<>();
+    private final Map<String, LockInfo> lockedSmbIds = new HashMap<>();
+    private final Set<String> lockedSecIds = new HashSet<>();
 
-    private boolean shutDownManager = false;
+    private final boolean shutDownManager = false;
 
     private UpdateQueueProcessor queueProc = null;
     private boolean shutdown;
-    private EntityManagerFactory emf;
+    private final EntityManagerFactory emf;
+    private final PTDocumentParser parser;
 
-    private PTDocumentParser parser;
-
-// private Map<String, Integer> __accVerMap = new HashMap<String, Integer>();
 
     public JPASubmissionManager(EntityManagerFactory emf) {
-        if (log == null) {
-            log = LoggerFactory.getLogger(getClass());
-        }
-
         shutdown = false;
 
         ParserConfig parserCfg = new ParserConfig();
-
         parserCfg.setMultipleSubmissions(true);
         parserCfg.setPreserveId(false);
-
         parser = new PTDocumentParser(parserCfg);
 
         if (BackendConfig.getSubmissionUpdatePath() != null) {
@@ -186,42 +163,34 @@ public class JPASubmissionManager implements SubmissionManager {
         }
 
         this.emf = emf;
-
     }
-
 
     @Override
     public Collection<Submission> getSubmissionsByOwner(User u, int offset, int limit) {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
-
-        EntityTransaction trn = em.getTransaction();
+        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityTransaction transaction = manager.getTransaction();
 
         try {
-            trn.begin();
 
-            Query q = em.createNamedQuery(Submission.GetByOwnerQuery);
-
-            q.setParameter("uid", u.getId());
+            transaction.begin();
+            TypedQuery<Submission> query = manager.
+                    createNamedQuery(Submission.GetByOwnerQuery, Submission.class)
+                    .setParameter("uid", u.getId());
 
             if (offset > 0) {
-                q.setFirstResult(offset);
+                query.setFirstResult(offset);
             }
 
             if (limit > 0) {
-                q.setMaxResults(limit);
+                query.setMaxResults(limit);
             }
 
-            @SuppressWarnings("unchecked")
-            List<Submission> res = q.getResultList();
+            return query.getResultList();
 
-            return res;
         } catch (Throwable t) {
-            t.printStackTrace();
-            log.error("DB error: " + t.getMessage());
+            log.error("DB error query submissions for owner: " + t.getMessage());
         } finally {
-            if (trn != null && trn.isActive()) {
-                trn.commit();
-            }
+            DatabaseUtil.commitIfActiveAndNotNull(transaction);
         }
 
         return null;
@@ -466,111 +435,46 @@ public class JPASubmissionManager implements SubmissionManager {
         return gln;
     }
 
-
     @Override
     public Submission getSubmissionsByAccession(String acc) {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
-
-        EntityTransaction trn = em.getTransaction();
+        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityTransaction transaction = manager.getTransaction();
+        TypedQuery<Submission> query = manager.
+                createNamedQuery(Submission.GetByAccQuery, Submission.class)
+                .setParameter("accNo", acc);
 
         try {
-            trn.begin();
-
-            Query q = em.createNamedQuery(Submission.GetByAccQuery);
-
-            q.setParameter("accNo", acc);
-
-            @SuppressWarnings("unchecked")
-            List<Submission> res = q.getResultList();
-
-            if (res.size() > 0) {
-                return res.get(0);
-            }
-
-            return null;
+            return query.getResultList().stream().findFirst().orElse(null);
         } finally {
-            if (trn != null && trn.isActive()) {
-                trn.commit();
-            }
+            DatabaseUtil.commitIfActiveAndNotNull(transaction);
         }
-
     }
-
 
     @Override
     public List<Submission> getHostSubmissionsByType(String type, User user) {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
-
-        Collection<Long> dnyTags = null;
-
-        TypedQuery<Submission> q = null;
+        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getSession()
+                .getEntityManager();
 
         if (user.isSuperuser()) {
-            q = em.createQuery(GetHostSubByTypeQuery, Submission.class);
-        } else {
-            TypedQuery<AccessTag> tagQ = em
-                    .createQuery("select t from " + AccessTag.class.getName() + " t", AccessTag.class);
-
-            List<AccessTag> tags = tagQ.getResultList();
-
-            Collection<Long> allwTags = null;
-
-            for (AccessTag atg : tags) {
-                Permit p = atg.checkDelegatePermission(SystemAction.ATTACHSUBM, user);
-
-                if (p == Permit.DENY) {
-                    if (dnyTags == null) {
-                        dnyTags = new ArrayList<>();
-                    }
-
-                    dnyTags.add(atg.getId());
-                } else if (p == Permit.ALLOW) {
-                    if (allwTags == null) {
-                        allwTags = new ArrayList<>();
-                    }
-
-                    allwTags.add(atg.getId());
-                }
-            }
-
-            if (allwTags != null) {
-                q = em.createQuery(GetHostSubByTypeOwnerAllowQuery, Submission.class);
-                q.setParameter("allow", allwTags);
-            } else {
-                q = em.createQuery(GetHostSubByTypeOwnerQuery, Submission.class);
-            }
-
-            q.setParameter("owner", user.getId());
+            return manager.createQuery(GET_ALL_HOST, Submission.class)
+                    .setParameter("type", type)
+                    .getResultList();
         }
 
-        q.setParameter("type", type);
+        List<AccessTag> tags = manager.createQuery(ACCESS_TAG_QUERY, AccessTag.class).getResultList();
+        List<Long> allowedTags = getAllowedTags(tags, user);
 
-        List<Submission> res = q.getResultList();
+        return allowedTags.isEmpty() ? Collections.emptyList()
+                : manager.createQuery(GET_HOST_SUB_BY_TYPE_QUERY, Submission.class)
+                        .setParameter("type", type)
+                        .setParameter("allow", allowedTags).getResultList();
+    }
 
-        if (dnyTags == null) {
-            return res;
-        }
-
-        List<Submission> fres = new ArrayList<>(res.size());
-
-        for (Submission sb : res) {
-            boolean found = false;
-
-            if (sb.getAccessTags() != null) {
-                for (AccessTag atg : sb.getAccessTags()) {
-                    if (dnyTags.contains(atg.getId())) {
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!found) {
-                fres.add(sb);
-            }
-        }
-
-        return fres;
+    private List<Long> getAllowedTags(List<AccessTag> tags, User user) {
+        return tags.stream()
+                .filter(tag -> tag.checkDelegatePermission(ATTACHSUBM, user) == ALLOW)
+                .map(AccessTag::getId)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -592,7 +496,6 @@ public class JPASubmissionManager implements SubmissionManager {
             return res;
         }
     }
-
 
     private boolean checkAccNoPfxSfx(SubmissionInfo si) {
         boolean submOk = true;
@@ -730,9 +633,6 @@ public class JPASubmissionManager implements SubmissionManager {
                     oldSbm = getSubmissionByAcc(submission.getAccNo(), em);
 
                     if (oldSbm == null) {
-//      if( __accVerMap.containsKey(submission.getAccNo()) )
-//       System.out.println(submission.getAccNo()+" invisible update "+System.currentTimeMillis());
-
                         if (op == Operation.UPDATE || op == Operation.OVERRIDE) {
                             si.getLogNode().log(Level.ERROR,
                                     "Submission '" + submission.getAccNo() + "' doesn't exist and can't be updated");
@@ -753,12 +653,6 @@ public class JPASubmissionManager implements SubmissionManager {
                         si.setOriginalSubmission(oldSbm);
                         submission.setVersion(oldSbm.getVersion() + 1);
                         submission.setSecretKey(oldSbm.getSecretKey());
-
-//      Integer __oldVer = __accVerMap.get(oldSbm.getAccNo());
-//
-//      if( __oldVer != null && __oldVer.intValue() != oldSbm.getVersion() )
-//       System.out.println(oldSbm.getAccNo()+" version conflict "+__oldVer+" vs "+oldSbm.getVersion());
-
                         if (!BackendConfig.getServiceManager().getSecurityManager()
                                 .mayUserUpdateSubmission(oldSbm, usr)) {
                             si.getLogNode().log(Level.ERROR, "Submission update is not permitted for this user");
@@ -808,7 +702,6 @@ public class JPASubmissionManager implements SubmissionManager {
                     submission.setRTime(System.currentTimeMillis() / 1000);
                 }
 
-//    Path relPath = null;
                 String rootPathAttr = submission.getRootPath();
 
                 PathInfo rootPI = null;
@@ -1114,9 +1007,6 @@ public class JPASubmissionManager implements SubmissionManager {
                 }
 
                 em.persist(subm);
-
-//    __accVerMap.put(subm.getAccNo(), subm.getVersion());
-
             }
 
             submComplete = true;
@@ -1720,438 +1610,6 @@ public class JPASubmissionManager implements SubmissionManager {
         return true;
     }
 
-
-
-
-/*
- private LogNode createSubmission( String txt, SourceType type, boolean update, User usr )
- {
-  ErrorCounter ec = new ErrorCounterImpl();
-
-  SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS, (update?"Updating":"Creating")+" submission(s) from "+type
-  .name()+" source", ec);
-
-  if( ! update && ! BackendConfig.getServiceManager().getSecurityManager().mayUserCreateSubmission(usr)  )
-  {
-   gln.log(Level.ERROR, "User has no permission to create submissions");
-   return gln;
-  }
-
-  gln.log(Level.INFO, "Body size: " + txt.length());
-
-  EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
-
-  TagResolver tgRslv = new TagResolverImpl(em);
-
-  Parser parser = null;
-
-  switch(type)
-  {
-   case XML:
-
-    gln.log(Level.ERROR, "XML submission are not supported yet");
-
-    return gln;
-
-   case PageTab:
-
-    parser = new PageTabSyntaxParser(tgRslv, parserCfg);
-
-    break;
-
-   case JSON:
-
-    parser = new JSONReader(tgRslv, parserCfg);
-
-    break;
-
-
-   default:
-    break;
-  }
-
-  boolean submOk=true;
-
-  FileManager fileMngr = BackendConfig.getServiceManager().getFileManager();
-  PMDoc doc=null;
-
-  try
-  {
-
-   em.getTransaction().begin();
-
-   try
-   {
-    doc = parser.parse(txt, gln);
-   }
-   catch(ParserException e)
-   {
-    gln.log(Level.ERROR, "Parser exception: " + e.getMessage());
-    SimpleLogNode.setLevels(gln);
-    submOk=false;
-    return gln;
-   }
-
-   SimpleLogNode.setLevels(gln);
-
-   if(gln.getLevel() == Level.ERROR)
-   {
-    submOk=false;
-    return gln;
-   }
-
-   for(SubmissionInfo si : doc.getSubmissions())
-   {
-    si.getSubmission().setOwner(usr);
-
-    Set<String> globSecId = null;
-    Submission oldSbm = null;
-
-    long ts = System.currentTimeMillis() / 1000;
-
-    si.getSubmission().setMTime(ts);
-
-    if(update)
-    {
-     if(si.getAccNoPrefix() != null || si.getAccNoSuffix() != null || si.getSubmission().getAccNo() == null)
-     {
-      si.getLogNode().log(Level.ERROR, "Submission must have accession number for update operation");
-      submOk = false;
-      continue;
-     }
-
-     oldSbm = getSubmissionByAcc(si.getSubmission().getAccNo(), em);
-
-     if(oldSbm == null)
-     {
-      si.getLogNode().log(Level.ERROR, "Submission '" + si.getSubmission().getAccNo() + "' doesn't exist and can't be
-       updated");
-      submOk = false;
-      continue;
-     }
-
-     si.getSubmission().setCTime(oldSbm.getCTime());
-     si.setOriginalSubmission(oldSbm);
-     si.getSubmission().setVersion(oldSbm.getVersion() + 1);
-
-     if(!BackendConfig.getServiceManager().getSecurityManager().mayUserUpdateSubmission(oldSbm, usr))
-     {
-      si.getLogNode().log(Level.ERROR, "Submission update is not permitted for this user");
-      submOk = false;
-      continue;
-     }
-
-     globSecId = new HashSet<String>();
-
-     collectGlobalSecIds(oldSbm.getRootSection(), globSecId);
-    }
-    else
-    {
-     si.getSubmission().setCTime(ts);
-     si.getSubmission().setVersion(1);
-    }
-
-    boolean rTimeFound = false;
-    for(SubmissionAttribute sa : si.getSubmission().getAttributes())
-    {
-     if(Submission.releaseDateAttribute.equals(sa.getName()))
-     {
-      if(rTimeFound)
-      {
-       si.getLogNode().log(Level.ERROR, "Multiple '" + Submission.releaseDateAttribute + "' attributes are not
-       allowed");
-       break;
-      }
-
-      rTimeFound = true;
-
-      String val = sa.getValue();
-
-      if(val != null)
-      {
-       val = val.trim();
-
-       if(val.length() > 0)
-       {
-        Matcher mtch = rTimePattern.matcher(val);
-
-        if(!mtch.matches())
-         si.getLogNode().log(Level.ERROR,
-           "Invalid '" + Submission.releaseDateAttribute + "' attribute value. Expected date in format:
-           YYYY-MM-DD[Thh:mm[:ss[.mmm]]]");
-        else
-        {
-         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-
-         cal.set(Calendar.YEAR, Integer.parseInt(mtch.group("year")));
-         cal.set(Calendar.MONTH, Integer.parseInt(mtch.group("month")) - 1);
-         cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(mtch.group("day")));
-
-         String str = mtch.group("hour");
-
-         if(str != null)
-          cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(str));
-
-         str = mtch.group("min");
-
-         if(str != null)
-          cal.set(Calendar.MINUTE, Integer.parseInt(str));
-
-         str = mtch.group("sec");
-
-         if(str != null)
-          cal.set(Calendar.SECOND, Integer.parseInt(str));
-
-         si.getSubmission().setRTime(cal.getTimeInMillis() / 1000);
-        }
-       }
-      }
-
-     }
-    }
-
-    for(FileOccurrence foc : si.getFileOccurrences())
-    {
-     FilePointer fp = fileMngr.checkFileExist(foc.getFileRef().getName(), usr);
-
-     if(fp != null || (update && (fp = fileMngr.checkFileExist(foc.getFileRef().getName(), oldSbm)) != null))
-      foc.setFilePointer(fp);
-     else
-     {
-      foc.getLogNode().log(Level.ERROR, "File reference '" + foc.getFileRef().getName() + "' can't be resolved. Check
-       files in the user directory");
-      submOk = false;
-     }
-    }
-
-    if(si.getAccNoPrefix() == null && si.getAccNoSuffix() == null && !update)
-    {
-     if(!checkSubmissionIdUniq(si.getSubmission().getAccNo(), em))
-     {
-      si.getLogNode().log(Level.ERROR, "Submission accession number '" + si.getSubmission().getAccNo() + "' is
-      already taken by another submission");
-      submOk = false;
-     }
-    }
-
-    for(SectionOccurrence seco : si.getGlobalSections())
-    {
-     if(seco.getPrefix() == null && seco.getSuffix() == null && (globSecId == null || !globSecId.contains(seco
-     .getSection().getAccNo())))
-     {
-      if(!checkSectionIdUniq(seco.getSection().getAccNo(), em))
-      {
-       seco.getSecLogNode().log(Level.ERROR, "Section accession number '" + seco.getSection().getAccNo() + "' is
-       taken by another section");
-       submOk = false;
-      }
-     }
-    }
-
-   }
-
-   if(!submOk)
-   {
-    SimpleLogNode.setLevels(gln);
-    return gln;
-   }
-
-   for(SubmissionInfo si : doc.getSubmissions())
-   {
-
-    if(si.getAccNoPrefix() != null || si.getAccNoSuffix() != null)
-    {
-     while(true)
-     {
-      String newAcc = getNextAccNo(si.getAccNoPrefix(), si.getAccNoSuffix(), em);
-
-      if(checkSubmissionIdUniq(newAcc, em))
-      {
-       si.getSubmission().setAccNo(newAcc);
-       break;
-      }
-     }
-    }
-
-    for(SectionOccurrence seco : si.getGlobalSections())
-    {
-     if(seco.getPrefix() != null || seco.getSuffix() != null)
-     {
-
-      while(true)
-      {
-       String newAcc = getNextAccNo(seco.getPrefix(), seco.getSuffix(), em);
-
-       if(checkSectionIdUniq(newAcc, em))
-       {
-        seco.getSection().setAccNo(newAcc);
-        break;
-       }
-      }
-     }
-    }
-
-    if(si.getOriginalSubmission() != null)
-     si.getOriginalSubmission().setVersion(-si.getOriginalSubmission().getVersion());
-
-    em.persist(si.getSubmission());
-
-   }
-  }
-  finally
-  {
-   if( ! submOk )
-   {
-    if(em.getTransaction().isActive())
-     em.getTransaction().rollback();
-   }
-   else
-   {
-    try
-    {
-     em.getTransaction().commit();
-    }
-    catch(Throwable t)
-    {
-     String err = "Database transaction commit failed: " + t.getMessage();
-
-     gln.log(Level.ERROR, err);
-
-     if(em.getTransaction().isActive())
-      em.getTransaction().rollback();
-
-     return gln;
-    }
-   }
-  }
-
-  for( SubmissionInfo si : doc.getSubmissions() )
-  {
-
-   fileMngr.createSubmissionDir( si.getSubmission() );
-
-   if( si.getFileOccurrences() != null  )
-   {
-    for( FileOccurrence fo : si.getFileOccurrences() )
-    {
-     try
-     {
-      fileMngr.copyToSubmissionFilesDir( si.getSubmission(), fo.getFilePointer() );
-     }
-     catch( IOException e )
-     {
-      si.getLogNode().log(Level.ERROR, "File transfer error: "+fo.getFilePointer());
-     }
-    }
-   }
-
-   String srcFileName = "source";
-
-   switch( type )
-   {
-    case JSON:
-     srcFileName += ".json.txt";
-     break;
-
-    case PageTab:
-     srcFileName += ".pagetab.txt";
-     break;
-
-    case XML:
-     srcFileName += ".xml";
-     break;
-
-    default:
-     break;
-   }
-
-   File srcFile = fileMngr.createSubmissionDirFile( si.getSubmission(), srcFileName );
-
-   try
-   {
-    PrintWriter srcOut = new PrintWriter(srcFile);
-
-    srcOut.append(txt);
-
-    srcOut.close();
-
-   }
-   catch(IOException e)
-   {
-    si.getLogNode().log(Level.ERROR, "File write error: "+srcFileName);
-   }
-
-  }
-
-  SimpleLogNode.setLevels(gln);
-
-  return gln;
-
- }
-
-
- private String getNextAccNo(String prefix, String suffix, EntityManager em)
- {
-  Query q = em.createNamedQuery("IdGen.getByPfxSfx");
-
-  q.setParameter("prefix", prefix);
-  q.setParameter("suffix", suffix);
-
-  @SuppressWarnings("unchecked")
-  List<IdGen> genList = q.getResultList();
-
-  IdGen gen = null;
-
-  if( genList.size() == 0 )
-  {
-   gen = new IdGen();
-
-   gen.setPrefix(prefix);
-   gen.setSuffix(suffix);
-
-   Counter cnt = new Counter();
-   cnt.setMaxCount(0);
-   cnt.setName(""+prefix+"000"+suffix);
-
-   em.persist(cnt);
-
-   gen.setCounter(cnt );
-
-
-   em.persist(gen);
-  }
-  else if( genList.size() == 1 )
-   gen = genList.get(0);
-  else
-   log.error("Query returned multiple ("+genList.size()+") IdGen objects");
-
-  Counter cnt = gen.getCounter();
-
-  if( cnt == null )
-  {
-   cnt = new Counter();
-   cnt.setMaxCount(0);
-   cnt.setName(""+prefix+"000"+suffix);
-
-   em.persist(cnt);
-
-   gen.setCounter(cnt);
-  }
-
-  StringBuilder sb = new StringBuilder();
-
-  if( prefix != null )
-   sb.append(prefix);
-
-  sb.append( cnt.getNextNumber() );
-
-  if( suffix != null )
-   sb.append(suffix);
-
-  return sb.toString();
- }
-*/
-
     private void collectGlobalSecIds(Section sec, Set<String> globSecId) {
         if (sec.isGlobal()) {
             globSecId.add(sec.getAccNo());
@@ -2162,9 +1620,7 @@ public class JPASubmissionManager implements SubmissionManager {
                 collectGlobalSecIds(sbs, globSecId);
             }
         }
-
     }
-
 
     private Submission getSubmissionByAcc(String accNo, EntityManager em) {
         Query q = em.createNamedQuery(Submission.GetByAccQuery);
@@ -2335,7 +1791,6 @@ public class JPASubmissionManager implements SubmissionManager {
 
             q.setParameter("accNo", acc);
 
-            @SuppressWarnings("unchecked")
             List<Submission> res = q.getResultList();
 
             if (res.size() == 0) {
@@ -2444,7 +1899,6 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
 
-    @SuppressWarnings("unchecked")
     @Override
     public Collection<Submission> searchSubmissions(User u, SubmissionSearchRequest ssr) throws ParseException {
         Collection<Submission> res = null;
@@ -2630,7 +2084,6 @@ public class JPASubmissionManager implements SubmissionManager {
                     tagq.setParameter("tname", tr.getTagName());
                     tagq.setParameter("cname", tr.getClassiferName());
 
-                    @SuppressWarnings("unchecked")
                     List<Tag> res = tagq.getResultList();
 
                     if (res.size() == 0) {
@@ -2662,7 +2115,6 @@ public class JPASubmissionManager implements SubmissionManager {
                 for (String tName : access) {
                     acctq.setParameter("name", tName);
 
-                    @SuppressWarnings("unchecked")
                     List<AccessTag> res = acctq.getResultList();
 
                     if (res.size() == 0) {
