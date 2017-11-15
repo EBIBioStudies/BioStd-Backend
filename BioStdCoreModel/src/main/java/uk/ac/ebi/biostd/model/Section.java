@@ -40,12 +40,18 @@ import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.TagRef;
 
 @Entity
-@NamedQueries({@NamedQuery(name = "Section.countByAcc",
-        query = "SELECT count(s) FROM Section s where s.accNo=:accNo AND s.global=true"),
+@NamedQueries({
+        @NamedQuery(name = "Section.countByAcc",
+                query = "SELECT count(s) FROM Section s where s.accNo=:accNo AND s.global=true"),
         @NamedQuery(name = "Section.countByAccActive",
                 query = "SELECT count(s) FROM Section s JOIN s.submission sbm where sbm.version > 0 AND s"
-                        + ".accNo=:accNo AND s.global=true")})
-@Table(indexes = {@Index(name = "glob_idx", columnList = "global"), @Index(name = "acc_idx", columnList = "accNo")})
+                        + ".accNo=:accNo AND s.global=true")
+})
+@Table(indexes = {
+        @Index(name = "glob_idx", columnList = "global"),
+        @Index(name = "acc_idx", columnList = "accNo"),
+        @Index(name = "section_type_index", columnList = "type")
+})
 public class Section implements Node, Accessible {
 
     private long id;

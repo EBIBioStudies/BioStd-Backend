@@ -17,24 +17,23 @@ package uk.ac.ebi.biostd.webapp.server.endpoint.attachhost;
 
 import java.io.IOException;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import uk.ac.ebi.biostd.model.Submission;
 
-public class JSONRenderer {
+@Slf4j
+class JSONRenderer {
 
-    public static void render(List<Submission> subs, Appendable out) throws IOException {
-        JSONObject rtObj = new JSONObject();
-
+    static void render(List<Submission> submissions, Appendable out) throws IOException {
         try {
-            rtObj.put("status", "OK");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("status", "OK");
+            JSONArray jsonArray = new JSONArray();
+            jsonObject.put("submissions", jsonArray);
 
-            JSONArray arr = new JSONArray();
-
-            rtObj.put("submissions", arr);
-
-            for (Submission s : subs) {
+            for (Submission s : submissions) {
                 JSONObject jssub = new JSONObject();
 
                 jssub.put("id", s.getId());
@@ -48,23 +47,22 @@ public class JSONRenderer {
                 jssub.put("rstitle", Submission.getNodeTitle(s.getRootSection()));
 
                 String val = Submission.getNodeAccNoPattern(s);
-
                 if (val != null) {
                     jssub.put(Submission.canonicAccNoPattern, val);
                 }
 
                 val = Submission.getNodeAccNoTemplate(s);
-
                 if (val != null) {
                     jssub.put(Submission.canonicAccNoTemplate, val);
                 }
 
-                arr.put(jssub);
+                jsonArray.put(jssub);
             }
 
-            out.append(rtObj.toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
+            out.append(jsonObject.toString());
+
+        } catch (JSONException exception) {
+            log.error("Error while serializing submissions", exception);
         }
     }
 }
