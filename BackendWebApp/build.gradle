@@ -1,7 +1,20 @@
 import java.text.SimpleDateFormat
 
+buildscript {
+    ext {
+        springBootVersion = '1.5.7.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'war'
+apply plugin: 'org.springframework.boot'
 
 group = 'uk.ac.ebi.biostd'
 version = '0.0.1'
@@ -16,7 +29,6 @@ def buildTime() {
 }
 
 war {
-    webXml = file('src/main/webapp/WEB-INF/web.xml')
     archiveName = "biostudy-${buildTime()}.war"
 }
 
@@ -30,23 +42,35 @@ dependencies {
     compile project(":SpreadsheetReaders")
     compile project(":BioStdCoreModel")
 
-    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
-    compile group: 'com.auth0', name: 'java-jwt', version:'3.0.1'
+    compile("org.springframework.boot:spring-boot-starter-web"){
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+    }
+    providedCompile('org.springframework.boot:spring-boot-starter-tomcat')
+
+    providedCompile('mysql:mysql-connector-java:6.0.6')
     compile group: 'javax.transaction', name: 'jta', version:'1.1'
-    compile group: 'org.slf4j', name: 'slf4j-jdk14', version:'[1.7.5,)'
     compile group: 'com.h2database', name: 'h2', version:'[1.4.193,)'
+    compile group: 'org.hibernate', name: 'hibernate-c3p0', version: '5.2.8.Final'
     compile group: 'org.hibernate', name: 'hibernate-entitymanager', version:'5.2.8.Final'
     compile group: 'org.hibernate', name: 'hibernate-search-orm', version:'5.7.0.Final'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.12.Final'
+
     compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version:'5.5.4'
     compile group: 'org.apache.lucene', name: 'lucene-backward-codecs', version:'5.5.4'
     compile group: 'org.apache.lucene', name: 'lucene-misc', version:'5.5.4'
     compile group: 'org.apache.lucene', name: 'lucene-facet', version:'5.5.4'
     compile group: 'org.apache.lucene', name: 'lucene-queryparser', version:'5.5.4'
-    compile group: 'org.hibernate', name: 'hibernate-c3p0', version:'5.2.8.Final'
+
     compile group: 'net.tanesha.recaptcha4j', name: 'recaptcha4j', version:'[0.0.7,)'
     compile group: 'commons-fileupload', name: 'commons-fileupload', version:'[1.2,)'
     compile group: 'commons-io', name: 'commons-io', version:'2.4'
     compile group: 'javax.mail', name: 'mail', version:'1.4'
     compile group: 'commons-net', name: 'commons-net', version:'3.5'
-    compile(group: 'javax.servlet', name: 'javax.servlet-api', version:'3.1.0')
+    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
+    compile group: 'com.auth0', name: 'java-jwt', version: '3.0.1'
+    compile group: 'com.google.guava', name: 'guava', version: '23.4-jre'
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
 }

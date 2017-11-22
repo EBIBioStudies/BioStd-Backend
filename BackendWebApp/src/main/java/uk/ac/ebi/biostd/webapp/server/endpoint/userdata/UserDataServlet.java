@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
@@ -28,18 +29,21 @@ import uk.ac.ebi.biostd.authz.UserData;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 
+@WebServlet("/userdata/*")
 public class UserDataServlet extends ServiceServlet {
 
-    public static final String keyParameter = "key";
-    public static final String dataParameter = "value";
-    public static final String topicParameter = "topic";
-    public static final String ctypeParameter = "contentType";
-    public static final String opParameter = "op";
     private static final long serialVersionUID = 1L;
+
+    private static final String keyParameter = "key";
+    private static final String dataParameter = "value";
+    private static final String topicParameter = "topic";
+    private static final String ctypeParameter = "contentType";
+    private static final String opParameter = "op";
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
             throws ServletException, IOException {
+
         if (sess == null || sess.isAnonymouns()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.setContentType("text/plain");

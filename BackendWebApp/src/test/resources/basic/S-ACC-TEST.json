@@ -1,0 +1,82 @@
+{
+ "accessTags": ["Public"],
+ "accno": "S-ACC-TEST",
+ "attributes": [
+  {
+   "name": "Title",
+   "value": "Submission title"
+  },
+  {
+   "name": "ReleaseDate",
+   "value": "${TODAY}"
+  }
+ ],
+ "section": {
+  "subsections": [
+   {
+    "attributes": [
+     {
+      "name": "affiliation",
+      "isReference": true,
+      "value": "ref1"
+     },
+     {
+      "name": "Name",
+      "value": "John Smith"
+     },
+     {
+      "name": "E-mail",
+      "value": "john.smith@email.com"
+     },
+     {
+      "name": "Author-Atribute",
+      "value": "An Attribute value"
+     }
+    ],
+    "type": "Author"
+   },
+   {
+    "accno": "ref1",
+    "attributes": [{
+     "name": "Name",
+     "value": "The Francis Crick Institute"
+    }],
+    "type": "Organization"
+   },
+   {
+    "attributes": [
+     {
+      "name": "Description",
+      "value": "Subsection 1 description"
+     },
+     {
+      "name": "Sub section attribute",
+      "value": "An Attribute value"
+     }
+    ],
+    "type": "Sub Section 1"
+   }
+  ],
+  "accno": "$$$1",
+  "attributes": [
+   {
+    "name": "Title",
+    "value": "Main Section 1"
+   },
+   {
+    "name": "Description",
+    "value": "Main Section 1 Description"
+   },
+   {
+    "name": "Attribute \u2013 1",
+    "value": "An Attribute value"
+   },
+   {
+    "name": "Attribute \u2013 2",
+    "value": "An Attribute value"
+   }
+  ],
+  "type": "Study"
+ },
+ "type": "submission"
+}

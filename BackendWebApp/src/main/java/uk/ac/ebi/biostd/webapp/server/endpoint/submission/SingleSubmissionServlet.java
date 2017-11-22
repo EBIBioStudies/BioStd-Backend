@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.endpoint.submission;
 
 import com.pri.util.HttpAccept;
@@ -20,7 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import uk.ac.ebi.biostd.authz.Session;
@@ -37,24 +22,17 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.endpoint.TextHttpResponse;
 import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
 
-/**
- * Servlet implementation class SingleSubmissionServlet
- */
-
+@WebServlet("/submission/*")
 public class SingleSubmissionServlet extends ServiceServlet {
 
-    public static final String FormatParameter = "format";
-    public static final String CutTechinicalInfoParameter = "notech";
-    public static final String AccNoParameter = "accno";
-    public static final String DefaultResponseFormat = "xml";
+    private static final String FormatParameter = "format";
+    private static final String CutTechinicalInfoParameter = "notech";
+    private static final String AccNoParameter = "accno";
+    private static final String DefaultResponseFormat = "xml";
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public SingleSubmissionServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     @Override

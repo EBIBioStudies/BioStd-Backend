@@ -23,20 +23,20 @@ import uk.ac.ebi.mg.spreadsheet.CellStream;
 
 public class XSVCellStream implements CellStream {
 
-    private final static String dateFotmat = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    private final static String DATE_FORMAT = "yyyy-MM-dd";
 
-    private Appendable stream;
+    private final Appendable appendable;
 
     private boolean newLine;
-    private char sep;
-    private DateFormat dateFmt;
+    private final char sep;
+    private final DateFormat dateFmt;
 
-    public XSVCellStream(Appendable s, char sep) {
-        stream = s;
+    public XSVCellStream(Appendable appendable, char sep) {
+        this.appendable = appendable;
+        this.sep = sep;
 
         newLine = true;
-
-        this.sep = sep;
+        dateFmt = new SimpleDateFormat(DATE_FORMAT);
     }
 
     public static CellStream getCSVCellStream(Appendable s) {
@@ -49,12 +49,7 @@ public class XSVCellStream implements CellStream {
 
     @Override
     public void addDateCell(long ts) throws IOException {
-        if (dateFmt == null) {
-            dateFmt = new SimpleDateFormat(dateFotmat);
-        }
-
         addCell(dateFmt.format(new Date(ts)));
-
     }
 
     @Override
@@ -62,21 +57,20 @@ public class XSVCellStream implements CellStream {
         if (newLine) {
             newLine = false;
         } else {
-            stream.append(sep);
+            appendable.append(sep);
         }
 
         int ptr = 0;
         int pos = cont.indexOf('"');
 
         if (pos == -1) {
-            stream.append(cont);
+            appendable.append(cont);
         } else {
-            stream.append('"');
+            appendable.append('"');
 
             while (pos != -1) {
-                stream.append(cont.substring(ptr, pos + 1));
-                stream.append('"');
-
+                appendable.append(cont.substring(ptr, pos + 1));
+                appendable.append('"');
                 ptr = pos + 1;
 
                 if (ptr >= cont.length()) {
@@ -86,24 +80,21 @@ public class XSVCellStream implements CellStream {
                 pos = cont.indexOf('"', ptr);
             }
 
-            stream.append(cont.substring(ptr));
-            stream.append('"');
-
+            appendable.append(cont.substring(ptr));
+            appendable.append('"');
         }
-
     }
 
     @Override
     public void nextCell() throws IOException {
-        stream.append(sep);
+        appendable.append(sep);
     }
 
     @Override
     public void nextRow() throws IOException {
-        stream.append('\n');
+        appendable.append('\n');
         newLine = true;
     }
-
 
     @Override
     public void start() {

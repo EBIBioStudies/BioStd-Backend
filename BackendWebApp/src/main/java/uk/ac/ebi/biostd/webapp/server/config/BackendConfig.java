@@ -72,9 +72,6 @@ public class BackendConfig {
     public static final long exportLockTimeout = 1 * 60 * 60 * 1000L;
     public static final long exportLockDelay = 10 * 60 * 1000L;
 
-    // public static final String GuestsGroup = "@Guests";
-// public static final String EveryoneGroup = "@Everyone";
-// public static final String AuthenticatedGroup = "@Authenticated";
     public static final String DefaultSubmissionPrefix = "S-";
 
 
@@ -96,11 +93,8 @@ public class BackendConfig {
     private static final String sessionTokenHeader = "X-Session-Token";   //think about security issues on system
     // that ignore file name cases
 
-
-    // private static long activationTimeout = defaultActivationTimeout;
-// private static long passResetTimeout = defaultPassResetTimeout;
     private static long instanceId;
-    private static AtomicInteger sequence = new AtomicInteger(1);
+    private static final AtomicInteger sequence = new AtomicInteger(1);
 
     private static ConfigurationManager configurationManager;
 
@@ -262,7 +256,6 @@ public class BackendConfig {
         return conf.getSubmissionsPath().resolve(getSubmissionRelativePath(sbm));
     }
 
-
     public static Path getSubmissionFilesPath(Submission sbm) {
         return getSubmissionPath(sbm).resolve(SubmissionFilesDir);
     }
@@ -283,7 +276,6 @@ public class BackendConfig {
         return conf.getSubmissionsHistoryPath()
                 .resolve(getSubmissionRelativePath(sbm) + SubmissionHistoryPostfix + Math.abs(sbm.getVersion()));
     }
-
 
     public static String getRecaptchaPublicKey() {
         return conf.getRecaptchaPublicKey();
@@ -360,7 +352,6 @@ public class BackendConfig {
 
     public static void setDatabaseConfig(Map<String, Object> dbConfig) {
         conf.setDatabaseConfig(new HashMap<>(dbConfig));
-
     }
 
     public static Map<String, Object> getDatabaseConfig() {

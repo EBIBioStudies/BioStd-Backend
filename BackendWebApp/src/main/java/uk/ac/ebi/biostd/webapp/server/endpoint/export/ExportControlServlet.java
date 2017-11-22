@@ -17,20 +17,22 @@ package uk.ac.ebi.biostd.webapp.server.endpoint.export;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ReqResp;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 
+@WebServlet("/export/*")
 public class ExportControlServlet extends ServiceServlet {
 
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    static final String CommandForceTask = "force";
-    static final String CommandInterruptTask = "interrupt";
-    static final String CommandLockExport = "lock";
-    static final String CommandUnlockExport = "unlock";
+    private static final String CommandForceTask = "force";
+    private static final String CommandInterruptTask = "interrupt";
+    private static final String CommandLockExport = "lock";
+    private static final String CommandUnlockExport = "unlock";
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)

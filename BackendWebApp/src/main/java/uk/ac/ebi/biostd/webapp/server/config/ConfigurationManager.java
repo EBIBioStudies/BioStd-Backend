@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.config;
 
 import java.io.FileReader;
@@ -43,9 +28,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.servlet.ServletContext;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.search.cfg.Environment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.out.FormatterType;
 import uk.ac.ebi.biostd.webapp.server.email.EmailInitException;
 import uk.ac.ebi.biostd.webapp.server.email.EmailService;
@@ -69,105 +55,79 @@ import uk.ac.ebi.biostd.webapp.server.util.ParamPool;
 import uk.ac.ebi.biostd.webapp.server.util.PreferencesParamPool;
 import uk.ac.ebi.biostd.webapp.server.util.Resource;
 import uk.ac.ebi.biostd.webapp.server.util.ResourceBundleParamPool;
+import uk.ac.ebi.biostd.webapp.server.util.ServletContextParamPool;
 
+@Slf4j
+@Component
 public class ConfigurationManager {
 
-    static final String ApplicationConfigNode = "BioStdWebApp";
-    static final String ConfigFileName = "config.properties";
-
-    static final String DBParamPrefix = "db.";
-    static final String ServiceParamPrefix = "biostd.";
-    static final String TaskParamPrefix = "export.";
-    static final String EmailParamPrefix = "email.";
-    static final String OutputParamPrefix = "output";
-
-    static final String OutputClassParameter = "class";
-
-
-    public static final String ConfigurationResetParameter = "resetConfig";
-    public static final String DisablePreferencesConfigParameter = "disableOnlineConfig";
-
-    public static final String UpdateURLFilePlaceholder = "{file}";
-
-
     public static final String BaseDirParameter = "baseDir";
-
-    public static final String CreateFileStructureParameter = "createFileStructure";
-
-    public static final String WorkdirParameter = "workDir";
-    public static final String UserGroupDirParameter = "userGroupDir";
-    public static final String UserGroupIndexDirParameter = "userGroupIndexDir";
-    public static final String SubmissionDirParameter = "submissionDir";
-    public static final String SubmissionHistoryDirParameter = "submissionHistoryDir";
-    public static final String SubmissionTransactionDirParameter = "submissionTransactionDir";
-    public static final String PublicFTPDirParameter = "publicFTPDir";
-    public static final String SubmissionUpdateParameter = "updateDir";
-    public static final String PublicDropboxesParameter = "publicDropboxes";
-
-    public static final String EnableUnsafeRequestsParameter = "enableUnsafeRequests";
-    public static final String AllowFileLinksParameter = "allowFileLinks";
-
-    public static final String UpdateURLParameter = "updateListenerURL";
-    public static final String UpdateWaitPeriodParameter = "updateWaitPeriod";
-    public static final String MaxUpdatesPerFileParameter = "maxUpdatesPerFile";
-    public static final String FrontendUpdateFormatParameter = "frontendUpdateFormat";
-
-    public static final String UIURLParameter = "UIURL";
-    public static final String MandatoryAccountActivationParameter = "mandatoryAccountActivation";
-    public static final String ActivationEmailSubjectParameter = "activationEmailSubject";
-    public static final String ActivationEmailPlainTextParameter = "activationEmailPlainTextFile";
-    public static final String ActivationEmailHtmlParameter = "activationEmailHtmlFile";
-    public static final String ActivationTimeoutParameter = "activationTimeout";
-    public static final String ActivationTimeoutParameterHours = "activationTimeoutHours";
-
-    public static final String SubscriptionEmailSubjectParameter = "subscriptionEmailSubject";
-    public static final String TagSubscriptionEmailPlainTextParameter
-            = "tagSubscriptionEmailPlainTextFile";
-    public static final String TagSubscriptionEmailHtmlParameter = "tagSubscriptionEmailHtmlFile";
-    public static final String AttributeSubscriptionEmailPlainTextParameter
-            = "attributeSubscriptionEmailPlainTextFile";
-    public static final String AttributeSubscriptionEmailHtmlParameter
-            = "attributeSubscriptionEmailHtmlFile";
-
-    public static final String PassResetTimeoutParameter = "passwordResetTimeout";
-    public static final String PassResetEmailSubjectParameter = "passwordResetEmailSubject";
-    public static final String PassResetEmailPlainTextParameter = "passwordResetEmailPlainTextFile";
-    public static final String PassResetEmailHtmlParameter = "passwordResetEmailHtmlFile";
-
-    public static final String DefaultSubmissionAccPrefixParameter = "defaultSubmissionAccNoPrefix";
-    public static final String DefaultSubmissionAccSuffixParameter = "defaultSubmissionAccNoSuffix";
-
-    public static final String DataMountPathParameter = "dataMountPath";
-
-    public static final String RecaptchaPublicKeyParameter = "recaptcha_public_key";
-    public static final String RecaptchaPrivateKeyParameter = "recaptcha_private_key";
-
-    public static final String HibernateSearchIndexDirParameter = "hibernate.search.default.indexBase";
     public static final String HibernateDBConnectionURLParameter = "hibernate.connection.url";
-
     public static final String IsEmbeddedH2Parameter = "isEmbeddedH2";
-
-
     public static final String EmailInquiresParameter = "email.inquiries";
 
-    public static final String SSOPemURLParameter = "sso.pem.url";
-    public static final String SSODerURLParameter = "sso.der.url";
-    public static final String SSOAuthPemURLParameter = "sso.auth.url";
-
-
-    private ParamPool contextParamPool;
-
-    private static Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
-
+    private static final String ApplicationConfigNode = "BioStdWebApp";
+    private static final String ConfigFileName = "config.properties";
+    private static final String DBParamPrefix = "db.";
+    private static final String ServiceParamPrefix = "biostd.";
+    private static final String TaskParamPrefix = "export.";
+    private static final String EmailParamPrefix = "email.";
+    private static final String OutputParamPrefix = "output";
+    private static final String OutputClassParameter = "class";
+    private static final String ConfigurationResetParameter = "resetConfig";
+    private static final String DisablePreferencesConfigParameter = "disableOnlineConfig";
+    private static final String UpdateURLFilePlaceholder = "{file}";
+    private static final String CreateFileStructureParameter = "createFileStructure";
+    private static final String WorkdirParameter = "workDir";
+    private static final String UserGroupDirParameter = "userGroupDir";
+    private static final String UserGroupIndexDirParameter = "userGroupIndexDir";
+    private static final String SubmissionDirParameter = "submissionDir";
+    private static final String SubmissionHistoryDirParameter = "submissionHistoryDir";
+    private static final String SubmissionTransactionDirParameter = "submissionTransactionDir";
+    private static final String PublicFTPDirParameter = "publicFTPDir";
+    private static final String SubmissionUpdateParameter = "updateDir";
+    private static final String PublicDropboxesParameter = "publicDropboxes";
+    private static final String EnableUnsafeRequestsParameter = "enableUnsafeRequests";
+    private static final String AllowFileLinksParameter = "allowFileLinks";
+    private static final String UpdateURLParameter = "updateListenerURL";
+    private static final String UpdateWaitPeriodParameter = "updateWaitPeriod";
+    private static final String MaxUpdatesPerFileParameter = "maxUpdatesPerFile";
+    private static final String FrontendUpdateFormatParameter = "frontendUpdateFormat";
+    private static final String UIURLParameter = "UIURL";
+    private static final String MandatoryAccountActivationParameter = "mandatoryAccountActivation";
+    private static final String ActivationEmailSubjectParameter = "activationEmailSubject";
+    private static final String ActivationEmailPlainTextParameter = "activationEmailPlainTextFile";
+    private static final String ActivationEmailHtmlParameter = "activationEmailHtmlFile";
+    private static final String ActivationTimeoutParameter = "activationTimeout";
+    private static final String ActivationTimeoutParameterHours = "activationTimeoutHours";
+    private static final String SubscriptionEmailSubjectParameter = "subscriptionEmailSubject";
+    private static final String TagSubscriptionEmailPlainTextParameter = "tagSubscriptionEmailPlainTextFile";
+    private static final String TagSubscriptionEmailHtmlParameter = "tagSubscriptionEmailHtmlFile";
+    private static final String AttributeSubscriptionEmailPlainTextParameter =
+            "attributeSubscriptionEmailPlainTextFile";
+    private static final String AttributeSubscriptionEmailHtmlParameter = "attributeSubscriptionEmailHtmlFile";
+    private static final String PassResetTimeoutParameter = "passwordResetTimeout";
+    private static final String PassResetEmailSubjectParameter = "passwordResetEmailSubject";
+    private static final String PassResetEmailPlainTextParameter = "passwordResetEmailPlainTextFile";
+    private static final String PassResetEmailHtmlParameter = "passwordResetEmailHtmlFile";
+    private static final String DefaultSubmissionAccPrefixParameter = "defaultSubmissionAccNoPrefix";
+    private static final String DefaultSubmissionAccSuffixParameter = "defaultSubmissionAccNoSuffix";
+    private static final String DataMountPathParameter = "dataMountPath";
+    private static final String RecaptchaPublicKeyParameter = "recaptcha_public_key";
+    private static final String RecaptchaPrivateKeyParameter = "recaptcha_private_key";
+    static final String HibernateSearchIndexDirParameter = "hibernate.search.default.indexBase";
+    private static final String SSOPemURLParameter = "sso.pem.url";
+    private static final String SSODerURLParameter = "sso.der.url";
+    private static final String SSOAuthPemURLParameter = "sso.auth.url";
     private static final long dayInMills = TimeUnit.DAYS.toMillis(1);
     private static final long hourInMills = TimeUnit.HOURS.toMillis(1);
 
-    public ConfigurationManager(ParamPool ctx) {
-        if (log == null) {
-            log = LoggerFactory.getLogger(getClass());
-        }
+    private final ParamPool contextParamPool;
+    private final org.springframework.core.env.Environment springEnvironment;
 
-        contextParamPool = ctx;
+    public ConfigurationManager(ServletContext servletContext, org.springframework.core.env.Environment environment) {
+        contextParamPool = new ServletContextParamPool(servletContext);
+        springEnvironment = environment;
     }
 
     public void loadConfiguration() throws ConfigurationException {
@@ -212,7 +172,7 @@ public class ConfigurationManager {
             readConfiguration(contextParamPool, cfgBean);
         }
 
-        String baseDir = System.getenv().get("BIOSTUDY_BASE_DIR");
+        String baseDir = springEnvironment.getProperty("biostd.base-dir");
         if (baseDir != null) {
             cfgBean.setBaseDirectory(new java.io.File(baseDir).toPath());
         }

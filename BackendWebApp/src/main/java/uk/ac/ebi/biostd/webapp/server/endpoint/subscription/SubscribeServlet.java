@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.endpoint.subscription;
 
 import java.io.IOException;
@@ -20,9 +5,9 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.TagSubscription;
 import uk.ac.ebi.biostd.util.StringUtils;
@@ -36,16 +21,17 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.endpoint.TextHttpResponse;
 import uk.ac.ebi.biostd.webapp.server.mng.exception.ServiceException;
 
+@WebServlet("/subscription/*")
 public class SubscribeServlet extends ServiceServlet {
 
-    public static final String FormatParameter = "format";
+    private static final String FormatParameter = "format";
     private static final long serialVersionUID = 1L;
     private static final String TagParameter = "tag";
-    private static Logger log;
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response, Session sess)
             throws ServletException, IOException {
+
         if (sess == null || sess.isAnonymouns()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("text/plain");
