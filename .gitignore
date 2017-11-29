@@ -4,7 +4,8 @@ out/
 .gradle/
 build/
 target/
-
+/*.iml
 
 # Exceptions
 !/BioStdCoreModel/src/main/java/uk/ac/ebi/biostd/out/
+Exporter/src/test/
