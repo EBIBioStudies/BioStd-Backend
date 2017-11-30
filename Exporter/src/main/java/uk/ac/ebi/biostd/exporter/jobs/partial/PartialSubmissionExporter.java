@@ -18,6 +18,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.exporter.model.Submission;
@@ -43,8 +44,8 @@ public class PartialSubmissionExporter {
         List<Submission> submissions = submissionService.getUpdatedSubmissions(lastSyncTime);
 
         if (submissions.size() > 0) {
-            writeFile(submissions);
-            notifyFrontend();
+            String fileName = writeFile(submissions);
+            notifyFrontend(fileName);
         }
 
         lastSyncTime = getNowEpoch();
@@ -52,12 +53,12 @@ public class PartialSubmissionExporter {
     }
 
     @SneakyThrows
-    private void notifyFrontend() {
-        restTemplate.getForEntity(configProperties.getNotificationUrl(), String.class);
+    private void notifyFrontend(String fileName) {
+        restTemplate.getForEntity(configProperties.getNotificationUrl() + fileName, String.class);
     }
 
     @SneakyThrows
-    private void writeFile(List<Submission> submissions) {
+    private String writeFile(List<Submission> submissions) {
         String fullFilePath = getFileName();
         Files.deleteIfExists(Paths.get(fullFilePath));
 
@@ -70,6 +71,8 @@ public class PartialSubmissionExporter {
 
             bw.write(objectMapper.writeValueAsString(updateFile));
         }
+
+        return FilenameUtils.getName(fullFilePath);
     }
 
     private long getBeginOfTheDateEpoch() {

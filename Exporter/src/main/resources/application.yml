@@ -48,7 +48,7 @@ jobs:
   partial:
     filePath: /nfs/biostudies/.adm/databases/beta/ui-exports/
     fileName: studies_partial
-    notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/${jobs.partial.fileName}
+    notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/
     cron: 0 0/5 7-22 * * ? # Each five minute between 7 am and 10 pm.
 
   full:

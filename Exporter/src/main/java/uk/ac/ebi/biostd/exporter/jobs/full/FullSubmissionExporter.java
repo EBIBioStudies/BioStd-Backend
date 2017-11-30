@@ -19,7 +19,6 @@ import org.easybatch.core.job.JobExecutor;
 import org.easybatch.core.job.JobReport;
 import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.SubmissionJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.full.model.TaskReports;
 import uk.ac.ebi.biostd.exporter.jobs.full.model.WorkerJob;
@@ -37,7 +36,6 @@ public class FullSubmissionExporter {
     private final FullExportJobProperties configProperties;
     private final SubmissionJobsFactory jobsFactory;
     private final ObjectMapper objectMapper;
-    private final RestTemplate restTemplate;
 
     public String execute() {
         log.info("executing full export file job at {}", Instant.now());
