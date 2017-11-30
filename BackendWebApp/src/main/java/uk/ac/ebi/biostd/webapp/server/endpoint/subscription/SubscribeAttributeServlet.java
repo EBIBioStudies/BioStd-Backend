@@ -1,14 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute <p> Licensed under the
- * Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may
- * obtain a copy of the License at <p> http://www.apache.org/licenses/LICENSE-2.0 <p> Unless required by applicable law
- * or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- *
- * @author Andrew Tikhonov andrew.tikhonov@gmail.com, Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.endpoint.subscription;
 
 import java.io.IOException;
@@ -16,6 +5,7 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -32,13 +22,10 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.endpoint.TextHttpResponse;
 import uk.ac.ebi.biostd.webapp.server.mng.exception.ServiceException;
 
-/**
- * Created by andrew on 26/04/2017.
- */
-
+@WebServlet("/attribute-subscription/*")
 public class SubscribeAttributeServlet extends ServiceServlet {
 
-    public static final String FormatParameter = "format";
+    private static final String FormatParameter = "format";
     private static final long serialVersionUID = 1L;
     private static final String AttributeParameter = "attribute";
     private static final String PatternParameter = "pattern";

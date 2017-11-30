@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.endpoint.submission;
 
 import java.io.IOException;
@@ -21,7 +6,7 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.function.Consumer;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -35,37 +20,30 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.ParameterPool;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
 
-/**
- * Servlet implementation class DirServlet
- */
 
+@WebServlet("/sbmlist")
 public class SubmissionListServlet extends ServiceServlet {
 
-    public static final String limitParameter = "limit";
-    public static final String offserParameter = "offset";
-    public static final String ownerParameter = "owner";
-    public static final String ownerIdParameter = "ownerId";
-    public static final String accNoParameter = "accNo";
-    public static final String keywordsParameter = "keywords";
-    public static final String cTimeFromParameter = "cTimeFrom";
-    public static final String cTimeToParameter = "cTimeTo";
-    public static final String mTimeFromParameter = "mTimeFrom";
-    public static final String mTimeToParameter = "mTimeTo";
-    public static final String rTimeFromParameter = "rTimeFrom";
-    public static final String rTimeToParameter = "rTimeTo";
-    public static final String versionFromParameter = "versionFrom";
-    public static final String versionToParameter = "versionTo";
-    public static final String sortByParameter = "sortBy";
-
+    private static final String limitParameter = "limit";
+    private static final String offserParameter = "offset";
+    private static final String ownerParameter = "owner";
+    private static final String ownerIdParameter = "ownerId";
+    private static final String accNoParameter = "accNo";
+    private static final String keywordsParameter = "keywords";
+    private static final String cTimeFromParameter = "cTimeFrom";
+    private static final String cTimeToParameter = "cTimeTo";
+    private static final String mTimeFromParameter = "mTimeFrom";
+    private static final String mTimeToParameter = "mTimeTo";
+    private static final String rTimeFromParameter = "rTimeFrom";
+    private static final String rTimeToParameter = "rTimeTo";
+    private static final String versionFromParameter = "versionFrom";
+    private static final String versionToParameter = "versionTo";
+    private static final String sortByParameter = "sortBy";
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public SubmissionListServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     @Override

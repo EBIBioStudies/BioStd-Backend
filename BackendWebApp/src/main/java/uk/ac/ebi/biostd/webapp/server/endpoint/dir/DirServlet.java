@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
@@ -49,10 +49,7 @@ import uk.ac.ebi.biostd.webapp.server.vfs.InvalidPathException;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathInfo;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathTarget;
 
-/**
- * Servlet implementation class DirServlet
- */
-
+@WebServlet(urlPatterns = "/dir")
 public class DirServlet extends ServiceServlet {
 
     public static final String USER_VIRT_DIR = "User";
@@ -65,12 +62,8 @@ public class DirServlet extends ServiceServlet {
     private static final String TO_PARAMETER = "to";
     private static final String DEPTH_PARAMETER = "depth";
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public DirServlet() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     @Override

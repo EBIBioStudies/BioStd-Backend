@@ -1,0 +1,92 @@
+<pmdocument>
+ <submissions>
+  <submission acc="S-ACC-TEST" access="Public">
+   <attributes>
+    <attribute>
+     <name>Title</name>
+     <value>Submission title</value>
+    </attribute>
+    <attribute>
+     <name>ReleaseDate</name>
+     <value>${TODAY}</value>
+    </attribute>
+   </attributes>
+
+   <section type="Study" acc="$$$1" accGlobal="false">
+
+    <attributes>
+     <attribute>
+      <name>Title</name>
+      <value>Main Section 1</value>
+     </attribute>
+     <attribute>
+      <name>Description</name>
+      <value>Main Section 1 Description</value>
+     </attribute>
+     <attribute>
+      <name>Attribute – 1</name>
+      <value>An Attribute value</value>
+     </attribute>
+     <attribute>
+      <name>Attribute – 2</name>
+      <value>An Attribute value</value>
+     </attribute>
+    </attributes>
+    <subsections>
+     <section type="Author">
+
+      <attributes>
+       <attribute reference="true">
+        <name>affiliation</name>
+        <value>ref1</value>
+       </attribute>
+       <attribute>
+        <name>Name</name>
+        <value>John Smith</value>
+       </attribute>
+       <attribute>
+        <name>E-mail</name>
+        <value>john.smith@email.com</value>
+       </attribute>
+       <attribute>
+        <name>Author-Atribute</name>
+        <value>An Attribute value</value>
+       </attribute>
+      </attributes>
+
+     </section>
+
+     <section type="Organization" acc="ref1" accGlobal="false">
+
+      <attributes>
+       <attribute>
+        <name>Name</name>
+        <value>The Francis Crick Institute</value>
+       </attribute>
+      </attributes>
+
+     </section>
+
+     <section type="Sub Section 1">
+
+      <attributes>
+       <attribute>
+        <name>Description</name>
+        <value>Subsection 1 description</value>
+       </attribute>
+       <attribute>
+        <name>Sub section attribute</name>
+        <value>An Attribute value</value>
+       </attribute>
+      </attributes>
+
+     </section>
+
+    </subsections>
+
+   </section>
+
+
+  </submission>
+ </submissions>
+</pmdocument>

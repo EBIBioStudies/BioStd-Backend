@@ -1,0 +1,8 @@
+# Only use for local deployment and jar mode, it is excluded from war
+server:
+  port: 8586
+  contextPath: /biostd
+
+biostudy:
+  base:
+    dir: /home/jcamilorada/Projects/BioStudies/NFS

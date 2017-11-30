@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server;
 
 import java.sql.Connection;
@@ -23,31 +8,35 @@ import java.sql.Statement;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.config.ConfigurationException;
 import uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager;
-import uk.ac.ebi.biostd.webapp.server.util.ServletContextParamPool;
 
 
 /**
  * Application Lifecycle Listener implementation class WebAppInit
  */
-
+@Slf4j
+@AllArgsConstructor
 public class WebAppInit implements ServletContextListener {
-    private Logger log = null;
 
+    private final ConfigurationManager configurationManager;
 
-    public WebAppInit() {
-        if (log == null) {
-            log = LoggerFactory.getLogger(getClass());
+    @Override
+    public void contextInitialized(ServletContextEvent ctxEv) {
+        try {
+            contextInitializedUnsafe(ctxEv);
+        } catch (ConfigurationException ec) {
+            log.error("Configuration is not valid: " + ec.getMessage());
+            BackendConfig.setConfigValid(false);
+        } catch (Throwable e) {
+            log.error("Configuration is not valid: " + e.getMessage(), e);
+            BackendConfig.setConfigValid(false);
         }
     }
 
-    /**
-     * @see ServletContextListener#contextDestroyed(ServletContextEvent)
-     */
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
         if (BackendConfig.isConfigValid()) {
@@ -79,27 +68,12 @@ public class WebAppInit implements ServletContextListener {
             }
         } catch (SQLException e) {
         }
-
     }
 
-
-    @Override
-    public void contextInitialized(ServletContextEvent ctxEv) {
-        try {
-            contextInitializedUnsafe(ctxEv);
-        } catch (ConfigurationException ec) {
-            log.error("Configuration is not valid: " + ec.getMessage());
-            BackendConfig.setConfigValid(false);
-        } catch (Throwable e) {
-            log.error("Configuration is not valid: " + e.getMessage(), e);
-            BackendConfig.setConfigValid(false);
-        }
-    }
-
-    public void contextInitializedUnsafe(ServletContextEvent ctxEv) throws ConfigurationException {
-        ServletContext ctx = ctxEv.getServletContext();
+    private void contextInitializedUnsafe(ServletContextEvent servletContextEvent) throws ConfigurationException {
+        ServletContext ctx = servletContextEvent.getServletContext();
         BackendConfig.setInstanceId(ctx.getContextPath().hashCode());
-        BackendConfig.setConfigurationManager(new ConfigurationManager(new ServletContextParamPool(ctx)));
+        BackendConfig.setConfigurationManager(configurationManager);
         BackendConfig.getConfigurationManager().loadConfiguration();
         BackendConfig.setConfigValid(true);
     }

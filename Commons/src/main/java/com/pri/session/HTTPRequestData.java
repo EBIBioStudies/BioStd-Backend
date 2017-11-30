@@ -1,9 +1,3 @@
-/*
- * Created on 06.05.2004
- *
- * To change the template for this generated file go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 package com.pri.session;
 
 import javax.servlet.ServletRequest;
@@ -17,7 +11,7 @@ import javax.servlet.ServletRequest;
  */
 public class HTTPRequestData implements com.pri.session.RequestData {
 
-    private String addr;
+    private final String addr;
 
     public HTTPRequestData(ServletRequest rq) {
         addr = rq.getRemoteAddr();
@@ -26,6 +20,7 @@ public class HTTPRequestData implements com.pri.session.RequestData {
     /**
      * @return Returns the addr.
      */
+    @Override
     public String getAddr() {
         return addr;
     }

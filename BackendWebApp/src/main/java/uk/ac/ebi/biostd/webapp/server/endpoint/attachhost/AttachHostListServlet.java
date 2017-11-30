@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import uk.ac.ebi.biostd.authz.Session;
@@ -17,16 +18,13 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.Response;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.endpoint.TextHttpResponse;
 
+@WebServlet("/atthost")
 public class AttachHostListServlet extends ServiceServlet {
 
     private static final String FORMAT_PARAMETER = "format";
     private static final String TYPE_PARAMETER = "type";
     private static final String DEFAULT_RESPONSE_FORMAT = "xml";
     private static final String JSON_FORMAT = "json";
-
-    public AttachHostListServlet() {
-        super();
-    }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp, Session session)

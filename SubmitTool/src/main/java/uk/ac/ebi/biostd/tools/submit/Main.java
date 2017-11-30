@@ -33,9 +33,9 @@ import uk.ac.ebi.biostd.util.StringUtils;
 
 public class Main {
 
-    static final String SessionKey = "BIOSTDSESS";
-    static final String authEndpoint = "auth/signin";
-    static final String endpointPfx = "submit/";
+    private static final String SessionKey = "BIOSTDSESS";
+    private static final String authEndpoint = "auth/signin";
+    private static final String endpointPfx = "submit/";
 
     public static void main(String[] args) {
         Config config = null;
@@ -167,13 +167,6 @@ public class Main {
 
         System.exit((topLn != null && topLn.getLevel().getPriority() < Level.ERROR.getPriority()) ? 0 : 2);
     }
-
-// static final String submitEndpoint = "submit/create";
-// static final String updateEndpoint = "submit/update";
-// static final String replaceEndpoint = "submit/replace";
-// static final String deleteEndpoint = "submit/delete";
-// static final String overrideEndpoint = "submit/override";
-// static final String tranklucateEndpoint = "submit/tranklucate";
 
     private static void clParams(Config cfg, int n) {
         if (cfg.getFiles().size() != n) {

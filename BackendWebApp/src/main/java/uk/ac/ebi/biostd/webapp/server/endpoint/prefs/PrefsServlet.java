@@ -21,36 +21,31 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.util.FileUtil;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.config.ConfigurationException;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 
+@Slf4j
+@WebServlet(urlPatterns = "/prefs/*")
 public class PrefsServlet extends ServiceServlet {
 
-    public static final String opParameter = "op";
-    public static final String nameParameterPrefix = "name";
-    public static final String valueParameterPrefix = "value";
     private static final long serialVersionUID = 1L;
-    private static Logger log;
-
-    public PrefsServlet() {
-        if (log == null) {
-            log = LoggerFactory.getLogger(this.getClass());
-        }
-    }
+    private static final String OP_PARAMETER = "op";
+    private static final String NAME_PARAMETER_PREFIX = "name";
+    private static final String VALUE_PARAMETER_PREFIX = "value";
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response, Session sess)
             throws ServletException, IOException {
-        String opstr = request.getParameter(opParameter);
+        String opstr = request.getParameter(OP_PARAMETER);
 
         if (opstr == null) {
             String pi = request.getPathInfo();
@@ -112,7 +107,7 @@ public class PrefsServlet extends ServiceServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.setContentType("text/plain");
             response.getWriter()
-                    .print("FAIL " + opParameter + " is not defined or has invalid value ( valid: get, set)");
+                    .print("FAIL " + OP_PARAMETER + " is not defined or has invalid value ( valid: get, set)");
             return;
         }
 
@@ -171,15 +166,15 @@ public class PrefsServlet extends ServiceServlet {
                 while (names.hasMoreElements()) {
                     String nm = names.nextElement();
 
-                    if (!nm.startsWith(nameParameterPrefix)) {
+                    if (!nm.startsWith(NAME_PARAMETER_PREFIX)) {
                         continue;
                     }
 
                     String pName = request.getParameter(nm);
 
-                    String sfx = nm.substring(nameParameterPrefix.length());
+                    String sfx = nm.substring(NAME_PARAMETER_PREFIX.length());
 
-                    map.put(pName, request.getParameter(valueParameterPrefix + sfx));
+                    map.put(pName, request.getParameter(VALUE_PARAMETER_PREFIX + sfx));
                 }
 
                 BackendConfig.getConfigurationManager().setPreferences(map);

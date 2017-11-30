@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
@@ -40,20 +41,22 @@ import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRefParser;
 
+@WebServlet(urlPatterns = "/submit/*")
 public class SubmitServlet extends ServiceServlet {
 
-    public static final String validateOnlyParameter = "validateOnly";
-    public static final String ignoreAbsentFilesParameter = "ignoreAbsentFiles";
-    public static final String idParameter = "id";
-    public static final String accnoParameter = "accno";
-    public static final String accnoPatternParameter = "accnoPattern";
-    public static final String requestIdParameter = "requestId";
-    public static final String tagsParameter = "tags";
-    public static final String accessParameter = "access";
-    public static final String releaseDateParameter = "releaseDate";
-    public static final String onBehalfParameter = "onBehalf";
-    public static final String ownerParameter = "owner";
     private static final long serialVersionUID = 1L;
+
+    private static final String validateOnlyParameter = "validateOnly";
+    private static final String ignoreAbsentFilesParameter = "ignoreAbsentFiles";
+    private static final String idParameter = "id";
+    private static final String accnoParameter = "accno";
+    private static final String accnoPatternParameter = "accnoPattern";
+    private static final String requestIdParameter = "requestId";
+    private static final String tagsParameter = "tags";
+    private static final String accessParameter = "access";
+    private static final String releaseDateParameter = "releaseDate";
+    private static final String onBehalfParameter = "onBehalf";
+    private static final String ownerParameter = "owner";
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response, Session sess)
@@ -213,9 +216,6 @@ public class SubmitServlet extends ServiceServlet {
         LogNode topLn = res.getLog();
 
         SimpleLogNode.setLevels(topLn);
-
-//  if( topLn.getLevel().getPriority() >= Level.ERROR.getPriority() )
-//   response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
         response.setContentType("application/json");
 

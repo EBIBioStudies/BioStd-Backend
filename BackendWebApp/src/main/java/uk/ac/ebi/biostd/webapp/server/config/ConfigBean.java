@@ -120,7 +120,7 @@ public class ConfigBean {
     }
 
     public void setRecaptchaPublicKey(String key) {
-        this.recaptchaPublicKey = key;
+        recaptchaPublicKey = key;
     }
 
     public String getRecaptchaPrivateKey() {
@@ -128,7 +128,7 @@ public class ConfigBean {
     }
 
     public void setRecaptchaPrivateKey(String recapchaPrivateKey) {
-        this.recaptchaPrivateKey = recapchaPrivateKey;
+        recaptchaPrivateKey = recapchaPrivateKey;
     }
 
 
@@ -515,7 +515,7 @@ public class ConfigBean {
     }
 
     public void setSSOPublicCertificatePemURL(String pemUrl) {
-        this.SSOpemURL = pemUrl;
+        SSOpemURL = pemUrl;
     }
 
     public String getSSOPublicCertificateDerURL() {
@@ -523,7 +523,7 @@ public class ConfigBean {
     }
 
     public void setSSOPublicCertificateDerURL(String derUrl) {
-        this.SSOderURL = derUrl;
+        SSOderURL = derUrl;
     }
 
     public String getSSOAuthURL() {
@@ -531,7 +531,7 @@ public class ConfigBean {
     }
 
     public void setSSOAuthURL(String authUrl) {
-        this.SSOauthURL = authUrl;
+        SSOauthURL = authUrl;
     }
 
 
