@@ -172,7 +172,7 @@ public class ConfigurationManager {
             readConfiguration(contextParamPool, cfgBean);
         }
 
-        String baseDir = springEnvironment.getProperty("biostd.base-dir");
+        String baseDir = springEnvironment.getProperty("biostudy.base.dir");
         if (baseDir != null) {
             cfgBean.setBaseDirectory(new java.io.File(baseDir).toPath());
         }

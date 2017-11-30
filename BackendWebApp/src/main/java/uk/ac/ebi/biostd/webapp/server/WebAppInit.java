@@ -8,7 +8,6 @@ import java.sql.Statement;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
@@ -20,11 +19,23 @@ import uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager;
  * Application Lifecycle Listener implementation class WebAppInit
  */
 @Slf4j
-@WebListener
 @AllArgsConstructor
 public class WebAppInit implements ServletContextListener {
 
     private final ConfigurationManager configurationManager;
+
+    @Override
+    public void contextInitialized(ServletContextEvent ctxEv) {
+        try {
+            contextInitializedUnsafe(ctxEv);
+        } catch (ConfigurationException ec) {
+            log.error("Configuration is not valid: " + ec.getMessage());
+            BackendConfig.setConfigValid(false);
+        } catch (Throwable e) {
+            log.error("Configuration is not valid: " + e.getMessage(), e);
+            BackendConfig.setConfigValid(false);
+        }
+    }
 
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
@@ -56,19 +67,6 @@ public class WebAppInit implements ServletContextListener {
                 DriverManager.deregisterDriver(h2Drv);
             }
         } catch (SQLException e) {
-        }
-    }
-
-    @Override
-    public void contextInitialized(ServletContextEvent ctxEv) {
-        try {
-            contextInitializedUnsafe(ctxEv);
-        } catch (ConfigurationException ec) {
-            log.error("Configuration is not valid: " + ec.getMessage());
-            BackendConfig.setConfigValid(false);
-        } catch (Throwable e) {
-            log.error("Configuration is not valid: " + e.getMessage(), e);
-            BackendConfig.setConfigValid(false);
         }
     }
 

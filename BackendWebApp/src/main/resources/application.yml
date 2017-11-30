@@ -3,5 +3,6 @@ server:
   port: 8586
   contextPath: /biostd
 
-biostd:
-  base-dir: /home/jcamilorada/Projects/BioStudies/NFS
+biostudy:
+  base:
+    dir: /home/jcamilorada/Projects/BioStudies/NFS
