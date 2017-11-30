@@ -17,11 +17,10 @@ public class BufferedFileWriter implements RecordWriter {
     private static final String DATA_SEPARATOR = ",";
     private final String fileName;
 
-
     private BufferedWriter bw;
     private AtomicBoolean writeSeparator;
 
-    public BufferedFileWriter(String fileName) throws IOException {
+    BufferedFileWriter(String fileName) throws IOException {
         this.fileName = fileName;
     }
 

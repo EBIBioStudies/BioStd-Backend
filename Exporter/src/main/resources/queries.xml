@@ -9,7 +9,7 @@
 
   <entry key="submissionsQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
-    WHERE version != -1 and released = 1
+    WHERE version != -1
   </entry>
 
 
@@ -17,7 +17,6 @@
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version != -1 and id = :submissionId
   </entry>
-
 
   <entry key="fileAttributesQuery">
     select name, value, valueQualifierString from FileAttribute where file_id = :file_id

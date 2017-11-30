@@ -29,7 +29,7 @@ spring:
 jobs:
   partial:
     filePath: ./generated/
-    fileName: studies_partial.json
+    fileName: studies_partial
     notificationUrl: http://localhost:8181/api/update/partial
     cron: 0/20 * * * * ? # Each 20 seconds
   full:
@@ -47,7 +47,7 @@ spring:
 jobs:
   partial:
     filePath: /nfs/biostudies/.adm/databases/beta/ui-exports/
-    fileName: studies_partial.json
+    fileName: studies_partial
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/${jobs.partial.fileName}
     cron: 0 0/5 7-22 * * ? # Each five minute between 7 am and 10 pm.
 

@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.exporter.jobs.partial;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,10 +9,11 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -25,6 +27,9 @@ import uk.ac.ebi.biostd.exporter.service.SubmissionService;
 @Component
 @RequiredArgsConstructor
 public class PartialSubmissionExporter {
+
+    private static final String FILE_FORMAT = "%s%s_%s.json";
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 
     private final PartialExportJobProperties configProperties;
     private final ObjectMapper objectMapper;
@@ -46,12 +51,6 @@ public class PartialSubmissionExporter {
         log.info("finish processing updated submissions");
     }
 
-    public void executeSingle(long id) {
-        Submission submission = submissionService.getSubmission(id);
-        writeFile(Collections.singletonList(submission));
-        notifyFrontend();
-    }
-
     @SneakyThrows
     private void notifyFrontend() {
         restTemplate.getForEntity(configProperties.getNotificationUrl(), String.class);
@@ -59,7 +58,7 @@ public class PartialSubmissionExporter {
 
     @SneakyThrows
     private void writeFile(List<Submission> submissions) {
-        String fullFilePath = configProperties.getFilePath() + configProperties.getFileName();
+        String fullFilePath = getFileName();
         Files.deleteIfExists(Paths.get(fullFilePath));
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(fullFilePath))) {
@@ -81,5 +80,10 @@ public class PartialSubmissionExporter {
 
     private long getNowEpoch() {
         return ZonedDateTime.now(ZoneId.of("Europe/London")).toEpochSecond();
+    }
+
+    private String getFileName() {
+        String timestamp = OffsetDateTime.now(UTC).format(formatter);
+        return String.format(FILE_FORMAT, configProperties.getFilePath(), configProperties.getFileName(), timestamp);
     }
 }
