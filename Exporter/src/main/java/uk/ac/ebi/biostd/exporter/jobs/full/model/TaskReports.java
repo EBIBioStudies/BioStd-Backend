@@ -14,12 +14,11 @@ import org.easybatch.core.job.JobReport;
 public class TaskReports {
 
     private final JobReport forkJobReport;
-    private final JobReport joinJobReport;
     private final List<JobReport> workersReports;
     private final long startTime;
     private final long endTime;
 
     public Stream<JobReport> getAll() {
-        return Stream.concat(workersReports.stream(), Stream.of(joinJobReport, forkJobReport));
+        return Stream.concat(workersReports.stream(), Stream.of(forkJobReport));
     }
 }

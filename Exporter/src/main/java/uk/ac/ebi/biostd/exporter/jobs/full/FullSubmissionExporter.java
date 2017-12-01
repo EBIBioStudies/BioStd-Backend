@@ -2,8 +2,6 @@ package uk.ac.ebi.biostd.exporter.jobs.full;
 
 import static java.util.stream.Collectors.toList;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.FileWriter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +17,11 @@ import org.easybatch.core.job.JobExecutor;
 import org.easybatch.core.job.JobReport;
 import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.SubmissionJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.full.model.TaskReports;
 import uk.ac.ebi.biostd.exporter.jobs.full.model.WorkerJob;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
-import uk.ac.ebi.biostd.exporter.utils.JsonUtil;
 
 /**
  * Main execution class, execute pipeline , write stats into submissions output file.
@@ -33,11 +31,11 @@ import uk.ac.ebi.biostd.exporter.utils.JsonUtil;
 @AllArgsConstructor
 public class FullSubmissionExporter {
 
-    private final FullExportJobProperties configProperties;
-    private final SubmissionJobsFactory jobsFactory;
-    private final ObjectMapper objectMapper;
+    protected final FullExportJobProperties configProperties;
+    protected final SubmissionJobsFactory jobsFactory;
+    private final List<FullExportJob> exportJobs;
 
-    public String execute() {
+    public final String execute() {
         log.info("executing full export file job at {}", Instant.now());
         int workers = configProperties.getWorkers();
         TaskReports reports = execute(workers);
@@ -48,39 +46,31 @@ public class FullSubmissionExporter {
                 .threads(workers)
                 .errors(reports.getAll().mapToLong(report -> report.getMetrics().getErrorCount()).sum())
                 .build();
-        writeJobStats(configProperties.getFilePath() + configProperties.getFileName(), stats);
+
+        exportJobs.forEach(export -> export.writeJobStats(stats));
         log.info("finish processing submissions {}", stats);
         return "ok";
     }
 
-
-    @SneakyThrows
-    private void writeJobStats(String fileName, ExecutionStats stats) {
-        try (FileWriter writer = new FileWriter(fileName, true)) {
-            writer.append(",");
-            writer.append(JsonUtil.unWrapJsonObject(objectMapper.writeValueAsString(stats)));
-            writer.append("\n}");
-        }
-    }
-
     @SneakyThrows
     private TaskReports execute(int workers) {
-        BlockingQueue<Record> joinQueue = new LinkedBlockingQueue<>();
+        List<WorkerJob> workerJobs = createWorkersJobs(
+                workers,
+                exportJobs.stream().map(FullExportJob::getProcessQueue).collect(toList()));
 
-        List<WorkerJob> workerJobs = createWorkersJobs(workers, joinQueue);
         Job forkJob = jobsFactory.buildForkJob("fork-job", getQueues(workerJobs));
-        Job joinJob = jobsFactory.buildJoinJob("join-job", joinQueue, workers);
+        List<Job> joinJob = exportJobs.stream().map(j -> j.getJoinJob(workers)).collect(toList());
 
-        JobExecutor jobExecutor = new JobExecutor(workers + 2);
+        JobExecutor jobExecutor = new JobExecutor(workers + 1 + exportJobs.size());
 
         long startTime = System.currentTimeMillis();
         Future<JobReport> forkReport = jobExecutor.submit(forkJob);
-        Future<JobReport> joinReport = jobExecutor.submit(joinJob);
         List<Future<JobReport>> workersReports = jobExecutor.submitAll(getJobs(workerJobs));
+        jobExecutor.submitAll(joinJob);
         jobExecutor.shutdown();
         long endTime = System.currentTimeMillis();
 
-        return new TaskReports(forkReport.get(), joinReport.get(), getJobReports(workersReports), startTime, endTime);
+        return new TaskReports(forkReport.get(), getJobReports(workersReports), startTime, endTime);
     }
 
     @SneakyThrows
@@ -93,15 +83,15 @@ public class FullSubmissionExporter {
         return reports;
     }
 
-    private List<WorkerJob> createWorkersJobs(int workers, BlockingQueue<Record> joinQueue) {
+    private List<WorkerJob> createWorkersJobs(int workers, List<BlockingQueue<Record>> joinQueues) {
         return IntStream.range(0, workers)
-                .mapToObj(index -> getWorkerJob(index, joinQueue))
+                .mapToObj(index -> getWorkerJob(index, joinQueues))
                 .collect(toList());
     }
 
-    private WorkerJob getWorkerJob(int index, BlockingQueue<Record> joinQueue) {
+    private WorkerJob getWorkerJob(int index, List<BlockingQueue<Record>> joinQueues) {
         BlockingQueue<Record> queue = new LinkedBlockingQueue<>();
-        return new WorkerJob(queue, jobsFactory.buildWorkerJob(index, queue, joinQueue));
+        return new WorkerJob(queue, jobsFactory.getWorkerJob(index, queue, joinQueues));
     }
 
     private List<Job> getJobs(List<WorkerJob> workers) {

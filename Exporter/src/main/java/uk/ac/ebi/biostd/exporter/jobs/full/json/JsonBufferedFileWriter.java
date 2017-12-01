@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.full.job;
+package uk.ac.ebi.biostd.exporter.jobs.full.json;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -12,7 +12,7 @@ import org.easybatch.core.record.Record;
 import org.easybatch.core.writer.RecordWriter;
 
 @Slf4j
-public class BufferedFileWriter implements RecordWriter {
+public class JsonBufferedFileWriter implements RecordWriter {
 
     private static final String DATA_SEPARATOR = ",";
     private final String fileName;
@@ -20,15 +20,15 @@ public class BufferedFileWriter implements RecordWriter {
     private BufferedWriter bw;
     private AtomicBoolean writeSeparator;
 
-    BufferedFileWriter(String fileName) throws IOException {
+    public JsonBufferedFileWriter(String fileName) throws IOException {
         this.fileName = fileName;
     }
 
     @Override
     public void open() throws Exception {
         writeSeparator = new AtomicBoolean(false);
-
         Files.deleteIfExists(Paths.get(fileName));
+
         bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("{\n \"submissions\" :[\n");
         bw.flush();

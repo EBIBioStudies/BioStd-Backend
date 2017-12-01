@@ -12,7 +12,6 @@
     WHERE version != -1
   </entry>
 
-
   <entry key="singleSubmissionQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version != -1 and id = :submissionId
