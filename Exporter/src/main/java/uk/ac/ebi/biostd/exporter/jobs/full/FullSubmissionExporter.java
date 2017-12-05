@@ -15,9 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.easybatch.core.job.Job;
 import org.easybatch.core.job.JobExecutor;
 import org.easybatch.core.job.JobReport;
+import org.easybatch.core.listener.BatchListener;
 import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
+import uk.ac.ebi.biostd.exporter.jobs.full.job.ExportJob;
+import uk.ac.ebi.biostd.exporter.jobs.full.job.LogBatchListener;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.SubmissionJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.full.model.TaskReports;
 import uk.ac.ebi.biostd.exporter.jobs.full.model.WorkerJob;
@@ -31,9 +33,9 @@ import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 @AllArgsConstructor
 public class FullSubmissionExporter {
 
-    protected final FullExportJobProperties configProperties;
-    protected final SubmissionJobsFactory jobsFactory;
-    private final List<FullExportJob> exportJobs;
+    private final FullExportJobProperties configProperties;
+    private final SubmissionJobsFactory jobsFactory;
+    private final List<ExportJob> exportJobs;
 
     public final String execute() {
         log.info("executing full export file job at {}", Instant.now());
@@ -42,9 +44,9 @@ public class FullSubmissionExporter {
         ExecutionStats stats = ExecutionStats.builder()
                 .startTimeTS(reports.getStartTime())
                 .endTimeTS(reports.getEndTime())
-                .submissions(reports.getForkJobReport().getMetrics().getWriteCount())
+                .submissions(reports.getForkReport().getMetrics().getWriteCount())
                 .threads(workers)
-                .errors(reports.getAll().mapToLong(report -> report.getMetrics().getErrorCount()).sum())
+                .errors(reports.getAll().stream().mapToLong(report -> report.getMetrics().getErrorCount()).sum())
                 .build();
 
         exportJobs.forEach(export -> export.writeJobStats(stats));
@@ -54,23 +56,29 @@ public class FullSubmissionExporter {
 
     @SneakyThrows
     private TaskReports execute(int workers) {
-        List<WorkerJob> workerJobs = createWorkersJobs(
-                workers,
-                exportJobs.stream().map(FullExportJob::getProcessQueue).collect(toList()));
+        List<BlockingQueue<Record>> expQueues = exportJobs.stream().map(ExportJob::getProcessQueue).collect(toList());
+        List<WorkerJob> workerJobs = createWorkersJobs(workers, expQueues);
 
         Job forkJob = jobsFactory.buildForkJob("fork-job", getQueues(workerJobs));
-        List<Job> joinJob = exportJobs.stream().map(j -> j.getJoinJob(workers)).collect(toList());
+        List<Job> joinJobs = exportJobs.stream().map(exportJob -> exportJob.getJoinJob(workers)).collect(toList());
 
-        JobExecutor jobExecutor = new JobExecutor(workers + 1 + exportJobs.size());
+        return executeAll(forkJob, getJobs(workerJobs), joinJobs);
+    }
 
+    @SneakyThrows
+    public TaskReports executeAll(Job forkJob, List<Job> workersJobs, List<Job> joinJobs) {
+        List<Job> jobs = new ArrayList<>();
+        jobs.add(forkJob);
+        jobs.addAll(workersJobs);
+        jobs.addAll(joinJobs);
+
+        JobExecutor jobExecutor = new JobExecutor(jobs.size());
         long startTime = System.currentTimeMillis();
-        Future<JobReport> forkReport = jobExecutor.submit(forkJob);
-        List<Future<JobReport>> workersReports = jobExecutor.submitAll(getJobs(workerJobs));
-        jobExecutor.submitAll(joinJob);
+        List<Future<JobReport>> jobsFutures = jobExecutor.submitAll(jobs);
         jobExecutor.shutdown();
         long endTime = System.currentTimeMillis();
 
-        return new TaskReports(forkReport.get(), getJobReports(workersReports), startTime, endTime);
+        return new TaskReports(getJobReports(jobsFutures), startTime, endTime);
     }
 
     @SneakyThrows
@@ -84,14 +92,16 @@ public class FullSubmissionExporter {
     }
 
     private List<WorkerJob> createWorkersJobs(int workers, List<BlockingQueue<Record>> joinQueues) {
+        LogBatchListener logBatchListener = new LogBatchListener("job-workers");
+
         return IntStream.range(0, workers)
-                .mapToObj(index -> getWorkerJob(index, joinQueues))
+                .mapToObj(index -> getWorkerJob(index, logBatchListener, joinQueues))
                 .collect(toList());
     }
 
-    private WorkerJob getWorkerJob(int index, List<BlockingQueue<Record>> joinQueues) {
+    private WorkerJob getWorkerJob(int index, BatchListener batchListener, List<BlockingQueue<Record>> joinQueues) {
         BlockingQueue<Record> queue = new LinkedBlockingQueue<>();
-        return new WorkerJob(queue, jobsFactory.getWorkerJob(index, queue, joinQueues));
+        return new WorkerJob(queue, jobsFactory.getWorkerJob(index, batchListener, queue, joinQueues));
     }
 
     private List<Job> getJobs(List<WorkerJob> workers) {
@@ -99,7 +109,7 @@ public class FullSubmissionExporter {
     }
 
     private List<BlockingQueue<Record>> getQueues(List<WorkerJob> workers) {
-        return workers.stream().map(WorkerJob::getJoinQueue).collect(toList());
+        return workers.stream().map(WorkerJob::getWorkQueue).collect(toList());
     }
 }
 

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.easybatch.core.record.Batch;
 import org.easybatch.core.record.Record;
@@ -19,6 +20,7 @@ public class JsonBufferedFileWriter implements RecordWriter {
 
     private BufferedWriter bw;
     private AtomicBoolean writeSeparator;
+    private AtomicInteger batchConsecutive;
 
     public JsonBufferedFileWriter(String fileName) throws IOException {
         this.fileName = fileName;
@@ -27,8 +29,9 @@ public class JsonBufferedFileWriter implements RecordWriter {
     @Override
     public void open() throws Exception {
         writeSeparator = new AtomicBoolean(false);
-        Files.deleteIfExists(Paths.get(fileName));
+        batchConsecutive = new AtomicInteger(1);
 
+        Files.deleteIfExists(Paths.get(fileName));
         bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("{\n \"submissions\" :[\n");
         bw.flush();
@@ -42,6 +45,7 @@ public class JsonBufferedFileWriter implements RecordWriter {
             }
             bw.write(record.getPayload().toString());
         }
+
         bw.flush();
     }
 

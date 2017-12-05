@@ -54,7 +54,9 @@ public class PartialSubmissionExporter {
 
     @SneakyThrows
     private void notifyFrontend(String fileName) {
-        restTemplate.getForEntity(configProperties.getNotificationUrl() + fileName, String.class);
+        String url = configProperties.getNotificationUrl() + fileName;
+        log.info("notify frontend at {}", url);
+        restTemplate.getForEntity(url, String.class);
     }
 
     @SneakyThrows

@@ -1,24 +1,36 @@
 package uk.ac.ebi.biostd.exporter.jobs.full.model;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import java.util.Map;
+import lombok.Getter;
 import org.easybatch.core.job.JobReport;
 
 /**
  * Contains all the jobs pipeline execution stats.
  */
-@Data
-@AllArgsConstructor
+@Getter
 public class TaskReports {
 
-    private final JobReport forkJobReport;
-    private final List<JobReport> workersReports;
     private final long startTime;
     private final long endTime;
 
-    public Stream<JobReport> getAll() {
-        return Stream.concat(workersReports.stream(), Stream.of(forkJobReport));
+    private final Map<String, JobReport> jobsMap;
+
+    public TaskReports(List<JobReport> jobReports, long startTime, long endTime) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+
+        jobsMap = new HashMap<>(jobReports.size());
+        jobReports.forEach(jobReport -> jobsMap.put(jobReport.getJobName(), jobReport));
+    }
+
+    public Collection<JobReport> getAll() {
+        return jobsMap.values();
+    }
+
+    public JobReport getForkReport() {
+        return jobsMap.get("fork-job");
     }
 }

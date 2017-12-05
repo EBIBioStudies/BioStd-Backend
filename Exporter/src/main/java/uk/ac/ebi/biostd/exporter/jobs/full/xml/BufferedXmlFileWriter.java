@@ -26,7 +26,6 @@ public class BufferedXmlFileWriter implements RecordWriter {
     @Override
     public void open() throws Exception {
         Files.deleteIfExists(Paths.get(fileName));
-
         bw = new BufferedWriter(new FileWriter(fileName));
         bw.write("<pmdocument>\n<submissions>\n");
         bw.flush();
@@ -38,6 +37,7 @@ public class BufferedXmlFileWriter implements RecordWriter {
             bw.write(record.getPayload().toString());
             bw.write(DATA_SEPARATOR);
         }
+
         bw.flush();
     }
 
