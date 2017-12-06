@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import lombok.Data;
 
 @Data
@@ -18,6 +19,7 @@ public class Link {
     @XmlElement(name = "url")
     private String url;
 
-    @XmlElement(name = "attributes")
+    @XmlElementWrapper(name = "attributes")
+    @XmlElement(name = "attribute")
     private List<Attribute> attributes;
 }

@@ -18,11 +18,11 @@
   </entry>
 
   <entry key="fileAttributesQuery">
-    select name, value, valueQualifierString from FileAttribute where file_id = :file_id
+    select name, value, valueQualifierString, reference from FileAttribute where file_id = :file_id
   </entry>
 
   <entry key="linkAttributesQuery">
-    select name, value, valueQualifierString from LinkAttribute where link_id = :link_id
+    select name, value, valueQualifierString, reference from LinkAttribute where link_id = :link_id
   </entry>
 
   <entry key="linksBySectionQuery">
@@ -30,7 +30,7 @@
   </entry>
 
   <entry key="sectionAttributesQuery">
-    select name, value, valueQualifierString from SectionAttribute where section_id = :section_id
+    select name, value, valueQualifierString, reference from SectionAttribute where section_id = :section_id
   </entry>
 
   <entry key="sectionFilesQuery">
@@ -51,7 +51,7 @@
   </entry>
 
   <entry key="submissionAttributesQuery">
-    select id, name, value, valueQualifierString from SubmissionAttribute where submission_id = :submissionId
+    select id, name, value, valueQualifierString, reference from SubmissionAttribute where submission_id = :submissionId
   </entry>
 
   <entry key="userEmailQuery">

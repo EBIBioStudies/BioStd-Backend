@@ -55,7 +55,6 @@ public class Section {
     @JsonIgnore
     @XmlElement(name = "links")
     public Links getXmlLinks() {
-        // return new Links(links);
         return CollectionUtils.isEmpty(links) ? null : new Links(links);
     }
 

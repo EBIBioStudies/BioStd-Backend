@@ -15,6 +15,7 @@ public class AttributeMapper implements RowMapper<Attribute> {
         attribute.setName(rs.getString("name"));
         attribute.setValue(rs.getString("value"));
         attribute.setValueQualifierString(rs.getString("valueQualifierString"));
+        attribute.setReference(rs.getBoolean("reference"));
         return attribute;
     }
 }

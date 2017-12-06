@@ -37,7 +37,7 @@ public final class JsonSubmissionExporter implements ExportJob {
     private final FullExportJobProperties jobProperties;
 
     @Getter
-    private final BlockingQueue<Record> processQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Record> processQueue = new LinkedBlockingQueue<>(QUEUE_SIZE);
 
     @Override
     @SneakyThrows

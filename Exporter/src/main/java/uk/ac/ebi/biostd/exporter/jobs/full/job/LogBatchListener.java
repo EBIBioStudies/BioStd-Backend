@@ -1,6 +1,6 @@
 package uk.ac.ebi.biostd.exporter.jobs.full.job;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.easybatch.core.listener.BatchListener;
@@ -10,7 +10,7 @@ import org.easybatch.core.record.Batch;
 @AllArgsConstructor
 public class LogBatchListener implements BatchListener {
 
-    private final AtomicInteger batchCount = new AtomicInteger(1);
+    private final AtomicLong batchCount = new AtomicLong(0);
     private final String jobName;
 
     @Override
@@ -23,7 +23,7 @@ public class LogBatchListener implements BatchListener {
 
     @Override
     public void afterBatchWriting(Batch batch) {
-        log.info("job: '{}', processed batch {} with size {}", jobName, batchCount.getAndIncrement(), batch.size());
+        log.info("job: '{}', processed {} records", jobName, batchCount.addAndGet(batch.size()));
     }
 
     @Override

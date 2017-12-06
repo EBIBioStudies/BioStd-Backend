@@ -7,7 +7,8 @@ import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 
 public interface ExportJob {
 
-    int BATCH_SIZE = 50;
+    int BATCH_SIZE = 250;
+    int QUEUE_SIZE = 5000;
 
     Job getJoinJob(int workers);
 

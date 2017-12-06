@@ -32,7 +32,7 @@ public final class XmlSubmissionExporter implements ExportJob {
     private final FullExportJobProperties jobProperties;
 
     @Getter
-    private final BlockingQueue<Record> processQueue = new LinkedBlockingQueue<>(1000);
+    private final BlockingQueue<Record> processQueue = new LinkedBlockingQueue<>(QUEUE_SIZE);
 
     @Override
     public Job getJoinJob(int workers) {
