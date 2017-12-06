@@ -10,6 +10,6 @@ import org.easybatch.core.record.Record;
 @AllArgsConstructor
 public class WorkerJob {
 
-    private final BlockingQueue<Record> joinQueue;
+    private final BlockingQueue<Record> workQueue;
     private final Job job;
 }

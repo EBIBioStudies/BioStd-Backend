@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.exporter.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +45,10 @@ public class SubmissionService {
     }
 
     private List<String> getAccessTags(Submission submission) {
-        List<String> tags = submissionDao.getAccessTags(submission.getId());
-        tags.add("#" + submission.getOwner_id());
+        List<String> tags = new ArrayList<>();
         tags.add(submissionDao.getUserEmail(submission.getOwner_id()));
+        tags.addAll(submissionDao.getAccessTags(submission.getId()));
+        tags.add("#" + submission.getOwner_id());
 
         return tags;
     }
@@ -76,9 +78,5 @@ public class SubmissionService {
         section.setSubsections(subSections);
 
         return section;
-    }
-
-    public Submission getSubmission(long id) {
-        return processSubmission(submissionDao.getSubmission(id));
     }
 }

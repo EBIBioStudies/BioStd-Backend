@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.full.job;
+package uk.ac.ebi.biostd.exporter.jobs.full.json;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -6,28 +6,30 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.easybatch.core.record.Batch;
 import org.easybatch.core.record.Record;
 import org.easybatch.core.writer.RecordWriter;
 
 @Slf4j
-public class BufferedFileWriter implements RecordWriter {
+public class JsonBufferedFileWriter implements RecordWriter {
 
     private static final String DATA_SEPARATOR = ",";
     private final String fileName;
 
-
     private BufferedWriter bw;
     private AtomicBoolean writeSeparator;
+    private AtomicInteger batchConsecutive;
 
-    public BufferedFileWriter(String fileName) throws IOException {
+    public JsonBufferedFileWriter(String fileName) throws IOException {
         this.fileName = fileName;
     }
 
     @Override
     public void open() throws Exception {
         writeSeparator = new AtomicBoolean(false);
+        batchConsecutive = new AtomicInteger(1);
 
         Files.deleteIfExists(Paths.get(fileName));
         bw = new BufferedWriter(new FileWriter(fileName));
@@ -43,6 +45,7 @@ public class BufferedFileWriter implements RecordWriter {
             }
             bw.write(record.getPayload().toString());
         }
+
         bw.flush();
     }
 

@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.exporter.jobs.partial;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,14 +9,16 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.exporter.model.Submission;
@@ -25,6 +28,9 @@ import uk.ac.ebi.biostd.exporter.service.SubmissionService;
 @Component
 @RequiredArgsConstructor
 public class PartialSubmissionExporter {
+
+    private static final String FILE_FORMAT = "%s%s_%s.json";
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 
     private final PartialExportJobProperties configProperties;
     private final ObjectMapper objectMapper;
@@ -38,28 +44,24 @@ public class PartialSubmissionExporter {
         List<Submission> submissions = submissionService.getUpdatedSubmissions(lastSyncTime);
 
         if (submissions.size() > 0) {
-            writeFile(submissions);
-            notifyFrontend();
+            String fileName = writeFile(submissions);
+            notifyFrontend(fileName);
         }
 
         lastSyncTime = getNowEpoch();
         log.info("finish processing updated submissions");
     }
 
-    public void executeSingle(long id) {
-        Submission submission = submissionService.getSubmission(id);
-        writeFile(Collections.singletonList(submission));
-        notifyFrontend();
+    @SneakyThrows
+    private void notifyFrontend(String fileName) {
+        String url = configProperties.getNotificationUrl() + fileName;
+        log.info("notify frontend at {}", url);
+        restTemplate.getForEntity(url, String.class);
     }
 
     @SneakyThrows
-    private void notifyFrontend() {
-        restTemplate.getForEntity(configProperties.getNotificationUrl(), String.class);
-    }
-
-    @SneakyThrows
-    private void writeFile(List<Submission> submissions) {
-        String fullFilePath = configProperties.getFilePath() + configProperties.getFileName();
+    private String writeFile(List<Submission> submissions) {
+        String fullFilePath = getFileName();
         Files.deleteIfExists(Paths.get(fullFilePath));
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(fullFilePath))) {
@@ -71,6 +73,8 @@ public class PartialSubmissionExporter {
 
             bw.write(objectMapper.writeValueAsString(updateFile));
         }
+
+        return FilenameUtils.getName(fullFilePath);
     }
 
     private long getBeginOfTheDateEpoch() {
@@ -81,5 +85,10 @@ public class PartialSubmissionExporter {
 
     private long getNowEpoch() {
         return ZonedDateTime.now(ZoneId.of("Europe/London")).toEpochSecond();
+    }
+
+    private String getFileName() {
+        String timestamp = OffsetDateTime.now(UTC).format(formatter);
+        return String.format(FILE_FORMAT, configProperties.getFilePath(), configProperties.getFileName(), timestamp);
     }
 }

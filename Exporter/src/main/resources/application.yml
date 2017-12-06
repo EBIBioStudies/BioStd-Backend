@@ -10,9 +10,6 @@ spring:
     hikari:
       connection-timeout: 60000
       maximum-pool-size: 20
-      jdbcUrl: # set at parameter when executed
-      username: # set at parameter when executed
-      password: # set at parameter when executed
       data-source-properties:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
@@ -29,14 +26,13 @@ spring:
 jobs:
   partial:
     filePath: ./generated/
-    fileName: studies_partial.json
-    notificationUrl: http://localhost:8181/api/update/partial
+    fileName: studies_partial
+    notificationUrl: http://localhost:8181/api/update/partial/
     cron: 0/20 * * * * ? # Each 20 seconds
   full:
     filePath: ./generated/
-    fileName: studies.json
-    workers: 20
-    queryModified: limit 10000
+    fileName: studies
+    workers: 4
     notificationUrl: http://localhost:8181/api/update/full
     cron: 0 0/1 * * * ? # Each minute
 
@@ -47,14 +43,33 @@ spring:
 jobs:
   partial:
     filePath: /nfs/biostudies/.adm/databases/beta/ui-exports/
-    fileName: studies_partial.json
-    notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/${jobs.partial.fileName}
-    cron: 0 0/5 7-22 * * ? # Each five minute between 7 am and 10 pm.
+    fileName: studies_partial
+    notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/
+    cron: 0 0/5 5-19 * * ? # Each five minute between 5 am and 7 pm.
 
   full:
     filePath: /nfs/biostudies/.adm/databases/beta/ui-exports/
-    fileName: studies.json
-    workers: 20
+    fileName: studies
+    workers: 4
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
-    cron: 0 0 23 * * ? # Everyday at 11 p.m.
+    cron: 0 0 19 * * ? # Everyday at 7 p.m.
+
+---
+
+spring:
+  profiles: prod
+jobs:
+  partial:
+    filePath: /nfs/biostudies/.adm/databases/prod/ui-exports/
+    fileName: studies_partial
+    notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/
+    cron: 0 0 0 25 12 ? # at Christmas TODO: add support to "enable" flag instead
+
+  full:
+    filePath: /nfs/biostudies/.adm/databases/prod/ui-exports/
+    fileName: studies
+    workers: 4
+    queryModified:
+    notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
+    cron: 0 0 22 * * ? # Everyday at 10 p.m.

@@ -6,6 +6,11 @@ build/
 target/
 /*.iml
 
+#Exporter module
+/Exporter/logs/
+/Exporter/generated/
+
+
 # Exceptions
 !/BioStdCoreModel/src/main/java/uk/ac/ebi/biostd/out/
-Exporter/src/test/
+

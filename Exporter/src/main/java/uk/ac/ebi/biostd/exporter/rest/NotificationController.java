@@ -4,6 +4,7 @@ import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullSubmissionExporter;
 import uk.ac.ebi.biostd.exporter.jobs.partial.PartialSubmissionExporter;
@@ -16,15 +17,15 @@ public class NotificationController {
     private final FullSubmissionExporter fullExporter;
     private final PartialSubmissionExporter partialExporter;
 
-    @GetMapping("/api/update/partial")
-    public String partialUpdate() {
-        log.info("received partial update notification at {}", Instant.now());
+    @GetMapping("/api/update/partial/{fileName}")
+    public String partialUpdate(@PathVariable(name = "fileName") String fileName) {
+        log.info("received partial update notification at {} with file {}", Instant.now(), fileName);
         return "ok";
     }
 
-    @GetMapping("/api/update/full")
-    public String fullUpdate() {
-        log.info("received full update notification at {}", Instant.now());
+    @GetMapping("/api/update/full/{fileName}")
+    public String fullUpdate(@PathVariable(name = "fileName") String fileName) {
+        log.info("received full update notification at {} with file {}", Instant.now(), fileName);
         return "ok";
     }
 

@@ -30,5 +30,4 @@ public class JobsScheduler {
     public void generatePartialExportFile() {
         partialExporter.execute();
     }
-
 }
