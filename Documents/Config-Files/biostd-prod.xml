@@ -1,0 +1,72 @@
+<Context docBase="${catalina.base}/deploy/biostudy-20171010.war">
+  <Parameter name='db.hibernate.connection.url' value='${DATA_URL}'/>
+  <Parameter name='db.hibernate.connection.username' value='${DATA_BASE_PASSWORD}'/>
+  <Parameter name='db.hibernate.connection.password' value='${DATA_BASE_USER}'/>
+  <Parameter name='db.hibernate.connection.driver_class' value='com.mysql.jdbc.Driver'/>  <Parameter name='db.hibernate.cache.use_query_cache' value='false'/>
+  <Parameter name='db.hibernate.cache.use_second_level_cache' value='false'/>
+  <Parameter name='db.hibernate.ejb.discard_pc_on_close' value='true'/>
+  <Parameter name='db.hibernate.dialect' value='org.hibernate.dialect.MySQLDialect'/>
+  <Parameter name='db.hibernate.hbm2ddl.auto' value='update'/>
+  <Parameter name='db.hibernate.c3p0.max_size' value='30'/>
+  <Parameter name='db.hibernate.c3p0.min_size' value='0'/>
+  <Parameter name='db.hibernate.c3p0.timeout' value='5000'/>
+  <Parameter name='db.hibernate.c3p0.max_statements' value='0'/>
+  <Parameter name='db.hibernate.c3p0.idle_test_period' value='300'/>
+  <Parameter name='db.hibernate.c3p0.acquire_increment' value='2'/>
+  <Parameter name='db.hibernate.c3p0.unreturnedConnectionTimeout' value='1800'/>
+  <Parameter name='db.hibernate.search.default.indexBase' value='index'/>
+  <Parameter name='db.hibernate.search.default.directory_provider' value='filesystem'/>
+  <Parameter name='db.hibernate.search.lucene_version' value='LUCENE_54'/>
+  <Parameter name='biostd.enableUnsafeRequests' value='true'/>
+  <Parameter name='biostd.createFileStructure' value='true'/>
+  <Parameter name='biostd.baseDir' value='/nfs/biostudies/.adm/databases/prod'/>
+  <Parameter name='biostd.workDir' value='work'/>
+  <Parameter name='biostd.userGroupDir' value='/nfs/biostudies/ftp/pub/.dropbox/'/>
+  <Parameter name='biostd.userGroupIndexDir' value='usergroup'/>
+  <Parameter name='biostd.publicDropboxes' value='true'/>
+  <Parameter name='biostd.submissionDir' value='submission'/>
+  <Parameter name='biostd.submissionHistoryDir' value='history'/>
+  <Parameter name='biostd.submissionTransactionDir' value='transaction'/>
+  <Parameter name='biostd.updateDir' value='updates'/>
+  <Parameter name='biostd.updateListenerURL' value='https://www.ebi.ac.uk/biostudies/preview/admin/reload-xml/{file}/?delete=true'/>
+  <Parameter name='biostd.allowFileLinks' value='true'/>
+  <Parameter name='biostd.updateWaitPeriod' value='10'/>
+  <Parameter name='biostd.maxUpdatesPerFile' value='50'/>
+  <Parameter name='biostd.mandatoryAccountActivation' value='true'/>
+  <Parameter name='biostd.publicFTPDir' value='/nfs/biostudies/ftp/pub'/>
+  <Parameter name='biostd.defaultSubmissionAccNoPrefix' value='S-BSMS'/>
+  <Parameter name='export.invokeTime' value='01:20'/>
+  <Parameter name='export.threadTTL' value='1000'/>
+  <Parameter name='export.threads' value='8'/>
+  <Parameter name='export.output[ui].class' value='uk.ac.ebi.biostd.webapp.server.export.formatting.FormattingOutputModule'/>
+  <Parameter name='export.output[ui].outfile' value='updates/studies.xml'/>
+  <Parameter name='export.output[ui].format' value='uk.ac.ebi.biostd.out.pageml.PageMLFormatter'/>
+  <Parameter name='export.output[ui].tmpdir' value='/var/tmp/biostd/prod'/>
+  <Parameter name='export.output[pmc].class' value='uk.ac.ebi.biostd.webapp.server.export.formatting.ChunkedFormattingOutputModule'/>
+  <Parameter name='export.output[pmc].chunkSize' value='1.44M'/>
+  <Parameter name='export.output[pmc].fsProvider' value='ftp://elinks:8VhrURVH@labslink.ebi.ac.uk'/>
+  <Parameter name='export.output[pmc].outfile' value='/zs11dw62/links/EPMCLinks.xml'/>
+  <Parameter name='export.output[pmc].tmpdir' value='/zs11dw62/.links.tmp'/>
+  <Parameter name='export.output[pmc].format' value='uk.ac.ebi.biostd.webapp.server.export.epmc.EPMCLinkFormatter'/>
+  <Parameter name='export.output[pmc].format.providerId' value='1518'/>
+  <Parameter name='export.output[pmc].format.resourceURL' value='http://www.ebi.ac.uk/biostudies/studies/{accNo}'/>
+  <Parameter name='biostd.activationTimeout' value='8760'/>
+  <Parameter name='biostd.activationEmailSubject' value='Biostudy DB account activation'/>
+  <Parameter name='biostd.activationEmailPlainTextFile' value='/nfs/biostudies/.adm/misc/email/activationMail.txt'/>
+  <Parameter name='biostd.activationEmailHtmlFile' value='/nfs/biostudies/.adm/misc/email/activationMail.html'/>
+  <Parameter name='biostd.passwordResetEmailSubject' value='Biostudy DB password reset'/>
+  <Parameter name='biostd.passwordResetEmailPlainTextFile' value='/nfs/biostudies/.adm/misc/email/passResetMail.txt'/>
+  <Parameter name='biostd.passwordResetEmailHtmlFile' value='/nfs/biostudies/.adm/misc/email/passResetMail.html'/>
+  <Parameter name='biostd.subscriptionEmailSubject' value='Biostudy DB notification'/>
+  <Parameter name='biostd.tagSubscriptionEmailPlainTextFile' value='/nfs/biostudies/.adm/misc/email/tagSubscriptionMail-prod.txt'/>
+  <Parameter name='biostd.tagSubscriptionEmailHtmlFile' value='/nfs/biostudies/.adm/misc/email/tagSubscriptionMail-prod.html'/>
+  <Parameter name='biostd.attributeSubscriptionEmailPlainTextFile' value='/nfs/biostudies/.adm/misc/email/attributeSubscriptionMail-prod.txt'/>
+  <Parameter name='biostd.attributeSubscriptionEmailHtmlFile' value='/nfs/biostudies/.adm/misc/email/attributeSubscriptionMail-prod.html'/>
+  <Parameter name='email.SMTPHost' value='localhost'/>
+  <Parameter name='email.to' value='biostudies-dev@ebi.ac.uk'/>
+  <Parameter name='email.errorsTo' value='gostev@ebi.ac.uk'/>
+  <Parameter name='email.from' value='BioStudy &lt;biostudies@ebi.ac.uk&gt;'/>
+  <Parameter name='email.inquiries' value='BioStudy &lt;biostudies@ebi.ac.uk&gt;'/>
+  <Parameter name='biostd.dataMountPath' value='/data'/>
+  <Parameter name='biostd.recapcha_private_key' value='6Lcmlv0SAAAAANysy6M8YdozfJnOQxc2JB9WaOS1'/>
+</Context>

@@ -18,9 +18,9 @@ spring:
         cacheServerConfiguration: true
         useLocalSessionState: true
         maintainTimeStats: false
-      jdbcUrl: # to set in deployment script
-      username: # to set in deployment script
-      password: # to set in deployment script
+      jdbc-url: # to be set in deployment script
+      username: # to be set in deployment script
+      password: # to be set in deployment script
 
 ---
 
@@ -31,13 +31,14 @@ jobs:
     filePath: ./generated/
     fileName: studies_partial
     notificationUrl: http://localhost:8181/api/update/partial/
-    cron: 0/20 * * * * ? # Each 20 seconds
+    cron: 0/20 * * * * ? # each 20 seconds
   full:
     filePath: ./generated/
     fileName: studies
     workers: 4
     notificationUrl: http://localhost:8181/api/update/full
-    cron: 0 0/1 * * * ? # Each minute
+    cron: 0 0/1 * * * ? # each minute
+    query-modified: and id = 1793573
 
 ---
 
@@ -48,15 +49,15 @@ jobs:
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies_partial
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/
-    cron: 0 0/5 5-19 * * ? # Each five minute between 5 am and 7 pm.
+    cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
 
   full:
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies
     workers: 4
-    queryModified: and id = 1793573
+    queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
-    cron: 0 0 19 * * ? # Everyday at 7 p.m.
+    cron: 0 0 19 * * ? # everyday at 7 p.m.
 
 ---
 
@@ -75,4 +76,4 @@ jobs:
     workers: 4
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
-    cron: 0 0 22 * * ? # Everyday at 10 p.m.
+    cron: 0 0 22 * * ? # everyday at 10 p.m.
