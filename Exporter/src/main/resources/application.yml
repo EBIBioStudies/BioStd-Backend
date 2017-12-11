@@ -18,6 +18,9 @@ spring:
         cacheServerConfiguration: true
         useLocalSessionState: true
         maintainTimeStats: false
+      jdbcUrl: # to set in deployment script
+      username: # to set in deployment script
+      password: # to set in deployment script
 
 ---
 
@@ -42,16 +45,16 @@ spring:
   profiles: beta
 jobs:
   partial:
-    filePath: /nfs/biostudies/.adm/databases/beta/ui-exports/
+    filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies_partial
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/
     cron: 0 0/5 5-19 * * ? # Each five minute between 5 am and 7 pm.
 
   full:
-    filePath: /nfs/biostudies/.adm/databases/beta/ui-exports/
+    filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies
     workers: 4
-    queryModified:
+    queryModified: and id = 1793573
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # Everyday at 7 p.m.
 
@@ -61,13 +64,13 @@ spring:
   profiles: prod
 jobs:
   partial:
-    filePath: /nfs/biostudies/.adm/databases/prod/ui-exports/
+    filePath: /nfs/biostudies/.adm/databases/prod/updates/
     fileName: studies_partial
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/
     cron: 0 0 0 25 12 ? # at Christmas TODO: add support to "enable" flag instead
 
   full:
-    filePath: /nfs/biostudies/.adm/databases/prod/ui-exports/
+    filePath: /nfs/biostudies/.adm/databases/prod/updates/
     fileName: studies
     workers: 4
     queryModified:
