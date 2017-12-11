@@ -13,6 +13,7 @@ public class FileMapper implements RowMapper<File> {
     public File mapRow(ResultSet rs, int rowNum) throws SQLException {
         File file = new File();
         file.setId(rs.getLong("id"));
+        file.setPath(rs.getString("path"));
         file.setName(rs.getString("name"));
         file.setSize(rs.getLong("size"));
         return file;

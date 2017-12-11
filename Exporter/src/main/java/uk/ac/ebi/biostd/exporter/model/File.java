@@ -25,6 +25,10 @@ public class File {
 
     @JsonProperty("path")
     @XmlElement(name = "path")
+    private String path;
+
+    @JsonProperty("name")
+    @XmlElement(name = "name")
     private String name;
 
     @JsonProperty("size")
