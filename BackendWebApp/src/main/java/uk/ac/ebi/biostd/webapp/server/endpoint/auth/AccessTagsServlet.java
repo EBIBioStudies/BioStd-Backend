@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,10 +14,16 @@ import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.BuiltInUsers;
 import uk.ac.ebi.biostd.authz.SystemAction;
 import uk.ac.ebi.biostd.authz.User;
+import uk.ac.ebi.biostd.webapp.application.security.rest.controllers.SecurityController;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginInformation;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityException;
 
-@WebServlet("/checkAccess")
+/**
+ * @WebServlet("/checkAccess") deprecated in favor of {@link SecurityController#getUserPermissions(LoginInformation)}
+ * which use a modern approach to http service implementation.
+ */
+@Deprecated
 public class AccessTagsServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
