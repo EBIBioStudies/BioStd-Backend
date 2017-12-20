@@ -41,12 +41,16 @@ repositories {
     maven { url "http://repo1.maven.org/maven2" }
 }
 
+ext['tomcat.version'] = '8.0.44'
+
 dependencies {
     compile project(":Commons")
     compile project(":SpreadsheetReaders")
     compile project(":BioStdCoreModel")
 
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile group:'org.apache.tomcat', name:'tomcat-juli', version:property('tomcat.version')
+
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile("org.springframework.boot:spring-boot-starter-security")
 

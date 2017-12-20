@@ -31,7 +31,6 @@ import javax.persistence.Persistence;
 import javax.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.search.cfg.Environment;
-import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.out.FormatterType;
 import uk.ac.ebi.biostd.webapp.server.email.EmailInitException;
 import uk.ac.ebi.biostd.webapp.server.email.EmailService;
@@ -58,7 +57,6 @@ import uk.ac.ebi.biostd.webapp.server.util.ResourceBundleParamPool;
 import uk.ac.ebi.biostd.webapp.server.util.ServletContextParamPool;
 
 @Slf4j
-@Component
 public class ConfigurationManager {
 
     public static final String BaseDirParameter = "baseDir";

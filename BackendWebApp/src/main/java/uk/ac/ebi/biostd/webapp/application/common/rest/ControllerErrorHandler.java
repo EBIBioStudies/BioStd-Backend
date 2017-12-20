@@ -15,8 +15,8 @@ public class ControllerErrorHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> exception() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("FAIL User not logged in");
     }

@@ -25,7 +25,6 @@ public class UserManager {
         }
 
         return user.get();
-
     }
 
     private boolean hashMatch(String hash, byte[] passwordDigest) {
