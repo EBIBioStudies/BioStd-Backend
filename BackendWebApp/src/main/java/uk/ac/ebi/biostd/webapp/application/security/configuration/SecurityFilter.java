@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.security.configuration;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -26,15 +27,13 @@ public class SecurityFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        Cookie cookie = WebUtils.getCookie(httpRequest, COOKIE_NAME);
-
-        if (cookie == null || cookie.getValue() == null) {
+        String key = getSecurityKey((HttpServletRequest) request);
+        if (Strings.isNullOrEmpty(key)) {
             chain.doFilter(request, response);
             return;
         }
 
-        Session session = sessionManager.checkin(cookie.getValue());
+        Session session = sessionManager.checkin(key);
         if (session == null) {
             chain.doFilter(request, response);
             return;
@@ -45,5 +44,14 @@ public class SecurityFilter extends GenericFilterBean {
         authentication.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request, response);
+    }
+
+    private String getSecurityKey(HttpServletRequest httpRequest) {
+        Cookie cookie = WebUtils.getCookie(httpRequest, COOKIE_NAME);
+        if (cookie != null && !Strings.isNullOrEmpty(cookie.getValue())) {
+            return cookie.getValue();
+        }
+
+        return httpRequest.getParameter(COOKIE_NAME);
     }
 }
