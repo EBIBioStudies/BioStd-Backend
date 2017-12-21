@@ -7,7 +7,7 @@
   <Parameter name='db.hibernate.cache.use_second_level_cache' value='false'/>
   <Parameter name='db.hibernate.ejb.discard_pc_on_close' value='true'/>
   <Parameter name='db.hibernate.dialect' value='org.hibernate.dialect.MySQLDialect'/>
-  <Parameter name='db.hibernate.hbm2ddl.auto' value='update'/>
+  <Parameter name='db.hibernate.hbm2ddl.auto' value='none'/>
   <Parameter name='db.hibernate.c3p0.max_size' value='30'/>
   <Parameter name='db.hibernate.c3p0.min_size' value='0'/>
   <Parameter name='db.hibernate.c3p0.timeout' value='5000'/>

@@ -7,18 +7,23 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import uk.ac.ebi.biostd.authz.Session;
+import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.webapp.application.security.rest.controllers.SecurityController;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.JSONHttpResponse;
 import uk.ac.ebi.biostd.webapp.server.endpoint.Response;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.endpoint.TextHttpResponse;
 
-@WebServlet("/atthost")
+/**
+ * @WebServlet("/atthost") deprecated in favor of use {@link SecurityController#getProjects(User)} which use modern
+ * approach to rest service implementation.
+ */
+@Deprecated
 public class AttachHostListServlet extends ServiceServlet {
 
     private static final String FORMAT_PARAMETER = "format";

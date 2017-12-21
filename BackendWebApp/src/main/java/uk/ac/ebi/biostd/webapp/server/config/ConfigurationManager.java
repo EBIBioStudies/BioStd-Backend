@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.webapp.server.config;
 
+import static org.hibernate.search.cfg.Environment.MODEL_MAPPING;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -30,8 +32,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.search.cfg.Environment;
-import org.springframework.stereotype.Component;
+import org.springframework.core.env.Environment;
 import uk.ac.ebi.biostd.out.FormatterType;
 import uk.ac.ebi.biostd.webapp.server.email.EmailInitException;
 import uk.ac.ebi.biostd.webapp.server.email.EmailService;
@@ -58,7 +59,6 @@ import uk.ac.ebi.biostd.webapp.server.util.ResourceBundleParamPool;
 import uk.ac.ebi.biostd.webapp.server.util.ServletContextParamPool;
 
 @Slf4j
-@Component
 public class ConfigurationManager {
 
     public static final String BaseDirParameter = "baseDir";
@@ -123,9 +123,9 @@ public class ConfigurationManager {
     private static final long hourInMills = TimeUnit.HOURS.toMillis(1);
 
     private final ParamPool contextParamPool;
-    private final org.springframework.core.env.Environment springEnvironment;
+    private final Environment springEnvironment;
 
-    public ConfigurationManager(ServletContext servletContext, org.springframework.core.env.Environment environment) {
+    public ConfigurationManager(ServletContext servletContext, Environment environment) {
         contextParamPool = new ServletContextParamPool(servletContext);
         springEnvironment = environment;
     }
@@ -172,7 +172,7 @@ public class ConfigurationManager {
             readConfiguration(contextParamPool, cfgBean);
         }
 
-        String baseDir = springEnvironment.getProperty("biostudy.base.dir");
+        String baseDir = springEnvironment.getProperty("biostudy.baseDir");
         if (baseDir != null) {
             cfgBean.setBaseDirectory(new java.io.File(baseDir).toPath());
         }
@@ -270,7 +270,7 @@ public class ConfigurationManager {
 
             rebuildIndex = !Files.exists(idxPath);
 
-            dbConfig.put(Environment.MODEL_MAPPING, SearchMapper.makeMapping());
+            dbConfig.put(MODEL_MAPPING, SearchMapper.makeMapping());
 
             BackendConfig.setSearchEnabled(true);
         }
