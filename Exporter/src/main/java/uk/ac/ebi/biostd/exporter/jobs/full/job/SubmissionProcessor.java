@@ -8,19 +8,18 @@ import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.service.SubmissionService;
 
+@Slf4j
 @Component
 @AllArgsConstructor
-@Slf4j
 public class SubmissionProcessor implements RecordProcessor<Record<Submission>, Record<Submission>> {
 
     private final SubmissionService submissionService;
 
     @Override
-    public Record<Submission> processRecord(Record<Submission> record) throws Exception {
+    public Record<Submission> processRecord(Record<Submission> record) {
         if (record.getPayload() instanceof Submission) {
             submissionService.processSubmission(record.getPayload());
         }
-
         return record;
     }
 }

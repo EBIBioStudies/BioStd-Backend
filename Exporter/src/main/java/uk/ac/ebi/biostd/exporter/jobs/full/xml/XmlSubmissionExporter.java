@@ -13,8 +13,8 @@ import org.easybatch.core.reader.BlockingQueueRecordReader;
 import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties;
-import uk.ac.ebi.biostd.exporter.jobs.full.job.ExportJob;
-import uk.ac.ebi.biostd.exporter.jobs.full.job.LogBatchListener;
+import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
+import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 
 /**
@@ -23,7 +23,7 @@ import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 @Slf4j
 @Component
 @AllArgsConstructor
-public final class XmlSubmissionExporter implements ExportJob {
+public final class XmlSubmissionExporter implements FullExportJob {
 
     private static final String EXTENSION = ".xml";
     private static final String JOB_NAME = "join-job-xml";

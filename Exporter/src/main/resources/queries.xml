@@ -12,6 +12,11 @@
     WHERE version > 0
   </entry>
 
+  <entry key="submissionsPmcQuery">
+    SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    WHERE version > 0 AND accNo LIKE 'S-EPMC%'
+  </entry>
+
   <entry key="singleSubmissionQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 and id = :submissionId
@@ -58,4 +63,7 @@
     select email from User where id = :user_id
   </entry>
 
+  <entry key="submissionPublicationQuery">
+    select accNo from Section sec where sec.type = 'Publication' and sec.submission_id = :submissionId
+  </entry>
 </properties>

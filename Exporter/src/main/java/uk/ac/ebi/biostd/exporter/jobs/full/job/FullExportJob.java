@@ -5,7 +5,7 @@ import org.easybatch.core.job.Job;
 import org.easybatch.core.record.Record;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 
-public interface ExportJob {
+public interface FullExportJob {
 
     int BATCH_SIZE = 250;
     int QUEUE_SIZE = 5000;

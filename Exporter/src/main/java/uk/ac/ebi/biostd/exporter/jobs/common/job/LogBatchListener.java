@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.full.job;
+package uk.ac.ebi.biostd.exporter.jobs.common.job;
 
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.AllArgsConstructor;

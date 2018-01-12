@@ -1,3 +1,6 @@
+context:
+  listener:
+    classes: uk.ac.ebi.biostd.exporter.configuration.QueryLoader
 server:
   port: 8181
 logging:
@@ -77,3 +80,12 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 22 * * ? # everyday at 10 p.m.
+
+  pmd:
+    export:
+      workers: 4
+      user: elinks
+      password: 8VhrURVH
+      ftpServer: labslink.ebi.ac.uk
+      outputFolder: zs11dw62/testdir/aaa/
+      cron: 0 0 07 * * ? # everyday at 7 a.m.
