@@ -3,10 +3,6 @@ package uk.ac.ebi.biostd.exporter.configuration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import javax.sql.DataSource;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -24,17 +20,6 @@ public class GeneralConfiguration {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         return mapper;
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "spring.datasource.hikari")
-    public HikariConfig hikariConfig() {
-        return new HikariConfig();
-    }
-
-    @Bean
-    public DataSource dataSource() {
-        return new HikariDataSource(hikariConfig());
     }
 
     @Bean

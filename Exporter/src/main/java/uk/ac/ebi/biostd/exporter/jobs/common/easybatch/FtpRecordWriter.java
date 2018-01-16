@@ -17,10 +17,8 @@ import uk.ac.ebi.biostd.exporter.jobs.common.model.FtpConfig;
 public class FtpRecordWriter implements RecordWriter {
 
     private static final FTPClient ftpClient = new FTPClient();
-    private final AtomicInteger counter = new AtomicInteger(0);
+    private final AtomicInteger counter = new AtomicInteger(1);
 
-    private final String filePathExpression;
-    private final int ftpPort;
     private final DataWriter dataWriter;
     private final FtpConfig ftpConfig;
 
@@ -31,9 +29,10 @@ public class FtpRecordWriter implements RecordWriter {
     @Override
     public void writeRecords(Batch batch) throws Exception {
         InputStream inputStream = dataWriter.getInputStream(ImmutableList.copyOf(batch.iterator()));
-        String filePath = format(filePathExpression, counter.getAndIncrement());
+        String filePath = format(
+                ftpConfig.getOutputFolder() + "/" + ftpConfig.getFileNameFormat(), counter.getAndIncrement());
 
-        ftpClient.connect(ftpConfig.getServer(), ftpPort);
+        ftpClient.connect(ftpConfig.getServer(), ftpConfig.getFtpPort());
         checkOutput(ftpClient.login(ftpConfig.getUser(), ftpConfig.getPass()), "fail to connect to ftp service");
         checkOutput(ftpClient.storeFile(filePath, inputStream), "fail to upload file to ftp service");
     }

@@ -10,4 +10,8 @@ public class FtpConfig {
     private String user;
     private String pass;
     private String server;
+    private int ftpPort;
+    private String outputFolder;
+    private String fileNameFormat;
+
 }

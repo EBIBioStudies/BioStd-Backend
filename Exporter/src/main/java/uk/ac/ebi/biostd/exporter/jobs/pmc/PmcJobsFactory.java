@@ -1,8 +1,7 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc.job;
+package uk.ac.ebi.biostd.exporter.jobs.pmc;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
 import org.easybatch.core.job.Job;
@@ -13,7 +12,7 @@ import uk.ac.ebi.biostd.exporter.jobs.common.base.BaseJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
 import uk.ac.ebi.biostd.exporter.jobs.common.easybatch.DbRecordReader;
 import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.PmcExportProperties;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.job.PmcRecordProcessor;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 
 @AllArgsConstructor
@@ -34,16 +33,15 @@ public class PmcJobsFactory extends BaseJobsFactory implements JobsFactory {
     }
 
     @Override
-    public QueueJob newWorkerJob(int index, LinkedBlockingQueue<Object> objects,
+    public QueueJob newWorkerJob(int index, BlockingQueue<Record> workQueue,
             List<BlockingQueue<Record>> joinQueues) {
 
-        BlockingQueue<Record> blockingQueue = new LinkedBlockingQueue<>();
         String jobName = String.format(PmcExportProperties.WORK_JOB_NAME_FORMAT, index);
 
         return super.workerJob(
                 PmcExportProperties.BATCH_SIZE,
                 jobName,
-                blockingQueue,
+                workQueue,
                 joinQueues,
                 pmcRecordProcessor,
                 new LogBatchListener(jobName));

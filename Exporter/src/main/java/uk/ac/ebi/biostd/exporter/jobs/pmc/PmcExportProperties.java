@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "jobs.pmc.export")
 public class PmcExportProperties {
 
-    public static final int MAX_RECORDS = 4600;
+    public static final int MAX_RECORDS = 4000;
     public static final int BATCH_SIZE = 4;
     public static final String PROVIDER_ID = "1518";
     public static final String LINK_FORMAT = "http://www.ebi.ac.uk/biostudies/studies/%s";
@@ -25,4 +25,5 @@ public class PmcExportProperties {
     private String ftpServer;
     private int ftpPort;
     private String outputFolder;
+    private String fileNameFormat;
 }

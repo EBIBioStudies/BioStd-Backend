@@ -1,48 +1,54 @@
-package uk.ac.ebi.biostd.exporter.jobs.full.job;
+package uk.ac.ebi.biostd.exporter.jobs.full;
 
 import static java.lang.String.format;
+import static uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties.FORK_BATCH_SIZE;
+import static uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties.FORK_JOB;
+import static uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties.WORKER_BATCH_SIZE;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
 import org.easybatch.core.job.Job;
-import org.easybatch.core.listener.BatchListener;
 import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostd.exporter.jobs.common.api.JobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.BaseJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
 import uk.ac.ebi.biostd.exporter.jobs.common.easybatch.DbRecordReader;
+import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
+import uk.ac.ebi.biostd.exporter.jobs.full.job.SubmissionProcessor;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 
 @Component
 @AllArgsConstructor
-public class SubmissionJobsFactory extends BaseJobsFactory {
-
-    private static final int WORKER_BATCH_SIZE = 50;
-    private static final int FORK_BATCH_SIZE = 100;
+public class FullJobJobsFactory extends BaseJobsFactory implements JobsFactory {
 
     private final SubmissionDao submissionDao;
     private final DataSource dataSource;
     private final SubmissionProcessor submissionProcessor;
 
-    public Job newForkJob(String jobName, List<BlockingQueue<Record>> workQueues) {
+    @Override
+    public Job newForkJob(List<BlockingQueue<Record>> workQueues) {
         return newForkJob(
                 FORK_BATCH_SIZE,
-                jobName,
+                FORK_JOB,
                 new DbRecordReader<>(submissionDao::getSubmissions, dataSource),
                 workQueues);
     }
 
-    public QueueJob newWorkerJob(int id, BatchListener batchListener, BlockingQueue<Record> workQueue,
+    @Override
+    public QueueJob newWorkerJob(int index, BlockingQueue<Record> workQueue,
             List<BlockingQueue<Record>> joinQueues) {
+
+        String name = format("worker-%d", index);
 
         return workerJob(
                 WORKER_BATCH_SIZE,
-                format("worker-%d", id),
+                name,
                 workQueue,
                 joinQueues,
                 submissionProcessor,
-                batchListener);
+                new LogBatchListener(name));
     }
 }

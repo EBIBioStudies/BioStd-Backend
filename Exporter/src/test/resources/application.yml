@@ -5,15 +5,19 @@ server:
   port: 8181
 spring:
   datasource:
-    hikari:
-      jdbc-url: jdbc:h2:mem:biostd;Mode=MYSQL
+    generate-unique-name: true
 jobs:
   pmc:
     export:
-      workers: 4
+      workers: 1
       user: pmc
       password: pmc
       ftpPort: 43120
       ftpServer: localhost
-      outputFolder: /data/EPMCLinks.part%d.xml
-      cron: 0 0 07 * * ? # everyday at 7 a.m.
+      outputFolder: /data
+      fileNameFormat: EPMCLinks.part%d.xml
+  full:
+    workers: 1
+    filePath: ./generated/
+    fileName: studies
+    notificationUrl: http://localhost:8181/api/update/full

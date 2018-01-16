@@ -1,8 +1,6 @@
 package uk.ac.ebi.biostd.exporter.jobs.full.job;
 
-import java.util.concurrent.BlockingQueue;
-import org.easybatch.core.job.Job;
-import org.easybatch.core.record.Record;
+import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 
 public interface FullExportJob {
@@ -10,9 +8,7 @@ public interface FullExportJob {
     int BATCH_SIZE = 250;
     int QUEUE_SIZE = 5000;
 
-    Job getJoinJob(int workers);
-
-    BlockingQueue<Record> getProcessQueue();
+    QueueJob getJoinJob(int workers);
 
     void writeJobStats(ExecutionStats stats);
 }

@@ -15,9 +15,10 @@ import org.easybatch.core.job.Job;
 import org.easybatch.core.reader.BlockingQueueRecordReader;
 import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
+import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
-import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 import uk.ac.ebi.biostd.exporter.utils.JsonUtil;
 
@@ -41,8 +42,8 @@ public final class JsonSubmissionExporter implements FullExportJob {
 
     @Override
     @SneakyThrows
-    public Job getJoinJob(int workers) {
-        return aNewJob()
+    public QueueJob getJoinJob(int workers) {
+        Job job = aNewJob()
                 .named(JOB_NAME)
                 .batchSize(BATCH_SIZE)
                 .reader(new BlockingQueueRecordReader(processQueue, workers))
@@ -51,6 +52,8 @@ public final class JsonSubmissionExporter implements FullExportJob {
                 .writer(new JsonBufferedFileWriter(getFileName()))
                 .batchListener(new LogBatchListener(JOB_NAME))
                 .build();
+
+        return new QueueJob(processQueue, job);
     }
 
     @Override

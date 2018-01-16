@@ -26,6 +26,6 @@ public class JobsUtil {
     }
 
     public List<QueueJob> getJoinJobs(int workers, List<ExportJob> exportJobs) {
-        return exportJobs.stream().map(job -> job.getJoinJob(workers)).collect(toList());
+        return exportJobs.stream().flatMap(job -> job.getJoinJob(workers).stream()).collect(toList());
     }
 }
