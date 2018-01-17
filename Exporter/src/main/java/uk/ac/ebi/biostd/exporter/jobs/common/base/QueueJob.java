@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.full.model;
+package uk.ac.ebi.biostd.exporter.jobs.common.base;
 
 import java.util.concurrent.BlockingQueue;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import org.easybatch.core.record.Record;
 
 @Getter
 @AllArgsConstructor
-public class WorkerJob {
+public class QueueJob {
 
     private final BlockingQueue<Record> workQueue;
     private final Job job;

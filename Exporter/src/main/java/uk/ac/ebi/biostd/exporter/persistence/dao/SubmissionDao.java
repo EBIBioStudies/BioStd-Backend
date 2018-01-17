@@ -52,8 +52,12 @@ public class SubmissionDao {
         return template.query(query, emptyMap(), submissionMapper);
     }
 
-    public Submission getSubmission(long id) {
-        return template.queryForObject(
-                queries.getSingleSubmissionQuery(), singletonMap("submissionId", id), submissionMapper);
+    public List<Submission> getPmcSubmissions() {
+        return template.query(queries.getSubmissionsPmcQuery(), emptyMap(), submissionMapper);
+    }
+
+    public String getPublicationId(long submissionId) {
+        return template.queryForObject(queries.getSubmissionPublicationQuery(),
+                singletonMap("submissionId", submissionId), String.class);
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class Queries {
 
     private String submissionsQuery;
+    private String submissionsPmcQuery;
     private String fileAttributesQuery;
     private String linkAttributesQuery;
     private String linksBySectionQuery;
@@ -25,4 +26,5 @@ public class Queries {
     private String singleSubmissionQuery;
     private String userEmailQuery;
     private String updatedSubmissionsQuery;
+    private String submissionPublicationQuery;
 }

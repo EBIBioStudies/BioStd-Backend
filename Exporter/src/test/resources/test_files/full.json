@@ -1,0 +1,129 @@
+{
+  "submissions":[
+    {
+      "id":1,
+      "accno":"S-EPMC2873748",
+      "seckey":null,
+      "relPath":"S-EPMC/S-EPMCxxx748/S-EPMC2873748",
+      "rtime":"1460402396",
+      "ctime":"1460402396",
+      "mtime":"1460402396",
+      "type":"submission",
+      "accessTags":[
+        "biostudies-dev@ebi.ac.uk",
+        "#1"
+      ],
+      "attributes":[
+        {
+          "name":"RootPSubmissionath",
+          "value":"S-EPMC/S-EPMCxxx748/S-EPMC2873748"
+        },
+        {
+          "name":"ReleaseDate",
+          "value":"2016-04-11"
+        },
+        {
+          "name":"Title",
+          "value":"Cost-effectiveness of a potential vaccine for human papillomavirus."
+        }
+      ],
+      "section":{
+        "type":"Study",
+        "attributes":[
+          {
+            "name":"Title",
+            "value":"Cost-effectiveness of a potential vaccine for human papillomavirus."
+          },
+          {
+            "name":"Abstract",
+            "value":"Human papillomavirus (HPV) "
+          }
+        ],
+        "files":[
+          {
+            "path":null,
+            "name":"02-0168_appT-s1.pdf",
+            "size":34984,
+            "attributes":[
+              {
+                "name":"Type",
+                "value":"application(pdf)"
+              }
+            ],
+            "type":"file"
+          }
+        ],
+        "subsections":[
+          {
+            "accno":"PMC2873748",
+            "type":"Publication",
+            "attributes":[
+              {
+                "name":"Journal",
+                "value":"Emerging infectious diseases"
+              },
+              {
+                "name":"Volume",
+                "value":"9(1)"
+              },
+              {
+                "name":"Pages",
+                "value":"37-48"
+              },
+              {
+                "name":"Publication date",
+                "value":"2003 Jan"
+              }
+            ]
+          },
+          {
+            "accno":"a1",
+            "type":"Author",
+            "attributes":[
+              {
+                "name":"Name",
+                "value":"Sanders GD"
+              },
+              {
+                "name":"affiliation",
+                "value":"o1"
+              }
+            ]
+          },
+          {
+            "accno":"a2",
+            "type":"Author",
+            "attributes":[
+              {
+                "name":"Name",
+                "value":"Taira AV"
+              },
+              {
+                "name":"affiliation",
+                "value":"o1"
+              }
+            ]
+          },
+          {
+            "accno":"o1",
+            "type":"Organization",
+            "attributes":[
+              {
+                "name":"Name",
+                "value":"* Stanford University, Stanford, California, USA"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "@startTimeTS":1516015310613,
+  "@endTimeTS":1516015310867,
+  "@submissions":1,
+  "@ioErrors":0,
+  "@threads":1,
+  "@startTime":"2018-01-15 11:21:50",
+  "@endTime":"2018-01-15 11:21:50",
+  "@elapsedTime":"00-00-00"
+}

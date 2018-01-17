@@ -16,6 +16,13 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "jobs.full")
 public class FullExportJobProperties {
 
+    public static final int WORKER_BATCH_SIZE = 50;
+    public static final int FORK_BATCH_SIZE = 100;
+
+    public static final String FORK_JOB = "full-fork-job";
+    public static final String WORK_JOB_NAME_FORMAT = "full-worker-%d";
+    public static final String JOIN_JOB = "full-join-job";
+
     private String fileName;
     private String filePath;
     private int workers;

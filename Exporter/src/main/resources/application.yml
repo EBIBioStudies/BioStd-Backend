@@ -1,3 +1,6 @@
+context:
+  listener:
+    classes: uk.ac.ebi.biostd.exporter.configuration.QueryLoader
 server:
   port: 8181
 logging:
@@ -28,52 +31,79 @@ spring:
   profiles: local
 jobs:
   partial:
+    enabled: false
     filePath: ./generated/
     fileName: studies_partial
     notificationUrl: http://localhost:8181/api/update/partial/
     cron: 0/20 * * * * ? # each 20 seconds
   full:
+    enabled: false
     filePath: ./generated/
     fileName: studies
-    workers: 4
+    workers: 1
     notificationUrl: http://localhost:8181/api/update/full
+    query-modified: limit 100
     cron: 0 0/1 * * * ? # each minute
-    query-modified: and id = 1793573
-
+  pmc:
+    export:
+      enabled: true
+      workers: 1
+      user: elinks
+      password: # to be set in deployment script
+      ftpServer: labslink.ebi.ac.uk
+      outputFolder: zs11dw62/testdir/aaa
+      fileNameFormat: EPMCLinks.part%03d.xml
+      ftpPort: 21
+      cron: 0 0/1 * * * ? # each minute
 ---
 
 spring:
   profiles: beta
 jobs:
   partial:
+    enabled: true
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies_partial
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/
     cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
 
   full:
+    enabled: true
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies
     workers: 4
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
-
+  pmc:
+    export:
+      enabled: false
 ---
 
 spring:
   profiles: prod
 jobs:
   partial:
-    filePath: /nfs/biostudies/.adm/databases/prod/updates/
-    fileName: studies_partial
-    notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/
-    cron: 0 0 0 25 12 ? # at Christmas TODO: add support to "enable" flag instead
+    enabled: false
 
   full:
+    enabled: true
     filePath: /nfs/biostudies/.adm/databases/prod/updates/
     fileName: studies
     workers: 4
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 22 * * ? # everyday at 10 p.m.
+
+  pmc:
+    export:
+      enabled: true
+      workers: 4
+      user: elinks
+      password: # to set in execution script
+      ftpServer: labslink.ebi.ac.uk
+      outputFolder: zs11dw62/links
+      fileNameFormat: EPMCLinks.part%03d.xml
+      ftpPort: 21
+      cron: 0 0 24 * * ? # everyday at 10 p.m.
+      cron: 0 0 01 * * ? # everyday at 01 a.m.

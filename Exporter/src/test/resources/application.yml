@@ -1,0 +1,23 @@
+context:
+  listener:
+    classes: uk.ac.ebi.biostd.exporter.configuration.QueryLoader
+server:
+  port: 8181
+spring:
+  datasource:
+    generate-unique-name: true
+jobs:
+  pmc:
+    export:
+      workers: 1
+      user: pmc
+      password: pmc
+      ftpPort: 43120
+      ftpServer: localhost
+      outputFolder: /data
+      fileNameFormat: EPMCLinks.part%d.xml
+  full:
+    workers: 1
+    filePath: ./generated/
+    fileName: studies
+    notificationUrl: http://localhost:8181/api/update/full

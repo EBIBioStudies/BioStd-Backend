@@ -1,10 +1,14 @@
 package uk.ac.ebi.biostd.exporter.schedulers;
 
-import lombok.AllArgsConstructor;
+import java.util.TimeZone;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.exporter.jobs.full.FullSubmissionExporter;
+import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.partial.PartialSubmissionExporter;
 
 
@@ -15,19 +19,56 @@ import uk.ac.ebi.biostd.exporter.jobs.partial.PartialSubmissionExporter;
  */
 @Slf4j
 @Component
-@AllArgsConstructor
 public class JobsScheduler {
 
-    private final FullSubmissionExporter fullExporter;
-    private final PartialSubmissionExporter partialExporter;
+    private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Europe/London");
 
-    @Scheduled(cron = "${jobs.full.cron}", zone = "Europe/London")
-    public void generateFullExportFile() {
-        fullExporter.execute();
+    private final ExportPipeline fullExporter;
+    private final ExportPipeline pmcExporter;
+    private final PartialSubmissionExporter partialExporter;
+    private final TaskScheduler taskScheduler;
+
+    @Value("${jobs.full.enabled}")
+    private boolean enabledFullExport;
+
+    @Value("${jobs.full.cron}")
+    private String fullCron;
+
+    @Value("${jobs.partial.enabled}")
+    private boolean enabledPartial;
+
+    @Value("${jobs.partial.cron}")
+    private String partialCron;
+
+    @Value("${jobs.pmc.export.enabled}")
+    private boolean enablePmc;
+
+    @Value("${jobs.pmc.export.cron}")
+    private String pmcCron;
+
+    public JobsScheduler(
+            @Qualifier("full") ExportPipeline fullExporter,
+            @Qualifier("pmc") ExportPipeline pmcExporter,
+            PartialSubmissionExporter partialExporter,
+            TaskScheduler taskScheduler) {
+        this.fullExporter = fullExporter;
+        this.partialExporter = partialExporter;
+        this.pmcExporter = pmcExporter;
+        this.taskScheduler = taskScheduler;
     }
 
-    @Scheduled(cron = "${jobs.partial.cron}", zone = "Europe/London")
-    public void generatePartialExportFile() {
-        partialExporter.execute();
+    @PostConstruct
+    public void setupScheduling() {
+        if (enabledFullExport) {
+            taskScheduler.schedule(fullExporter::execute, new CronTrigger(fullCron, TIME_ZONE));
+        }
+
+        if (enabledPartial) {
+            taskScheduler.schedule(partialExporter::execute, new CronTrigger(partialCron, TIME_ZONE));
+        }
+
+        if (enablePmc) {
+            taskScheduler.schedule(pmcExporter::execute, new CronTrigger(pmcCron, TIME_ZONE));
+        }
     }
 }

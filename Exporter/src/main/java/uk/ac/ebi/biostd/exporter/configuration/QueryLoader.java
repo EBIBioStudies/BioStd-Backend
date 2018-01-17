@@ -12,7 +12,7 @@ import uk.ac.ebi.biostd.exporter.persistence.Queries;
 
 /**
  * Listen to application to {@link ApplicationEnvironmentPreparedEvent} then it read queries.xml so they become
- * available thought {@link Queries} file.
+ * available thought {@link Queries} file. Referenced in application.yml properties configuration file
  */
 public class QueryLoader implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
