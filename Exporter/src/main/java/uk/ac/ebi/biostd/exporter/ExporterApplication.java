@@ -12,8 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class ExporterApplication {
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(ExporterApplication.class)
-                //   .listeners(new QueryLoader())
-                .run(args);
+        new SpringApplicationBuilder(ExporterApplication.class).run(args);
     }
 }

@@ -20,5 +20,4 @@ public class DbConfiguration {
     public DataSource dataSource() {
         return new HikariDataSource(hikariConfig());
     }
-
 }

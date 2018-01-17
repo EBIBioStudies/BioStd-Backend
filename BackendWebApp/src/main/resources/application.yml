@@ -6,7 +6,3 @@ server:
 biostd:
   baseDir: /home/jcamilorada/Projects/BioStudies/NFS
   configFile: /home/jcamilorada/Projects/BioStudies/NFS/config.properties
-spring:
-  datasource:
-    tomcat:
-      init-s-q-l: select 1

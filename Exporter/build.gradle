@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.5.7.RELEASE'
+        springBootVersion = '1.5.9.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -31,14 +31,14 @@ dependencies {
     compile('org.easybatch:easybatch-jdbc:5.2.0')
     compile('com.google.guava:guava:23.0')
     compile('com.fasterxml.jackson.core:jackson-core:2.9.1')
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
-    compile group: 'commons-net', name: 'commons-net', version: '3.6'
+    compile('org.apache.commons:commons-lang3:3.6')
+    compile('commons-io:commons-io:2.6')
+    compile('commons-net:commons-net:3.6')
 
-    compile(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.1')
-    compile(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.1')
-    compile(group: 'com.zaxxer', name: 'HikariCP', version: '2.7.1')
-    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile('com.fasterxml.jackson.core:jackson-annotations:2.9.1')
+    compile('com.fasterxml.jackson.core:jackson-databind:2.9.1')
+    compile('com.zaxxer:HikariCP:2.7.1')
+    compile('log4j:log4j:1.2.17')
 
     compile('mysql:mysql-connector-java')
     runtime('com.h2database:h2:1.4.196')
@@ -50,5 +50,4 @@ dependencies {
     testCompile ('org.mockftpserver:MockFtpServer:2.0.2')
     testCompile ('org.json:json:20171018')
     testCompile ('org.xmlunit:xmlunit-core:2.5.1')
-
 }

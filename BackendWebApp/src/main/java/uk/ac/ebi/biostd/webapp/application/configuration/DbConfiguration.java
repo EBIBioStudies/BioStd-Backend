@@ -1,10 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.configuration;
 
 import java.util.Properties;
-import javax.sql.DataSource;
+import org.apache.tomcat.jdbc.pool.DataSource;
 import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
 import org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -15,12 +14,14 @@ public class DbConfiguration {
 
     @Bean
     public DataSource source(ConfigProperties legacyProperties) {
-        return DataSourceBuilder.create()
-                .username(legacyProperties.get("db.hibernate.connection.username"))
-                .password(legacyProperties.get("db.hibernate.connection.password"))
-                .url(legacyProperties.get("db.hibernate.connection.url"))
-                .driverClassName(legacyProperties.get("db.hibernate.connection.driver_class"))
-                .build();
+        DataSource dataSource = new DataSource();
+        dataSource.setDriverClassName(legacyProperties.get("db.hibernate.connection.driver_class"));
+        dataSource.setUrl(legacyProperties.get("db.hibernate.connection.url"));
+        dataSource.setUsername(legacyProperties.get("db.hibernate.connection.username"));
+        dataSource.setPassword(legacyProperties.get("db.hibernate.connection.password"));
+        dataSource.setTestWhileIdle(true);
+        dataSource.setValidationQuery("SELECT 1");
+        return dataSource;
     }
 
     @Bean

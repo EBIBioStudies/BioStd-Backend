@@ -27,12 +27,12 @@ public class ExecutionStats {
 
     @JsonProperty("@startTime")
     public String getStartTime() {
-        return DateUtils.getFromEpochMiliseconds(startTimeTS);
+        return DateUtils.getFromEpochMilliseconds(startTimeTS);
     }
 
     @JsonProperty("@endTime")
     public String getEndTime() {
-        return DateUtils.getFromEpochMiliseconds(endTimeTS);
+        return DateUtils.getFromEpochMilliseconds(endTimeTS);
     }
 
     @JsonProperty("@elapsedTime")
