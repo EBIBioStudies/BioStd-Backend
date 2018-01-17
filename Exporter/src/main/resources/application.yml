@@ -106,3 +106,4 @@ jobs:
       fileNameFormat: EPMCLinks.part%03d.xml
       ftpPort: 21
       cron: 0 0 24 * * ? # everyday at 10 p.m.
+      cron: 0 0 01 * * ? # everyday at 01 a.m.
