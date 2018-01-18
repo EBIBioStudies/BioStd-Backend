@@ -3,4 +3,3 @@ Bio-studies web application provides http services used by submission tool and w
 
 1. Create/Delete/Update submissions
 1. Security login and access check
-

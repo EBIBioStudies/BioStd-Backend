@@ -16,14 +16,15 @@ import uk.ac.ebi.biostd.exporter.jobs.pmc.model.Link;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.model.PmcRecord;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.model.Resource;
 import uk.ac.ebi.biostd.exporter.model.Submission;
-import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 
 @AllArgsConstructor
 @Component
 public class PmcRecordProcessor implements RecordProcessor<Record, Record> {
 
+    /* Size of prefix (S-E) in submissions accession number, used to obtain id*/
+    private static final int ACC_NO_PREFIX_SIZE = 3;
+
     private final String RECORD_SOURCE = PmcRecordProcessor.class.getName();
-    private final SubmissionDao submissionDao;
 
     @Override
     public Record processRecord(Record record) {
@@ -40,7 +41,7 @@ public class PmcRecordProcessor implements RecordProcessor<Record, Record> {
 
             PmcRecord pmcRecord = new PmcRecord();
             pmcRecord.setSource(SOURCE);
-            pmcRecord.setId(submissionDao.getPublicationId(submission.getId()));
+            pmcRecord.setId(submission.getAccno().substring(ACC_NO_PREFIX_SIZE));
             link.setRecord(pmcRecord);
 
             return new GenericRecord<>(new Header(submission.getId(), RECORD_SOURCE, new Date()), link);
