@@ -78,13 +78,18 @@ jobs:
   pmc:
     export:
       enabled: false
+      cron:
 ---
 
 spring:
   profiles: prod
 jobs:
   partial:
-    enabled: false
+    enabled: true
+    filePath: /nfs/biostudies/.adm/databases/prod/updates/
+    fileName: studies_partial
+    notificationUrl: http://ves-ebi-6e:8080/biostudies/preview/api/v1/index/reload/
+    cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
 
   full:
     enabled: true
@@ -105,5 +110,4 @@ jobs:
       outputFolder: zs11dw62/links
       fileNameFormat: EPMCLinks.part%03d.xml
       ftpPort: 21
-      cron: 0 0 24 * * ? # everyday at 10 p.m.
       cron: 0 0 01 * * ? # everyday at 01 a.m.

@@ -83,13 +83,13 @@ public class SecurityManagerImpl implements SecurityManager {
     private User anonUser;
 
     private Collection<ACR> systemACR;
-    private Map<Long, UserGroup> groupMap = new HashMap<>();
-    private Map<Long, User> userMap = new HashMap<>();
-    private Map<String, User> userEmailMap = new HashMap<>();
-    private Map<String, User> userLoginMap = new HashMap<>();
-    private Map<String, User> userSSOSubjectMap = new HashMap<>();
-    private Map<String, UserGroup> groupNameMap = new HashMap<>();
-    private Map<Long, PermissionProfile> profileMap = new HashMap<>();
+    private final Map<Long, UserGroup> groupMap = new HashMap<>();
+    private final Map<Long, User> userMap = new HashMap<>();
+    private final Map<String, User> userEmailMap = new HashMap<>();
+    private final Map<String, User> userLoginMap = new HashMap<>();
+    private final Map<String, User> userSSOSubjectMap = new HashMap<>();
+    private final Map<String, UserGroup> groupNameMap = new HashMap<>();
+    private final Map<Long, PermissionProfile> profileMap = new HashMap<>();
 
 
     public SecurityManagerImpl() {
@@ -110,6 +110,7 @@ public class SecurityManagerImpl implements SecurityManager {
 
     private void loadCache() {
         EntityManager em = BackendConfig.getEntityManagerFactory().createEntityManager();
+
         try {
             systemACR = new ArrayList<>();
 
@@ -861,7 +862,6 @@ public class SecurityManagerImpl implements SecurityManager {
         return checkSubmissionPermission(sbm, usr, SystemAction.ATTACHSUBM);
     }
 
-
     @Override
     public boolean mayEveryoneReadSubmission(Submission submission) {
         if (anonUser.getLogin().equals(submission.getOwner().getLogin())) {
@@ -1437,7 +1437,7 @@ public class SecurityManagerImpl implements SecurityManager {
 
     class SystemPermAA implements ACLObjectAdapter {
 
-        private EntityManager em;
+        private final EntityManager em;
 
         public SystemPermAA(EntityManager em) {
             this.em = em;
