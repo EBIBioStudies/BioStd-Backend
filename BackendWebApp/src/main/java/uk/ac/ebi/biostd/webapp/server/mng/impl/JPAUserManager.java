@@ -80,23 +80,21 @@ public class JPAUserManager implements UserManager, SessionListener {
             throws UserMngException {
 
         user.setSecret(UUID.randomUUID().toString());
+        user.setActive(true);
 
-        UUID actKey = UUID.randomUUID();
+        if (aux != null) {
+            user.setAuxProfileInfo(UserAuxXMLFormatter.buildXML(aux));
+        }
 
         if (validateEmail) {
+            UUID actKey = UUID.randomUUID();
             user.setActive(false);
             user.setActivationKey(actKey.toString());
             user.setKeyTime(System.currentTimeMillis());
 
-            if (aux != null) {
-                user.setAuxProfileInfo(UserAuxXMLFormatter.buildXML(aux));
-            }
-
             if (!AccountActivation.sendActivationRequest(user, actKey, validateURL)) {
                 throw new SystemUserMngException("Email confirmation request can't be sent. Please try later");
             }
-        } else {
-            user.setActive(true);
         }
 
         try {
@@ -117,7 +115,6 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public synchronized void removeGroup(String gName) throws UserMngException {
-
         UserGroup ug = BackendConfig.getServiceManager().getSecurityManager().getGroup(gName);
 
         if (ug == null) {
@@ -157,10 +154,8 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     }
 
-
     @Override
     public synchronized void addGroup(UserGroup ug) throws UserMngException {
-
         ug.setSecret(UUID.randomUUID().toString());
 
         try {
