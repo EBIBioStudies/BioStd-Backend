@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.exporter.jobs.full.json;
 
+import static java.util.Collections.singletonMap;
 import static org.easybatch.core.job.JobBuilder.aNewJob;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +21,7 @@ import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
+import uk.ac.ebi.biostd.exporter.persistence.dao.MetricsDao;
 import uk.ac.ebi.biostd.exporter.utils.JsonUtil;
 
 /**
@@ -34,6 +36,7 @@ public final class JsonSubmissionExporter implements FullExportJob {
     private static final String JOB_NAME = "join-job-json";
 
     private final SubmissionJsonProcessor submissionJsonProcessor;
+    private final MetricsDao metricsDao;
     private final ObjectMapper objectMapper;
     private final FullExportJobProperties jobProperties;
 
@@ -59,6 +62,10 @@ public final class JsonSubmissionExporter implements FullExportJob {
     @Override
     @SneakyThrows
     public void writeJobStats(ExecutionStats stats) {
+        stats = stats.toBuilder().
+                metrics(singletonMap("@totalFileSize", metricsDao.getTotalFileSize()))
+                .build();
+
         try (FileWriter writer = new FileWriter(getFileName(), true)) {
             writer.append(",");
             writer.append(JsonUtil.unWrapJsonObject(objectMapper.writeValueAsString(stats)));

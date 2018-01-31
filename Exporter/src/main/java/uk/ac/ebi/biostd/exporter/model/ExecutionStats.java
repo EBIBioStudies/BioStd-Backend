@@ -1,13 +1,15 @@
 package uk.ac.ebi.biostd.exporter.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.ac.ebi.biostd.exporter.utils.DateUtils;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class ExecutionStats {
 
     @JsonProperty("@startTimeTS")
@@ -24,6 +26,13 @@ public class ExecutionStats {
 
     @JsonProperty("@threads")
     private long threads;
+
+    private Map<String, Object> metrics;
+
+    @JsonAnyGetter
+    private Map<String, Object> getMetrics() {
+        return metrics;
+    }
 
     @JsonProperty("@startTime")
     public String getStartTime() {

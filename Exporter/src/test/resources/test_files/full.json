@@ -125,5 +125,6 @@
   "@threads":1,
   "@startTime":"2018-01-15 11:21:50",
   "@endTime":"2018-01-15 11:21:50",
-  "@elapsedTime":"00-00-00"
+  "@elapsedTime":"00-00-00",
+  "@totalFileSize": 34984
 }
