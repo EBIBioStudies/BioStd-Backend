@@ -1,9 +1,12 @@
 package uk.ac.ebi.biostd.exporter.configuration;
 
+import java.util.Arrays;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.env.PropertySourcesLoader;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
@@ -16,13 +19,21 @@ import uk.ac.ebi.biostd.exporter.persistence.Queries;
  */
 public class QueryLoader implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
+    private static final List<String> RESOURCES = Arrays.asList("classpath:queries.xml", "classpath:aux_queries.xml");
+
     private final ResourceLoader loader = new DefaultResourceLoader();
 
     @Override
-    @SneakyThrows
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-        Resource resource = loader.getResource("classpath:queries.xml");
+        MutablePropertySources sources = event.getEnvironment().getPropertySources();
+
+        RESOURCES.forEach(path -> loadResource(sources, path));
+    }
+
+    @SneakyThrows
+    private void loadResource(MutablePropertySources sources, String path) {
+        Resource resource = loader.getResource(path);
         PropertySource<?> propertySource = new PropertySourcesLoader().load(resource);
-        event.getEnvironment().getPropertySources().addLast(propertySource);
+        sources.addLast(propertySource);
     }
 }
