@@ -9,4 +9,6 @@ public interface ExportJob {
     void writeJobStats(ExecutionStats stats);
 
     List<QueueJob> getJoinJob(int workers);
+
+    int getWorkers();
 }

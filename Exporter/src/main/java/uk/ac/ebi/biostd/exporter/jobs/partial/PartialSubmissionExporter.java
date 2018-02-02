@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -40,7 +41,7 @@ public class PartialSubmissionExporter {
     private long lastSyncTime = getBeginOfTheDateEpoch();
 
     public void execute() {
-        log.info("executing partial export file job at {}", Instant.now());
+        log.info("executing partial export file job at {}", Instant.now(Clock.systemUTC()));
         List<Submission> submissions = submissionService.getUpdatedSubmissions(lastSyncTime);
 
         if (submissions.size() > 0) {

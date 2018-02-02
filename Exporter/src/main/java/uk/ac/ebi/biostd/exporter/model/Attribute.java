@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.ac.ebi.biostd.exporter.jobs.full.xml.BooleanAdapter;
+import uk.ac.ebi.biostd.exporter.jobs.full.xml.parsing.BooleanAdapter;
 
 @Data
 @AllArgsConstructor

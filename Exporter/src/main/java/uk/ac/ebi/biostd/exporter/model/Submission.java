@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.ac.ebi.biostd.exporter.jobs.full.xml.AccessTagsXmlAdapter;
+import uk.ac.ebi.biostd.exporter.jobs.full.xml.parsing.AccessTagsXmlAdapter;
 
 @Data
 @NoArgsConstructor

@@ -16,12 +16,12 @@ public class JobsPipelinesConfiguration {
     @Bean
     @Qualifier("full")
     public ExportPipeline exportPipeline(FullExport fullExport, FullJobJobsFactory fullJobsFactory) {
-        return new ExportPipeline(1, ImmutableList.of(fullExport), fullJobsFactory);
+        return new ExportPipeline(fullExport.getWorkers(), ImmutableList.of(fullExport), fullJobsFactory);
     }
 
     @Bean
     @Qualifier("pmc")
     public ExportPipeline pmcExportPipeline(PmcExport pmcExport, PmcJobsFactory jobsFactory) {
-        return new ExportPipeline(1, ImmutableList.of(pmcExport), jobsFactory);
+        return new ExportPipeline(pmcExport.getWorkers(), ImmutableList.of(pmcExport), jobsFactory);
     }
 }

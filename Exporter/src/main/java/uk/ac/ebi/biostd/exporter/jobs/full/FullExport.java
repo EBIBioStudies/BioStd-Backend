@@ -14,6 +14,7 @@ import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 public class FullExport implements ExportJob {
 
     private final List<FullExportJob> exportJobs;
+    private final FullExportJobProperties jobProperties;
 
     @Override
     public void writeJobStats(ExecutionStats stats) {
@@ -22,6 +23,13 @@ public class FullExport implements ExportJob {
 
     @Override
     public List<QueueJob> getJoinJob(int workers) {
-        return exportJobs.stream().map(job -> job.getJoinJob(workers)).collect(Collectors.toList());
+        return exportJobs.stream()
+                .map(job -> job.getJoinJob(workers))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int getWorkers() {
+        return jobProperties.getWorkers();
     }
 }
