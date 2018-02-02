@@ -65,4 +65,9 @@ public class PmcExport implements ExportJob {
         return Collections.singletonList(new QueueJob(processQueue, job));
     }
 
+    @Override
+    public int getWorkers() {
+        return properties.getWorkers();
+    }
+
 }

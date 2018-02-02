@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.full.xml;
+package uk.ac.ebi.biostd.exporter.jobs.full.xml.parsing;
 
 import java.util.List;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
