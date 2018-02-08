@@ -23,7 +23,7 @@ public class LegacyConfiguration {
         return new ConfigurationManager(context, environment);
     }
 
-    @Bean()
+    @Bean
     public ApplicationInitializer appInitializer(ServletContext context, ConfigurationManager manager) {
         return new ApplicationInitializer(context, manager);
     }

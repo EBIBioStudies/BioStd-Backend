@@ -292,12 +292,12 @@ public class SecurityManagerImpl implements SecurityManager {
         return usr;
     }
 
-    private boolean checkPasswordHash(User u, String uHash) {
-        if (u.getPasswordDigest() == null) {
+    private boolean checkPasswordHash(User username, String password) {
+        if (username.getPasswordDigest() == null) {
             return false;
         }
 
-        return uHash.equalsIgnoreCase(StringUtils.toHexStr(u.getPasswordDigest()));
+        return password.equalsIgnoreCase(StringUtils.toHexStr(username.getPasswordDigest()));
     }
 
     @Override
@@ -327,7 +327,7 @@ public class SecurityManagerImpl implements SecurityManager {
     }
 
     @Override
-    public synchronized User addUser(User u) throws ServiceException {
+    public synchronized User addUser(User user) throws ServiceException {
         EntityManager em = null;
         Collection<UserACR> newSysACR = null;
 
@@ -341,7 +341,7 @@ public class SecurityManagerImpl implements SecurityManager {
 
             if ((Long) q.getSingleResult() == 0) {
                 DBInitializer.init();
-                u.setSuperuser(true);
+                user.setSuperuser(true);
                 init();
             }
 
@@ -365,7 +365,7 @@ public class SecurityManagerImpl implements SecurityManager {
                         SystemPermUsrACR sp = new SystemPermUsrACR();
                         sp.setAction(acr.getAction());
                         sp.setAllow(acr.isAllow());
-                        sp.setSubject(u);
+                        sp.setSubject(user);
 
                         em.persist(sp);
 
@@ -378,7 +378,7 @@ public class SecurityManagerImpl implements SecurityManager {
                 if (r4u != null) {
                     for (TemplateProfUsrACR acr : r4u) {
                         SystemProfUsrACR sp = new SystemProfUsrACR();
-                        sp.setSubject(u);
+                        sp.setSubject(user);
                         sp.setProfile(acr.getProfile());
 
                         em.persist(sp);
@@ -388,7 +388,7 @@ public class SecurityManagerImpl implements SecurityManager {
                 }
             }
 
-            em.persist(u);
+            em.persist(user);
 
             trn.commit();
         } catch (Exception e) {
@@ -408,7 +408,7 @@ public class SecurityManagerImpl implements SecurityManager {
             throw new ServiceException("JPA exception: " + e.getClass().getName() + ": " + e.getMessage(), e);
         }
 
-        User du = detachUser(u);
+        User du = detachUser(user);
 
         if (newSysACR != null) {
 

@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.webapp.server.endpoint.tools;
 
+import static uk.ac.ebi.biostd.webapp.server.endpoint.tools.ToolsServlet.Operation.REFRESH_USERS;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -16,7 +18,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,24 +41,22 @@ public class ToolsServlet extends ServiceServlet {
     private volatile boolean moreWorkToDo = true;
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
-            throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess) throws IOException {
 
-        if (sess == null || sess.isAnonymouns()) {
+        Operation act = getAction(req, resp);
+        if (act == null) {
+            return;
+        }
+
+        if (act != REFRESH_USERS && (sess == null || sess.isAnonymouns())) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().print("FAIL User not logged in");
             return;
         }
 
-        if (!sess.getUser().isSuperuser()) {
+        if (act != REFRESH_USERS && !sess.getUser().isSuperuser()) {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             resp.getWriter().print("FAIL Only superuser can run it");
-            return;
-        }
-
-        Operation act = getAction(req, resp);
-
-        if (act == null) {
             return;
         }
 
