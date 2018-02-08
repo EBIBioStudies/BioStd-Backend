@@ -29,7 +29,7 @@ public class AccessManager {
     private final UserTagPermissionRepository userTagPermissionRepository;
     private final SubmissionRepository submissionRepository;
     private final AccessTagsRepository tagsRepository;
-    private final UserManager userManager;
+    private final UsersManager userManager;
 
     public List<Submission> getAllowedProjects(long userId) {
         User user = userRepository.findOne(userId);

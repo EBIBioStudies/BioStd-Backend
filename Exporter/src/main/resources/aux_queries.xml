@@ -5,7 +5,7 @@
   <entry key="submissionsTotalFileSize">
     SELECT sum(SIZE)
     FROM FileRef fr
-      INNER JOIN SECTION sec ON sec.id = fr.sectionId
+      INNER JOIN Section sec ON sec.id = fr.sectionId
       INNER JOIN Submission sub ON sub.id = sec.id
     WHERE sub.version > 0
   </entry>

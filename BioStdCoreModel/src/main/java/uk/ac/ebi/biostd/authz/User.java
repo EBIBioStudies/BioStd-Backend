@@ -44,7 +44,6 @@ import javax.persistence.Transient;
         @Index(name = "email_index", columnList = "email", unique = true)})
 public class User implements AuthzSubject, Serializable {
 
-    //
     public static final String GetByLoginQuery = "User.getByLogin";
     public static final String GetByEMailQuery = "User.getByEMail";
     public static final String GetByIdQuery = "User.getById";

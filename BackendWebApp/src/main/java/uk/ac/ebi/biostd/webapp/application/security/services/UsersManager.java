@@ -9,7 +9,7 @@ import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserRepositor
 
 @Component
 @AllArgsConstructor
-public class UserManager {
+public class UsersManager {
 
     private final UserRepository userRepository;
 

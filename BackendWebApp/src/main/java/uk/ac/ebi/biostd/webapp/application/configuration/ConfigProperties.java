@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigProperties {
 
-    private static final String CONFIG_FILE_LOCATION_VAR = "biostudy.configFile";
+    public static final String CONFIG_FILE_LOCATION_VAR = "biostudy.configFile";
 
     private final Properties properties;
     private final Environment environment;

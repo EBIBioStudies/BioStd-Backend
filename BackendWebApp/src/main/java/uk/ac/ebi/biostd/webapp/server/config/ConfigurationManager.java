@@ -121,6 +121,7 @@ public class ConfigurationManager {
     private static final String SSOAuthPemURLParameter = "sso.auth.url";
     private static final long dayInMills = TimeUnit.DAYS.toMillis(1);
     private static final long hourInMills = TimeUnit.HOURS.toMillis(1);
+    public static final String BIOSTUDY_BASE_DIR = "biostudy.baseDir";
 
     private final ParamPool contextParamPool;
     private final Environment springEnvironment;
@@ -172,7 +173,7 @@ public class ConfigurationManager {
             readConfiguration(contextParamPool, cfgBean);
         }
 
-        String baseDir = springEnvironment.getProperty("biostudy.baseDir");
+        String baseDir = springEnvironment.getProperty(BIOSTUDY_BASE_DIR);
         if (baseDir != null) {
             cfgBean.setBaseDirectory(new java.io.File(baseDir).toPath());
         }
