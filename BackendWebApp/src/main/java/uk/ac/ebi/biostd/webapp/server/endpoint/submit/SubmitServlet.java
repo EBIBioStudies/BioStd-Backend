@@ -1,29 +1,19 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.endpoint.submit;
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation.DELETE;
+import static uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation.REMOVE;
+import static uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation.TRANKLUCATE;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
@@ -35,138 +25,92 @@ import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
-import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
+import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation;
+import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRefParser;
 
 @WebServlet(urlPatterns = "/submit/*")
+@AllArgsConstructor
 public class SubmitServlet extends ServiceServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String validateOnlyParameter = "validateOnly";
-    private static final String ignoreAbsentFilesParameter = "ignoreAbsentFiles";
-    private static final String idParameter = "id";
-    private static final String accnoParameter = "accno";
-    private static final String accnoPatternParameter = "accnoPattern";
-    private static final String requestIdParameter = "requestId";
-    private static final String tagsParameter = "tags";
-    private static final String accessParameter = "access";
-    private static final String releaseDateParameter = "releaseDate";
-    private static final String onBehalfParameter = "onBehalf";
-    private static final String ownerParameter = "owner";
+    private static final String VALIDATE_ONLY_PARAMETER = "validateOnly";
+    private static final String IGNORE_ABSENT_FILES_PARAMETER = "ignoreAbsentFiles";
+    private static final String ID_PARAMETER = "id";
+    private static final String ACC_NO_PARAMETER = "accno";
+    private static final String ACC_NO_PATTERN_PARAMETER = "accnoPattern";
+    private static final String TAGS_PARAMETER = "tags";
+    private static final String ACCESS_PARAMETER = "access";
+    private static final String RELEASE_DATE_PARAMETER = "releaseDate";
+    private static final String ON_BEHALF_PARAMETER = "onBehalf";
+    private static final String OWNER_PARAMETER = "owner";
+
+    private final UserManager userManager;
+    private final SubmissionManager submissionManager;
 
     @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response, Session sess)
-            throws ServletException, IOException {
-        String reqId = request.getParameter(requestIdParameter);
+    protected void service(HttpServletRequest request, HttpServletResponse response, Session sess) throws IOException {
 
-        if (reqId != null && BackendConfig.isEnableUnsafeRequests()) {
-            String tname = Thread.currentThread().getName();
-
-            try {
-                Thread.currentThread().setName(reqId);  //to simplify tracing/debugging
-
-                serviceContinue(request, response, sess);
-            } finally {
-                Thread.currentThread().setName(tname);
-            }
-        } else {
-            serviceContinue(request, response, sess);
-        }
-
-    }
-
-    protected void serviceContinue(HttpServletRequest request, HttpServletResponse response, Session sess)
-            throws ServletException, IOException {
-        if (sess == null || sess.isAnonymouns()) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("text/plain");
-            response.getWriter().print("FAIL User not logged in");
+        if (isAntonymous(sess)) {
+            unauthorized(response);
             return;
         }
 
-        Operation act = null;
-
-        String pi = request.getPathInfo();
-
-        if (pi != null && pi.length() > 1) {
-            pi = pi.substring(1);
-
-            for (Operation op : Operation.values()) {
-                if (op.name().equalsIgnoreCase(pi)) {
-                    act = op;
-                    break;
-                }
-            }
-
-        }
-
-        if (act == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setContentType("text/plain");
-            response.getWriter().print("FAIL Invalid path: " + pi);
+        Operation operation = getOperation(request.getPathInfo());
+        if (operation == null) {
+            badRequest(request, response);
             return;
         }
 
-        User usr = sess.getUser();
-
-        String obUser = request.getParameter(onBehalfParameter);
+        User user = sess.getUser();
+        String obUser = request.getParameter(ON_BEHALF_PARAMETER);
 
         if (obUser != null) {
-            if (!usr.isSuperuser()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.setContentType("text/plain");
-                response.getWriter().print("FAIL only superuser can performe actions on behalf of other user");
-                return;
+            if (!user.isSuperuser()) {
+                notSuperuser(response);
             }
 
-            usr = BackendConfig.getServiceManager().getUserManager().getUserByLogin(obUser);
-
-            if (usr == null) {
-                usr = BackendConfig.getServiceManager().getUserManager().getUserByEmail(obUser);
-            }
-
-            if (usr == null) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            user = userManager.getUserByLoginOrEmail(obUser);
+            if (user == null) {
+                response.setStatus(SC_BAD_REQUEST);
                 response.setContentType("text/plain");
                 response.getWriter().print("FAIL invalid 'onBehalf' user");
-                return;
             }
-
         }
 
-        if (act == Operation.DELETE) {
-            processDelete(request, response, true, usr);
+        if (operation == DELETE) {
+            processDelete(request, response, true, user);
             return;
         }
 
-        if (act == Operation.REMOVE) {
-            processDelete(request, response, false, usr);
+        if (operation == REMOVE) {
+            processDelete(request, response, false, user);
             return;
         }
 
-        if (act == Operation.TRANKLUCATE) {
-            processTranklucate(request, response, usr);
+        if (operation == TRANKLUCATE) {
+            processTranklucate(request, response, user);
             return;
         }
 
-        if (act == Operation.SETMETA) {
-            processSetMeta(request, response, usr);
+        if (operation == Operation.SETMETA) {
+            processSetMeta(request, response, user);
             return;
         }
 
-        if (act == Operation.CHOWN) {
-            processChown(request, response, usr);
+        if (operation == Operation.CHOWN) {
+            processChown(request, response, user);
             return;
         }
 
         String cType = request.getContentType();
 
         if (cType == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(SC_BAD_REQUEST);
             response.getWriter().print("FAIL 'Content-type' header missing");
             return;
         }
@@ -187,7 +131,7 @@ public class SubmitServlet extends ServiceServlet {
         }
 
         if (fmt == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(SC_BAD_REQUEST);
             response.getWriter().print("FAIL Content type '" + cType + "' is not supported");
             return;
         }
@@ -195,48 +139,59 @@ public class SubmitServlet extends ServiceServlet {
         byte[] data = IOUtils.toByteArray(request.getInputStream());
 
         if (data.length == 0) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(SC_BAD_REQUEST);
             response.getWriter().print("FAIL Empty request body");
             return;
         }
 
-        String vldPrm = request.getParameter(validateOnlyParameter);
-        String ignPrm = request.getParameter(ignoreAbsentFilesParameter);
+        boolean validateOnly = getParameterAsBolean(request.getParameter(VALIDATE_ONLY_PARAMETER));
+        boolean ignAbsFiles = getParameterAsBolean(request.getParameter(IGNORE_ABSENT_FILES_PARAMETER));
 
-        boolean validateOnly =
-                vldPrm != null && ("true".equalsIgnoreCase(vldPrm) || "yes".equalsIgnoreCase(vldPrm) || "1"
-                        .equals(vldPrm));
-        boolean ignAbsFiles =
-                ignPrm != null && ("true".equalsIgnoreCase(ignPrm) || "yes".equalsIgnoreCase(ignPrm) || "1"
-                        .equals(ignPrm));
+        SubmissionReport submissionReport = submissionManager.createSubmission(
+                data, fmt, request.getCharacterEncoding(), operation, user, validateOnly, ignAbsFiles);
 
-        SubmissionReport res = BackendConfig.getServiceManager().getSubmissionManager()
-                .createSubmission(data, fmt, request.getCharacterEncoding(), act, usr, validateOnly, ignAbsFiles);
-
-        LogNode topLn = res.getLog();
-
+        LogNode topLn = submissionReport.getLog();
         SimpleLogNode.setLevels(topLn);
-
         response.setContentType("application/json");
+        JSON4Report.convert(submissionReport, response.getWriter());
+    }
 
-        JSON4Report.convert(res, response.getWriter());
+    private boolean getParameterAsBolean(String parameter) {
+        return parameter != null &&
+                ("true".equalsIgnoreCase(parameter) || "yes".equalsIgnoreCase(parameter) || "1".equals(parameter));
+    }
 
+    private Operation getOperation(String pathInfo) {
+        Operation operation = null;
+
+        if (pathInfo != null && pathInfo.length() > 1) {
+            pathInfo = pathInfo.substring(1);
+
+            for (Operation op : Operation.values()) {
+                if (op.name().equalsIgnoreCase(pathInfo)) {
+                    operation = op;
+                    break;
+                }
+            }
+        }
+
+        return operation;
     }
 
     private void processSetMeta(HttpServletRequest request, HttpServletResponse response, User usr) throws IOException {
-        String sbmAcc = request.getParameter(accnoParameter);
+        String sbmAcc = request.getParameter(ACC_NO_PARAMETER);
 
         if (sbmAcc == null) {
-            sbmAcc = request.getParameter(idParameter);
+            sbmAcc = request.getParameter(ID_PARAMETER);
         }
 
         if (sbmAcc == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().print("FAIL '" + accnoParameter + "' parameter is not specified");
+            response.setStatus(SC_BAD_REQUEST);
+            response.getWriter().print("FAIL '" + ACC_NO_PARAMETER + "' parameter is not specified");
             return;
         }
 
-        String val = request.getParameter(tagsParameter);
+        String val = request.getParameter(TAGS_PARAMETER);
 
         List<TagRef> tags = null;
 
@@ -244,13 +199,13 @@ public class SubmitServlet extends ServiceServlet {
             try {
                 tags = TagRefParser.parseTags(val);
             } catch (ParserException e) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().print("FAIL invalid '" + tagsParameter + "' parameter value");
+                response.setStatus(SC_BAD_REQUEST);
+                response.getWriter().print("FAIL invalid '" + TAGS_PARAMETER + "' parameter value");
                 return;
             }
         }
 
-        val = request.getParameter(accessParameter);
+        val = request.getParameter(ACCESS_PARAMETER);
 
         Set<String> access = null;
 
@@ -269,7 +224,7 @@ public class SubmitServlet extends ServiceServlet {
 
         }
 
-        val = request.getParameter(releaseDateParameter);
+        val = request.getParameter(RELEASE_DATE_PARAMETER);
 
         long rTime = -1;
 
@@ -277,23 +232,21 @@ public class SubmitServlet extends ServiceServlet {
             rTime = Submission.readReleaseDate(val);
 
             if (rTime < 0) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().print("FAIL Invalid '" + releaseDateParameter
+                response.setStatus(SC_BAD_REQUEST);
+                response.getWriter().print("FAIL Invalid '" + RELEASE_DATE_PARAMETER
                         + "' parameter value. Expected date in format: YYYY-MM-DD[Thh:mm[:ss[.mmm]]]");
                 return;
             }
 
         }
 
-        LogNode topLn = BackendConfig.getServiceManager().getSubmissionManager()
-                .updateSubmissionMeta(sbmAcc, tags, access, rTime, usr);
-
+        LogNode topLn = submissionManager.updateSubmissionMeta(sbmAcc, tags, access, rTime, usr);
         SimpleLogNode.setLevels(topLn);
         JSON4Log.convert(topLn, response.getWriter());
 
     }
 
-    public void processDelete(HttpServletRequest request, HttpServletResponse response, boolean toHistory, User usr)
+    private void processDelete(HttpServletRequest request, HttpServletResponse response, boolean toHistory, User usr)
             throws IOException {
         String sbmAcc = request.getParameter("accno");
 
@@ -302,45 +255,42 @@ public class SubmitServlet extends ServiceServlet {
         }
 
         if (sbmAcc == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(SC_BAD_REQUEST);
             response.getWriter().print("FAIL 'id' parameter is not specified");
             return;
         }
 
         response.setContentType("application/json");
-
-        LogNode topLn = BackendConfig.getServiceManager().getSubmissionManager()
-                .deleteSubmissionByAccession(sbmAcc, toHistory, usr);
-
+        LogNode topLn = submissionManager.deleteSubmissionByAccession(sbmAcc, toHistory, usr);
         SimpleLogNode.setLevels(topLn);
         JSON4Log.convert(topLn, response.getWriter());
 
     }
 
-    public void processChown(HttpServletRequest request, HttpServletResponse response, User usr) throws IOException {
-        String sbmAcc = request.getParameter(accnoParameter);
-        String patAcc = request.getParameter(accnoPatternParameter);
+    private void processChown(HttpServletRequest request, HttpServletResponse response, User usr) throws IOException {
+        String sbmAcc = request.getParameter(ACC_NO_PARAMETER);
+        String patAcc = request.getParameter(ACC_NO_PATTERN_PARAMETER);
 
         if (patAcc == null) {
             if (sbmAcc == null) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().print("FAIL '" + accnoParameter + "' or '" + accnoPatternParameter
+                response.setStatus(SC_BAD_REQUEST);
+                response.getWriter().print("FAIL '" + ACC_NO_PARAMETER + "' or '" + ACC_NO_PATTERN_PARAMETER
                         + "' parameter is not specified");
                 return;
             }
         } else if (sbmAcc != null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().print("FAIL Parameters '" + accnoParameter + "' and '" + accnoPatternParameter
+            response.setStatus(SC_BAD_REQUEST);
+            response.getWriter().print("FAIL Parameters '" + ACC_NO_PARAMETER + "' and '" + ACC_NO_PATTERN_PARAMETER
                     + "' can'n be used at the same time");
             return;
         }
 
-        if (patAcc != null) //&& patAcc.length() < 5 && patAcc.startsWith("%") || patAcc.startsWith("") )
+        if (patAcc != null)
         {
             if (patAcc.length() < 5) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setStatus(SC_BAD_REQUEST);
                 response.getWriter()
-                        .print("FAIL Invalid '" + accnoPatternParameter + "' parameter value. Pattern is too short");
+                        .print("FAIL Invalid '" + ACC_NO_PATTERN_PARAMETER + "' parameter value. Pattern is too short");
                 return;
             }
 
@@ -357,41 +307,35 @@ public class SubmitServlet extends ServiceServlet {
             }
 
             if (pfxLen < 5) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().print("FAIL Invalid '" + accnoPatternParameter
+                response.setStatus(SC_BAD_REQUEST);
+                response.getWriter().print("FAIL Invalid '" + ACC_NO_PATTERN_PARAMETER
                         + "' parameter value. Pattern is too loose. Should have 5 characters prefix");
                 return;
             }
         }
 
-        String owner = request.getParameter(ownerParameter);
+        String owner = request.getParameter(OWNER_PARAMETER);
 
         if (owner == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().print("FAIL '" + ownerParameter + "' parameter missing");
+            response.setStatus(SC_BAD_REQUEST);
+            response.getWriter().print("FAIL '" + OWNER_PARAMETER + "' parameter missing");
             return;
         }
 
-        response.setContentType("application/json");
-
-        LogNode topLn = null;
-
-        if (sbmAcc != null) {
-            topLn = BackendConfig.getServiceManager().getSubmissionManager().changeOwnerByAccession(sbmAcc, owner, usr);
-        } else {
-            topLn = BackendConfig.getServiceManager().getSubmissionManager()
-                    .changeOwnerByAccessionPattern(patAcc, owner, usr);
-        }
+        LogNode topLn = sbmAcc != null ?
+                submissionManager.changeOwnerByAccession(sbmAcc, owner, usr) :
+                submissionManager.changeOwnerByAccessionPattern(patAcc, owner, usr);
 
         SimpleLogNode.setLevels(topLn);
+        response.setContentType("application/json");
         JSON4Log.convert(topLn, response.getWriter());
     }
 
-    public void processTranklucate(HttpServletRequest request, HttpServletResponse response, User usr)
+    private void processTranklucate(HttpServletRequest request, HttpServletResponse response, User usr)
             throws IOException {
-        String sbmID = request.getParameter(idParameter);
-        String sbmAcc = request.getParameter(accnoParameter);
-        String patAcc = request.getParameter(accnoPatternParameter);
+        String sbmID = request.getParameter(ID_PARAMETER);
+        String sbmAcc = request.getParameter(ACC_NO_PARAMETER);
+        String patAcc = request.getParameter(ACC_NO_PATTERN_PARAMETER);
 
         boolean clash = false;
 
@@ -408,17 +352,17 @@ public class SubmitServlet extends ServiceServlet {
                 clash = true;
             }
         } else {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(SC_BAD_REQUEST);
             response.getWriter()
-                    .print("FAIL '" + idParameter + "' or '" + accnoParameter + "' or '" + accnoPatternParameter
+                    .print("FAIL '" + ID_PARAMETER + "' or '" + ACC_NO_PARAMETER + "' or '" + ACC_NO_PATTERN_PARAMETER
                             + "' parameter is not specified");
             return;
         }
 
         if (clash) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().print("FAIL Parameters '" + idParameter + "', '" + accnoParameter + "' and '"
-                    + accnoPatternParameter + "' can'n be used at the same time");
+            response.setStatus(SC_BAD_REQUEST);
+            response.getWriter().print("FAIL Parameters '" + ID_PARAMETER + "', '" + ACC_NO_PARAMETER + "' and '"
+                    + ACC_NO_PATTERN_PARAMETER + "' can'n be used at the same time");
             return;
         }
 
@@ -428,18 +372,18 @@ public class SubmitServlet extends ServiceServlet {
             try {
                 id = Integer.parseInt(sbmID);
             } catch (Exception e) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().print("FAIL Invalid '" + idParameter + "' parameter value. Must be integer");
+                response.setStatus(SC_BAD_REQUEST);
+                response.getWriter().print("FAIL Invalid '" + ID_PARAMETER + "' parameter value. Must be integer");
                 return;
             }
         }
 
-        if (patAcc != null) //&& patAcc.length() < 5 && patAcc.startsWith("%") || patAcc.startsWith("") )
+        if (patAcc != null)
         {
             if (patAcc.length() < 5) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setStatus(SC_BAD_REQUEST);
                 response.getWriter()
-                        .print("FAIL Invalid '" + accnoPatternParameter + "' parameter value. Pattern is too short");
+                        .print("FAIL Invalid '" + ACC_NO_PATTERN_PARAMETER + "' parameter value. Pattern is too short");
                 return;
             }
 
@@ -456,30 +400,25 @@ public class SubmitServlet extends ServiceServlet {
             }
 
             if (pfxLen < 5) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().print("FAIL Invalid '" + accnoPatternParameter
+                response.setStatus(SC_BAD_REQUEST);
+                response.getWriter().print("FAIL Invalid '" + ACC_NO_PATTERN_PARAMETER
                         + "' parameter value. Pattern is too loose. Should have 5 characters prefix");
                 return;
             }
         }
 
         response.setContentType("application/json");
-
         LogNode topLn = null;
 
         if (sbmID != null) {
-            topLn = BackendConfig.getServiceManager().getSubmissionManager().tranklucateSubmissionById(id, usr);
+            topLn = submissionManager.tranklucateSubmissionById(id, usr);
         } else if (sbmAcc != null) {
-            topLn = BackendConfig.getServiceManager().getSubmissionManager()
-                    .tranklucateSubmissionByAccession(sbmAcc, usr);
+            topLn = submissionManager.tranklucateSubmissionByAccession(sbmAcc, usr);
         } else {
-            topLn = BackendConfig.getServiceManager().getSubmissionManager()
-                    .tranklucateSubmissionByAccessionPattern(patAcc, usr);
+            topLn = submissionManager.tranklucateSubmissionByAccessionPattern(patAcc, usr);
         }
 
         SimpleLogNode.setLevels(topLn);
         JSON4Log.convert(topLn, response.getWriter());
-
     }
-
 }

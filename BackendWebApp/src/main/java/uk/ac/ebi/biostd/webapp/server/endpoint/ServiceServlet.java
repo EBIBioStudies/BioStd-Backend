@@ -15,6 +15,9 @@
 
 package uk.ac.ebi.biostd.webapp.server.endpoint;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -26,8 +29,33 @@ import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 
 public abstract class ServiceServlet extends HttpServlet {
 
-
     private static final long serialVersionUID = 1L;
+
+    protected void unauthorized(HttpServletResponse response) throws IOException {
+        response.setStatus(SC_UNAUTHORIZED);
+        response.setContentType("text/plain");
+        response.getWriter().print("FAIL User not logged in");
+    }
+
+    protected void badRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setStatus(SC_BAD_REQUEST);
+        response.setContentType("text/plain");
+        response.getWriter().print("FAIL Invalid path: " + request.getPathInfo());
+    }
+
+    protected void notSuperuser(HttpServletResponse response) throws IOException {
+        response.setStatus(SC_BAD_REQUEST);
+        response.setContentType("text/plain");
+        response.getWriter().print("FAIL only superuser can perform actions on behalf of other user");
+    }
+
+    protected boolean isAntonymous(Session session) {
+        return session == null || session.isAnonymouns();
+    }
+
+
+
+
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

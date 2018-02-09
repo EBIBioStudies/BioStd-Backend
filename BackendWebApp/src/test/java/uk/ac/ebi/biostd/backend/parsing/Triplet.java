@@ -8,7 +8,7 @@ public class Triplet {
     private final String key;
     private final String[] values;
 
-    public Triplet(String key, String... values) {
+    Triplet(String key, String... values) {
         this.key = key;
         this.values = values;
     }

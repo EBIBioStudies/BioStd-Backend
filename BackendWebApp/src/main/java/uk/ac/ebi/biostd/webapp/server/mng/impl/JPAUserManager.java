@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
 import com.pri.log.Log;
@@ -25,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import lombok.AllArgsConstructor;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserData;
@@ -46,33 +32,43 @@ import uk.ac.ebi.biostd.webapp.server.mng.exception.UserMngException;
 import uk.ac.ebi.biostd.webapp.server.mng.exception.UserNotActiveException;
 import uk.ac.ebi.biostd.webapp.server.mng.exception.UserNotFoundException;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityException;
+import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
-
+@AllArgsConstructor
 public class JPAUserManager implements UserManager, SessionListener {
+
+    private final SecurityManager securityManager;
+    private final SessionManager sessionManager;
 
     @Override
     public User getUserByEmail(String email) {
-        return BackendConfig.getServiceManager().getSecurityManager().getUserByEmail(email);
+        return securityManager.getUserByEmail(email);
+    }
+
+    @Override
+    public User getUserByLoginOrEmail(String loginOrEmail) {
+        User user = getUserByLogin(loginOrEmail);
+        return user == null ? getUserByEmail(loginOrEmail) : user;
     }
 
     @Override
     public User getUserByLogin(String login) {
-        return BackendConfig.getServiceManager().getSecurityManager().getUserByLogin(login);
+        return securityManager.getUserByLogin(login);
     }
 
     @Override
     public User getUserBySSOSubject(String ssoSubject) {
-        return BackendConfig.getServiceManager().getSecurityManager().getUserBySSOSubject(ssoSubject);
+        return securityManager.getUserBySSOSubject(ssoSubject);
     }
 
     @Override
-    public UserGroup getGroup(String name) {
-        return BackendConfig.getServiceManager().getSecurityManager().getGroup(name);
+    public UserGroup getGroup(String groupName) {
+        return securityManager.getGroup(groupName);
     }
 
     @Override
     public int getUsersNumber() {
-        return BackendConfig.getServiceManager().getSecurityManager().getUsersNumber();
+        return securityManager.getUsersNumber();
     }
 
     @Override
@@ -98,7 +94,7 @@ public class JPAUserManager implements UserManager, SessionListener {
         }
 
         try {
-            BackendConfig.getServiceManager().getSecurityManager().addUser(user);
+            securityManager.addUser(user);
         } catch (ServiceException e) {
             throw new SystemUserMngException("System error", e);
         }
@@ -115,14 +111,14 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public synchronized void removeGroup(String gName) throws UserMngException {
-        UserGroup ug = BackendConfig.getServiceManager().getSecurityManager().getGroup(gName);
+        UserGroup ug = securityManager.getGroup(gName);
 
         if (ug == null) {
             throw new UserMngException("Group not found");
         }
 
         try {
-            BackendConfig.getServiceManager().getSecurityManager().removeGroup(ug.getId());
+            securityManager.removeGroup(ug.getId());
         } catch (ServiceException e) {
             throw new SystemUserMngException("System error", e);
         }
@@ -159,7 +155,7 @@ public class JPAUserManager implements UserManager, SessionListener {
         ug.setSecret(UUID.randomUUID().toString());
 
         try {
-            BackendConfig.getServiceManager().getSecurityManager().addGroup(ug);
+            securityManager.addGroup(ug);
         } catch (ServiceException e) {
             throw new SystemUserMngException("System error", e);
         }
@@ -212,7 +208,7 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public UserData getUserData(User user, String key) {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = sessionManager.getSession().getEntityManager();
 
         Query q = em.createNamedQuery("UserData.get");
 
@@ -230,7 +226,7 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public List<UserData> getAllUserData(User user) {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = sessionManager.getSession().getEntityManager();
 
         Query q = em.createNamedQuery("UserData.getAll");
 
@@ -247,7 +243,7 @@ public class JPAUserManager implements UserManager, SessionListener {
             topic = null;
         }
 
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = sessionManager.getSession().getEntityManager();
 
         Query q = em.createNamedQuery("UserData.getByTopic");
 
@@ -260,18 +256,18 @@ public class JPAUserManager implements UserManager, SessionListener {
     }
 
     @Override
-    public void storeUserData(UserData ud) {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+    public void storeUserData(UserData userData) {
+        EntityManager em = sessionManager.getSession().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 
         trn.begin();
 
-        if (ud.getData() == null) {
+        if (userData.getData() == null) {
             Query q = em.createNamedQuery("UserData.get");
 
-            q.setParameter("uid", ud.getUserId());
-            q.setParameter("key", ud.getDataKey());
+            q.setParameter("uid", userData.getUserId());
+            q.setParameter("key", userData.getDataKey());
 
             List<UserData> res = q.getResultList();
 
@@ -279,7 +275,7 @@ public class JPAUserManager implements UserManager, SessionListener {
                 em.remove(res.get(0));
             }
         } else {
-            em.merge(ud);
+            em.merge(userData);
         }
 
         trn.commit();
@@ -287,7 +283,7 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public boolean activateUser(ActivationInfo activationInfo) throws UserMngException {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = sessionManager.getSession().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 
@@ -340,7 +336,7 @@ public class JPAUserManager implements UserManager, SessionListener {
                 trn.commit();
 
                 if (u != null) { //We also need to update a user cache
-                    User cchUsr = BackendConfig.getServiceManager().getSecurityManager().getUserById(u.getId());
+                    User cchUsr = securityManager.getUserById(u.getId());
 
                     if (cchUsr != null) {
                         cchUsr.setActive(true);
@@ -401,7 +397,7 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public void resetPassword(ActivationInfo activationInfo, String pass) throws UserMngException {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = sessionManager.getSession().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 
@@ -456,7 +452,7 @@ public class JPAUserManager implements UserManager, SessionListener {
                 trn.commit();
 
                 if (u != null) { //We also need to update a user cache
-                    User cchUsr = BackendConfig.getServiceManager().getSecurityManager().getUserById(u.getId());
+                    User cchUsr = securityManager.getUserById(u.getId());
 
                     if (cchUsr != null) {
                         cchUsr.setPasswordDigest(u.getPasswordDigest());
@@ -469,9 +465,9 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public Session login(String login, String password, boolean passHash) throws SecurityException {
-        User usr = BackendConfig.getServiceManager().getSecurityManager().checkUserLogin(login, password, passHash);
+        User usr = securityManager.checkUserLogin(login, password, passHash);
 
-        SessionManager sessMngr = BackendConfig.getServiceManager().getSessionManager();
+        SessionManager sessMngr = sessionManager;
 
         Session sess = sessMngr.getSessionByUserId(usr.getId());
 
@@ -484,9 +480,9 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public Session loginUsingSSOToken(User user0, String ssoToken, String ssoSubject) throws SecurityException {
-        User user = BackendConfig.getServiceManager().getSecurityManager().checkUserSSOSubject(ssoSubject);
+        User user = securityManager.checkUserSSOSubject(ssoSubject);
 
-        SessionManager sessMngr = BackendConfig.getServiceManager().getSessionManager();
+        SessionManager sessMngr = sessionManager;
 
         Session sess = sessMngr.getSessionByUserId(user.getId());
 
@@ -500,7 +496,7 @@ public class JPAUserManager implements UserManager, SessionListener {
 
     @Override
     public void linkSSOSubjectToUser(User user, String ssoSubject) throws UserMngException {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = sessionManager.getSession().getEntityManager();
         EntityTransaction trn = em.getTransaction();
         User u = null;
 
@@ -533,7 +529,7 @@ public class JPAUserManager implements UserManager, SessionListener {
                 if (u != null) {
                     // We also need to update a user cache
                     uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager secMan =
-                            BackendConfig.getServiceManager().getSecurityManager();
+                            securityManager;
                     User cchUsr = secMan.getUserById(u.getId());
                     if (cchUsr != null) {
                         cchUsr.setSsoSubject(ssoSubject);
@@ -545,8 +541,8 @@ public class JPAUserManager implements UserManager, SessionListener {
     }
 
     @Override
-    public void passwordResetRequest(User usr, String resetURL) throws UserMngException {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+    public void passwordResetRequest(User user, String resetURL) throws UserMngException {
+        EntityManager em = sessionManager.getSession().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 
@@ -555,10 +551,10 @@ public class JPAUserManager implements UserManager, SessionListener {
         try {
             trn.begin();
 
-            if (usr.getEmail() != null && usr.getEmail().length() > 0) {
+            if (user.getEmail() != null && user.getEmail().length() > 0) {
                 Query q = em.createNamedQuery(User.GetByEMailQuery);
 
-                q.setParameter(User.EmailQueryParameter, usr.getEmail());
+                q.setParameter(User.EmailQueryParameter, user.getEmail());
 
                 List<User> res = q.getResultList();
 
@@ -568,7 +564,7 @@ public class JPAUserManager implements UserManager, SessionListener {
             } else {
                 Query q = em.createNamedQuery(User.GetByLoginQuery);
 
-                q.setParameter(User.LoginQueryParameter, usr.getLogin());
+                q.setParameter(User.LoginQueryParameter, user.getLogin());
 
                 List<User> res = q.getResultList();
 
@@ -608,7 +604,7 @@ public class JPAUserManager implements UserManager, SessionListener {
                 trn.commit();
 
                 if (u != null) { //We also need to update a user cache
-                    User cchUsr = BackendConfig.getServiceManager().getSecurityManager().getUserById(u.getId());
+                    User cchUsr = securityManager.getUserById(u.getId());
 
                     if (cchUsr != null) {
                         cchUsr.setActivationKey(u.getActivationKey());

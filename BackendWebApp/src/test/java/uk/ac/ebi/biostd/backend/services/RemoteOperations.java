@@ -1,16 +1,18 @@
 package uk.ac.ebi.biostd.backend.services;
 
 
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static uk.ac.ebi.biostd.backend.parsing.PlainFileParser.LINE_BREAKS_SEPARATOR;
 import static uk.ac.ebi.biostd.backend.parsing.PlainFileParser.SEMICOLON_SEPARATOR;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.backend.model.LoginResponse;
@@ -48,11 +50,19 @@ public class RemoteOperations {
     }
 
     @SneakyThrows
-    public SubmissionResult createOrSubmit(String sessId, File file) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf("application/vnd.ms-excel"));
-        HttpEntity<byte[]> entity = new HttpEntity<>(Files.readAllBytes(file.toPath()), headers);
+    public SubmissionResult createFileSubmission(String sessId, File file) {
+        return createSubmission(sessId, Files.readAllBytes(file.toPath()),
+                new SimpleEntry<>(CONTENT_TYPE, "application/vnd.ms-excel"));
+    }
 
+    public SubmissionResult createJsonSubmission(String sessId, String jsonBody) {
+        return createSubmission(sessId, jsonBody, new SimpleEntry<>(CONTENT_TYPE, "application/json"));
+    }
+
+    private <T> SubmissionResult createSubmission(String sessId, T body, Map.Entry<String, String> header) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(header.getKey(), header.getValue());
+        HttpEntity<T> entity = new HttpEntity<>(body, headers);
         String url = String.format(SUBMIT_URL, applicationPort, sessId);
         ResponseEntity<SubmissionResult> response = restTemplate.postForEntity(url, entity, SubmissionResult.class);
         return response.getBody();

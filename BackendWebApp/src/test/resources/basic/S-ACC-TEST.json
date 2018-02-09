@@ -1,6 +1,6 @@
 {
  "accessTags": ["Public"],
- "accno": "S-ACC-TEST",
+ "accno": "${SUB_ACC_NO}",
  "attributes": [
   {
    "name": "Title",

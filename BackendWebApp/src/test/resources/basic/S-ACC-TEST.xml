@@ -1,6 +1,6 @@
 <pmdocument>
  <submissions>
-  <submission acc="S-ACC-TEST" access="Public">
+  <submission acc="${SUB_ACC_NO}" access="Public">
    <attributes>
     <attribute>
      <name>Title</name>
