@@ -1,19 +1,7 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.endpoint;
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -26,8 +14,29 @@ import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 
 public abstract class ServiceServlet extends HttpServlet {
 
-
     private static final long serialVersionUID = 1L;
+
+    protected void unauthorized(HttpServletResponse response) throws IOException {
+        response.setStatus(SC_UNAUTHORIZED);
+        response.setContentType("text/plain");
+        response.getWriter().print("FAIL User not logged in");
+    }
+
+    protected void badRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setStatus(SC_BAD_REQUEST);
+        response.setContentType("text/plain");
+        response.getWriter().print("FAIL Invalid path: " + request.getPathInfo());
+    }
+
+    protected void notSuperuser(HttpServletResponse response) throws IOException {
+        response.setStatus(SC_BAD_REQUEST);
+        response.setContentType("text/plain");
+        response.getWriter().print("FAIL only superuser can perform actions on behalf of other user");
+    }
+
+    protected boolean isAntonymous(Session session) {
+        return session == null || session.isAnonymouns();
+    }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

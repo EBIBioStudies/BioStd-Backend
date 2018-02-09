@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.mng;
 
 import java.io.IOException;
@@ -44,13 +29,11 @@ public class ServiceFactory {
         if (Files.exists(wd)) {
             if (!Files.isDirectory(wd)) {
                 throw new ServiceInitExceprion(
-                        "Service init error: work directory path '" + BackendConfig.getWorkDirectory()
-                                + "' should point to directory");
+                        "Service init error: work directory path '" + wd + "' should point to directory");
             }
 
             if (!Files.isWritable(wd)) {
-                throw new ServiceInitExceprion("Service init error: work directory '" + BackendConfig.getWorkDirectory()
-                        + "' is not writable");
+                throw new ServiceInitExceprion("Service init error: work directory '" + wd + "' is not writable");
             }
         } else {
             try {
@@ -70,23 +53,21 @@ public class ServiceFactory {
             }
         }
 
-        ServiceManagerImpl svc = new ServiceManagerImpl();
+        ServiceManagerImpl serviceManager = new ServiceManagerImpl();
+        serviceManager.setSessionManager(new SessionManagerImpl(sessDir.toFile()));
+        serviceManager.setSubmissionManager(new JPASubmissionManager(BackendConfig.getEntityManagerFactory()));
 
-        svc.setUserManager(new JPAUserManager());
-        svc.setSessionManager(new SessionManagerImpl(sessDir.toFile()));
-        svc.setSubmissionManager(new JPASubmissionManager(BackendConfig.getEntityManagerFactory()));
+        serviceManager.setSecurityManager(new SecurityManagerImpl());
+        serviceManager.getSecurityManager().init();
+        serviceManager.setUserManager(
+                new JPAUserManager(serviceManager.getSecurityManager(), serviceManager.getSessionManager()));
 
-        svc.setSecurityManager(new SecurityManagerImpl());
-        svc.getSecurityManager().init();
-
-        svc.setFileManager(new FileManagerImpl());
-        svc.setReleaseManager(new JPAReleaser());
-        svc.setAccessionManager(new JPAAccessionManager());
-        svc.setTagManager(new JPATagManager());
-        svc.setSubscriptionManager(new JPASubscriptionManager());
-
-        return svc;
-
+        serviceManager.setFileManager(new FileManagerImpl());
+        serviceManager.setReleaseManager(new JPAReleaser());
+        serviceManager.setAccessionManager(new JPAAccessionManager());
+        serviceManager.setTagManager(new JPATagManager());
+        serviceManager.setSubscriptionManager(new JPASubscriptionManager());
+        return serviceManager;
     }
 
 }

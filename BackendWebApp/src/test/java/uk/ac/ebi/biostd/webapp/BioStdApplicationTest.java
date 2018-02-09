@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties.CONFIG_FILE_LOCATION_VAR;
 import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.BIOSTUDY_BASE_DIR;
@@ -21,29 +22,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.backend.model.SubmissionResult;
 import uk.ac.ebi.biostd.backend.services.RemoteOperations;
-import uk.ac.ebi.biostd.backend.services.ResourceHandler;
+import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(TestConfiguration.class)
-@Sql(scripts = {"classpath:init_data.sql"}, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 public class BioStdApplicationTest {
 
-    private static final String SUBMISSION_FILE = "input/S-BSST56.pagetab_for_test.xlsx";
+    private static final String SUBMISSION_XLSX_FILE = "input/S-BSST56.pagetab_for_test.xlsx";
+    private static final String SUBMISSION_JSON_FILE = "input/S-ACC-TEST.json";
 
     @ClassRule
     public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
-    private static String NFS_PATH;
 
-    @Autowired
-    private ResourceHandler resourceHandler;
+    private static String NFS_PATH;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -67,29 +64,46 @@ public class BioStdApplicationTest {
     @Before
     public void setup() {
         operationsService = new RemoteOperations(restTemplate, port);
+        operationsService.refreshCache();
     }
 
     @Test
     public void testCreateBasicPageTabSubmission() {
-        operationsService.refreshCache();
         String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
 
-        File submissionFile = resourceHandler.getResourceFile(SUBMISSION_FILE);
-        SubmissionResult submissionResult = operationsService.createOrSubmit(sessionId, submissionFile);
+        File submissionFile = ResourceHandler.getResourceFile(SUBMISSION_XLSX_FILE);
+        SubmissionResult submissionResult = operationsService.createFileSubmission(sessionId, submissionFile);
 
         assertThat(submissionResult.getStatus()).isEqualTo("OK");
-
-        assertFile("basic/S-ACC-TEST.json", NFS_PATH + "/submission/S-ACC-TEST/S-ACC-TEST.json");
-        assertFile("basic/S-ACC-TEST.pagetab.tsv", NFS_PATH + "/submission/S-ACC-TEST/S-ACC-TEST.pagetab.tsv");
-        assertFile("basic/S-ACC-TEST.xml", NFS_PATH + "/submission/S-ACC-TEST/S-ACC-TEST.xml");
+        assertSubmissionsOutput("XLSX");
     }
 
-    private void assertFile(String expectedPath, String resultFilePath) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    @Test
+    public void testCreateBasicJsonSubmission() {
+        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+        String jsonPayload = ResourceHandler.getResourceFileAsString(SUBMISSION_JSON_FILE);
 
-        String expectedFile = resourceHandler.readResource(expectedPath)
-                .replace("${TODAY}", dateFormat.format(new Date()));
-        String resultFile = resourceHandler.readFile(resultFilePath);
-        assertThat(resultFile).isEqualTo(expectedFile);
+        SubmissionResult submissionResult = operationsService.createJsonSubmission(sessionId, jsonPayload);
+        assertThat(submissionResult.getStatus()).isEqualTo("OK");
+        assertSubmissionsOutput("JSON");
+    }
+
+    private void assertSubmissionsOutput(String postFix) {
+        String accNo = "S-ACC-TEST-" + postFix;
+        String basePath = format("%s/submission/%s/%s", NFS_PATH, accNo, accNo);
+
+        assertFile("basic/S-ACC-TEST.json", basePath + ".json", accNo);
+        assertFile("basic/S-ACC-TEST.pagetab.tsv", basePath + ".pagetab.tsv", accNo);
+        assertFile("basic/S-ACC-TEST.xml", basePath + ".xml", accNo);
+    }
+
+    private void assertFile(String expectedPath, String resultFilePath, String accNo) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String expectedFile = ResourceHandler.getResourceFileAsString(expectedPath);
+        expectedFile = expectedFile.replace("${TODAY}", dateFormat.format(new Date()));
+        expectedFile = expectedFile.replace("${SUB_ACC_NO}", accNo);
+
+        String resultFile = ResourceHandler.readFile(resultFilePath);
+        assertThat(resultFile).isEqualToIgnoringWhitespace(expectedFile);
     }
 }
