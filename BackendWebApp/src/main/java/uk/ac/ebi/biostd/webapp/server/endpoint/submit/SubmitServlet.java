@@ -285,8 +285,7 @@ public class SubmitServlet extends ServiceServlet {
             return;
         }
 
-        if (patAcc != null)
-        {
+        if (patAcc != null) {
             if (patAcc.length() < 5) {
                 response.setStatus(SC_BAD_REQUEST);
                 response.getWriter()
@@ -378,8 +377,7 @@ public class SubmitServlet extends ServiceServlet {
             }
         }
 
-        if (patAcc != null)
-        {
+        if (patAcc != null) {
             if (patAcc.length() < 5) {
                 response.setStatus(SC_BAD_REQUEST);
                 response.getWriter()

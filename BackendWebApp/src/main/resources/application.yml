@@ -6,3 +6,10 @@ server:
 biostudy:
   baseDir: /home/jcamilorada/Projects/BioStudies/NFS
   configFile: /home/jcamilorada/Projects/BioStudies/NFS/config.properties
+  tokenHash: biostd
+
+spring:
+  mail:
+    host: localhost
+    username: jcamilorada@ebi.ac.uk
+

@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.webapp.application.security.rest.controllers.SecurityController;
+import uk.ac.ebi.biostd.webapp.application.security.rest.SecurityController;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.JSONHttpResponse;
 import uk.ac.ebi.biostd.webapp.server.endpoint.Response;

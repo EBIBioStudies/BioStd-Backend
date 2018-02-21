@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,7 +50,7 @@ import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityException;
 import uk.ac.ebi.biostd.webapp.shared.util.KV;
 
 @Slf4j
-@WebServlet(urlPatterns = "/auth/*")
+//@WebServlet(urlPatterns = "/auth/*")
 public class AuthServlet extends ServiceServlet {
 
     private static final String SessionIdParameter = "sessid";

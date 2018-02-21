@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.webapp.application.security.configuration;
+package uk.ac.ebi.biostd.webapp.application.security.rest;
 
 import com.google.common.base.Strings;
 import java.io.IOException;
@@ -9,19 +9,18 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.WebUtils;
-import uk.ac.ebi.biostd.authz.Session;
-import uk.ac.ebi.biostd.authz.User;
-import uk.ac.ebi.biostd.webapp.server.mng.SessionManager;
+import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
+import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 
 @AllArgsConstructor
 public class SecurityFilter extends GenericFilterBean {
 
     private static final String COOKIE_NAME = "BIOSTDSESS";
-    private SessionManager sessionManager;
+    private ISecurityService securityService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -33,17 +32,15 @@ public class SecurityFilter extends GenericFilterBean {
             return;
         }
 
-        Session session = sessionManager.checkin(key);
-        if (session == null) {
-            chain.doFilter(request, response);
-            return;
-        }
+        authenticateUser(key);
+        chain.doFilter(request, response);
+    }
 
-        User user = session.getUser();
-        PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(user, null);
+    private void authenticateUser(String key) {
+        User user = securityService.getUserByKey(key);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null);
         authentication.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        chain.doFilter(request, response);
     }
 
     private String getSecurityKey(HttpServletRequest httpRequest) {

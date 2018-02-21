@@ -157,6 +157,7 @@ public class ServiceManagerImpl implements ServiceManager {
         return subscriptionManager;
     }
 
+    @Override
     public void setSubscriptionManager(SubscriptionManager subscriptionManager) {
         this.subscriptionManager = subscriptionManager;
     }

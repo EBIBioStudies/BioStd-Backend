@@ -9,7 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import uk.ac.ebi.biostd.webapp.server.mng.SessionManager;
+import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
+import uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -17,12 +18,12 @@ import uk.ac.ebi.biostd.webapp.server.mng.SessionManager;
 @AllArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final SessionManager sessionManager;
+    private final ISecurityService securityService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .addFilterAfter(new SecurityFilter(sessionManager), BasicAuthenticationFilter.class)
+                .addFilterAfter(new SecurityFilter(securityService), BasicAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/**").permitAll()
                 .and()
@@ -33,5 +34,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public Http401AuthenticationEntryPoint http401AuthenticationEntryPoint() {
         return new Http401AuthenticationEntryPoint("Bearer realm=\"webrealm\"");
     }
-
 }

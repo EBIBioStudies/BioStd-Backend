@@ -7,4 +7,6 @@ import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByLoginOrEmail(String login, String email);
+
+    Optional<User> findByActivationKey(String activationKey);
 }
