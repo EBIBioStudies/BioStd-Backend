@@ -35,7 +35,6 @@ import uk.ac.ebi.biostd.authz.ACR.Permit;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.AuthorizationTemplate;
 import uk.ac.ebi.biostd.authz.AuthzObject;
-import uk.ac.ebi.biostd.authz.BuiltInUsers;
 import uk.ac.ebi.biostd.authz.GroupACR;
 import uk.ac.ebi.biostd.authz.Permission;
 import uk.ac.ebi.biostd.authz.PermissionProfile;
@@ -109,6 +108,8 @@ public class SecurityManagerImpl implements SecurityManager {
     }
 
     private void loadCache() {
+        /*
+
         EntityManager em = BackendConfig.getEntityManagerFactory().createEntityManager();
 
         try {
@@ -234,6 +235,7 @@ public class SecurityManagerImpl implements SecurityManager {
             em.close();
         }
 
+*/
     }
 
     @Override

@@ -33,9 +33,8 @@ public class NotificationService {
                 user.getEmail(),
                 "Biostudy DB account activation",
                 context,
-                "activationMail.html");
+                "activationMail");
     }
-
 
     @Async
     @TransactionalEventListener

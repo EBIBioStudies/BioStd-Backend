@@ -11,5 +11,9 @@ biostudy:
 spring:
   mail:
     host: localhost
-    username: jcamilorada@ebi.ac.uk
+  thymeleaf:
+    prefix: classpath:/email/
+    suffix: .html
+    mode: LEGACYHTML5
+
 

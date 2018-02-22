@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.webapp.application.persitence.entities;
 
 import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.GenerationType.IDENTITY;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,7 +21,7 @@ import lombok.Setter;
 public class AccessPermission {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)

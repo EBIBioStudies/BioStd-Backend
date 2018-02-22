@@ -7,6 +7,8 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import java.io.File;
 import java.io.IOException;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -14,13 +16,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.simplejavamail.converter.EmailConverter;
+import org.simplejavamail.email.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
@@ -53,12 +56,22 @@ public class SecurityApiTest {
     }
 
     @Test
-    public void signUp() {
+    public void signUp() throws MessagingException {
         SignUpRequest signUpRequest = new SignUpRequest();
         signUpRequest.setEmail("jhon_doe@ebi.ac.uk");
         signUpRequest.setUsername("Juan Camilo Rada");
         signUpRequest.setPassword("12345");
+        signUpRequest.setActivationURL("http://submission-tool/signup");
 
-        String response = restTemplate.postForObject("/auth/signup", HttpMethod.POST, String.class);
+        restTemplate.postForObject("/auth/signup", signUpRequest, String.class);
+        MimeMessage[] messages = greenMail.getReceivedMessages();
+
+        Email email = EmailConverter.mimeMessageToEmail(messages[0]);
+
+        /*
+        MimeMessage message = messages[0];
+        String body = GreenMailUtil.getBody(message);
+        String to = GreenMailUtil.getAddressList(message.getAllRecipients());
+        String from = GreenMailUtil.*/
     }
 }

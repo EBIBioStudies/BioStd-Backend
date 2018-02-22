@@ -19,6 +19,7 @@ public class EmailSender {
             String template) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
+        message.setFrom(from);
         message.setSubject(subject);
         message.setText(getText(context, template));
         emailSender.send(message);

@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.webapp.application.persitence.entities;
 
 import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
+import static javax.persistence.GenerationType.IDENTITY;
 
 import java.util.Set;
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ import uk.ac.ebi.biostd.webapp.application.domain.events.UserCreatedEvent;
 public class User extends AbstractAggregateRoot {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
     private long id;
 
     private String email;
@@ -33,7 +34,7 @@ public class User extends AbstractAggregateRoot {
     private String login;
     private boolean superuser;
     private boolean active;
-    private String aux;
+    private String auxProfileInfo;
     private String activationKey;
 
     @Lob

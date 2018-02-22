@@ -10,10 +10,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.biostd.webapp.application.common.utils.PlainFileFormat;
 import uk.ac.ebi.biostd.webapp.application.common.utils.WebUtils;
@@ -29,6 +31,7 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.PermissionMappe
 import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.ProjectMapper;
 
 @AllArgsConstructor
+@Controller
 public class SecurityController {
 
     private static final String SECURITY_COOKIE_NAME = "BIOSTDSESS";
@@ -62,12 +65,11 @@ public class SecurityController {
     }
 
     @PostMapping(value = "/auth/signup")
-    public void signUp(@ModelAttribute SignUpRequest signUpRequest) {
+    public void signUp(@RequestBody SignUpRequest signUpRequest) {
         User user = User.builder()
                 .email(signUpRequest.getEmail())
                 .fullName(signUpRequest.getUsername())
-                .login(signUpRequest.getLogin())
-                .aux(signUpRequest.getAux()).build();
+                .auxProfileInfo(signUpRequest.getAux()).build();
         securityService.addUser(user, signUpRequest.getActivationURL());
     }
 
