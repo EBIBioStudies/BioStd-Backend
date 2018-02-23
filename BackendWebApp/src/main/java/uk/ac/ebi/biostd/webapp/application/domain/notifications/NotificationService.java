@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.webapp.application.domain.notifications;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,9 +24,12 @@ public class NotificationService {
     @TransactionalEventListener
     void sentActivationEmail(UserCreatedEvent userCreatedEvent) {
         User user = userCreatedEvent.getUser();
+        String activationLink = userCreatedEvent.getActivationLink()
+                .replaceAll(Pattern.quote("{KEY}"), user.getActivationKey());
+
         Map<String, Object> context = ImmutableMap.of(
                 "USERNAME", user.getFullName(),
-                "URL", userCreatedEvent.getActivationLink(),
+                "URL", activationLink,
                 "MAILTO", FROM);
 
         emailUtil.sendSimpleMessage(

@@ -66,11 +66,7 @@ public class SecurityController {
 
     @PostMapping(value = "/auth/signup")
     public void signUp(@RequestBody SignUpRequest signUpRequest) {
-        User user = User.builder()
-                .email(signUpRequest.getEmail())
-                .fullName(signUpRequest.getUsername())
-                .auxProfileInfo(signUpRequest.getAux()).build();
-        securityService.addUser(user, signUpRequest.getActivationURL());
+        securityService.addUser(signUpRequest);
     }
 
     @PostMapping(value = "/auth/activate/{activationKey}")

@@ -5,6 +5,7 @@ import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.util.Set;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -17,6 +18,8 @@ import lombok.Setter;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import uk.ac.ebi.biostd.webapp.application.domain.events.PassResetRequest;
 import uk.ac.ebi.biostd.webapp.application.domain.events.UserCreatedEvent;
+import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
+import uk.ac.ebi.biostd.webapp.application.persitence.aux.UserAuxInfoConverter;
 
 @Entity
 @Getter
@@ -34,7 +37,9 @@ public class User extends AbstractAggregateRoot {
     private String login;
     private boolean superuser;
     private boolean active;
-    private String auxProfileInfo;
+
+    @Convert(converter = UserAuxInfoConverter.class)
+    private AuxInfo auxProfileInfo;
     private String activationKey;
 
     @Lob

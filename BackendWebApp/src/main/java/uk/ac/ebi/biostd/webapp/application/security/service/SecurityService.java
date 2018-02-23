@@ -11,9 +11,8 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
-import uk.ac.ebi.biostd.webapp.application.security.common.SecurityAccessException;
-import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
+import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
+import uk.ac.ebi.biostd.webapp.application.persitence.aux.Parameter;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.SecurityToken;
@@ -23,6 +22,10 @@ import uk.ac.ebi.biostd.webapp.application.persitence.repositories.AccessPermiss
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.SubmissionRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.TokenRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserRepository;
+import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
+import uk.ac.ebi.biostd.webapp.application.security.common.SecurityAccessException;
+import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 
 @Service
 @Transactional
@@ -89,8 +92,24 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
-    public void addUser(User user, String activationUrl) {
-        userRepository.save(user.withPendingActivation(activationUrl));
+    public void addUser(SignUpRequest signUpRequest) {
+        User user = User.builder()
+                .email(signUpRequest.getEmail())
+                .fullName(signUpRequest.getUsername())
+                .auxProfileInfo(createAuxInfo(signUpRequest.getAux()))
+                .active(false)
+                .activationKey(UUID.randomUUID().toString()).build();
+
+        userRepository.save(user.withPendingActivation(signUpRequest.getActivationURL()));
+    }
+
+    private AuxInfo createAuxInfo(List<String> dataList) {
+        AuxInfo auxInfo = new AuxInfo();
+        auxInfo.setParameters(dataList.stream()
+                .map(data -> data.split(":"))
+                .map(pairs -> new Parameter(pairs))
+                .collect(toList()));
+        return auxInfo;
     }
 
     @Override

@@ -1,10 +1,11 @@
 package uk.ac.ebi.biostd.webapp.application.security.common;
 
 import java.util.List;
-import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.Submission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
+import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 
 public interface ISecurityService {
 
@@ -16,7 +17,7 @@ public interface ISecurityService {
 
     void signOut(String securityKey);
 
-    void addUser(User user, String activationUrl);
+    void addUser(SignUpRequest signUpRequest);
 
     boolean activate(String activationKey);
 
