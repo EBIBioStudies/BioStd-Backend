@@ -215,8 +215,7 @@ public class SubmissionQueryHelper {
     }
 
     public List<Submission> getHostSubmissionsByType(String type, User user) {
-        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getSession()
-                .getEntityManager();
+        EntityManager manager = BackendConfig.getServiceManager().getEntityManager();
 
         if (user.isSuperuser()) {
             return manager.createQuery(GET_ALL_HOST, Submission.class)

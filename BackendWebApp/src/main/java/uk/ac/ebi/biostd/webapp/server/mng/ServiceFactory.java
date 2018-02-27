@@ -14,7 +14,6 @@ import uk.ac.ebi.biostd.webapp.server.mng.impl.JPATagManager;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.JPAUserManager;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.SecurityManagerImpl;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.ServiceManagerImpl;
-import uk.ac.ebi.biostd.webapp.server.mng.impl.SessionManagerImpl;
 
 public class ServiceFactory {
 
@@ -55,13 +54,9 @@ public class ServiceFactory {
 
         ServiceManagerImpl serviceManager = new ServiceManagerImpl(
                 (BackendConfig.getEntityManagerFactory().createEntityManager()));
-        serviceManager.setSessionManager(new SessionManagerImpl(sessDir.toFile()));
         serviceManager.setSubmissionManager(new JPASubmissionManager(BackendConfig.getEntityManagerFactory()));
-
         serviceManager.setSecurityManager(new SecurityManagerImpl());
-        serviceManager.setUserManager(
-                new JPAUserManager(serviceManager.getSecurityManager(), serviceManager.getSessionManager()));
-
+        serviceManager.setUserManager(new JPAUserManager(serviceManager.getSecurityManager()));
         serviceManager.setFileManager(new FileManagerImpl());
         serviceManager.setReleaseManager(new JPAReleaser());
         serviceManager.setAccessionManager(new JPAAccessionManager());

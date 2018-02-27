@@ -339,11 +339,6 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     @Override
-    public List<Submission> getHostSubmissionsByType(String type, User user) {
-        return queryHelper.getHostSubmissionsByType(type, user);
-    }
-
-    @Override
     public void shutdown() {
 
     }
@@ -409,7 +404,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private EntityManager entityManager() {
-        return getServiceManager().getSessionManager().getSession().getEntityManager();
+        return getServiceManager().getEntityManager();
     }
 
     private FileManager fileManager() {
@@ -1588,7 +1583,7 @@ public class JPASubmissionManager implements SubmissionManager {
     public LogNode tranklucateSubmissionByAccession(String acc, User usr) {
         SimpleLogNode gln = new SimpleLogNode(SUCCESS, "Tranklucating submission '" + acc + "'", null);
 
-        EntityManager em = getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = getServiceManager().getEntityManager();
 
         try {
             Query q = em.createNamedQuery(Submission.GetAllByAccQuery);
@@ -1929,7 +1924,7 @@ public class JPASubmissionManager implements SubmissionManager {
             return gln;
         }
 
-        EntityManager em = getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = getServiceManager().getEntityManager();
 
         User newOwner = getServiceManager().getSecurityManager().getUserByLogin(owner);
 

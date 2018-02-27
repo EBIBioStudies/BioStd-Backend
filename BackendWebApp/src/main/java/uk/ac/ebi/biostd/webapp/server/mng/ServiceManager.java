@@ -26,8 +26,6 @@ public interface ServiceManager {
 
     EntityManager getEntityManager();
 
-    SessionManager getSessionManager();
-
     String getServiceName();
 
     SubmissionManager getSubmissionManager();

@@ -9,7 +9,6 @@ import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserData;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.SessionListener;
-import uk.ac.ebi.biostd.webapp.server.mng.SessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
@@ -17,7 +16,6 @@ import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 public class JPAUserManager implements UserManager, SessionListener {
 
     private final SecurityManager securityManager;
-    private final SessionManager sessionManager;
 
     @Override
     public User getUserByEmail(String email) {

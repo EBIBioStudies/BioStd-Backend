@@ -440,20 +440,6 @@ public class SecurityManagerImpl implements SecurityManager {
         return mayUserReadGroupFiles(user, g); //To be changed for something smart
     }
 
-    @Override
-    public void setPermission(PermissionClass pClass, String pID, boolean pAction, SubjectClass sClass, String sID,
-            ObjectClass oClass,
-            String oID, User user) throws SecurityException {
-        mngPermProfile(pClass, pID, pAction, sClass, sID, oClass, oID, user, true);
-    }
-
-    @Override
-    public void clearPermission(PermissionClass pClass, String pID, boolean pAction, SubjectClass sClass, String sID,
-            ObjectClass oClass,
-            String oID, User user) throws SecurityException {
-        mngPermProfile(pClass, pID, pAction, sClass, sID, oClass, oID, user, false);
-    }
-
     private void mngPermProfile(PermissionClass pClass, String pID, boolean pAction, SubjectClass sClass, String sID,
             ObjectClass oClass,
             String oID, User user, boolean set) throws SecurityException {

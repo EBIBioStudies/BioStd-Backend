@@ -24,7 +24,6 @@ import uk.ac.ebi.biostd.webapp.server.mng.ReleaseManager;
 import uk.ac.ebi.biostd.webapp.server.mng.RemoteRequestManager;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceManager;
-import uk.ac.ebi.biostd.webapp.server.mng.SessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubscriptionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.TagManager;
@@ -39,7 +38,6 @@ public class ServiceManagerImpl implements ServiceManager {
     private ServiceConfig config;
 
     private UserManager userManager;
-    private SessionManager sessionManager;
     private SubmissionManager submissionManager;
     private FileManager fileManager;
     private SecurityManager authzManager;
@@ -73,15 +71,6 @@ public class ServiceManagerImpl implements ServiceManager {
 
     public void setUserManager(UserManager userManager) {
         this.userManager = userManager;
-    }
-
-    @Override
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
     }
 
     @Override
