@@ -15,12 +15,14 @@ import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.WebUtils;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
+import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
 
 @AllArgsConstructor
 public class SecurityFilter extends GenericFilterBean {
 
     private static final String COOKIE_NAME = "BIOSTDSESS";
     private ISecurityService securityService;
+    private UserManager userManager;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -38,7 +40,10 @@ public class SecurityFilter extends GenericFilterBean {
 
     private void authenticateUser(String key) {
         User user = securityService.getUserByKey(key);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, key, null);
+        uk.ac.ebi.biostd.authz.User legacyUser = userManager.getUserByEmail(user.getEmail());
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(legacyUser, key, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 

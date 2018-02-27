@@ -10,8 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
+import org.springframework.security.core.context.SecurityContextHolder;
+import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceConfig;
 import uk.ac.ebi.biostd.webapp.server.security.Session;
@@ -43,14 +43,16 @@ public abstract class ServiceServlet extends HttpServlet {
         return session == null || session.isAnonymous();
     }
 
-    protected void service(HttpServletRequest req, HttpServletResponse resp, @AuthenticationPrincipal User user)
-            throws ServletException, IOException {
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Path sessionPath = BackendConfig.getWorkDirectory().resolve(ServiceConfig.SessionDir);
-        File sessDir = new File(sessionPath.toFile(), "the toekn");
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String tokenId = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        File sessDir = new File(sessionPath.toFile(), tokenId);
         Session sess = new SessionAuthenticated(sessDir, BackendConfig.getEntityManagerFactory(), user);
         service(req, resp, sess);
     }
 
-    abstract protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
+    protected abstract void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
             throws ServletException, IOException;
 }

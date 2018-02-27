@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import lombok.extern.slf4j.Slf4j;
-import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
+import uk.ac.ebi.biostd.authz.User;
 
 @Slf4j
 public class SessionAuthenticated implements Session {

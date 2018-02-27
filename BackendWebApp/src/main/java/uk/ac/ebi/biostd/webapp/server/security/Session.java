@@ -2,7 +2,7 @@ package uk.ac.ebi.biostd.webapp.server.security;
 
 import java.io.File;
 import javax.persistence.EntityManager;
-import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
+import uk.ac.ebi.biostd.authz.User;
 
 public interface Session {
 

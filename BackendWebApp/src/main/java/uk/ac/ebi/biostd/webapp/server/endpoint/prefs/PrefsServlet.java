@@ -27,11 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.util.FileUtil;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.config.ConfigurationException;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 @Slf4j
 @WebServlet(urlPatterns = "/prefs/*")
@@ -210,11 +210,6 @@ public class PrefsServlet extends ServiceServlet {
         }
 
 
-    }
-
-    @Override
-    protected boolean isIgnoreInvalidConfig() {
-        return true;
     }
 
     public enum Op {

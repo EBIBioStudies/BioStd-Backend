@@ -8,7 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.Submission;
@@ -20,6 +19,7 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.JSONHttpResponse;
 import uk.ac.ebi.biostd.webapp.server.endpoint.Response;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.endpoint.TextHttpResponse;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
 
 @WebServlet("/submission/*")

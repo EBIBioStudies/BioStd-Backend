@@ -32,7 +32,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.json.JSONException;
 import org.json.JSONObject;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ParameterPool;
@@ -46,6 +45,7 @@ import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
 import uk.ac.ebi.biostd.webapp.server.mng.exception.KeyExpiredException;
 import uk.ac.ebi.biostd.webapp.server.mng.exception.SystemUserMngException;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityException;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 import uk.ac.ebi.biostd.webapp.shared.util.KV;
 
 @Slf4j

@@ -6,13 +6,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.mng.security.ObjectClass;
 import uk.ac.ebi.biostd.webapp.server.mng.security.PermissionClass;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityException;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SubjectClass;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 public class PermissionsServlet extends ServiceServlet {
 
