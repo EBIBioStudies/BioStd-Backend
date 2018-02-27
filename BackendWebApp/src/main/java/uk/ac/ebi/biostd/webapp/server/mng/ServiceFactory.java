@@ -59,7 +59,6 @@ public class ServiceFactory {
         serviceManager.setSubmissionManager(new JPASubmissionManager(BackendConfig.getEntityManagerFactory()));
 
         serviceManager.setSecurityManager(new SecurityManagerImpl());
-        serviceManager.getSecurityManager().init();
         serviceManager.setUserManager(
                 new JPAUserManager(serviceManager.getSecurityManager(), serviceManager.getSessionManager()));
 

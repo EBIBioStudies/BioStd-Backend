@@ -15,6 +15,7 @@
 
 package uk.ac.ebi.biostd.webapp.server.mng;
 
+import javax.persistence.EntityManager;
 import uk.ac.ebi.biostd.webapp.server.email.EmailService;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
@@ -22,6 +23,8 @@ import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 public interface ServiceManager {
 
     UserManager getUserManager();
+
+    EntityManager getEntityManager();
 
     SessionManager getSessionManager();
 

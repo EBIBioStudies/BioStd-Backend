@@ -16,7 +16,7 @@ import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 public class DBInitializer {
 
     public static void init() {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
+        EntityManager em = BackendConfig.getServiceManager().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 

@@ -39,6 +39,7 @@ import uk.ac.ebi.biostd.webapp.server.mng.SessionManager;
 
 public class SessionManagerImpl implements SessionManager, Runnable {
 
+
     final static String algorithm = "SHA1";
     private static final int CHECK_INTERVAL = 30000;
     private static final int MAX_SESSION_IDLE_TIME = 3000000;

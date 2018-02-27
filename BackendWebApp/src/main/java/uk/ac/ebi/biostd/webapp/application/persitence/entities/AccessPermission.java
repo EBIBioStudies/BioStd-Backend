@@ -36,7 +36,7 @@ public class AccessPermission {
     private AccessTag accessTag;
 
     public enum AccessType {
-        READ, SUBMIT
+        READ, SUBMIT, ATTACH, UPDATE
     }
 
 }

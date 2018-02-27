@@ -314,7 +314,6 @@ public class ConfigurationManager {
             @Override
             public void run() {
                 BackendConfig.getServiceManager().getReleaseManager().doHourlyCheck();
-                BackendConfig.getServiceManager().getSecurityManager().removeExpiredUsers();
             }
         }, hourInMills - (now % hourInMills), hourInMills);
 

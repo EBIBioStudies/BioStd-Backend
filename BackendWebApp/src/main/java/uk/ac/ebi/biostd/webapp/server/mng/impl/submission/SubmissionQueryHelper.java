@@ -171,7 +171,7 @@ public class SubmissionQueryHelper {
     }
 
     public Collection<Submission> getSubmissionsByOwner(User u, int offset, int limit) {
-        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
+        EntityManager manager = BackendConfig.getServiceManager().getEntityManager();
         EntityTransaction transaction = manager.getTransaction();
 
         try {
@@ -201,7 +201,7 @@ public class SubmissionQueryHelper {
     }
 
     public Submission getSubmissionsByAccession(String acc) {
-        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
+        EntityManager manager = BackendConfig.getServiceManager().getEntityManager();
         EntityTransaction transaction = manager.getTransaction();
         TypedQuery<Submission> query = manager.
                 createNamedQuery(Submission.GetByAccQuery, Submission.class)

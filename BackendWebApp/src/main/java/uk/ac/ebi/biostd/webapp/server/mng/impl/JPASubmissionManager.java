@@ -167,7 +167,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
     @Override
     public Collection<Submission> getSubmissionsByOwner(User u, int offset, int limit) {
-        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
+        EntityManager manager = BackendConfig.getServiceManager().getEntityManager();
         EntityTransaction transaction = manager.getTransaction();
 
         try {
@@ -437,7 +437,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
     @Override
     public Submission getSubmissionsByAccession(String acc) {
-        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
+        EntityManager manager = BackendConfig.getServiceManager().getEntityManager();
         EntityTransaction transaction = manager.getTransaction();
         TypedQuery<Submission> query = manager.
                 createNamedQuery(Submission.GetByAccQuery, Submission.class)
@@ -448,26 +448,6 @@ public class JPASubmissionManager implements SubmissionManager {
         } finally {
             DatabaseUtil.commitIfActiveAndNotNull(transaction);
         }
-    }
-
-    @Override
-    public List<Submission> getHostSubmissionsByType(String type, User user) {
-        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getSession()
-                .getEntityManager();
-
-        if (user.isSuperuser()) {
-            return manager.createQuery(GET_ALL_HOST, Submission.class)
-                    .setParameter("type", type)
-                    .getResultList();
-        }
-
-        List<AccessTag> tags = manager.createQuery(ACCESS_TAG_QUERY, AccessTag.class).getResultList();
-        List<Long> allowedTags = getAllowedTags(tags, user);
-
-        return allowedTags.isEmpty() ? Collections.emptyList()
-                : manager.createQuery(GET_HOST_SUB_BY_TYPE_QUERY, Submission.class)
-                        .setParameter("type", type)
-                        .setParameter("allow", allowedTags).getResultList();
     }
 
     private List<Long> getAllowedTags(List<AccessTag> tags, User user) {
@@ -557,7 +537,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
         gln.log(Level.INFO, "Processing '" + type.name() + "' data. Body size: " + data.length);
 
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
+        EntityManager em = BackendConfig.getServiceManager().getEntityManager();
 
         boolean submOk = true;
         boolean submComplete = false;
@@ -1758,7 +1738,7 @@ public class JPASubmissionManager implements SubmissionManager {
             return gln;
         }
 
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
+        EntityManager em = BackendConfig.getServiceManager().getEntityManager();
 
         try {
             Query q = em.createNamedQuery(Submission.GetAllByAccQuery);

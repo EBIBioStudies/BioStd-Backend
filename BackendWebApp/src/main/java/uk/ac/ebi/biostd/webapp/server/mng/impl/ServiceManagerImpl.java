@@ -177,12 +177,6 @@ public class ServiceManagerImpl implements ServiceManager {
 //   userManager.shutdown();
         userManager = null;
 
-        if (sessionManager != null) {
-            sessionManager.shutdown();
-        }
-
-        sessionManager = null;
-
         if (submissionManager != null) {
             submissionManager.shutdown();
         }

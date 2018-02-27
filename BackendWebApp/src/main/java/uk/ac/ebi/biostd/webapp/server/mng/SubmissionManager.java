@@ -16,7 +16,6 @@
 package uk.ac.ebi.biostd.webapp.server.mng;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import org.apache.lucene.queryparser.classic.ParseException;
 import uk.ac.ebi.biostd.authz.User;
@@ -50,8 +49,6 @@ public interface SubmissionManager {
     LogNode changeOwnerByAccession(String sbmAcc, String owner, User usr);
 
     LogNode changeOwnerByAccessionPattern(String sbmAcc, String owner, User usr);
-
-    List<Submission> getHostSubmissionsByType(String type, User user);
 
     void shutdown();
 

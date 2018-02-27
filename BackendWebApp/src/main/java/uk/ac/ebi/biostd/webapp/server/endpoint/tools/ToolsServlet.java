@@ -96,14 +96,6 @@ public class ToolsServlet extends ServiceServlet {
                 relinkDropboxes(resp.getWriter());
                 break;
 
-            case CLEAN_EXP_USERS:
-                BackendConfig.getServiceManager().getSecurityManager().removeExpiredUsers();
-                break;
-
-            case REFRESH_USERS:
-                BackendConfig.getServiceManager().getSecurityManager().refreshUserCache();
-                break;
-
             case REGENERATE_JSON:
                 resp.setContentType("text/plain");
                 regenerateJsonFilesNoThreads(resp.getWriter());
@@ -731,12 +723,6 @@ public class ToolsServlet extends ServiceServlet {
         while (moreWorkToDo) {
             pool.execute(new RegenerateJsonOuputRunnable(offset, blockSz, servletOut));
             offset += blockSz;
-
-   /*
-   while (pool.getActiveCount() > 10) {
-    try { Thread.sleep(50);} catch (Exception ex){}
-   }
-   */
         }
 
         servletOut.append("Terminating thread pool");

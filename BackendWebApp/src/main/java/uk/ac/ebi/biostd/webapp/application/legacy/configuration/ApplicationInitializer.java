@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.webapp.application.legacy;
+package uk.ac.ebi.biostd.webapp.application.legacy.configuration;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
