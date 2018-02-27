@@ -333,7 +333,7 @@ public class SecurityManagerImpl implements SecurityManager {
         EntityManager em = null;
         Collection<UserACR> newSysACR = null;
 
-        em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 
@@ -440,7 +440,7 @@ public class SecurityManagerImpl implements SecurityManager {
 
         EntityManager em = null;
 
-        em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 
@@ -496,7 +496,7 @@ public class SecurityManagerImpl implements SecurityManager {
         EntityManager em = null;
         Collection<GroupACR> newSysACR = null;
 
-        em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 
@@ -943,6 +943,7 @@ public class SecurityManagerImpl implements SecurityManager {
     public User getUserById(long id) {
         EntityManager em = BackendConfig.getEntityManagerFactory().createEntityManager();
         TypedQuery<User> uq = em.createNamedQuery(User.GetByIdQuery, User.class);
+        uq.setParameter("id", id);
         return uq.getSingleResult();
     }
 
@@ -1034,7 +1035,7 @@ public class SecurityManagerImpl implements SecurityManager {
     private boolean changeGroup(User usr, UserGroup grp, boolean add) throws ServiceException {
         EntityManager em = null;
 
-        em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 
@@ -1134,7 +1135,7 @@ public class SecurityManagerImpl implements SecurityManager {
     private void mngPermProfile(PermissionClass pClass, String pID, boolean pAction, SubjectClass sClass, String sID,
             ObjectClass oClass,
             String oID, User user, boolean set) throws SecurityException {
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
 
         EntityTransaction trn = em.getTransaction();
 

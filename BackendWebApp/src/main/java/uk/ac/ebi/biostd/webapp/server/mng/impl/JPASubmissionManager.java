@@ -167,7 +167,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
     @Override
     public Collection<Submission> getSubmissionsByOwner(User u, int offset, int limit) {
-        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
         EntityTransaction transaction = manager.getTransaction();
 
         try {
@@ -437,7 +437,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
     @Override
     public Submission getSubmissionsByAccession(String acc) {
-        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager manager = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
         EntityTransaction transaction = manager.getTransaction();
         TypedQuery<Submission> query = manager.
                 createNamedQuery(Submission.GetByAccQuery, Submission.class)
@@ -557,7 +557,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
         gln.log(Level.INFO, "Processing '" + type.name() + "' data. Body size: " + data.length);
 
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
 
         boolean submOk = true;
         boolean submComplete = false;
@@ -1758,7 +1758,7 @@ public class JPASubmissionManager implements SubmissionManager {
             return gln;
         }
 
-        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getSession().getEntityManager();
+        EntityManager em = BackendConfig.getServiceManager().getSessionManager().getEntityManager();
 
         try {
             Query q = em.createNamedQuery(Submission.GetAllByAccQuery);

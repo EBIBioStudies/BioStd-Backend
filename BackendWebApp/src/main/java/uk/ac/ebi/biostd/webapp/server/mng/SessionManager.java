@@ -15,6 +15,7 @@
 
 package uk.ac.ebi.biostd.webapp.server.mng;
 
+import javax.persistence.EntityManager;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
 
@@ -43,6 +44,8 @@ public interface SessionManager {
     void addSessionListener(SessionListener sl);
 
     void removeSessionListener(SessionListener sl);
+
+    EntityManager getEntityManager();
 
     void shutdown();
 

@@ -15,6 +15,8 @@
 
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
+import javax.persistence.EntityManager;
+import lombok.Getter;
 import uk.ac.ebi.biostd.webapp.server.email.EmailService;
 import uk.ac.ebi.biostd.webapp.server.mng.AccessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.FileManager;
@@ -46,6 +48,13 @@ public class ServiceManagerImpl implements ServiceManager {
     private EmailService emailService;
     private TagManager tagManager;
     private SubscriptionManager subscriptionManager;
+
+    @Getter
+    private final EntityManager entityManager;
+
+    public ServiceManagerImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public EmailService getEmailService() {
