@@ -941,7 +941,9 @@ public class SecurityManagerImpl implements SecurityManager {
 
     @Override
     public User getUserById(long id) {
-        return userMap.get(id);
+        EntityManager em = BackendConfig.getEntityManagerFactory().createEntityManager();
+        TypedQuery<User> uq = em.createNamedQuery(User.GetByIdQuery, User.class);
+        return uq.getSingleResult();
     }
 
     @Override

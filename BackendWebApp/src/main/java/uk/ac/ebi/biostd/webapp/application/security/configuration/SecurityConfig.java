@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
 import uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter;
+import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
 @Configuration
 @EnableWebSecurity
@@ -19,11 +20,12 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ISecurityService securityService;
+    private final SecurityManager securityManager;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .addFilterAfter(new SecurityFilter(securityService), BasicAuthenticationFilter.class)
+                .addFilterAfter(new SecurityFilter(securityService, securityManager), BasicAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/**").permitAll()
                 .and()

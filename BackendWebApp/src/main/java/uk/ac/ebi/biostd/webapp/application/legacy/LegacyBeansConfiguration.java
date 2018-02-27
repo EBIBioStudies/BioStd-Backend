@@ -7,6 +7,7 @@ import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.SessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
+import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
 @Configuration
 @DependsOn("appInitializer")
@@ -25,5 +26,10 @@ public class LegacyBeansConfiguration {
     @Bean
     public SubmissionManager submissionManager() {
         return BackendConfig.getServiceManager().getSubmissionManager();
+    }
+
+    @Bean
+    public SecurityManager securityManager() {
+        return BackendConfig.getServiceManager().getSecurityManager();
     }
 }
