@@ -42,7 +42,7 @@ public class AttachHostListServlet extends ServiceServlet {
             format = DEFAULT_RESPONSE_FORMAT;
         }
 
-        if (session == null || session.isAnonymouns()) {
+        if (session == null || session.isAnonymous()) {
             getResponse(format, resp).respond(SC_UNAUTHORIZED, "FAIL", "User not logged in");
             return;
         }

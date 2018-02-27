@@ -35,6 +35,6 @@ public class UserAuxInfoConverter implements AttributeConverter<AuxInfo, String>
     @Override
     @SneakyThrows
     public AuxInfo convertToEntityAttribute(String dbData) {
-        return (AuxInfo) unmarshaller.unmarshal(new StringReader(dbData));
+        return dbData == null ? new AuxInfo() : (AuxInfo) unmarshaller.unmarshal(new StringReader(dbData));
     }
 }

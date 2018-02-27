@@ -11,13 +11,17 @@ import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessTag;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 @Component
 public class PermissionMapper {
 
+    private static final String STATUS_OK = "OK";
+
     public Map<String, String> getPermissionMap(User user) {
         Map<String, String> accessInfo = new LinkedHashMap<>(7);
-        accessInfo.put("Status", "OK");
+        accessInfo.put("Status", STATUS_OK);
         accessInfo.put("Allow", getUserAllows(user));
         accessInfo.put("Deny", StringUtils.EMPTY);
         accessInfo.put("Superuser", String.valueOf(user.isSuperuser()));
@@ -35,5 +39,18 @@ public class PermissionMapper {
                 .map(AccessTag::getName)
                 .collect(Collectors.toList());
         return "~" + user.getEmail() + ";#" + user.getId() + ";" + String.join(";", accessTags);
+    }
+
+    public LoginResponseDto getLoginResponse(UserData userData) {
+        LoginResponseDto loginResponse = new LoginResponseDto();
+        User user = userData.getUser();
+
+        loginResponse.setEmail(user.getEmail());
+        loginResponse.setSuperuser(String.valueOf(user.isSuperuser()));
+        loginResponse.setStatus(STATUS_OK);
+        loginResponse.setUsername(user.getFullName());
+        loginResponse.setSessid(userData.getToken());
+
+        return loginResponse;
     }
 }

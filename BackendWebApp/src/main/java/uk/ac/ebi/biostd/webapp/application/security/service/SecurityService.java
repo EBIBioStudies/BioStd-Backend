@@ -26,6 +26,7 @@ import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
 import uk.ac.ebi.biostd.webapp.application.security.common.SecurityAccessException;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
+import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 @Service
 @Transactional
@@ -67,7 +68,7 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
-    public String signIn(String login, String password) {
+    public UserData signIn(String login, String password) {
         Optional<User> user = userRepository.findByLoginOrEmail(login, login);
 
         if (!user.isPresent()) {
@@ -79,7 +80,8 @@ public class SecurityService implements ISecurityService {
                     format("Given password '%s' do not match for user '%s'", password, login));
         }
 
-        return securityUtil.createToken(user.get());
+        String token = securityUtil.createToken(user.get());
+        return new UserData(token, user.get());
     }
 
     @Override
@@ -93,12 +95,13 @@ public class SecurityService implements ISecurityService {
 
     @Override
     public void addUser(SignUpRequest signUpRequest) {
-        User user = User.builder()
-                .email(signUpRequest.getEmail())
-                .fullName(signUpRequest.getUsername())
-                .auxProfileInfo(createAuxInfo(signUpRequest.getAux()))
-                .active(false)
-                .activationKey(UUID.randomUUID().toString()).build();
+        User user = new User();
+        user.setEmail(signUpRequest.getEmail());
+        user.setFullName(signUpRequest.getUsername());
+        user.setAuxProfileInfo(createAuxInfo(signUpRequest.getAux()));
+        user.setActive(false);
+        user.setActivationKey(UUID.randomUUID().toString());
+        user.setPasswordDigest(securityUtil.getPasswordDigest(signUpRequest.getPassword()));
 
         userRepository.save(user.withPendingActivation(signUpRequest.getActivationURL()));
     }
@@ -113,18 +116,14 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
-    public boolean activate(String activationKey) {
-        boolean activated = false;
+    public void activate(String activationKey) {
         Optional<User> optionalUser = userRepository.findByActivationKey(activationKey);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setActivationKey(null);
             user.setActive(true);
             userRepository.save(user);
-            activated = true;
         }
-
-        return activated;
     }
 
     @Override
@@ -134,18 +133,14 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
-    public boolean resetPassword(String key, String password) {
-        boolean activated = false;
+    public void resetPassword(String key, String password) {
         Optional<User> optionalUser = userRepository.findByActivationKey(key);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setActivationKey(null);
             user.setPasswordDigest(securityUtil.getPasswordDigest(password));
             userRepository.save(user);
-            activated = true;
         }
-
-        return activated;
     }
 
     @Override
@@ -153,9 +148,8 @@ public class SecurityService implements ISecurityService {
         Optional<User> optionalUser = userRepository.findByLoginOrEmail(email, email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setActivationKey(null);
             user.setActivationKey(UUID.randomUUID().toString());
-            userRepository.save(user.withResetPassword(activationUrl));
+            userRepository.save(user.withResetPasswordRequest(activationUrl));
         }
     }
 }

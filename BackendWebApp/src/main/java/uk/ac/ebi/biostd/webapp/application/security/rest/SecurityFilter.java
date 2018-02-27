@@ -13,8 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.WebUtils;
-import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
+import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
 
 @AllArgsConstructor
 public class SecurityFilter extends GenericFilterBean {
@@ -38,8 +38,7 @@ public class SecurityFilter extends GenericFilterBean {
 
     private void authenticateUser(String key) {
         User user = securityService.getUserByKey(key);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null);
-        authentication.setAuthenticated(true);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, key, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 

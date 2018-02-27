@@ -6,6 +6,7 @@ import uk.ac.ebi.biostd.webapp.application.persitence.entities.Submission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
+import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 public interface ISecurityService {
 
@@ -13,17 +14,17 @@ public interface ISecurityService {
 
     User getPermissions(LoginRequest loginInformation);
 
-    String signIn(String login, String password);
+    UserData signIn(String login, String password);
 
     void signOut(String securityKey);
 
     void addUser(SignUpRequest signUpRequest);
 
-    boolean activate(String activationKey);
+    void activate(String activationKey);
 
     User getUserByKey(String key);
 
-    boolean resetPassword(String key, String password);
+    void resetPassword(String key, String password);
 
     void resetPasswordRequest(String email, String activationUrl);
 }

@@ -70,7 +70,7 @@ public class DirServlet extends ServiceServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
             throws ServletException, IOException {
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
             resp.getWriter().print("{\n\"status\": \"FAIL\",\n\"message\": \"User not logged in\"\n}");

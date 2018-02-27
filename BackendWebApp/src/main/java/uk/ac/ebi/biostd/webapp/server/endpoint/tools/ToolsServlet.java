@@ -48,7 +48,7 @@ public class ToolsServlet extends ServiceServlet {
             return;
         }
 
-        if (act != REFRESH_USERS && (sess == null || sess.isAnonymouns())) {
+        if (act != REFRESH_USERS && (sess == null || sess.isAnonymous())) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().print("FAIL User not logged in");
             return;

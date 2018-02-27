@@ -9,7 +9,6 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import lombok.AllArgsConstructor;
 import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
@@ -476,68 +475,6 @@ public class JPAUserManager implements UserManager, SessionListener {
         }
 
         return sess;
-    }
-
-    @Override
-    public Session loginUsingSSOToken(User user0, String ssoToken, String ssoSubject) throws SecurityException {
-        User user = securityManager.checkUserSSOSubject(ssoSubject);
-
-        SessionManager sessMngr = sessionManager;
-
-        Session sess = sessMngr.getSessionByUserId(user.getId());
-
-        if (sess == null) {
-            sess = sessMngr.createSession(user);
-        }
-
-        sess.setSSOToken(ssoToken);
-        return sess;
-    }
-
-    @Override
-    public void linkSSOSubjectToUser(User user, String ssoSubject) throws UserMngException {
-        EntityManager em = sessionManager.getSession().getEntityManager();
-        EntityTransaction trn = em.getTransaction();
-        User u = null;
-
-        try {
-            trn.begin();
-            TypedQuery<User> q = em.createNamedQuery(User.GetByEMailQuery, User.class);
-            q.setParameter(User.EmailQueryParameter, user.getEmail());
-
-            List<User> res = q.getResultList();
-
-            if (res.size() != 0) {
-                u = res.get(0);
-            }
-
-            if (u == null) {
-                throw new UserNotFoundException();
-            }
-
-            u.setSsoSubject(ssoSubject);
-
-        } catch (UserMngException e) {
-            trn.rollback();
-            throw e;
-        } catch (Exception e) {
-            trn.rollback();
-            throw new SystemUserMngException("System error", e);
-        } finally {
-            if (trn.isActive() && !trn.getRollbackOnly()) {
-                trn.commit();
-                if (u != null) {
-                    // We also need to update a user cache
-                    uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager secMan =
-                            securityManager;
-                    User cchUsr = secMan.getUserById(u.getId());
-                    if (cchUsr != null) {
-                        cchUsr.setSsoSubject(ssoSubject);
-                    }
-                    secMan.addUserSSOSubject(u, ssoSubject);
-                }
-            }
-        }
     }
 
     @Override

@@ -39,7 +39,7 @@ public class ExportControlServlet extends ServiceServlet {
             throws ServletException, IOException {
         ReqResp rqrs = new ReqResp(req, resp);
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             rqrs.getResponse().respond(HttpServletResponse.SC_UNAUTHORIZED, "FAIL", "User not logged in");
             return;
         }

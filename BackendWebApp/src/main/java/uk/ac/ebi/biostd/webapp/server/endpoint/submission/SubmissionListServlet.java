@@ -53,7 +53,7 @@ public class SubmissionListServlet extends ServiceServlet {
 
         resp.setContentType("application/json; charset=UTF-8");
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.print("{\n\"status\": \"FAIL\",\n\"message\": \"User not logged in\"\n}");
             return;

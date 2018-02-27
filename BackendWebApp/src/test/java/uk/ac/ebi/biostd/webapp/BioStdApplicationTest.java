@@ -64,7 +64,6 @@ public class BioStdApplicationTest {
     @Before
     public void setup() {
         operationsService = new RemoteOperations(restTemplate, port);
-        operationsService.refreshCache();
     }
 
     @Test

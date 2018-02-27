@@ -12,11 +12,11 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.domain.AbstractAggregateRoot;
-import uk.ac.ebi.biostd.webapp.application.domain.events.PassResetRequest;
+import uk.ac.ebi.biostd.webapp.application.domain.events.PassResetEvent;
 import uk.ac.ebi.biostd.webapp.application.domain.events.UserCreatedEvent;
 import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
 import uk.ac.ebi.biostd.webapp.application.persitence.aux.UserAuxInfoConverter;
@@ -25,7 +25,7 @@ import uk.ac.ebi.biostd.webapp.application.persitence.aux.UserAuxInfoConverter;
 @Getter
 @Setter
 @Table(name = "User")
-@Builder
+@NoArgsConstructor
 public class User extends AbstractAggregateRoot {
 
     @Id
@@ -53,8 +53,8 @@ public class User extends AbstractAggregateRoot {
         return this;
     }
 
-    public User withResetPassword(String activationLink) {
-        registerEvent(new PassResetRequest(this, activationLink));
+    public User withResetPasswordRequest(String activationLink) {
+        registerEvent(new PassResetEvent(this, activationLink));
         return this;
     }
 }

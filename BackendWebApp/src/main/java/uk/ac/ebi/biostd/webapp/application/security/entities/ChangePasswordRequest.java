@@ -3,9 +3,8 @@ package uk.ac.ebi.biostd.webapp.application.security.entities;
 import lombok.Data;
 
 @Data
-public class ResetPasswordRequest {
+public class ChangePasswordRequest {
 
-    private String email;
-    private String resetURL;
-
+    private String password;
+    private String key;
 }

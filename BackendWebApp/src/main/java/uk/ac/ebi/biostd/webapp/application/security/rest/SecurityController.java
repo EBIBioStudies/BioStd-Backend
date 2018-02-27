@@ -2,7 +2,6 @@ package uk.ac.ebi.biostd.webapp.application.security.rest;
 
 import static uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType.SUBMIT;
 
-import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -17,18 +16,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.biostd.webapp.application.common.utils.PlainFileFormat;
 import uk.ac.ebi.biostd.webapp.application.common.utils.WebUtils;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
-import uk.ac.ebi.biostd.webapp.application.security.entities.ActivateRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ProjectsDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.PermissionMapper;
 import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.ProjectMapper;
+import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 @AllArgsConstructor
 @Controller
@@ -53,9 +55,11 @@ public class SecurityController {
     }
 
     @PostMapping(value = "/auth/signin")
-    public void signIn(@ModelAttribute SignInRequest signInRequestDto, HttpServletResponse response) {
-        String token = securityService.signIn(signInRequestDto.getLogin(), signInRequestDto.getPassword());
-        response.addCookie(new Cookie(SECURITY_COOKIE_NAME, token));
+    public @ResponseBody
+    LoginResponseDto signInPost(@RequestBody SignInRequest signInRequestDto, HttpServletResponse response) {
+        UserData userData = securityService.signIn(signInRequestDto.getLogin(), signInRequestDto.getPassword());
+        response.addCookie(new Cookie(SECURITY_COOKIE_NAME, userData.getToken()));
+        return permissionMapper.getLoginResponse(userData);
     }
 
     @PostMapping(value = "/auth/signout")
@@ -70,20 +74,17 @@ public class SecurityController {
     }
 
     @PostMapping(value = "/auth/activate/{activationKey}")
-    public void activate(
-            @ModelAttribute ActivateRequest activateRequest,
-            @PathVariable String activationKey,
-            HttpServletResponse response) throws IOException {
-        String redirectUrl = securityService.activate(activationKey) ?
-                activateRequest.getSuccessURL() : activateRequest.getFailURL();
-        response.sendRedirect(redirectUrl);
+    public void activate(@PathVariable String activationKey) {
+        securityService.activate(activationKey);
     }
 
     @PostMapping(value = "/auth/passreset")
-    public void resetPassword(@ModelAttribute ResetPasswordRequest request, HttpServletResponse response)
-            throws IOException {
-        boolean passwordReset = securityService.resetPassword(request.getKey(), request.getPassword());
-        String redirectUrl = passwordReset ? request.getSuccessURL() : request.getFailURL();
-        response.sendRedirect(redirectUrl);
+    public void resetPassword(@RequestBody ChangePasswordRequest request) {
+        securityService.resetPassword(request.getKey(), request.getPassword());
+    }
+
+    @PostMapping(value = "/auth/passrstreq")
+    public void resetPassword(@RequestBody ResetPasswordRequest request) {
+        securityService.resetPasswordRequest(request.getEmail(), request.getResetURL());
     }
 }

@@ -53,7 +53,7 @@ public class GroupActions {
         ParameterPool params = rqrs.getParameterPool();
         Response resp = rqrs.getResponse();
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.respond(HttpServletResponse.SC_UNAUTHORIZED, "FAIL", "User not logged in");
             return;
         }
@@ -132,7 +132,7 @@ public class GroupActions {
         ParameterPool prms = rqrs.getParameterPool();
         Response resp = rqrs.getResponse();
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.respond(HttpServletResponse.SC_UNAUTHORIZED, "FAIL", "User not logged in");
             return;
         }
@@ -188,7 +188,7 @@ public class GroupActions {
         ParameterPool prms = rqrs.getParameterPool();
         Response resp = rqrs.getResponse();
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.respond(HttpServletResponse.SC_UNAUTHORIZED, "FAIL", "User not logged in");
             return;
         }
@@ -236,7 +236,7 @@ public class GroupActions {
     static void listGroups(ReqResp rqrs, Session sess) throws IOException {
         Response resp = rqrs.getResponse();
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.respond(HttpServletResponse.SC_UNAUTHORIZED, "FAIL", "User not logged in");
             return;
         }
@@ -300,7 +300,7 @@ public class GroupActions {
         ParameterPool prms = rqrs.getParameterPool();
         Response resp = rqrs.getResponse();
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.respond(HttpServletResponse.SC_UNAUTHORIZED, "FAIL", "User not logged in");
             return;
         }

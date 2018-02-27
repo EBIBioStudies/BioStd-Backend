@@ -38,7 +38,7 @@ public class TagsServlet extends ServiceServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response, Session sess)
             throws ServletException, IOException {
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("text/plain");
             response.getWriter().print("FAIL User not logged in");

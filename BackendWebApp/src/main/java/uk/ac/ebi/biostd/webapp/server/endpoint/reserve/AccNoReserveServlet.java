@@ -23,7 +23,7 @@ public class AccNoReserveServlet extends ServiceServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
             throws ServletException, IOException {
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().print("FAIL User not logged in");
             return;

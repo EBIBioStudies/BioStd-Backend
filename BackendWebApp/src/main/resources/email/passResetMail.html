@@ -1,10 +1,10 @@
-<html>
-<body>
-<p>Dear {USERNAME}</p>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:inline="text">
+<p>Dear [[${USERNAME}]]</p>
 <p>You have received this email because you requested a password reset. Please click the following link:<br/>
-<a href="{URL}">{URL}</a>
+  <a th:href="${URL}">Reset password link</a>
 </p>
-<p>If you experience any problems, please contact us at <a href="mailto:{MAILTO}">{MAILTO}</a></p>
+<p>If you experience any problems, please contact us at <a th:href="'mailto:'  + ${MAILTO}">[[${MAILTO}]]</a></p>
 <br/>
 Regards<br/>
 BioStudies Team

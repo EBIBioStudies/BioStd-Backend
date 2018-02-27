@@ -11,7 +11,6 @@
 
 package uk.ac.ebi.biostd.webapp.server.endpoint.auth;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -206,10 +205,11 @@ public class AuthServlet extends ServiceServlet {
 
         int n = 0;
 
-        outInfo[n++] = new KV(SessionIdParameter, sess.getSessionKey());
+        // TODO: delete all
+        outInfo[n++] = new KV(SessionIdParameter, "KEY");
         outInfo[n++] = new KV(UsernameParameter, sess.getUser().getFullName());
         outInfo[n++] = new KV(UserEmailParameter, String.valueOf(sess.getUser().getEmail()));
-        outInfo[n++] = new KV(SSOTokenParameter, String.valueOf(sess.getSSOToken()));
+        outInfo[n++] = new KV(SSOTokenParameter, "TOKEN");
 
         if (u.getLogin() != null) {
             outInfo[n++] = new KV(UserLoginParameter, u.getLogin());
@@ -222,85 +222,13 @@ public class AuthServlet extends ServiceServlet {
         resp.respond(HttpServletResponse.SC_OK, "OK", null, outInfo); // safe for null emails
     }
 
-    private Session signInUsingSSOToken(ReqResp rqrs, String ssoToken) throws Exception {
-        Response resp = rqrs.getResponse();
-        UserManager um = BackendConfig.getServiceManager().getUserManager();
-        Session sess = null;
-
-        DecodedJWT decodedToken = null;
-        try {
-            decodedToken = SSOSupport.verifyToken(ssoToken);
-        } catch (Throwable t) {
-            throw new SecurityException("Token verification failed: " + t.getMessage());
-        }
-
-        String ssoSubject = decodedToken.getSubject();
-        User user = um.getUserBySSOSubject(ssoSubject);
-
-        if (user == null) {
-            // sso user not registered - register user
-            //
-            String ssoEmail = decodedToken.getClaim(SSOemail).asString();
-            String ssoLogin = decodedToken.getClaim(SSOnickname).asString();
-            String ssoName = decodedToken.getClaim(SSOname).asString();
-
-            user = um.getUserByEmail(ssoEmail);
-
-            if (user == null) {
-                // user doesn't exist - create
-                user = new User();
-                user.setLogin(ssoLogin);
-                user.setEmail(ssoEmail);
-                user.setPassword(UUID.randomUUID().toString());
-                user.setFullName(ssoName);
-
-                try {
-                    // create activated user
-                    um.addUser(user, null, false, null);
-                } catch (Throwable t) {
-                    throw new SecurityException("Error when adding SSO user: " + t.getMessage());
-                }
-
-            } else {
-                // user exists, add link
-                //
-                try {
-                    um.linkSSOSubjectToUser(user, ssoSubject);
-                } catch (Throwable t) {
-                    throw new SecurityException("Error adding SSO link to existing account: " + t.getMessage());
-                }
-            }
-        }
-
-        // TODO: (pass in User to optimize)
-        try {
-            sess = um.loginUsingSSOToken(user, ssoToken, ssoSubject);
-        } catch (Throwable t) {
-            throw new SecurityException("Failed to login using SSO: " + t.getMessage());
-        }
-
-        return sess;
-    }
-
     private void signin(ReqResp rqrs) throws IOException {
         ParameterPool prms = rqrs.getParameterPool();
         Response resp = rqrs.getResponse();
-
-        String ssoToken = prms.getParameter(SSOTokenParameter);
         Session sess = null;
 
         UserManager um = BackendConfig.getServiceManager().getUserManager();
 
-        if (ssoToken != null) {
-
-            try {
-                sess = signInUsingSSOToken(rqrs, ssoToken);
-            } catch (Exception ex) {
-                resp.respond(HttpServletResponse.SC_FORBIDDEN, "FAIL", "FAIL " + ex.getMessage());
-                return;
-            }
-
-        } else {
 
             String uname = prms.getParameter(UserLoginParameter);
 
@@ -330,9 +258,8 @@ public class AuthServlet extends ServiceServlet {
                 resp.respond(HttpServletResponse.SC_FORBIDDEN, "FAIL", "FAIL " + e.getMessage());
                 return;
             }
-        }
 
-        String skey = sess.getSessionKey();
+        String skey = "a extrange key";//TODO:remove
 
         Cookie cke = new Cookie(BackendConfig.getSessionCookieName(), skey);
         cke.setPath(getServletContext().getContextPath()); //Setting path is a right idea but doesn't work with proxies
@@ -356,7 +283,7 @@ public class AuthServlet extends ServiceServlet {
         outInfo[2] = new KV(UserEmailParameter, String.valueOf(sess.getUser().getEmail()));
         outInfo[3] = new KV(SuperuserParameter, sess.getUser().isSuperuser() ? "true" : "false");
         outInfo[4] = new KV(DropboxParameter, BackendConfig.getUserDropboxRelPath(sess.getUser()));
-        outInfo[5] = new KV(SSOTokenParameter, String.valueOf(ssoToken)); // null -> "null" ?
+        outInfo[5] = new KV(SSOTokenParameter, String.valueOf("")); // null -> "null" ?
 
         for (int i = 0; i < auxLen; i++) {
             outInfo[i + 6] = new KV(AuxParameter, aux.get(i)[0], aux.get(i)[1]);

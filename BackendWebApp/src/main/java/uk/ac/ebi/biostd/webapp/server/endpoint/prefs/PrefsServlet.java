@@ -77,7 +77,7 @@ public class PrefsServlet extends ServiceServlet {
             return;
         }
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             if (BackendConfig.getServiceManager() != null && BackendConfig.getServiceManager().getUserManager() != null
                     && BackendConfig.getServiceManager().getUserManager().getUsersNumber() != 0) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

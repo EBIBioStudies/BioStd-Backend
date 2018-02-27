@@ -67,7 +67,7 @@ public class SessionManagerImpl implements SessionManager, Runnable {
 
         File sessDir = new File(sessDirRoot, key);
 
-        Session sess = new SessionAuthenticated(sessDir, BackendConfig.getEntityManagerFactory());
+        Session sess = new SessionAuthenticated(sessDir, BackendConfig.getEntityManagerFactory(), sessionKey, user);
 
         sess.setSessionKey(key);
         sess.setUser(user);
@@ -300,7 +300,7 @@ public class SessionManagerImpl implements SessionManager, Runnable {
             if (sess != null) {
                 sess.setCheckedIn(false);
 
-                if (sess.isAnonymouns()) {
+                if (sess.isAnonymous()) {
                     sess.destroy();
                 }
             }

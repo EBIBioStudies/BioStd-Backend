@@ -39,7 +39,7 @@ public class FormSubmitServlet extends ServiceServlet {
             return;
         }
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             respond(response, HttpServletResponse.SC_UNAUTHORIZED, "FAIL User not logged in");
             return;
         }
