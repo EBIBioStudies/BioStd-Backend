@@ -28,6 +28,7 @@ import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.backend.model.SubmissionResult;
 import uk.ac.ebi.biostd.backend.services.RemoteOperations;
 import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
+import uk.ac.ebi.biostd.util.FileUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -51,14 +52,21 @@ public class BioStdApplicationTest {
     private RemoteOperations operationsService;
 
     @BeforeClass
-    public static void beforeAll() throws IOException {
+    public static void beforeAll() throws Exception {
         NFS_PATH = TEST_FOLDER.getRoot().getPath();
         System.setProperty(BIOSTUDY_BASE_DIR, NFS_PATH);
         System.setProperty(CONFIG_FILE_LOCATION_VAR, NFS_PATH + "/config.properties");
 
-        FileUtils.copyFile(
-                new ClassPathResource("nfs/config.properties").getFile(),
-                new File(NFS_PATH + "/config.properties"));
+        File miscDir = new File(NFS_PATH + "/misc");
+        miscDir.mkdir();
+
+        FileUtil.copyDirectory(new ClassPathResource("nfs/misc").getFile(), miscDir);
+        writeConfigFile(new ClassPathResource("nfs/config.properties").getFile());
+    }
+
+    private static void writeConfigFile(File file) throws IOException {
+        String content = FileUtils.readFileToString(file).replaceAll("\\{BASE_PATH\\}", NFS_PATH);
+        FileUtils.writeStringToFile(new File(NFS_PATH + "/config.properties"), content);
     }
 
     @Before
