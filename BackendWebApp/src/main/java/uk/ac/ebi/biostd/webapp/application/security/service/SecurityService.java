@@ -110,7 +110,7 @@ public class SecurityService implements ISecurityService {
         AuxInfo auxInfo = new AuxInfo();
         auxInfo.setParameters(dataList.stream()
                 .map(data -> data.split(":"))
-                .map(pairs -> new Parameter(pairs))
+                .map(Parameter::new)
                 .collect(toList()));
         return auxInfo;
     }
@@ -151,5 +151,20 @@ public class SecurityService implements ISecurityService {
             user.setActivationKey(UUID.randomUUID().toString());
             userRepository.save(user.withResetPasswordRequest(activationUrl));
         }
+    }
+
+    @Override
+    public boolean hasPermission(long submissionId, long userId, AccessType accessType) {
+        User user = userRepository.findOne(userId);
+        if (user.isSuperuser()) {
+            return true;
+        }
+
+        Submission submission = submissionRepository.findOne(submissionId);
+        if (submission.getOwnerId() == userId) {
+            return true;
+        }
+
+        return permissionRepository.existsByAccessTagInAndAccessType(submission.getAccessTag(), accessType);
     }
 }

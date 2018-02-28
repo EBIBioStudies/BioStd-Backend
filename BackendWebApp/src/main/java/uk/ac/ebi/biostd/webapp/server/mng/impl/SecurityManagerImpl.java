@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ import uk.ac.ebi.biostd.authz.AuthorizationTemplate;
 import uk.ac.ebi.biostd.authz.AuthzObject;
 import uk.ac.ebi.biostd.authz.Permission;
 import uk.ac.ebi.biostd.authz.PermissionProfile;
-import uk.ac.ebi.biostd.authz.PermissionUnit;
 import uk.ac.ebi.biostd.authz.SystemAction;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
@@ -41,10 +39,6 @@ import uk.ac.ebi.biostd.authz.acr.GroupPermGrpACR;
 import uk.ac.ebi.biostd.authz.acr.GroupPermUsrACR;
 import uk.ac.ebi.biostd.authz.acr.GroupProfGrpACR;
 import uk.ac.ebi.biostd.authz.acr.GroupProfUsrACR;
-import uk.ac.ebi.biostd.authz.acr.SystemPermGrpACR;
-import uk.ac.ebi.biostd.authz.acr.SystemPermUsrACR;
-import uk.ac.ebi.biostd.authz.acr.SystemProfGrpACR;
-import uk.ac.ebi.biostd.authz.acr.SystemProfUsrACR;
 import uk.ac.ebi.biostd.authz.acr.TemplatePermGrpACR;
 import uk.ac.ebi.biostd.authz.acr.TemplatePermUsrACR;
 import uk.ac.ebi.biostd.authz.acr.TemplateProfGrpACR;
@@ -52,19 +46,7 @@ import uk.ac.ebi.biostd.authz.acr.TemplateProfUsrACR;
 import uk.ac.ebi.biostd.model.SecurityObject;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
-import uk.ac.ebi.biostd.webapp.server.mng.security.ACLObjectAdapter;
-import uk.ac.ebi.biostd.webapp.server.mng.security.ObjectClass;
-import uk.ac.ebi.biostd.webapp.server.mng.security.PermissionClass;
-import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityException;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
-import uk.ac.ebi.biostd.webapp.server.mng.security.SubjectClass;
-import uk.ac.ebi.biostd.webapp.server.mng.security.acladp.AccessTagAA;
-import uk.ac.ebi.biostd.webapp.server.mng.security.acladp.AccessTagDelegateAA;
-import uk.ac.ebi.biostd.webapp.server.mng.security.acladp.AuthzTemplateAA;
-import uk.ac.ebi.biostd.webapp.server.mng.security.acladp.CounterAA;
-import uk.ac.ebi.biostd.webapp.server.mng.security.acladp.DomainAA;
-import uk.ac.ebi.biostd.webapp.server.mng.security.acladp.IdGenAA;
-import uk.ac.ebi.biostd.webapp.server.mng.security.acladp.UserGroupAA;
 
 public class SecurityManagerImpl implements SecurityManager {
 
@@ -266,24 +248,13 @@ public class SecurityManagerImpl implements SecurityManager {
         return allow;
     }
 
+    /**
+     * TODO: add read and only create public permission.
+     */
     @Override
     public boolean mayUserCreateSubmission(User usr) {
-        return checkSystemPermission(SystemAction.CREATESUBM, usr);
+        return true;
     }
-
-    @Override
-    public boolean mayUserListAllSubmissions(User usr) {
-        return checkSystemPermission(SystemAction.LISTALLSUBM, usr);
-    }
-
-    public boolean checkSubmissionPermission(Submission sbm, User usr, SystemAction act) {
-        if (sbm.getOwner().equals(usr) || usr.isSuperuser()) {
-            return true;
-        }
-
-        return checkObjectPermission(sbm, usr, act);
-    }
-
 
     @Override
     public boolean mayUserUpdateSubmission(Submission sbm, User usr) {
@@ -292,7 +263,6 @@ public class SecurityManagerImpl implements SecurityManager {
 
     @Override
     public boolean mayUserDeleteSubmission(Submission sbm, User usr) {
-
         return checkSubmissionPermission(sbm, usr, SystemAction.DELETE);
     }
 
@@ -305,6 +275,20 @@ public class SecurityManagerImpl implements SecurityManager {
     public boolean mayUserAttachToSubmission(Submission sbm, User usr) {
         return checkSubmissionPermission(sbm, usr, SystemAction.ATTACHSUBM);
     }
+
+    @Override
+    public boolean mayUserListAllSubmissions(User usr) {
+        return checkSystemPermission(SystemAction.LISTALLSUBM, usr);
+    }
+
+    private boolean checkSubmissionPermission(Submission sbm, User usr, SystemAction act) {
+        if (sbm.getOwner().equals(usr) || usr.isSuperuser()) {
+            return true;
+        }
+
+        return checkObjectPermission(sbm, usr, act);
+    }
+
 
     @Override
     public boolean mayEveryoneReadSubmission(Submission submission) {
@@ -437,447 +421,6 @@ public class SecurityManagerImpl implements SecurityManager {
 
     @Override
     public boolean mayUserWriteGroupFiles(User user, UserGroup g) {
-        return mayUserReadGroupFiles(user, g); //To be changed for something smart
+        return mayUserReadGroupFiles(user, g);
     }
-
-    private void mngPermProfile(PermissionClass pClass, String pID, boolean pAction, SubjectClass sClass, String sID,
-            ObjectClass oClass,
-            String oID, User user, boolean set) throws SecurityException {
-        EntityManager em = BackendConfig.getServiceManager().getEntityManager();
-
-        EntityTransaction trn = em.getTransaction();
-
-        try {
-            trn.begin();
-
-            ACLObjectAdapter drv = getACLAdapter(em, oClass, oID);
-
-            if (!drv.isObjectOk()) {
-                throw new SecurityException("Object not found. Class: " + oClass.name() + " ID=" + oID);
-            }
-
-            if (!user.isSuperuser() && !drv.checkChangeAccessPermission(user)) {
-                throw new SecurityException("Access denied");
-            }
-
-            if (pClass == PermissionClass.Permission) {
-                SystemAction act = null;
-
-                for (SystemAction ac : SystemAction.values()) {
-                    if (ac.name().equalsIgnoreCase(pID)) {
-                        act = ac;
-                        break;
-                    }
-                }
-
-                if (act == null) {
-                    throw new SecurityException("Invalid system action/permission: " + pID);
-                }
-
-                if (sClass == SubjectClass.User) {
-                    User usr = null;
-
-                    usr = getUserByLogin(sID);
-
-                    if (usr == null) {
-                        usr = getUserByEmail(sID);
-                    }
-
-                    if (usr == null) {
-                        throw new SecurityException("User not found: " + sID);
-                    }
-
-                    ACR rule = drv.findACR(act, pAction, usr);
-
-                    if (set) {
-                        if (rule != null) {
-                            throw new SecurityException("ACR already exists");
-                        }
-
-                        drv.addRule(act, pAction, usr);
-                    } else {
-                        if (rule == null) {
-                            throw new SecurityException("ACR not found");
-                        }
-
-                        drv.removeRule(rule);
-                    }
-                } else if (sClass == SubjectClass.Group) {
-                    UserGroup grp = null;
-
-                    grp = getGroup(sID);
-
-                    if (grp == null) {
-                        throw new SecurityException("Group not found: " + sID);
-                    }
-
-                    ACR rule = drv.findACR(act, pAction, grp);
-
-                    if (set) {
-                        if (rule != null) {
-                            throw new SecurityException("ACR already exists");
-                        }
-
-                        drv.addRule(act, pAction, grp);
-                    } else {
-                        if (rule == null) {
-                            throw new SecurityException("ACR not found");
-                        }
-
-                        drv.removeRule(rule);
-                    }
-                }
-            } else {
-                PermissionProfile prof = null;
-
-                prof = getPermissionProfile(pID);
-
-                if (prof == null) {
-                    throw new SecurityException("Permission profile not found: " + pID);
-                }
-
-                if (sClass == SubjectClass.User) {
-                    User usr = null;
-
-                    usr = getUserByLogin(sID);
-
-                    if (usr == null) {
-                        usr = getUserByEmail(sID);
-                    }
-
-                    if (usr == null) {
-                        throw new SecurityException("User not found: " + sID);
-                    }
-
-                    ACR rule = drv.findACR(prof, usr);
-
-                    if (set) {
-                        if (rule != null) {
-                            throw new SecurityException("ACR already exists");
-                        }
-
-                        drv.addRule(prof, em.find(User.class, usr.getId()));
-                    } else {
-                        if (rule == null) {
-                            throw new SecurityException("ACR not found");
-                        }
-
-                        drv.removeRule(rule);
-                    }
-                } else if (sClass == SubjectClass.Group) {
-                    UserGroup grp = null;
-
-                    grp = getGroup(sID);
-
-                    if (grp == null) {
-                        throw new SecurityException("Group not found: " + sID);
-                    }
-
-                    ACR rule = drv.findACR(prof, grp);
-
-                    if (set) {
-                        if (rule != null) {
-                            throw new SecurityException("ACR already exists");
-                        }
-
-                        drv.addRule(prof, em.find(UserGroup.class, grp.getId()));
-                    } else {
-                        if (rule == null) {
-                            throw new SecurityException("ACR not found");
-                        }
-
-                        drv.removeRule(rule);
-                    }
-                }
-
-            }
-
-            trn.commit();
-        } catch (Exception e) {
-            if (trn.isActive()) {
-                trn.rollback();
-            }
-
-            log.error("Permission managing error: " + e.getMessage(), e);
-
-            throw new SecurityException("System error");
-        }
-
-    }
-
-    private PermissionProfile getPermissionProfile(String pID) {
-        for (PermissionProfile pp : profileMap.values()) {
-            if (pp.getName().equals(pID)) {
-                return pp;
-            }
-        }
-
-        return null;
-    }
-
-    private ACLObjectAdapter getACLAdapter(EntityManager em, ObjectClass oClass, String oId) {
-        switch (oClass) {
-            case AccessTag:
-                return new AccessTagAA(em, oId);
-
-            case AccessTagDelegate:
-
-                return new AccessTagDelegateAA(em, oId);
-
-            case AuthzTemplate:
-
-                return new AuthzTemplateAA(em, oId);
-
-            case Counter:
-
-                return new CounterAA(em, oId);
-
-            case Domain:
-
-                return new DomainAA(em, oId);
-
-            case UserGroup:
-
-                return new UserGroupAA(em, oId);
-
-            case IdGen:
-
-                return new IdGenAA(em, oId);
-
-            case System:
-
-                return new SystemPermAA(em);
-
-            default:
-                break;
-        }
-
-        return null;
-    }
-
-    class SystemPermAA implements ACLObjectAdapter {
-
-        private final EntityManager em;
-
-        public SystemPermAA(EntityManager em) {
-            this.em = em;
-        }
-
-        @Override
-        public boolean checkChangeAccessPermission(User user) {
-            return checkSystemPermission(SystemAction.CHANGEACCESS, user);
-        }
-
-        @Override
-        public ACR findACR(SystemAction act, boolean pAction, User usr) {
-
-            for (ACR acr : systemACR) {
-                PermissionUnit pu = acr.getPermissionUnit();
-
-                if (!(pu instanceof Permission)) {
-                    continue;
-                }
-
-                if (!(acr.getSubject() instanceof User)) {
-                    continue;
-                }
-
-                User subj = (User) acr.getSubject();
-
-                Permission prm = (Permission) pu;
-
-                if (prm.isAllow() != pAction || prm.getAction() != act) {
-                    continue;
-                }
-
-                if (usr.getId() == subj.getId()) {
-                    return acr;
-                }
-            }
-
-            return null;
-
-        }
-
-        @Override
-        public ACR findACR(SystemAction act, boolean pAction, UserGroup grp) {
-            for (ACR acr : systemACR) {
-                PermissionUnit pu = acr.getPermissionUnit();
-
-                if (!(pu instanceof Permission)) {
-                    continue;
-                }
-
-                if (!(acr.getSubject() instanceof UserGroup)) {
-                    continue;
-                }
-
-                UserGroup subj = (UserGroup) acr.getSubject();
-
-                Permission prm = (Permission) pu;
-
-                if (prm.isAllow() != pAction || prm.getAction() != act) {
-                    continue;
-                }
-
-                if (grp.getId() == subj.getId()) {
-                    return acr;
-                }
-            }
-
-            return null;
-
-        }
-
-        @Override
-        public ACR findACR(PermissionProfile prof, User usr) {
-            for (ACR acr : systemACR) {
-                PermissionUnit pu = acr.getPermissionUnit();
-
-                if (!(pu instanceof PermissionProfile) || ((PermissionProfile) pu).getId() != prof.getId()) {
-                    continue;
-                }
-
-                if (!(acr.getSubject() instanceof User)) {
-                    continue;
-                }
-
-                User subj = (User) acr.getSubject();
-
-                if (usr.getId() == subj.getId()) {
-                    return acr;
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        public ACR findACR(PermissionProfile prof, UserGroup grp) {
-            for (ACR acr : systemACR) {
-                PermissionUnit pu = acr.getPermissionUnit();
-
-                if (!(pu instanceof PermissionProfile) || ((PermissionProfile) pu).getId() != prof.getId()) {
-                    continue;
-                }
-
-                if (!(acr.getSubject() instanceof UserGroup)) {
-                    continue;
-                }
-
-                UserGroup subj = (UserGroup) acr.getSubject();
-
-                if (grp.getId() == subj.getId()) {
-                    return acr;
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        public void addRule(SystemAction act, boolean pAction, User usr) {
-            SystemPermUsrACR rule = new SystemPermUsrACR();
-
-            rule.setAction(act);
-            rule.setAllow(pAction);
-            rule.setSubject(usr);
-
-            em.persist(rule);
-
-            usr = detachUser(usr);
-
-            rule = new SystemPermUsrACR();
-
-            rule.setAction(act);
-            rule.setAllow(pAction);
-            rule.setSubject(usr);
-
-            systemACR.add(rule);
-        }
-
-        @Override
-        public void addRule(SystemAction act, boolean pAction, UserGroup grp) {
-            SystemPermGrpACR rule = new SystemPermGrpACR();
-
-            rule.setAction(act);
-            rule.setAllow(pAction);
-            rule.setSubject(grp);
-
-            em.persist(rule);
-
-            grp = detachGroup(grp, false);
-
-            rule = new SystemPermGrpACR();
-
-            rule.setAction(act);
-            rule.setAllow(pAction);
-            rule.setSubject(grp);
-
-            systemACR.add(rule);
-        }
-
-        @Override
-        public void addRule(PermissionProfile prof, User usr) {
-            SystemProfUsrACR rule = new SystemProfUsrACR();
-
-            rule.setProfile(prof);
-            rule.setSubject(usr);
-
-            em.persist(rule);
-
-            usr = detachUser(usr);
-
-            rule = new SystemProfUsrACR();
-
-            rule.setProfile(prof);
-            rule.setSubject(usr);
-
-            systemACR.add(rule);
-        }
-
-        @Override
-        public void addRule(PermissionProfile prof, UserGroup grp) {
-            SystemProfGrpACR rule = new SystemProfGrpACR();
-
-            rule.setProfile(prof);
-            rule.setSubject(grp);
-
-            em.persist(rule);
-
-            grp = detachGroup(grp, false);
-
-            rule = new SystemProfGrpACR();
-
-            rule.setProfile(prof);
-            rule.setSubject(grp);
-
-            systemACR.add(rule);
-        }
-
-        @Override
-        public void removeRule(ACR rule) {
-            if (rule.getPermissionUnit() instanceof Permission) {
-                if (rule.getSubject() instanceof User) {
-                    em.remove(em.find(SystemPermUsrACR.class, ((SystemPermUsrACR) rule).getId()));
-                } else {
-                    em.remove(em.find(SystemPermGrpACR.class, ((SystemPermGrpACR) rule).getId()));
-                }
-            } else {
-                if (rule.getSubject() instanceof User) {
-                    em.remove(em.find(SystemProfUsrACR.class, ((SystemProfUsrACR) rule).getId()));
-                } else {
-                    em.remove(em.find(SystemProfGrpACR.class, ((SystemProfGrpACR) rule).getId()));
-                }
-            }
-
-            systemACR.remove(rule);
-        }
-
-        @Override
-        public boolean isObjectOk() {
-            return true;
-        }
-    }
-
 }

@@ -27,4 +27,7 @@ public interface ISecurityService {
     void resetPassword(String key, String password);
 
     void resetPasswordRequest(String email, String activationUrl);
+
+    boolean hasPermission(long submissionId, long userId, AccessType accessType);
+
 }
