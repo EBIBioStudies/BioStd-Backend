@@ -44,9 +44,10 @@ import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 public class SecurityApiTest {
 
     private static final String SIGN_OUT_URL = "/auth/signout?sessid=";
-    private static final String PASS_REST = "/auth/passreset";
+    private static final String PASS_REST_URL = "/auth/passreset";
     private static final String RESET_PASSWORD = "/auth/passrstreq";
-    private static final String acticate = "/auth/activate/";
+    private static final String ACTIVATE_URL = "/auth/activate/";
+    private static final String SIGN_URL = "/auth/signin";
 
     private static final Pattern SIGNUP_PATTERN = Pattern.compile("\"http://submission-tool/signup/(.*)\"");
     private static final Pattern RESET_PATTERN = Pattern.compile("\"http://submission-tool/reset-password/(.*)\"");
@@ -112,7 +113,7 @@ public class SecurityApiTest {
         request.setPassword(newPassword);
         request.setKey(activationKey);
 
-        restTemplate.postForObject(PASS_REST, request, String.class);
+        restTemplate.postForObject(PASS_REST_URL, request, String.class);
     }
 
     private String requestResetPassword(String user) {
@@ -145,7 +146,7 @@ public class SecurityApiTest {
     }
 
     public void activateUser(String activationKey) {
-        ResponseEntity<String> response = restTemplate.postForEntity(acticate + activationKey, null, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(ACTIVATE_URL + activationKey, null, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
@@ -153,7 +154,7 @@ public class SecurityApiTest {
         SignInRequest signInRequest = new SignInRequest();
         signInRequest.setLogin(user);
         signInRequest.setPassword(password);
-        HttpEntity<String> response = restTemplate.postForEntity("/auth/signin", signInRequest, String.class);
+        HttpEntity<String> response = restTemplate.postForEntity(SIGN_URL, signInRequest, String.class);
         HttpHeaders headers = response.getHeaders();
         String set_cookie = headers.getFirst(HttpHeaders.SET_COOKIE);
         assertThat(set_cookie).isNotEmpty();
