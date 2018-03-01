@@ -38,5 +38,4 @@ public class AccessPermission {
     public enum AccessType {
         READ, SUBMIT, ATTACH, UPDATE, DELETE
     }
-
 }

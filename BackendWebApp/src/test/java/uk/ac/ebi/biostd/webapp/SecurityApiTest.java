@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
@@ -30,11 +29,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 
 @RunWith(SpringRunner.class)
@@ -42,10 +43,13 @@ import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 @Import(TestConfiguration.class)
 public class SecurityApiTest {
 
-    private static final Pattern KEY_PATTERN = Pattern.compile("\"http:\\/\\/submission-tool\\/signup\\/(.*)\"");
-    private static final Pattern KEY_PATTERN_2 = Pattern
-            .compile("\"http:\\/\\/submission-tool\\/reset-password\\/(.*)\"");
-    private static String NFS_PATH;
+    private static final String SIGN_OUT_URL = "/auth/signout?sessid=";
+    private static final String PASS_REST = "/auth/passreset";
+    private static final String RESET_PASSWORD = "/auth/passrstreq";
+    private static final String acticate = "/auth/activate/";
+
+    private static final Pattern SIGNUP_PATTERN = Pattern.compile("\"http://submission-tool/signup/(.*)\"");
+    private static final Pattern RESET_PATTERN = Pattern.compile("\"http://submission-tool/reset-password/(.*)\"");
 
     @ClassRule
     public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
@@ -58,7 +62,7 @@ public class SecurityApiTest {
 
     @BeforeClass
     public static void beforeAll() throws IOException {
-        NFS_PATH = TEST_FOLDER.getRoot().getPath();
+        String NFS_PATH = TEST_FOLDER.getRoot().getPath();
         System.setProperty(BIOSTUDY_BASE_DIR, NFS_PATH);
         System.setProperty(CONFIG_FILE_LOCATION_VAR, NFS_PATH + "/config.properties");
 
@@ -67,19 +71,19 @@ public class SecurityApiTest {
                 new File(NFS_PATH + "/config.properties"));
     }
 
-    /**
-     * Validates registration workflow.
-     */
+    /*  Validates user registration workflow. */
     @Test
     public void testRegistration() throws Exception {
-        String code = signUp();
+        String email = "jhon_doe@ebi.ac.uk";
+        String password = "12345";
+        String name = "Jhon Doe";
+
+        String code = signUp(email, name, password);
         activateUser(code);
-        tryLogin("jhon_doe@ebi.ac.uk", "12345");
+        tryLogin(email, password);
     }
 
-    /**
-     * Validates rest password workflow
-     */
+    /* Validates security password reset workflow */
     @Test
     public void testResetPasswordRequest() {
         String user = "change_password@ebi.ac.uk";
@@ -88,6 +92,7 @@ public class SecurityApiTest {
         tryLogin(user, "newPassword");
     }
 
+    /* Validate simple login and logout */
     @Test
     public void loginAndLogout() {
         String token = tryLogin("admin_user@ebi.ac.uk", "123456");
@@ -95,9 +100,11 @@ public class SecurityApiTest {
     }
 
     private void logout(String token) {
-        HttpEntity<String> response = restTemplate
-                .exchange("/auth/signout?sessid=" + token, HttpMethod.POST, null,
-                        String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(SIGN_OUT_URL + token, null, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        String cookie = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
+        assertThat(cookie).isEqualTo("BIOSTDSESS=\"\"; Expires=Thu, 01-Jan-1970 00:00:10 GMT");
     }
 
     private void changePassword(String activationKey, String newPassword) {
@@ -105,7 +112,7 @@ public class SecurityApiTest {
         request.setPassword(newPassword);
         request.setKey(activationKey);
 
-        restTemplate.postForObject("/auth/passreset", request, String.class);
+        restTemplate.postForObject(PASS_REST, request, String.class);
     }
 
     private String requestResetPassword(String user) {
@@ -113,59 +120,49 @@ public class SecurityApiTest {
         passwordRequest.setEmail(user);
         passwordRequest.setResetURL("http://submission-tool/reset-password/{KEY}");
 
-        restTemplate.postForObject("/auth/passrstreq", passwordRequest, String.class);
+        restTemplate.postForObject(RESET_PASSWORD, passwordRequest, String.class);
         MimeMessage[] messages = greenMail.getReceivedMessages();
         Email email = EmailConverter.mimeMessageToEmail(messages[0]);
 
-        return getActivationCode2(email.getPlainText());
+        return extractKey(email.getPlainText(), RESET_PATTERN);
     }
 
-    public String signUp() throws MessagingException {
+    public String signUp(String email, String name, String password) {
         SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setEmail("jhon_doe@ebi.ac.uk");
-        signUpRequest.setUsername("Juan Camilo Rada");
-        signUpRequest.setPassword("12345");
+        signUpRequest.setEmail(email);
+        signUpRequest.setUsername(name);
+        signUpRequest.setPassword(password);
         signUpRequest.setAux(Collections.singletonList("orcid:5657"));
         signUpRequest.setActivationURL("http://submission-tool/signup/{KEY}");
 
         restTemplate.postForObject("/auth/signup", signUpRequest, String.class);
         MimeMessage[] messages = greenMail.getReceivedMessages();
 
-        Email email = EmailConverter.mimeMessageToEmail(messages[0]);
+        assertThat(messages).hasSize(1);
+        Email notification = EmailConverter.mimeMessageToEmail(messages[0]);
+        return extractKey(notification.getPlainText(), SIGNUP_PATTERN);
 
-        return getActivationCode(email.getPlainText());
-        //assertThat(email.getFromRecipient()).isEqualTo("biostudies@ebi.ac.uk");
     }
 
     public void activateUser(String activationKey) {
-        restTemplate.postForObject("/auth/activate/" + activationKey, null, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(acticate + activationKey, null, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     public String tryLogin(String user, String password) {
-        HttpEntity<String> response = restTemplate
-                .exchange("/auth/signin?login=" + user + "&password=" + password, HttpMethod.POST, null,
-                        String.class);
+        SignInRequest signInRequest = new SignInRequest();
+        signInRequest.setLogin(user);
+        signInRequest.setPassword(password);
+        HttpEntity<String> response = restTemplate.postForEntity("/auth/signin", signInRequest, String.class);
         HttpHeaders headers = response.getHeaders();
         String set_cookie = headers.getFirst(HttpHeaders.SET_COOKIE);
         assertThat(set_cookie).isNotEmpty();
         return set_cookie;
     }
 
-    private String getActivationCode(String emailContent) {
-        Matcher matcher = KEY_PATTERN.matcher(emailContent);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return "";
-    }
-
-    private String getActivationCode2(String emailContent) {
-        Matcher matcher = KEY_PATTERN_2.matcher(emailContent);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return "";
+    private String extractKey(String emailContent, Pattern pattern) {
+        Matcher matcher = pattern.matcher(emailContent);
+        assertThat(matcher.find()).isTrue().as("can not find expected regex");
+        return matcher.group(1);
     }
 }

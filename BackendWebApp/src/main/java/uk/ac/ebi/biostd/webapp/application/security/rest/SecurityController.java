@@ -56,7 +56,7 @@ public class SecurityController {
 
     @PostMapping(value = "/auth/signin")
     public @ResponseBody
-    LoginResponseDto signInPost(@RequestBody SignInRequest signInRequestDto, HttpServletResponse response) {
+    LoginResponseDto signIn(@RequestBody SignInRequest signInRequestDto, HttpServletResponse response) {
         UserData userData = securityService.signIn(signInRequestDto.getLogin(), signInRequestDto.getPassword());
         response.addCookie(new Cookie(SECURITY_COOKIE_NAME, userData.getToken()));
         return permissionMapper.getLoginResponse(userData);
