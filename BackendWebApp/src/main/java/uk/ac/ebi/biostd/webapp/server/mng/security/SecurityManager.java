@@ -47,10 +47,6 @@ public interface SecurityManager {
 
     User getUserByEmail(String email);
 
-    User getAnonymousUser();
-
-    UserGroup getGroup(String name);
-
     boolean mayUserManageTags(User user);
 
     boolean mayUserReadGroupFiles(User user, UserGroup g);

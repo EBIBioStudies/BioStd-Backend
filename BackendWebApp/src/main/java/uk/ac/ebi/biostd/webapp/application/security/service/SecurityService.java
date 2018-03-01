@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
 import uk.ac.ebi.biostd.webapp.application.persitence.aux.Parameter;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
+import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessTag;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.SecurityToken;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.Submission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
@@ -34,14 +36,14 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 public class SecurityService implements ISecurityService {
 
     private final UserRepository userRepository;
-    private final AccessPermissionRepository permissionRepository;
+    private final AccessPermissionRepository permissionsRepository;
     private final SubmissionRepository submissionRepository;
     private final TokenRepository tokenRepository;
     private final SecurityUtil securityUtil;
 
     @Override
     public List<Submission> getAllowedProjects(long userId, AccessType accessType) {
-        return permissionRepository.findByUserIdAndAccessType(userId, accessType).stream()
+        return permissionsRepository.findByUserIdAndAccessType(userId, accessType).stream()
                 .map(AccessPermission::getAccessTag)
                 .map(submissionRepository::findProjectByAccessTag)
                 .filter(Optional::isPresent)
@@ -156,15 +158,34 @@ public class SecurityService implements ISecurityService {
     @Override
     public boolean hasPermission(long submissionId, long userId, AccessType accessType) {
         User user = userRepository.findOne(userId);
-        if (user.isSuperuser()) {
-            return true;
-        }
-
         Submission submission = submissionRepository.findOne(submissionId);
-        if (submission.getOwnerId() == userId) {
-            return true;
+
+        boolean isAuthor = submission.getOwnerId() == userId;
+        boolean isPublic = isPublicSubmission(submission.getAccessTag());
+        boolean isSuperUser = user.isSuperuser();
+        boolean hasAccessTag = permissionsRepository
+                .existsByAccessTagInAndAccessType(submission.getAccessTag(), accessType);
+
+        switch (accessType) {
+            case READ:
+            case SUBMIT:
+                return isPublic || isAuthor || isSuperUser;
+            case ATTACH:
+                return hasAccessTag || isSuperUser;
+            case UPDATE:
+            case DELETE:
+                return isAuthor || isSuperUser;
         }
 
-        return permissionRepository.existsByAccessTagInAndAccessType(submission.getAccessTag(), accessType);
+        throw new IllegalStateException("Not supported access type ");
+    }
+
+    @Override
+    public int getUsersCount() {
+        return Math.toIntExact(userRepository.count());
+    }
+
+    private boolean isPublicSubmission(Set<AccessTag> accessTags) {
+        return accessTags.stream().anyMatch(tag -> tag.getName().equals("Public"));
     }
 }

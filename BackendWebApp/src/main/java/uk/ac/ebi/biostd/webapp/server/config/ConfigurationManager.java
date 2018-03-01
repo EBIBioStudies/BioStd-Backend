@@ -125,10 +125,12 @@ public class ConfigurationManager {
 
     private final ParamPool contextParamPool;
     private final Environment springEnvironment;
+    private final ServiceFactory serviceFactory;
 
-    public ConfigurationManager(ServletContext servletContext, Environment environment) {
+    public ConfigurationManager(ServletContext servletContext, Environment environment, ServiceFactory serviceFactory) {
         contextParamPool = new ServletContextParamPool(servletContext);
         springEnvironment = environment;
+        this.serviceFactory = serviceFactory;
     }
 
     public void loadConfiguration() throws ConfigurationException {
@@ -289,7 +291,7 @@ public class ConfigurationManager {
             IndexManager.rebuildIndex(BackendConfig.getEntityManagerFactory());
         }
 
-        BackendConfig.setServiceManager(ServiceFactory.createService());
+        BackendConfig.setServiceManager(serviceFactory.createService());
 
         try {
             BackendConfig.getServiceManager().setEmailService(

@@ -30,4 +30,5 @@ public interface ISecurityService {
 
     boolean hasPermission(long submissionId, long userId, AccessType accessType);
 
+    int getUsersCount();
 }
