@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.common.utils.PlainFileFormat;
 import uk.ac.ebi.biostd.webapp.application.common.utils.WebUtils;
-import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
@@ -31,6 +30,7 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ProjectsDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.PermissionMapper;
 import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.ProjectMapper;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
+import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
 
 @AllArgsConstructor
 @Controller
@@ -55,36 +55,35 @@ public class SecurityController {
     }
 
     @PostMapping(value = "/auth/signin")
-    public @ResponseBody
-    LoginResponseDto signIn(@RequestBody SignInRequest signInRequestDto, HttpServletResponse response) {
-        UserData userData = securityService.signIn(signInRequestDto.getLogin(), signInRequestDto.getPassword());
+    public @ResponseBody LoginResponseDto sign(@RequestBody SignInRequest request, HttpServletResponse response) {
+        UserData userData = securityService.signIn(request.getLogin(), request.getPassword());
         response.addCookie(new Cookie(SECURITY_COOKIE_NAME, userData.getToken()));
         return permissionMapper.getLoginResponse(userData);
     }
 
     @PostMapping(value = "/auth/signout")
-    public void signOut(@RequestParam("sessid") String securityKey, HttpServletResponse response) {
+    public @ResponseBody void signOut(@RequestParam("sessid") String securityKey, HttpServletResponse response) {
         securityService.signOut(securityKey);
         response.addCookie(WebUtils.newExpiredCookie(SECURITY_COOKIE_NAME));
     }
 
     @PostMapping(value = "/auth/signup")
-    public void signUp(@RequestBody SignUpRequest signUpRequest) {
+    public @ResponseBody void signUp(@RequestBody SignUpRequest signUpRequest) {
         securityService.addUser(signUpRequest);
     }
 
     @PostMapping(value = "/auth/activate/{activationKey}")
-    public void activate(@PathVariable String activationKey) {
+    public @ResponseBody void activate(@PathVariable String activationKey) {
         securityService.activate(activationKey);
     }
 
     @PostMapping(value = "/auth/passreset")
-    public void resetPassword(@RequestBody ChangePasswordRequest request) {
+    public @ResponseBody void resetPassword(@RequestBody ChangePasswordRequest request) {
         securityService.resetPassword(request.getKey(), request.getPassword());
     }
 
     @PostMapping(value = "/auth/passrstreq")
-    public void resetPassword(@RequestBody ResetPasswordRequest request) {
+    public @ResponseBody void resetPassword(@RequestBody ResetPasswordRequest request) {
         securityService.resetPasswordRequest(request.getEmail(), request.getResetURL());
     }
 }

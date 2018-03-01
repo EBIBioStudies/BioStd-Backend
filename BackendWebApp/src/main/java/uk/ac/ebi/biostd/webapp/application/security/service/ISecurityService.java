@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.webapp.application.security.common;
+package uk.ac.ebi.biostd.webapp.application.security.service;
 
 import java.util.List;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;

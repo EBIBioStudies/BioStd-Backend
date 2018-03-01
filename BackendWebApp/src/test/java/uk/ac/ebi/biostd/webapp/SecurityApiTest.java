@@ -8,7 +8,9 @@ import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpCookie;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.mail.internet.MimeMessage;
@@ -72,6 +74,20 @@ public class SecurityApiTest {
                 new File(NFS_PATH + "/config.properties"));
     }
 
+    /* Validate simple login and logout */
+    @Test
+    public void loginAndLogout() {
+        ResponseEntity<String> login = tryLogin("admin_user@ebi.ac.uk", "123456");
+        Optional<HttpCookie> token = getCookie(login, HttpHeaders.SET_COOKIE);
+        logout(token.get().getValue());
+    }
+
+    @Test
+    public void validateLoginFail() {
+        ResponseEntity<String> login = tryLogin("admin_user@ebi.ac.uk", "a_wrong_password");
+        assertThat(login.getStatusCode()).isEqualTo("");
+    }
+
     /*  Validates user registration workflow. */
     @Test
     public void testRegistration() throws Exception {
@@ -91,13 +107,6 @@ public class SecurityApiTest {
         String activationKey = requestResetPassword(user);
         changePassword(activationKey, "newPassword");
         tryLogin(user, "newPassword");
-    }
-
-    /* Validate simple login and logout */
-    @Test
-    public void loginAndLogout() {
-        String token = tryLogin("admin_user@ebi.ac.uk", "123456");
-        logout(token);
     }
 
     private void logout(String token) {
@@ -150,20 +159,21 @@ public class SecurityApiTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    public String tryLogin(String user, String password) {
+    public ResponseEntity<String> tryLogin(String user, String password) {
         SignInRequest signInRequest = new SignInRequest();
         signInRequest.setLogin(user);
         signInRequest.setPassword(password);
-        HttpEntity<String> response = restTemplate.postForEntity(SIGN_URL, signInRequest, String.class);
-        HttpHeaders headers = response.getHeaders();
-        String set_cookie = headers.getFirst(HttpHeaders.SET_COOKIE);
-        assertThat(set_cookie).isNotEmpty();
-        return set_cookie;
+        return restTemplate.postForEntity(SIGN_URL, signInRequest, String.class);
     }
 
     private String extractKey(String emailContent, Pattern pattern) {
         Matcher matcher = pattern.matcher(emailContent);
         assertThat(matcher.find()).isTrue().as("can not find expected regex");
         return matcher.group(1);
+    }
+
+    private Optional<HttpCookie> getCookie(HttpEntity<?> entity, String name) {
+        HttpHeaders headers = entity.getHeaders();
+        return HttpCookie.parse(headers.getFirst(name)).stream().findFirst();
     }
 }

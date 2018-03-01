@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.webapp.application.security.common;
+package uk.ac.ebi.biostd.webapp.application.security.error;
 
 public class SecurityAccessException extends RuntimeException {
 

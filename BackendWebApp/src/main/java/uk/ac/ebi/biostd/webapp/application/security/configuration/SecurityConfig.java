@@ -9,8 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
 import uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter;
+import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
 @Configuration

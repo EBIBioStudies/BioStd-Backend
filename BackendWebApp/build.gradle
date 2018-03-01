@@ -87,6 +87,7 @@ dependencies {
     compile group: 'net.sourceforge.nekohtml', name: 'nekohtml', version: '1.9.22'
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.9.1'
     testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.7'
     testCompile group: 'org.simplejavamail', name: 'simple-java-mail', version: '5.0.0'
 

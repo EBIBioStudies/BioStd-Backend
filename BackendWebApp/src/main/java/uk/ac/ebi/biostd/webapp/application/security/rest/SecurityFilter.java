@@ -14,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.WebUtils;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
-import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
+import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
 @AllArgsConstructor

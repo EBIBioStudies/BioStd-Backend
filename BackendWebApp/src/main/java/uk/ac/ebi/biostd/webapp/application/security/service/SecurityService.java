@@ -24,10 +24,9 @@ import uk.ac.ebi.biostd.webapp.application.persitence.repositories.AccessPermiss
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.SubmissionRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.TokenRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserRepository;
-import uk.ac.ebi.biostd.webapp.application.security.common.ISecurityService;
-import uk.ac.ebi.biostd.webapp.application.security.common.SecurityAccessException;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
+import uk.ac.ebi.biostd.webapp.application.security.error.SecurityAccessException;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 @Service
