@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
 import uk.ac.ebi.biostd.webapp.application.persitence.aux.Parameter;
-import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessTag;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.SecurityToken;
@@ -39,16 +38,6 @@ public class SecurityService implements ISecurityService {
     private final SubmissionRepository submissionRepository;
     private final TokenRepository tokenRepository;
     private final SecurityUtil securityUtil;
-
-    @Override
-    public List<Submission> getAllowedProjects(long userId, AccessType accessType) {
-        return permissionsRepository.findByUserIdAndAccessType(userId, accessType).stream()
-                .map(AccessPermission::getAccessTag)
-                .map(submissionRepository::findProjectByAccessTag)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(toList());
-    }
 
     @Override
     public User getPermissions(LoginRequest loginInfo) {

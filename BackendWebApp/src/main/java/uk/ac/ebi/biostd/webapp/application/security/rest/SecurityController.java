@@ -1,6 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.security.rest;
 
-import static uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType.SUBMIT;
+import static uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType.ATTACH;
 
 import java.util.Map;
 import javax.servlet.http.Cookie;
@@ -31,6 +31,7 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.PermissionMappe
 import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.ProjectMapper;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
+import uk.ac.ebi.biostd.webapp.application.submission.ISubmissionService;
 
 @AllArgsConstructor
 @Controller
@@ -40,12 +41,14 @@ public class SecurityController {
 
     private final ProjectMapper projectMapper;
     private final ISecurityService securityService;
+    private final ISubmissionService submissionService;
+
     private final PermissionMapper permissionMapper;
 
     @GetMapping("/atthost")
     @PreAuthorize("isAuthenticated()")
-    public ProjectsDto getProjects(@AuthenticationPrincipal User user) {
-        return projectMapper.getProjectsDto(securityService.getAllowedProjects(user.getId(), SUBMIT));
+    public @ResponseBody ProjectsDto getProjects(@AuthenticationPrincipal User user) {
+        return projectMapper.getProjectsDto(submissionService.getAllowedProjects(user.getId(), ATTACH));
     }
 
     @PostMapping(value = "/auth/checkAccess", produces = MediaType.TEXT_PLAIN_VALUE)

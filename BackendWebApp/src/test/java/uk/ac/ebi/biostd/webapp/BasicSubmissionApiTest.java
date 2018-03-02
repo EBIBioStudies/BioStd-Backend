@@ -33,7 +33,7 @@ import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(TestConfiguration.class)
 @DirtiesContext
-public class BioStdApplicationTest {
+public class BasicSubmissionApiTest {
 
     private static final String SUBMISSION_XLSX_FILE = "input/S-BSST56.pagetab_for_test.xlsx";
     private static final String SUBMISSION_JSON_FILE = "input/S-ACC-TEST.json";
