@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import uk.ac.ebi.biostd.backend.model.SubmissionResult;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
