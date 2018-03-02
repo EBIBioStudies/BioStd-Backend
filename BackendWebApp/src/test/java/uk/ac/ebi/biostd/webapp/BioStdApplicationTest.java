@@ -17,13 +17,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.backend.model.SubmissionResult;
 import uk.ac.ebi.biostd.backend.services.RemoteOperations;
@@ -32,6 +32,7 @@ import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(TestConfiguration.class)
+@DirtiesContext
 public class BioStdApplicationTest {
 
     private static final String SUBMISSION_XLSX_FILE = "input/S-BSST56.pagetab_for_test.xlsx";
@@ -43,10 +44,7 @@ public class BioStdApplicationTest {
     private static String NFS_PATH;
 
     @Autowired
-    private RestTemplate restTemplate;
-
-    @LocalServerPort
-    private int port;
+    private TestRestTemplate restTemplate;
 
     private RemoteOperations operationsService;
 
@@ -63,7 +61,7 @@ public class BioStdApplicationTest {
 
     @Before
     public void setup() {
-        operationsService = new RemoteOperations(restTemplate, port);
+        operationsService = new RemoteOperations(restTemplate);
     }
 
     @Test

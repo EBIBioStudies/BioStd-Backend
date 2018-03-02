@@ -5,6 +5,7 @@ import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.GenerationType.IDENTITY;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -25,6 +26,7 @@ public class AccessPermission {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "access_type")
     private AccessType accessType;
 
     @ManyToOne
