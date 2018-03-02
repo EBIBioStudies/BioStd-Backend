@@ -83,11 +83,9 @@ import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.AccNoMatcher;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.AccNoMatcher.Match;
-import uk.ac.ebi.biostd.webapp.server.mng.impl.AttributeSubscriptionProcessor;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.LockedIdSet;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.PTDocumentParser;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.TagResolverImpl;
-import uk.ac.ebi.biostd.webapp.server.mng.impl.TagSubscriptionProcessor;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 import uk.ac.ebi.biostd.webapp.server.util.AccNoUtil;
 import uk.ac.ebi.biostd.webapp.server.util.ExceptionUtil;
@@ -965,18 +963,6 @@ public class JPASubmissionManager implements SubmissionManager {
         if (trans != null && getPublicFTPPath() != null) {
             copyToPublicFTP(fileMngr, doc.getSubmissions(), gln);
         }
-
-        if (getSubscriptionEmailSubject() != null) {
-            for (SubmissionInfo si : doc.getSubmissions()) {
-                Submission s = si.getSubmission();
-
-                if (s.getTagRefs() != null && s.getTagRefs().size() > 0) {
-                    TagSubscriptionProcessor.notifyByTags(s.getTagRefs(), s);
-                }
-                AttributeSubscriptionProcessor.processAsync(s);
-            }
-        }
-
         return report;
     }
 
@@ -1893,8 +1879,8 @@ public class JPASubmissionManager implements SubmissionManager {
             }
 
             if (getSubscriptionEmailSubject() != null && nowPublic && !wasPublic) {
-                TagSubscriptionProcessor.notifyByTags(sbm.getTagRefs(), sbm);
-                AttributeSubscriptionProcessor.processAsync(sbm);
+                //TagSubscriptionProcessor.notifyByTags(sbm.getTagRefs(), sbm);
+                //AttributeSubscriptionProcessor.processAsync(sbm);
             }
 
 

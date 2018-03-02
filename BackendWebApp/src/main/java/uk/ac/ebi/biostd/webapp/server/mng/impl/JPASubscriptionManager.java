@@ -172,13 +172,11 @@ public class JPASubscriptionManager implements SubscriptionManager {
 
     @Override
     public void triggerAttributeEventProcessors() throws ServiceException {
-        new Thread(AttributeSubscriptionProcessor::processEvents).start();
+
     }
 
     @Override
     public void triggerTagEventProcessors() throws ServiceException {
-        new Thread(() -> TagSubscriptionProcessor.processEvents()).start();
+
     }
-
-
 }

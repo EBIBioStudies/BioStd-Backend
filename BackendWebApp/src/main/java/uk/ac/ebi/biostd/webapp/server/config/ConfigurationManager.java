@@ -45,8 +45,6 @@ import uk.ac.ebi.biostd.webapp.server.export.TaskInitError;
 import uk.ac.ebi.biostd.webapp.server.mng.IndexManager;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceConfigException;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceFactory;
-import uk.ac.ebi.biostd.webapp.server.mng.impl.AttributeSubscriptionProcessor;
-import uk.ac.ebi.biostd.webapp.server.mng.impl.TagSubscriptionProcessor;
 import uk.ac.ebi.biostd.webapp.server.search.SearchMapper;
 import uk.ac.ebi.biostd.webapp.server.util.ExceptionUtil;
 import uk.ac.ebi.biostd.webapp.server.util.FileNameUtil;
@@ -318,14 +316,6 @@ public class ConfigurationManager {
                 BackendConfig.getServiceManager().getReleaseManager().doHourlyCheck();
             }
         }, hourInMills - (now % hourInMills), hourInMills);
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                AttributeSubscriptionProcessor.processEvents();
-                TagSubscriptionProcessor.processEvents();
-            }
-        }, dayInMills - (now % dayInMills), dayInMills);
 
         if (BackendConfig.getTaskConfig() != null) {
             TaskInfo tinf = null;

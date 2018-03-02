@@ -39,6 +39,7 @@ import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordReque
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
+import uk.ac.ebi.biostd.webapp.application.security.error.ErrorMessage;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -84,8 +85,8 @@ public class SecurityApiTest {
 
     @Test
     public void validateLoginFail() {
-        ResponseEntity<String> login = tryLogin("admin_user@ebi.ac.uk", "a_wrong_password");
-        assertThat(login.getStatusCode()).isEqualTo("");
+        ResponseEntity<ErrorMessage> login = tryLogin("admin_user@ebi.ac.uk", "a_wrong_password", ErrorMessage.class);
+        assertThat(login.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     /*  Validates user registration workflow. */
@@ -137,7 +138,7 @@ public class SecurityApiTest {
         return extractKey(email.getPlainText(), RESET_PATTERN);
     }
 
-    public String signUp(String email, String name, String password) {
+    private String signUp(String email, String name, String password) {
         SignUpRequest signUpRequest = new SignUpRequest();
         signUpRequest.setEmail(email);
         signUpRequest.setUsername(name);
@@ -154,16 +155,21 @@ public class SecurityApiTest {
 
     }
 
-    public void activateUser(String activationKey) {
+    private void activateUser(String activationKey) {
         ResponseEntity<String> response = restTemplate.postForEntity(ACTIVATE_URL + activationKey, null, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    public ResponseEntity<String> tryLogin(String user, String password) {
+
+    private ResponseEntity<String> tryLogin(String user, String password) {
+        return tryLogin(user, password, String.class);
+    }
+
+    private <T> ResponseEntity<T> tryLogin(String user, String password, Class<T> responseType) {
         SignInRequest signInRequest = new SignInRequest();
         signInRequest.setLogin(user);
         signInRequest.setPassword(password);
-        return restTemplate.postForEntity(SIGN_URL, signInRequest, String.class);
+        return restTemplate.postForEntity(SIGN_URL, signInRequest, responseType);
     }
 
     private String extractKey(String emailContent, Pattern pattern) {

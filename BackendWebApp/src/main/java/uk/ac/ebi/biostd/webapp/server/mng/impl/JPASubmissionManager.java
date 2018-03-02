@@ -17,10 +17,6 @@ package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
 import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
 import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
-import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCNO;
-import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ID;
-import static uk.ac.ebi.biostd.in.pageml.PageMLElements.SUBMISSION;
-import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -79,7 +75,6 @@ import uk.ac.ebi.biostd.model.Section;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.model.SubmissionAttributeException;
 import uk.ac.ebi.biostd.model.SubmissionTagRef;
-import uk.ac.ebi.biostd.out.FormatterFactory;
 import uk.ac.ebi.biostd.out.cell.CellFormatter;
 import uk.ac.ebi.biostd.out.json.JSONFormatter;
 import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
@@ -142,8 +137,6 @@ public class JPASubmissionManager implements SubmissionManager {
     private final Set<String> lockedSecIds = new HashSet<>();
 
     private final boolean shutDownManager = false;
-
-    private UpdateQueueProcessor queueProc = null;
     private boolean shutdown;
     private final EntityManagerFactory emf;
     private final PTDocumentParser parser;
@@ -156,12 +149,6 @@ public class JPASubmissionManager implements SubmissionManager {
         parserCfg.setMultipleSubmissions(true);
         parserCfg.setPreserveId(false);
         parser = new PTDocumentParser(parserCfg);
-
-        if (BackendConfig.getSubmissionUpdatePath() != null) {
-            queueProc = new UpdateQueueProcessor();
-            queueProc.start();
-        }
-
         this.emf = emf;
     }
 
@@ -402,31 +389,6 @@ public class JPASubmissionManager implements SubmissionManager {
                     log.error("Can't delete public ftp directory " + ftpPath + " Error: " + e.getMessage());
                     e.printStackTrace();
                     gln.log(Level.WARN, "Public FTP directory was not deleted");
-                }
-            }
-
-            if (trnOk && queueProc != null) {
-                StringBuilder out = new StringBuilder();
-
-                out.append('<').append(SUBMISSION.getElementName()).append(' ').append(ACCNO.getAttrName())
-                        .append("=\"");
-
-                try {
-                    xmlEscaped(sbm.getAccNo(), out);
-                } catch (IOException e) {
-                }
-
-                out.append("\" ").append(ID.getAttrName()).append("=\"").append(String.valueOf(sbm.getId()));
-                out.append("\" delete=\"true\"/>\n");
-
-                String msg = out.toString();
-
-                while (!shutdown) {
-                    try {
-                        queueProc.put(msg);
-                        break;
-                    } catch (InterruptedException e) {
-                    }
                 }
             }
 
@@ -1074,44 +1036,6 @@ public class JPASubmissionManager implements SubmissionManager {
             copyToPublicFTP(fileMngr, doc.getSubmissions(), gln);
         }
 
-        if (queueProc != null) {
-            StringBuilder sb = new StringBuilder(10000);
-
-            for (SubmissionInfo si : doc.getSubmissions()) {
-                sb.setLength(0);
-
-                try {
-                    FormatterFactory.getFormatter(BackendConfig.getFrontendUpdateFormat(),
-                            sb, false).format(si.getSubmission(), sb);
-                    //new PageMLFormatter(sb,false).format(si.getSubmission(), sb);
-                } catch (Exception e) {
-                    log.error("Error! " + e.getMessage());
-                }
-
-                String msg = sb.toString();
-
-                while (!shutdown) {
-                    try {
-                        queueProc.put(msg);
-                        break;
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-
-        }
-
-        if (BackendConfig.getSubscriptionEmailSubject() != null) {
-            for (SubmissionInfo si : doc.getSubmissions()) {
-                Submission s = si.getSubmission();
-
-                if (s.getTagRefs() != null && s.getTagRefs().size() > 0) {
-                    TagSubscriptionProcessor.notifyByTags(s.getTagRefs(), s);
-                }
-                AttributeSubscriptionProcessor.processAsync(s);
-            }
-        }
-
         return res;
     }
 
@@ -1670,12 +1594,7 @@ public class JPASubmissionManager implements SubmissionManager {
     @Override
     public void shutdown() {
         shutdown = true;
-
-        if (queueProc != null) {
-            queueProc.shutdown();
-        }
     }
-
 
     @Override
     public LogNode tranklucateSubmissionById(int id, User user) {
@@ -1847,32 +1766,6 @@ public class JPASubmissionManager implements SubmissionManager {
                     gln.log(Level.WARN, "Public FTP directory was not deleted");
                 }
             }
-
-            if (trnOk && queueProc != null && mainSbm != null) {
-                StringBuilder out = new StringBuilder();
-
-                out.append('<').append(SUBMISSION.getElementName()).append(' ').append(ACCNO.getAttrName())
-                        .append("=\"");
-
-                try {
-                    xmlEscaped(mainSbm.getAccNo(), out);
-                } catch (IOException e) {
-                }
-
-                out.append("\" ").append(ID.getAttrName()).append("=\"").append(String.valueOf(mainSbm.getId()));
-                out.append("\" delete=\"true\"/>\n");
-
-                String msg = out.toString();
-
-                while (!shutdown) {
-                    try {
-                        queueProc.put(msg);
-                        break;
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-
         }
 
         return gln;
@@ -2179,29 +2072,6 @@ public class JPASubmissionManager implements SubmissionManager {
 
             Path trnSbmPath = BackendConfig.getSubmissionPath(sbm);
 
-            if (queueProc != null) {
-                StringBuilder sb = new StringBuilder(10000);
-
-                try {
-                    FormatterFactory.getFormatter(BackendConfig.getFrontendUpdateFormat(),
-                            sb, false).format(sbm, sb);
-                    //new PageMLFormatter(sb,false).format(sbm, sb);
-                } catch (Exception e) {
-                    log.error("Error: " + e.getMessage());
-                }
-
-                String msg = sb.toString();
-
-                while (!shutdown) {
-                    try {
-                        queueProc.put(msg);
-                        break;
-                    } catch (InterruptedException e) {
-                    }
-                }
-
-            }
-
             try (PrintStream out = new PrintStream(trnSbmPath.resolve(sbm.getAccNo() + ".xml").toFile())) {
                 new PageMLFormatter(out, true).format(doc);
             } catch (Exception e) {
@@ -2225,13 +2095,6 @@ public class JPASubmissionManager implements SubmissionManager {
                 log.error("Can't generate Page-Tab source file: " + e.getMessage());
                 e.printStackTrace();
             }
-
-            if (BackendConfig.getSubscriptionEmailSubject() != null && nowPublic && !wasPublic) {
-                TagSubscriptionProcessor.notifyByTags(sbm.getTagRefs(), sbm);
-                AttributeSubscriptionProcessor.processAsync(sbm);
-            }
-
-
         }
 
         return gln;
