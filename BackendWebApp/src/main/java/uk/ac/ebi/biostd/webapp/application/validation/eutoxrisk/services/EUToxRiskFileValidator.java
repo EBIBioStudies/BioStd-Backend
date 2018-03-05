@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -9,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationResponse;
 
-import java.nio.file.Path;
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -17,19 +19,24 @@ import java.util.Collection;
  */
 public class EUToxRiskFileValidator {
 
-    private static String ENDPOINT = "https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate";
+    private final RestTemplate restTemplate;
+    private final String url;
 
-    public Collection<EUToxRiskFileValidationError> validate(Path file) {
-        FileSystemResource value = new FileSystemResource(file.toFile());
+    public EUToxRiskFileValidator(@Qualifier("with-ssl-context") RestTemplate restTemplate, @Value("endpoints.toxrisk-file-validator") String url) {
+        this.restTemplate = restTemplate;
+        this.url = url;
+    }
+
+    public Collection<EUToxRiskFileValidationError> validate(File file) {
+        FileSystemResource value = new FileSystemResource(file);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         HttpEntity<FileSystemResource> requestEntity = new HttpEntity<>(value, headers);
 
-        RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-        
-        EUToxRiskFileValidationResponse resp  = restTemplate.postForObject(ENDPOINT, requestEntity, EUToxRiskFileValidationResponse.class);
+
+        EUToxRiskFileValidationResponse resp = restTemplate.postForObject(url, requestEntity, EUToxRiskFileValidationResponse.class);
         return resp.getErrors();
     }
 }
