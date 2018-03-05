@@ -1,0 +1,35 @@
+package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
+
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationResponse;
+
+import java.nio.file.Path;
+import java.util.Collection;
+
+/**
+ * @author Olga Melnichuk
+ */
+public class EUToxRiskFileValidator {
+
+    private static String ENDPOINT = "https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate";
+
+    public Collection<EUToxRiskFileValidationError> validate(Path file) {
+        FileSystemResource value = new FileSystemResource(file.toFile());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        HttpEntity<FileSystemResource> requestEntity = new HttpEntity<>(value, headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        
+        EUToxRiskFileValidationResponse resp  = restTemplate.postForObject(ENDPOINT, requestEntity, EUToxRiskFileValidationResponse.class);
+        return resp.getErrors();
+    }
+}
