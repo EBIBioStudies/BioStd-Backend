@@ -21,7 +21,7 @@ import java.security.cert.X509Certificate;
 public class EUToxRiskFileValidatorConfig {
 
     @Bean
-    @Qualifier("with-ssl-context")
+    @Qualifier("eutoxrisk")
     public RestTemplate restTemplate(SSLContext sslContext) throws EUToxRiskFileValidationException {
         SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
 

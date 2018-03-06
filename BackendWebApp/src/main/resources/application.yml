@@ -6,3 +6,6 @@ server:
 biostudy:
   baseDir: /home/jcamilorada/Projects/BioStudies/NFS
   configFile: /home/jcamilorada/Projects/BioStudies/NFS/config.properties
+
+endpoints:
+  eutoxrisk-file-validator: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
