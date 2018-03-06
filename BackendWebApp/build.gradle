@@ -30,10 +30,7 @@ def buildTime() {
 
 war {
     archiveName = "biostudy-${buildTime()}.war"
-    rootSpec.exclude(
-            '**/tomcat-embed-*.jar',
-            '**/mysql-connector-java-*.jar',
-            '**/application.yml')
+    rootSpec.exclude('**/tomcat-embed-*.jar', '**/mysql-connector-java-*.jar')
 }
 
 repositories {

@@ -27,7 +27,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/signup",
             "/auth/activate/*",
             "/auth/passrstreq",
-            "/auth/passreset"
+            "/auth/checkAccess",
+            "/auth/passreset",
+            "/test/**"
     };
 
     private final ISecurityService securityService;
