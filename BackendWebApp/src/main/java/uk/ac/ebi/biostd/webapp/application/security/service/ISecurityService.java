@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.security.service;
 
+import java.util.Optional;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
@@ -10,6 +11,8 @@ public interface ISecurityService {
 
     User getPermissions(LoginRequest loginInformation);
 
+    User getUser(long userId);
+
     UserData signIn(String login, String password);
 
     void signOut(String securityKey);
@@ -18,7 +21,7 @@ public interface ISecurityService {
 
     void activate(String activationKey);
 
-    User getUserByKey(String key);
+    Optional<User> getUserByKey(String key);
 
     void resetPassword(String key, String password);
 

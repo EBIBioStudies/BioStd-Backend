@@ -37,6 +37,7 @@ public class User extends AbstractAggregateRoot {
     private String login;
     private boolean superuser;
     private boolean active;
+    private long keyTime;
 
     @Convert(converter = UserAuxInfoConverter.class)
     private AuxInfo auxProfileInfo;

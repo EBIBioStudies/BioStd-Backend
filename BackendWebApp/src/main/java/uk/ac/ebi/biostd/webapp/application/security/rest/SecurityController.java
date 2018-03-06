@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.common.utils.PlainFileFormat;
 import uk.ac.ebi.biostd.webapp.application.common.utils.WebUtils;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
@@ -25,8 +23,14 @@ import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ActivationResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.PassRequestResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ProjectsDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ResetPassResponseDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignUpResponseDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignoutRequestDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignoutResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.PermissionMapper;
 import uk.ac.ebi.biostd.webapp.application.security.rest.mappers.ProjectMapper;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
@@ -47,8 +51,15 @@ public class SecurityController {
 
     @GetMapping("/atthost")
     @PreAuthorize("isAuthenticated()")
-    public @ResponseBody ProjectsDto getProjects(@AuthenticationPrincipal User user) {
+    public @ResponseBody ProjectsDto getProjects(@AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
         return projectMapper.getProjectsDto(submissionService.getAllowedProjects(user.getId(), ATTACH));
+    }
+
+    @GetMapping(value = "/auth/check")
+    @PreAuthorize("isAuthenticated()")
+    public @ResponseBody Map<String, String> getPermissions(@AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
+        Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getUser(user.getId()));
+        return permissions;
     }
 
     @PostMapping(value = "/auth/checkAccess", produces = MediaType.TEXT_PLAIN_VALUE)
@@ -65,28 +76,35 @@ public class SecurityController {
     }
 
     @PostMapping(value = "/auth/signout")
-    public @ResponseBody void signOut(@RequestParam("sessid") String securityKey, HttpServletResponse response) {
-        securityService.signOut(securityKey);
+    public @ResponseBody SignoutResponseDto signOut(@RequestBody SignoutRequestDto signoutRequest,
+            HttpServletResponse response) {
+        securityService.signOut(signoutRequest.getSessid());
         response.addCookie(WebUtils.newExpiredCookie(SECURITY_COOKIE_NAME));
+
+        return new SignoutResponseDto("User logged out", "OK");
     }
 
     @PostMapping(value = "/auth/signup")
-    public @ResponseBody void signUp(@RequestBody SignUpRequest signUpRequest) {
+    public @ResponseBody SignUpResponseDto signUp(@RequestBody SignUpRequest signUpRequest) {
         securityService.addUser(signUpRequest);
+        return new SignUpResponseDto(signUpRequest.getUsername(), "OK");
     }
 
     @PostMapping(value = "/auth/activate/{activationKey}")
-    public @ResponseBody void activate(@PathVariable String activationKey) {
+    public @ResponseBody ActivationResponseDto activate(@PathVariable String activationKey) {
         securityService.activate(activationKey);
+        return new ActivationResponseDto("User successfully activated. You can log in now", "OK");
     }
 
     @PostMapping(value = "/auth/passreset")
-    public @ResponseBody void resetPassword(@RequestBody ChangePasswordRequest request) {
+    public @ResponseBody ResetPassResponseDto resetPassword(@RequestBody ChangePasswordRequest request) {
         securityService.resetPassword(request.getKey(), request.getPassword());
+        return new ResetPassResponseDto("OK");
     }
 
     @PostMapping(value = "/auth/passrstreq")
-    public @ResponseBody void resetPassword(@RequestBody ResetPasswordRequest request) {
+    public @ResponseBody PassRequestResponseDto resetPassword(@RequestBody ResetPasswordRequest request) {
         securityService.resetPasswordRequest(request.getEmail(), request.getResetURL());
+        return new PassRequestResponseDto("OK");
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter;
 import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
@@ -15,9 +16,19 @@ import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @AllArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static final String[] ALLOWED_URLS = {
+            "/auth/signin",
+            "/auth/passreset",
+            "/auth/passrstre",
+            "/auth/signup",
+            "/auth/activate/*",
+            "/auth/passrstreq",
+            "/auth/passreset"
+    };
 
     private final ISecurityService securityService;
     private final SecurityManager securityManager;
@@ -25,11 +36,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .addFilterAfter(new SecurityFilter(securityService, securityManager), BasicAuthenticationFilter.class)
+                .addFilterBefore(new SecurityFilter(securityService, securityManager), BasicAuthenticationFilter.class)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeRequests()
-                .antMatchers("/**").permitAll()
+                .antMatchers(ALLOWED_URLS).permitAll()
+                .anyRequest().fullyAuthenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(http401AuthenticationEntryPoint());
+
+        http.addFilterBefore(new SecurityFilter(securityService, securityManager), BasicAuthenticationFilter.class);
     }
 
     @Bean

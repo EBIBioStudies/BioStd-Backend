@@ -1,7 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.security.rest;
 
 import com.google.common.base.Strings;
+import com.pri.util.collection.Collections;
 import java.io.IOException;
+import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -9,6 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -17,10 +20,15 @@ import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
+/**
+ * Executed before any request is in charge of obtain and set security user.
+ */
 @AllArgsConstructor
 public class SecurityFilter extends GenericFilterBean {
 
+    public static final String HEADER_NAME = "X-Session-Token";
     private static final String COOKIE_NAME = "BIOSTDSESS";
+
     private ISecurityService securityService;
     private SecurityManager securityManager;
 
@@ -39,15 +47,23 @@ public class SecurityFilter extends GenericFilterBean {
     }
 
     private void authenticateUser(String key) {
-        User user = securityService.getUserByKey(key);
-        uk.ac.ebi.biostd.authz.User legacyUser = securityManager.getUserById(user.getId());
+        Optional<User> optionalUser = securityService.getUserByKey(key);
+        optionalUser.ifPresent(user -> setSecurityUser(user, key));
+    }
 
+    private void setSecurityUser(User user, String key) {
+        uk.ac.ebi.biostd.authz.User legacyUser = securityManager.getUserById(user.getId());
         UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(legacyUser, key, null);
+                new UsernamePasswordAuthenticationToken(legacyUser, key, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     private String getSecurityKey(HttpServletRequest httpRequest) {
+        String header = httpRequest.getHeader(HEADER_NAME);
+        if (StringUtils.isNotBlank(header)) {
+            return header;
+        }
+
         Cookie cookie = WebUtils.getCookie(httpRequest, COOKIE_NAME);
         if (cookie != null && !Strings.isNullOrEmpty(cookie.getValue())) {
             return cookie.getValue();

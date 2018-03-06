@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.webapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties.CONFIG_FILE_LOCATION_VAR;
+import static uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter.HEADER_NAME;
 import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.BIOSTUDY_BASE_DIR;
 
 import com.icegreen.greenmail.junit.GreenMailRule;
@@ -35,12 +36,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.MultiValueMap;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 import uk.ac.ebi.biostd.webapp.application.security.error.ErrorMessage;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignoutRequestDto;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -113,9 +116,12 @@ public class SecurityApiTest {
     }
 
     private void logout(String token) {
-        ResponseEntity<String> response = restTemplate.postForEntity(SIGN_OUT_URL + token, null, String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        MultiValueMap<String, String> headers = new HttpHeaders();
+        headers.add(HEADER_NAME, token);
+        HttpEntity<SignoutRequestDto> request = new HttpEntity<>(new SignoutRequestDto(token), headers);
 
+        ResponseEntity<String> response = restTemplate.postForEntity(SIGN_OUT_URL + token, request, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         String cookie = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
         assertThat(cookie).isEqualTo("BIOSTDSESS=\"\"; Expires=Thu, 01-Jan-1970 00:00:10 GMT");
     }

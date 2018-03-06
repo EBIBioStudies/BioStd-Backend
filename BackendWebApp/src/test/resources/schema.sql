@@ -1105,7 +1105,7 @@ CREATE UNIQUE INDEX access_permission_id_index ON AccessPermission (id);
 
 CREATE TABLE SecurityToken
 (
-    id NVARCHAR PRIMARY KEY NOT NULL,
+    id VARCHAR(500) PRIMARY KEY NOT NULL,
     invalidation_date DATETIME NOT NULL
 );
 CREATE UNIQUE INDEX SecurityToken_id_uindex ON SecurityToken (id);

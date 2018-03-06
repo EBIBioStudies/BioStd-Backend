@@ -58,6 +58,11 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
+    public User getUser(long userId) {
+        return userRepository.getOne(userId);
+    }
+
+    @Override
     public UserData signIn(String login, String password) {
         Optional<User> user = userRepository.findByLoginOrEmail(login, login);
 
@@ -76,11 +81,10 @@ public class SecurityService implements ISecurityService {
 
     @Override
     public void signOut(String securityKey) {
-        Optional<SecurityToken> token = tokenRepository.findById(securityKey);
-        if (token.isPresent()) {
-            token.get().setInvalidationDate(OffsetDateTime.now(Clock.systemUTC()));
-            tokenRepository.save(token.get());
-        }
+        SecurityToken securityToken = new SecurityToken();
+        securityToken.setInvalidationDate(OffsetDateTime.now(Clock.systemUTC()));
+        securityToken.setId(securityKey);
+        tokenRepository.save(securityToken);
     }
 
     @Override
@@ -91,6 +95,7 @@ public class SecurityService implements ISecurityService {
         user.setAuxProfileInfo(createAuxInfo(signUpRequest.getAux()));
         user.setActive(false);
         user.setActivationKey(UUID.randomUUID().toString());
+        user.setKeyTime(OffsetDateTime.now().toInstant().toEpochMilli());
         user.setPasswordDigest(securityUtil.getPasswordDigest(signUpRequest.getPassword()));
 
         userRepository.save(user.withPendingActivation(signUpRequest.getActivationURL()));
@@ -117,9 +122,14 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
-    public User getUserByKey(String key) {
-        TokenUser tokenUser = securityUtil.fromToken(key);
-        return userRepository.findOne(tokenUser.getId());
+    public Optional<User> getUserByKey(String key) {
+        Optional<SecurityToken> token = tokenRepository.findById(key);
+        if (token.isPresent()) {
+            return Optional.empty();
+        }
+
+        return securityUtil.fromToken(key)
+                .map(tokenUser1 -> userRepository.findOne(tokenUser1.getId()));
     }
 
     @Override
@@ -156,8 +166,9 @@ public class SecurityService implements ISecurityService {
 
         switch (accessType) {
             case READ:
+                return isPublic || isAuthor;
             case SUBMIT:
-                return isPublic || isAuthor || isSuperUser;
+                return (isPublic && isAuthor) || isSuperUser;
             case ATTACH:
                 return hasAccessTag || isSuperUser;
             case UPDATE:

@@ -4,17 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pri.util.StringUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.Optional;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 
 @Component
+@Slf4j
 class SecurityUtil {
 
     private final ObjectMapper objectMapper;
@@ -42,9 +46,17 @@ class SecurityUtil {
     }
 
     @SneakyThrows
-    TokenUser fromToken(String token) {
-        String payload = Jwts.parser().setSigningKey(tokenHash).parseClaimsJws(token).getBody().getSubject();
-        return objectMapper.readValue(payload, TokenUser.class);
+    Optional<TokenUser> fromToken(String token) {
+        Optional<TokenUser> tokenUser = Optional.empty();
+
+        try {
+            String payload = Jwts.parser().setSigningKey(tokenHash).parseClaimsJws(token).getBody().getSubject();
+            tokenUser = Optional.of(objectMapper.readValue(payload, TokenUser.class));
+        } catch (SignatureException exception) {
+            log.error("detected invalid signature token");
+        }
+
+        return tokenUser;
     }
 
     @SneakyThrows
