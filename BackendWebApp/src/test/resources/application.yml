@@ -4,6 +4,3 @@ spring:
       ddl-auto: none
 server:
   context-path: /biostd
-
-endpoints:
-  eutoxrisk-file-validator: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
