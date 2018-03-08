@@ -20,9 +20,9 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ReqResp;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 @WebServlet("/export/*")
 public class ExportControlServlet extends ServiceServlet {
@@ -39,7 +39,7 @@ public class ExportControlServlet extends ServiceServlet {
             throws ServletException, IOException {
         ReqResp rqrs = new ReqResp(req, resp);
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             rqrs.getResponse().respond(HttpServletResponse.SC_UNAUTHORIZED, "FAIL", "User not logged in");
             return;
         }

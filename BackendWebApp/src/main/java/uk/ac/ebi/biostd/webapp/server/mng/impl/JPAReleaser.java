@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.out.FormatterFactory;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.ReleaseManager;
 
@@ -120,48 +119,6 @@ public class JPAReleaser implements ReleaseManager {
             }
 
             trn.commit();
-
-            if (BackendConfig.getSubmissionUpdatePath() != null && res.size() > 0) {
-                UpdateQueueProcessor queueProc = new UpdateQueueProcessor();
-                queueProc.start();
-
-                StringBuilder sb = new StringBuilder(10000);
-
-                for (Submission subm : released) {
-                    sb.setLength(0);
-
-                    try {
-                        FormatterFactory.getFormatter(BackendConfig.getFrontendUpdateFormat(),
-                                sb, false).format(subm, sb);
-                        //new PageMLFormatter(sb, false).format(subm, sb);
-                    } catch (Exception e) {
-                        log.error("Error! " + e.getMessage());
-                    }
-
-                    String msg = sb.toString();
-
-                    while (true) {
-                        try {
-                            queueProc.put(msg);
-                            break;
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                }
-
-                queueProc.shutdown();
-            }
-
-            if (BackendConfig.getSubscriptionEmailSubject() != null) {
-                for (Submission s : released) {
-                    if (BackendConfig.getServiceManager().getSecurityManager().mayEveryoneReadSubmission(s)) {
-                        if (s.getTagRefs() != null && s.getTagRefs().size() > 0) {
-                            TagSubscriptionProcessor.notifyByTags(s.getTagRefs(), s);
-                        }
-                        AttributeSubscriptionProcessor.processAsync(s);
-                    }
-                }
-            }
         } catch (Exception e) {
             try {
                 if (trn.isActive()) {

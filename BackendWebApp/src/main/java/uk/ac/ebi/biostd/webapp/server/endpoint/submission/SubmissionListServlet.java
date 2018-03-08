@@ -10,7 +10,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.lucene.queryparser.classic.ParseException;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.util.StringUtils;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
@@ -19,6 +18,7 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.JSONReqParameterPool;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ParameterPool;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 
 @WebServlet("/sbmlist")
@@ -53,7 +53,7 @@ public class SubmissionListServlet extends ServiceServlet {
 
         resp.setContentType("application/json; charset=UTF-8");
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             out.print("{\n\"status\": \"FAIL\",\n\"message\": \"User not logged in\"\n}");
             return;

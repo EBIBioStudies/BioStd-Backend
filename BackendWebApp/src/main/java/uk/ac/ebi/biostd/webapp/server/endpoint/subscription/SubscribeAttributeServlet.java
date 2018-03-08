@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import uk.ac.ebi.biostd.authz.AttributeSubscription;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.util.StringUtils;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.HttpReqParameterPool;
@@ -21,6 +20,7 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.Response;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.endpoint.TextHttpResponse;
 import uk.ac.ebi.biostd.webapp.server.mng.exception.ServiceException;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 @WebServlet("/attribute-subscription/*")
 public class SubscribeAttributeServlet extends ServiceServlet {
@@ -36,7 +36,7 @@ public class SubscribeAttributeServlet extends ServiceServlet {
     protected void service(HttpServletRequest request,
             HttpServletResponse response, Session sess) throws ServletException, IOException {
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("text/plain");
             response.getWriter().print("FAIL User not logged in");

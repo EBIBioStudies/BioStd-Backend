@@ -32,6 +32,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import uk.ac.ebi.biostd.out.FormatterType;
 import uk.ac.ebi.biostd.webapp.server.email.EmailInitException;
@@ -45,8 +46,6 @@ import uk.ac.ebi.biostd.webapp.server.export.TaskInitError;
 import uk.ac.ebi.biostd.webapp.server.mng.IndexManager;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceConfigException;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceFactory;
-import uk.ac.ebi.biostd.webapp.server.mng.impl.AttributeSubscriptionProcessor;
-import uk.ac.ebi.biostd.webapp.server.mng.impl.TagSubscriptionProcessor;
 import uk.ac.ebi.biostd.webapp.server.search.SearchMapper;
 import uk.ac.ebi.biostd.webapp.server.util.ExceptionUtil;
 import uk.ac.ebi.biostd.webapp.server.util.FileNameUtil;
@@ -125,10 +124,12 @@ public class ConfigurationManager {
 
     private final ParamPool contextParamPool;
     private final Environment springEnvironment;
+    private final ServiceFactory serviceFactory;
 
-    public ConfigurationManager(ServletContext servletContext, Environment environment) {
+    public ConfigurationManager(ServletContext servletContext, Environment environment, ServiceFactory serviceFactory) {
         contextParamPool = new ServletContextParamPool(servletContext);
         springEnvironment = environment;
+        this.serviceFactory = serviceFactory;
     }
 
     public void loadConfiguration() throws ConfigurationException {
@@ -174,13 +175,13 @@ public class ConfigurationManager {
         }
 
         String baseDir = springEnvironment.getProperty(BIOSTUDY_BASE_DIR);
-        if (baseDir != null) {
+        if (StringUtils.isNotBlank(baseDir)) {
             cfgBean.setBaseDirectory(new java.io.File(baseDir).toPath());
         }
 
         if (cfgBean.getBaseDirectory() != null) {
             if (!cfgBean.getBaseDirectory().isAbsolute()) {
-                throw new ConfigurationException(BaseDirParameter + " sould be absolute");
+                throw new ConfigurationException(BaseDirParameter + " should be absolute");
             }
 
             ResourceBundle rb = null;
@@ -289,7 +290,7 @@ public class ConfigurationManager {
             IndexManager.rebuildIndex(BackendConfig.getEntityManagerFactory());
         }
 
-        BackendConfig.setServiceManager(ServiceFactory.createService());
+        BackendConfig.setServiceManager(serviceFactory.createService());
 
         try {
             BackendConfig.getServiceManager().setEmailService(
@@ -314,17 +315,8 @@ public class ConfigurationManager {
             @Override
             public void run() {
                 BackendConfig.getServiceManager().getReleaseManager().doHourlyCheck();
-                BackendConfig.getServiceManager().getSecurityManager().removeExpiredUsers();
             }
         }, hourInMills - (now % hourInMills), hourInMills);
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                AttributeSubscriptionProcessor.processEvents();
-                TagSubscriptionProcessor.processEvents();
-            }
-        }, dayInMills - (now % dayInMills), dayInMills);
 
         if (BackendConfig.getTaskConfig() != null) {
             TaskInfo tinf = null;
