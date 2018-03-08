@@ -55,17 +55,17 @@ public class SecurityController {
         return projectMapper.getProjectsDto(submissionService.getAllowedProjects(user.getId(), ATTACH));
     }
 
+    @PostMapping(value = "/checkAccess", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String getPermissions(@ModelAttribute LoginRequest loginInfo) {
+        Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getPermissions(loginInfo));
+        return PlainFileFormat.asPlainFile(permissions);
+    }
+
     @GetMapping(value = "/auth/check")
     @PreAuthorize("isAuthenticated()")
     public @ResponseBody Map<String, String> getPermissions(@AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
         Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getUser(user.getId()));
         return permissions;
-    }
-
-    @PostMapping(value = "/auth/checkAccess", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String getPermissions(@ModelAttribute LoginRequest loginInfo) {
-        Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getPermissions(loginInfo));
-        return PlainFileFormat.asPlainFile(permissions);
     }
 
     @PostMapping(value = "/auth/signin")
