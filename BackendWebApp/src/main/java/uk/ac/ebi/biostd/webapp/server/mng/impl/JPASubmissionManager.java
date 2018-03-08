@@ -15,59 +15,20 @@
 
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
-import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
-import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
+import org.apache.lucene.search.*;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.User;
-import uk.ac.ebi.biostd.in.AccessionMapping;
-import uk.ac.ebi.biostd.in.ElementPointer;
-import uk.ac.ebi.biostd.in.PMDoc;
-import uk.ac.ebi.biostd.in.ParserConfig;
-import uk.ac.ebi.biostd.in.SubmissionMapping;
+import uk.ac.ebi.biostd.in.*;
 import uk.ac.ebi.biostd.in.pagetab.FileOccurrence;
 import uk.ac.ebi.biostd.in.pagetab.SectionOccurrence;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
@@ -78,15 +39,12 @@ import uk.ac.ebi.biostd.model.SubmissionTagRef;
 import uk.ac.ebi.biostd.out.cell.CellFormatter;
 import uk.ac.ebi.biostd.out.json.JSONFormatter;
 import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
-import uk.ac.ebi.biostd.treelog.ErrorCounter;
-import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
-import uk.ac.ebi.biostd.treelog.LogNode;
+import uk.ac.ebi.biostd.treelog.*;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
-import uk.ac.ebi.biostd.treelog.SimpleLogNode;
-import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
 import uk.ac.ebi.biostd.util.FilePointer;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
+import uk.ac.ebi.biostd.webapp.server.mng.AccessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.FileManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
@@ -99,6 +57,27 @@ import uk.ac.ebi.biostd.webapp.server.vfs.InvalidPathException;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathInfo;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
 import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
+
+import javax.persistence.*;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Root;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
+import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCNO;
+import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ID;
+import static uk.ac.ebi.biostd.in.pageml.PageMLElements.SUBMISSION;
+import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 
 @Slf4j
 public class JPASubmissionManager implements SubmissionManager {
@@ -477,71 +456,68 @@ public class JPASubmissionManager implements SubmissionManager {
 
     private SubmissionReport createSubmissionUnsafe(byte[] data, DataFormat type, String charset, Operation op,
             User usr, boolean validateOnly, boolean ignoreFileAbs) {
-        ErrorCounter ec = new ErrorCounterImpl();
 
-        SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS,
+        final EntityManager em = BackendConfig.getServiceManager().getEntityManager();
+        final FileManager fileManager = BackendConfig.getServiceManager().getFileManager();
+        final uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager securityManager = BackendConfig.getServiceManager().getSecurityManager();
+        final AccessionManager accessionManager = BackendConfig.getServiceManager().getAccessionManager();
+
+        final ErrorCounter ec = new ErrorCounterImpl();
+
+        final SimpleLogNode logNode = new SimpleLogNode(Level.SUCCESS,
                 op.name() + " submission(s) from " + type.name() + " source", ec);
 
         SubmissionReport res = new SubmissionReport();
 
-        res.setLog(gln);
+        res.setLog(logNode);
 
         if (shutdown) {
-            gln.log(Level.ERROR, "Service is shut down");
+            logNode.log(Level.ERROR, "Service is shut down");
             return res;
         }
 
-        if (op == Operation.CREATE && !BackendConfig.getServiceManager().getSecurityManager()
-                .mayUserCreateSubmission(usr)) {
-            gln.log(Level.ERROR, "User has no permission to create submissions");
+        if (op == Operation.CREATE && !securityManager.mayUserCreateSubmission(usr)) {
+            logNode.log(Level.ERROR, "User has no permission to create submissions");
             return res;
         }
 
-        gln.log(Level.INFO, "Processing '" + type.name() + "' data. Body size: " + data.length);
-
-        EntityManager em = BackendConfig.getServiceManager().getEntityManager();
+        logNode.log(Level.INFO, "Processing '" + type.name() + "' data. Body size: " + data.length);
 
         boolean submOk = true;
         boolean submComplete = false;
 
         PMDoc doc = null;
 
-        FileManager fileMngr = BackendConfig.getServiceManager().getFileManager();
         Path trnPath = BackendConfig.getSubmissionsTransactionPath()
                 .resolve(BackendConfig.getInstanceId() + "#" + BackendConfig.getSeqNumber());
 
         List<FileTransactionUnit> trans = null;
-        LockedIdSet locked = null;
+
+        LockedIdSet submIdLock = null;
 
         EntityTransaction trn = null;
 
         try {
-            doc = parser.parseDocument(data, type, charset, new TagResolverImpl(em), gln);
+            doc = parser.parseDocument(data, type, charset, new TagResolverImpl(em), logNode);
 
             if (doc == null) {
-                em = null;
-                submOk = false;
                 return res;
             }
 
             if (doc.getSubmissions() == null || doc.getSubmissions().size() == 0) {
-                gln.log(Level.ERROR, "There are no submissions in the document");
-                SimpleLogNode.setLevels(gln);
-                submOk = false;
-                em = null;
+                logNode.log(Level.ERROR, "There are no submissions in the document");
+                SimpleLogNode.setLevels(logNode);
                 return res;
             }
 
-            Map<String, ElementPointer> smbIdMap = checkSubmissionAccNoUniq(doc);
-            Map<String, ElementPointer> secIdMap = checkSectionAccNoUniq(doc);
+            Optional<Map<String, ElementPointer>> smbIdMap = getSubmissionIdMap(doc);
+            Optional<Map<String, ElementPointer>> secIdMap = getSectionIdMap(doc);
 
-            if (smbIdMap != null && secIdMap != null) {
-                locked = waitForIdUnlocked(smbIdMap, secIdMap);
+            if (smbIdMap.isPresent() && secIdMap.isPresent()) {
+                submIdLock = waitForIdUnlocked(smbIdMap.get(), secIdMap.get());
             } else {
                 submOk = false;
             }
-
-            em = emf.createEntityManager();
 
             trn = em.getTransaction();
 
@@ -581,7 +557,7 @@ public class JPASubmissionManager implements SubmissionManager {
                             submOk = false;
                             continue;
                         } else {
-                            if (!BackendConfig.getServiceManager().getSecurityManager().mayUserCreateSubmission(usr)) {
+                            if (!securityManager.mayUserCreateSubmission(usr)) {
                                 si.getLogNode().log(Level.ERROR, "User has no permission to create submissions");
                                 submOk = false;
                                 continue;
@@ -595,8 +571,7 @@ public class JPASubmissionManager implements SubmissionManager {
                         si.setOriginalSubmission(oldSbm);
                         submission.setVersion(oldSbm.getVersion() + 1);
                         submission.setSecretKey(oldSbm.getSecretKey());
-                        if (!BackendConfig.getServiceManager().getSecurityManager()
-                                .mayUserUpdateSubmission(oldSbm, usr)) {
+                        if (!securityManager.mayUserUpdateSubmission(oldSbm, usr)) {
                             si.getLogNode().log(Level.ERROR, "Submission update is not permitted for this user");
                             submOk = false;
                             continue;
@@ -671,12 +646,12 @@ public class JPASubmissionManager implements SubmissionManager {
 
                 if (si.getFileOccurrences() != null) {
                     for (FileOccurrence foc : si.getFileOccurrences()) {
-                        FilePointer fp = fileMngr.checkFileExist(foc.getFileRef().getName(), rootPI, usr);
+                        FilePointer fp = fileManager.checkFileExist(foc.getFileRef().getName(), rootPI, usr);
 
                         if (fp != null) {
                             foc.setFilePointer(fp);
                         } else if (oldSbm != null
-                                && (fp = fileMngr.checkFileExist(foc.getFileRef().getName(), rootPI, usr, oldSbm))
+                                && (fp = fileManager.checkFileExist(foc.getFileRef().getName(), rootPI, usr, oldSbm))
                                 != null) {
                             foc.setFilePointer(fp);
                             foc.getLogNode().log(Level.WARN, "File reference '" + foc.getFileRef().getName()
@@ -745,7 +720,7 @@ public class JPASubmissionManager implements SubmissionManager {
                             continue;
                         }
 
-                        if (!BackendConfig.getServiceManager().getSecurityManager().mayUserAttachToSubmission(s, usr)) {
+                        if (!securityManager.mayUserAttachToSubmission(s, usr)) {
                             si.getLogNode().log(Level.ERROR, "User has no permission to attach to submission: " + pAcc);
                             submOk = false;
                             continue;
@@ -837,7 +812,7 @@ public class JPASubmissionManager implements SubmissionManager {
             }
 
             if (!submOk || validateOnly) {
-                SimpleLogNode.setLevels(gln);
+                SimpleLogNode.setLevels(logNode);
 
                 if (validateOnly) {
                     submComplete = true;
@@ -863,7 +838,7 @@ public class JPASubmissionManager implements SubmissionManager {
                         || subm.getAccNo() == null)) {
                     while (true) {
                         try {
-                            String newAcc = BackendConfig.getServiceManager().getAccessionManager()
+                            String newAcc = accessionManager
                                     .getNextAccNo(si.getAccNoPrefix(), si.getAccNoSuffix(), usr);
 
                             if (checkGeneratedSubmissionIdUniq(newAcc, em)) {
@@ -897,7 +872,7 @@ public class JPASubmissionManager implements SubmissionManager {
                             while (true) {
                                 String newAcc = null;
                                 try {
-                                    newAcc = BackendConfig.getServiceManager().getAccessionManager()
+                                    newAcc = accessionManager
                                             .getNextAccNo(seco.getPrefix(), seco.getSuffix(), usr);
 
                                     if (checkSectionIdUniqTotal(newAcc, em)) {
@@ -955,13 +930,13 @@ public class JPASubmissionManager implements SubmissionManager {
 
             trans = new ArrayList<>(doc.getSubmissions().size());
 
-            if (!prepareFileTransaction(fileMngr, trans, doc.getSubmissions(), trnPath, op)) {
-                gln.log(Level.ERROR, "File operation failed. Contact system administrator");
+            if (!prepareFileTransaction(fileManager, trans, doc.getSubmissions(), trnPath, op)) {
+                logNode.log(Level.ERROR, "File operation failed. Contact system administrator");
                 submOk = false;
             }
 
         } catch (Throwable t) {
-            gln.log(Level.ERROR, "Internal server error");
+            logNode.log(Level.ERROR, "Internal server error");
 
             t.printStackTrace();
             log.error("Exception during submission process: " + t.getMessage());
@@ -975,10 +950,10 @@ public class JPASubmissionManager implements SubmissionManager {
                         trn.rollback();
                     }
 
-                    gln.log(Level.ERROR, "Submit/Update operation failed. Rolling transaction back");
+                    logNode.log(Level.ERROR, "Submit/Update operation failed. Rolling transaction back");
 
                     if (trans != null) {
-                        rollbackFileTransaction(fileMngr, trans, trnPath);
+                        rollbackFileTransaction(fileManager, trans, trnPath);
                     }
 
                     return res;
@@ -990,11 +965,11 @@ public class JPASubmissionManager implements SubmissionManager {
 
                         if (trans != null) {
                             try {
-                                commitFileTransaction(fileMngr, trans, trnPath, op);
+                                commitFileTransaction(fileManager, trans, trnPath, op);
                             } catch (IOException ioe) {
                                 String err = "File transaction commit failed: " + ioe.getMessage();
 
-                                gln.log(Level.ERROR, err);
+                                logNode.log(Level.ERROR, err);
                                 log.error(err);
 
                                 ioe.printStackTrace();
@@ -1005,7 +980,7 @@ public class JPASubmissionManager implements SubmissionManager {
                     } catch (Throwable t) {
                         String err = "Database transaction commit failed: " + t.getMessage();
 
-                        gln.log(Level.ERROR, err);
+                        logNode.log(Level.ERROR, err);
                         log.error(err);
 
                         t.printStackTrace();
@@ -1015,35 +990,33 @@ public class JPASubmissionManager implements SubmissionManager {
                         }
 
                         if (trans != null) {
-                            rollbackFileTransaction(fileMngr, trans, trnPath);
+                            rollbackFileTransaction(fileManager, trans, trnPath);
                         }
 
                         return res;
                     }
 
-                    gln.log(Level.INFO, "Database transaction successful");
+                    logNode.log(Level.INFO, "Database transaction successful");
                 }
             } finally {
                 if (em != null) {
                     em.close();
                 }
 
-                unlockIds(locked);
+                unlockIds(submIdLock);
             }
         }
 
         if (trans != null && BackendConfig.getPublicFTPPath() != null) {
-            copyToPublicFTP(fileMngr, doc.getSubmissions(), gln);
+            copyToPublicFTP(fileManager, doc.getSubmissions(), logNode);
         }
 
         return res;
     }
 
 
-    private Map<String, ElementPointer> checkSubmissionAccNoUniq(PMDoc doc) {
+    private Optional<Map<String, ElementPointer>> getSubmissionIdMap(PMDoc doc) {
         Map<String, ElementPointer> idMap = new HashMap<>();
-
-        int conflicts = 0;
 
         for (SubmissionInfo si : doc.getSubmissions()) {
             if (si.getAccNoPrefix() != null || si.getAccNoSuffix() != null || si.getSubmission().getAccNo() == null) {
@@ -1056,19 +1029,18 @@ public class JPASubmissionManager implements SubmissionManager {
                 si.getLogNode().log(Level.ERROR,
                         "Accession number '" + si.getSubmission().getAccNo() + " is already taken by submission at "
                                 + sbmPtr);
-                conflicts++;
+                return Optional.empty();
             } else {
                 idMap.put(si.getSubmission().getAccNo(), si.getElementPointer());
             }
         }
 
-        return conflicts > 0 ? null : idMap;
+        return Optional.of(idMap);
     }
 
-    private Map<String, ElementPointer> checkSectionAccNoUniq(PMDoc doc) {
-        Map<String, ElementPointer> idMap = new HashMap<>();
 
-        int conflicts = 0;
+    private Optional<Map<String, ElementPointer>> getSectionIdMap(PMDoc doc) {
+        Map<String, ElementPointer> idMap = new HashMap<>();
 
         for (SubmissionInfo si : doc.getSubmissions()) {
             if (si.getGlobalSections() == null || si.getGlobalSections().size() == 0) {
@@ -1086,14 +1058,14 @@ public class JPASubmissionManager implements SubmissionManager {
                     seco.getSecLogNode().log(Level.ERROR,
                             "Accession number '" + seco.getSection().getAccNo() + " is already taken by section at "
                                     + secPtr);
-                    conflicts++;
+                    return Optional.empty();
                 } else {
                     idMap.put(seco.getSection().getAccNo(), seco.getElementPointer());
                 }
             }
         }
 
-        return conflicts > 0 ? null : idMap;
+        return Optional.of(idMap);
     }
 
 
