@@ -1,13 +1,10 @@
 package uk.ac.ebi.biostd.webapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties.CONFIG_FILE_LOCATION_VAR;
 import static uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter.HEADER_NAME;
-import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.BIOSTUDY_BASE_DIR;
 
 import com.icegreen.greenmail.junit.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.Collections;
@@ -15,7 +12,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.mail.internet.MimeMessage;
-import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -29,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,6 +33,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MultiValueMap;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
+import uk.ac.ebi.biostd.backend.testing.IntegrationTestUtil;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
@@ -71,13 +67,7 @@ public class SecurityApiTest {
 
     @BeforeClass
     public static void beforeAll() throws IOException {
-        String NFS_PATH = TEST_FOLDER.getRoot().getPath();
-        System.setProperty(BIOSTUDY_BASE_DIR, NFS_PATH);
-        System.setProperty(CONFIG_FILE_LOCATION_VAR, NFS_PATH + "/config.properties");
-
-        FileUtils.copyFile(
-                new ClassPathResource("nfs/config.properties").getFile(),
-                new File(NFS_PATH + "/config.properties"));
+        IntegrationTestUtil.initFileSystem(TEST_FOLDER);
     }
 
     /* Validate simple login and logout */

@@ -2,14 +2,10 @@ package uk.ac.ebi.biostd.webapp;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties.CONFIG_FILE_LOCATION_VAR;
-import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.BIOSTUDY_BASE_DIR;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -21,14 +17,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.backend.model.SubmissionResult;
 import uk.ac.ebi.biostd.backend.services.RemoteOperations;
+import uk.ac.ebi.biostd.backend.testing.IntegrationTestUtil;
 import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
-import uk.ac.ebi.biostd.util.FileUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -51,20 +46,7 @@ public class BasicSubmissionApiTest {
 
     @BeforeClass
     public static void beforeAll() throws Exception {
-        NFS_PATH = TEST_FOLDER.getRoot().getPath();
-        System.setProperty(BIOSTUDY_BASE_DIR, NFS_PATH);
-        System.setProperty(CONFIG_FILE_LOCATION_VAR, NFS_PATH + "/config.properties");
-
-        File miscDir = new File(NFS_PATH + "/misc");
-        miscDir.mkdir();
-
-        FileUtil.copyDirectory(new ClassPathResource("nfs/misc").getFile(), miscDir);
-        writeConfigFile(new ClassPathResource("nfs/config.properties").getFile());
-    }
-
-    private static void writeConfigFile(File file) throws IOException {
-        String content = FileUtils.readFileToString(file).replaceAll("\\{BASE_PATH\\}", NFS_PATH);
-        FileUtils.writeStringToFile(new File(NFS_PATH + "/config.properties"), content);
+        NFS_PATH = IntegrationTestUtil.initFileSystem(TEST_FOLDER);
     }
 
     @Before
