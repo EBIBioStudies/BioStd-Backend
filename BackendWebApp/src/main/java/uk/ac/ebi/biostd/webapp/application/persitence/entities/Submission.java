@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,6 +52,13 @@ public class Submission {
     @OneToOne()
     @JoinColumn(name = "rootSection_id")
     private Section rootSection;
+
+    @ManyToOne()
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    @Column(name = "owner_id", updatable = false, insertable = false)
+    private long ownerId;
 
     @ManyToMany
     @JoinTable(name = "Submission_AccessTag",

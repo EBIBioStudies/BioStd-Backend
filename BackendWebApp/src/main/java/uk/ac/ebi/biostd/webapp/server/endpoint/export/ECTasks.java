@@ -115,7 +115,7 @@ public class ECTasks {
             }
         }
 
-        final int tnum = threads;
+        int tnum = threads;
         new Thread(new Runnable() {
 
             @Override

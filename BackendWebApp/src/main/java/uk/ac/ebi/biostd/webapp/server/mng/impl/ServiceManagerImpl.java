@@ -15,6 +15,8 @@
 
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import uk.ac.ebi.biostd.webapp.server.email.EmailService;
 import uk.ac.ebi.biostd.webapp.server.mng.AccessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.FileManager;
@@ -22,7 +24,6 @@ import uk.ac.ebi.biostd.webapp.server.mng.ReleaseManager;
 import uk.ac.ebi.biostd.webapp.server.mng.RemoteRequestManager;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceManager;
-import uk.ac.ebi.biostd.webapp.server.mng.SessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubscriptionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.TagManager;
@@ -37,7 +38,6 @@ public class ServiceManagerImpl implements ServiceManager {
     private ServiceConfig config;
 
     private UserManager userManager;
-    private SessionManager sessionManager;
     private SubmissionManager submissionManager;
     private FileManager fileManager;
     private SecurityManager authzManager;
@@ -46,6 +46,35 @@ public class ServiceManagerImpl implements ServiceManager {
     private EmailService emailService;
     private TagManager tagManager;
     private SubscriptionManager subscriptionManager;
+
+    private static final ThreadLocal<EntityManager> threadLocal;
+
+    static {
+        threadLocal = new ThreadLocal<>();
+    }
+
+    private final EntityManagerFactory entityManagerFactory;
+
+
+    public ServiceManagerImpl(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
+
+    /**
+     * Obtain a thread safe entity manager.
+     *
+     * @return an instance of {@link EntityManager} which provide entity manager.
+     */
+    @Override
+    public EntityManager getEntityManager() {
+        EntityManager em = threadLocal.get();
+
+        if (em == null) {
+            threadLocal.set(entityManagerFactory.createEntityManager());
+        }
+
+        return threadLocal.get();
+    }
 
     @Override
     public EmailService getEmailService() {
@@ -64,15 +93,6 @@ public class ServiceManagerImpl implements ServiceManager {
 
     public void setUserManager(UserManager userManager) {
         this.userManager = userManager;
-    }
-
-    @Override
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -157,59 +177,25 @@ public class ServiceManagerImpl implements ServiceManager {
         return subscriptionManager;
     }
 
+    @Override
     public void setSubscriptionManager(SubscriptionManager subscriptionManager) {
         this.subscriptionManager = subscriptionManager;
     }
 
     @Override
     public void shutdown() {
-//  if( userManager != null )
-//   userManager.shutdown();
         userManager = null;
-
-        if (sessionManager != null) {
-            sessionManager.shutdown();
-        }
-
-        sessionManager = null;
 
         if (submissionManager != null) {
             submissionManager.shutdown();
         }
 
         submissionManager = null;
-
-//  if(fileManager != null)
-//   fileManager.shutdown();
-
         fileManager = null;
-
-//  if(authzManager != null)
-//   authzManager.shutdown();
-
         authzManager = null;
-
-//  if(releaser != null)
-//   releaser.shutdown();
-
         releaser = null;
-
-//  if(accManager != null)
-//   accManager.shutdown();
-
         accManager = null;
-
-//  if(emailService != null)
-//   emailService.shutdown();
-
         emailService = null;
-
-//  if(tagManager != null)
-//   tagManager.shutdown();
-
         tagManager = null;
-
     }
-
-
 }

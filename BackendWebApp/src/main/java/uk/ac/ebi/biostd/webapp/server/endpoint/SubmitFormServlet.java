@@ -22,11 +22,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.treelog.JSON4Log;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 public class SubmitFormServlet extends ServiceServlet {
 

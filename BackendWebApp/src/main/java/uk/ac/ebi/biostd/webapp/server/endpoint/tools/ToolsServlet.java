@@ -22,7 +22,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
 import uk.ac.ebi.biostd.model.FileRef;
@@ -32,6 +31,7 @@ import uk.ac.ebi.biostd.out.json.JSONFormatter;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.mng.FileManager;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 @Slf4j
 @WebServlet("/tools/*")
@@ -48,7 +48,7 @@ public class ToolsServlet extends ServiceServlet {
             return;
         }
 
-        if (act != REFRESH_USERS && (sess == null || sess.isAnonymouns())) {
+        if (act != REFRESH_USERS && (sess == null || sess.isAnonymous())) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().print("FAIL User not logged in");
             return;
@@ -94,14 +94,6 @@ public class ToolsServlet extends ServiceServlet {
             case RELINK_DROPBOXES:
                 resp.setContentType("text/plain");
                 relinkDropboxes(resp.getWriter());
-                break;
-
-            case CLEAN_EXP_USERS:
-                BackendConfig.getServiceManager().getSecurityManager().removeExpiredUsers();
-                break;
-
-            case REFRESH_USERS:
-                BackendConfig.getServiceManager().getSecurityManager().refreshUserCache();
                 break;
 
             case REGENERATE_JSON:
@@ -731,12 +723,6 @@ public class ToolsServlet extends ServiceServlet {
         while (moreWorkToDo) {
             pool.execute(new RegenerateJsonOuputRunnable(offset, blockSz, servletOut));
             offset += blockSz;
-
-   /*
-   while (pool.getActiveCount() > 10) {
-    try { Thread.sleep(50);} catch (Exception ex){}
-   }
-   */
         }
 
         servletOut.append("Terminating thread pool");

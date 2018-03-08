@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.treelog.JSON4Report;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.SimpleLogNode;
@@ -17,6 +16,7 @@ import uk.ac.ebi.biostd.util.DataFormat;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 @MultipartConfig
 @WebServlet(urlPatterns = "/formsubmit")
@@ -39,7 +39,7 @@ public class FormSubmitServlet extends ServiceServlet {
             return;
         }
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             respond(response, HttpServletResponse.SC_UNAUTHORIZED, "FAIL User not logged in");
             return;
         }
