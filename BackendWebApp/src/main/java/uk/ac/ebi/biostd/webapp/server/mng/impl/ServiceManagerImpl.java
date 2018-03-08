@@ -16,7 +16,7 @@
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
 import javax.persistence.EntityManager;
-import lombok.Getter;
+import javax.persistence.EntityManagerFactory;
 import uk.ac.ebi.biostd.webapp.server.email.EmailService;
 import uk.ac.ebi.biostd.webapp.server.mng.AccessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.FileManager;
@@ -47,11 +47,33 @@ public class ServiceManagerImpl implements ServiceManager {
     private TagManager tagManager;
     private SubscriptionManager subscriptionManager;
 
-    @Getter
-    private final EntityManager entityManager;
+    private static final ThreadLocal<EntityManager> threadLocal;
 
-    public ServiceManagerImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    static {
+        threadLocal = new ThreadLocal<>();
+    }
+
+    private final EntityManagerFactory entityManagerFactory;
+
+
+    public ServiceManagerImpl(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
+
+    /**
+     * Obtain a thread safe entity manager.
+     *
+     * @return an instance of {@link EntityManager} which provide entity manager.
+     */
+    @Override
+    public EntityManager getEntityManager() {
+        EntityManager em = threadLocal.get();
+
+        if (em == null) {
+            threadLocal.set(entityManagerFactory.createEntityManager());
+        }
+
+        return threadLocal.get();
     }
 
     @Override
@@ -162,8 +184,6 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public void shutdown() {
-//  if( userManager != null )
-//   userManager.shutdown();
         userManager = null;
 
         if (submissionManager != null) {
@@ -171,38 +191,11 @@ public class ServiceManagerImpl implements ServiceManager {
         }
 
         submissionManager = null;
-
-//  if(fileManager != null)
-//   fileManager.shutdown();
-
         fileManager = null;
-
-//  if(authzManager != null)
-//   authzManager.shutdown();
-
         authzManager = null;
-
-//  if(releaser != null)
-//   releaser.shutdown();
-
         releaser = null;
-
-//  if(accManager != null)
-//   accManager.shutdown();
-
         accManager = null;
-
-//  if(emailService != null)
-//   emailService.shutdown();
-
         emailService = null;
-
-//  if(tagManager != null)
-//   tagManager.shutdown();
-
         tagManager = null;
-
     }
-
-
 }

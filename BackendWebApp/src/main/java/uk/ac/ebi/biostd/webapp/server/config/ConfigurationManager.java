@@ -32,6 +32,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import uk.ac.ebi.biostd.out.FormatterType;
 import uk.ac.ebi.biostd.webapp.server.email.EmailInitException;
@@ -174,13 +175,13 @@ public class ConfigurationManager {
         }
 
         String baseDir = springEnvironment.getProperty(BIOSTUDY_BASE_DIR);
-        if (baseDir != null) {
+        if (StringUtils.isNotBlank(baseDir)) {
             cfgBean.setBaseDirectory(new java.io.File(baseDir).toPath());
         }
 
         if (cfgBean.getBaseDirectory() != null) {
             if (!cfgBean.getBaseDirectory().isAbsolute()) {
-                throw new ConfigurationException(BaseDirParameter + " sould be absolute");
+                throw new ConfigurationException(BaseDirParameter + " should be absolute");
             }
 
             ResourceBundle rb = null;

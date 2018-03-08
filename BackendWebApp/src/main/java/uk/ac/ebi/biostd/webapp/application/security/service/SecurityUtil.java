@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.webapp.application.security.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pri.util.StringUtils;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import java.security.MessageDigest;
@@ -52,7 +53,7 @@ class SecurityUtil {
         try {
             String payload = Jwts.parser().setSigningKey(tokenHash).parseClaimsJws(token).getBody().getSubject();
             tokenUser = Optional.of(objectMapper.readValue(payload, TokenUser.class));
-        } catch (SignatureException exception) {
+        } catch (SignatureException | MalformedJwtException exception) {
             log.error("detected invalid signature token");
         }
 

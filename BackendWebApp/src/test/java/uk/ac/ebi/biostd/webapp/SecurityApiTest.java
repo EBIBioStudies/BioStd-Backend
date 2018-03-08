@@ -143,7 +143,7 @@ public class SecurityApiTest {
         MimeMessage[] messages = greenMail.getReceivedMessages();
         Email email = EmailConverter.mimeMessageToEmail(messages[0]);
 
-        return extractKey(email.getPlainText(), RESET_PATTERN);
+        return extractKey(email.getHTMLText(), RESET_PATTERN);
     }
 
     private String signUp(String email, String name, String password) {
@@ -159,7 +159,7 @@ public class SecurityApiTest {
 
         assertThat(messages).hasSize(1);
         Email notification = EmailConverter.mimeMessageToEmail(messages[0]);
-        return extractKey(notification.getPlainText(), SIGNUP_PATTERN);
+        return extractKey(notification.getHTMLText(), SIGNUP_PATTERN);
 
     }
 

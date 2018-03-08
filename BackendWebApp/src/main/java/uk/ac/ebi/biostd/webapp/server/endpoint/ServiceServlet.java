@@ -6,11 +6,13 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceConfig;
@@ -51,6 +53,12 @@ public abstract class ServiceServlet extends HttpServlet {
         File sessDir = new File(sessionPath.toFile(), tokenId);
         Session sess = new SessionAuthenticated(sessDir, BackendConfig.getEntityManagerFactory(), user);
         service(req, resp, sess);
+    }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
+        super.init(config);
     }
 
     protected abstract void service(HttpServletRequest req, HttpServletResponse resp, Session sess)

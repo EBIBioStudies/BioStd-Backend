@@ -1,8 +1,13 @@
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.biostd.authz.AuthorizationTemplate;
 import uk.ac.ebi.biostd.authz.AuthzObject;
@@ -17,6 +22,15 @@ import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 @Slf4j
 @AllArgsConstructor
 public class SecurityManagerImpl implements SecurityManager {
+
+    private final LoadingCache<Long, User> usersMap = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .build(new CacheLoader<Long, User>() {
+                @Override
+                public User load(Long key) {
+                    return getUserByIdForCache(key);
+                }
+            });
 
     private final SecurityService securityService;
 
@@ -70,7 +84,12 @@ public class SecurityManagerImpl implements SecurityManager {
     }
 
     @Override
+    @SneakyThrows
     public User getUserById(long id) {
+        return usersMap.get(id);
+    }
+
+    private User getUserByIdForCache(long id) {
         EntityManager em = BackendConfig.getServiceManager().getEntityManager();
         TypedQuery<User> uq = em.createNamedQuery(User.GetByIdQuery, User.class);
         uq.setParameter("id", id);

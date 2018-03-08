@@ -58,8 +58,7 @@ public class ServiceFactory {
             }
         }
 
-        ServiceManagerImpl serviceManager = new ServiceManagerImpl(
-                (BackendConfig.getEntityManagerFactory().createEntityManager()));
+        ServiceManagerImpl serviceManager = new ServiceManagerImpl((BackendConfig.getEntityManagerFactory()));
         serviceManager.setSubmissionManager(new JPASubmissionManager(BackendConfig.getEntityManagerFactory()));
         serviceManager.setSecurityManager(new SecurityManagerImpl(securityService));
         serviceManager.setUserManager(new JPAUserManager(serviceManager.getSecurityManager()));
