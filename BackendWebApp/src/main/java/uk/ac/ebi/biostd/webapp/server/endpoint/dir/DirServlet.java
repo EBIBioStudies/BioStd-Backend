@@ -38,12 +38,12 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
 import uk.ac.ebi.biostd.util.StringUtils;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 import uk.ac.ebi.biostd.webapp.server.util.FileNameUtil;
 import uk.ac.ebi.biostd.webapp.server.vfs.InvalidPathException;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathInfo;
@@ -70,7 +70,7 @@ public class DirServlet extends ServiceServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
             throws ServletException, IOException {
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
             resp.getWriter().print("{\n\"status\": \"FAIL\",\n\"message\": \"User not logged in\"\n}");

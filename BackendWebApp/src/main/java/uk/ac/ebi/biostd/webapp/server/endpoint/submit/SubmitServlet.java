@@ -13,9 +13,8 @@ import java.util.Set;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import org.apache.commons.io.IOUtils;
-import uk.ac.ebi.biostd.authz.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.in.ParserException;
 import uk.ac.ebi.biostd.model.Submission;
@@ -29,11 +28,11 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation;
 import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRefParser;
 
 @WebServlet(urlPatterns = "/submit/*")
-@AllArgsConstructor
 public class SubmitServlet extends ServiceServlet {
 
     private static final long serialVersionUID = 1L;
@@ -49,8 +48,11 @@ public class SubmitServlet extends ServiceServlet {
     private static final String ON_BEHALF_PARAMETER = "onBehalf";
     private static final String OWNER_PARAMETER = "owner";
 
-    private final UserManager userManager;
-    private final SubmissionManager submissionManager;
+    @Autowired
+    private UserManager userManager;
+
+    @Autowired
+    private SubmissionManager submissionManager;
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response, Session sess) throws IOException {
@@ -285,8 +287,7 @@ public class SubmitServlet extends ServiceServlet {
             return;
         }
 
-        if (patAcc != null)
-        {
+        if (patAcc != null) {
             if (patAcc.length() < 5) {
                 response.setStatus(SC_BAD_REQUEST);
                 response.getWriter()
@@ -378,8 +379,7 @@ public class SubmitServlet extends ServiceServlet {
             }
         }
 
-        if (patAcc != null)
-        {
+        if (patAcc != null) {
             if (patAcc.length() < 5) {
                 response.setStatus(SC_BAD_REQUEST);
                 response.getWriter()

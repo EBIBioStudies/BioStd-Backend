@@ -4,9 +4,9 @@ package uk.ac.ebi.biostd.webapp.application.security.rest.mappers;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.webapp.application.persitence.entities.Submission;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ProjectDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ProjectsDto;
+import uk.ac.ebi.biostd.webapp.application.persitence.entities.Submission;
 
 @Component
 public class ProjectMapper {

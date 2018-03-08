@@ -142,7 +142,7 @@ public class FileManagerImpl implements FileManager {
     }
 
     @Override
-    public void copyDirectory(final Path srcDir, final Path dstDir) throws IOException {
+    public void copyDirectory(Path srcDir, Path dstDir) throws IOException {
         Files.createDirectories(dstDir.getParent());
 
         Files.walkFileTree(srcDir, new SimpleFileVisitor<Path>() {
@@ -173,7 +173,7 @@ public class FileManagerImpl implements FileManager {
     }
 
     @Override
-    public void linkOrCopyDirectory(final Path srcDir, final Path dstDir) throws IOException {
+    public void linkOrCopyDirectory(Path srcDir, Path dstDir) throws IOException {
         Files.createDirectories(dstDir.getParent());
 
         Files.walkFileTree(srcDir, new SimpleFileVisitor<Path>() {
@@ -440,7 +440,7 @@ public class FileManagerImpl implements FileManager {
 
     @Override
     public long countDirectorySize(Path finalPath) throws IOException {
-        final LongNumber len = new LongNumber();
+        LongNumber len = new LongNumber();
 
         Files.walkFileTree(finalPath, new SimpleFileVisitor<Path>() {
             @Override

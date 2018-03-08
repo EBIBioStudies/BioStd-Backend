@@ -1,8 +1,19 @@
-# Only use for local deployment and jar mode, it is excluded from war
+# Server properties are used only for local deployment and jar mode, they are ignored in "war mode"
 server:
   port: 8586
   contextPath: /biostd
 
 biostudy:
-  baseDir: /home/jcamilorada/Projects/BioStudies/NFS
-  configFile: /home/jcamilorada/Projects/BioStudies/NFS/config.properties
+  baseDir: # set your nfs location i.e /home/jcamilorada/Projects/BioStudies/NFS
+  configFile: # set config file location i.e /home/jcamilorada/Projects/BioStudies/NFS/config.properties
+  tokenHash: biostd
+
+spring:
+  mail:
+    host: localhost
+  thymeleaf:
+    prefix: classpath:/email/
+    suffix: .html
+    mode: LEGACYHTML5
+
+

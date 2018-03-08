@@ -12,11 +12,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.util.StringUtils;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 import uk.ac.ebi.biostd.webapp.server.util.FileNameUtil;
 import uk.ac.ebi.biostd.webapp.server.vfs.InvalidPathException;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathInfo;
@@ -44,7 +44,7 @@ public class FileUploadServlet extends ServiceServlet {
             return;
         }
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             respond(HttpServletResponse.SC_UNAUTHORIZED, "User not logged in", resp);
             return;
         }

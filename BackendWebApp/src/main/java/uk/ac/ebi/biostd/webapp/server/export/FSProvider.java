@@ -17,7 +17,6 @@ package uk.ac.ebi.biostd.webapp.server.export;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 
 public interface FSProvider {

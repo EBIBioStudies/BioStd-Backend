@@ -1,13 +1,17 @@
 package uk.ac.ebi.biostd.webapp.application.security.rest.dto;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@AllArgsConstructor
+@Data
+@NoArgsConstructor
 public class ProjectsDto {
 
-    private final List<ProjectDto> submissions;
-    private final String status = "OK";
+    private List<ProjectDto> submissions;
+    private String status = "OK";
+
+    public ProjectsDto(List<ProjectDto> submissions) {
+        this.submissions = submissions;
+    }
 }

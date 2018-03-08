@@ -5,9 +5,9 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import uk.ac.ebi.biostd.authz.Session;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
+import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 @WebServlet("/reserve")
 public class AccNoReserveServlet extends ServiceServlet {
@@ -23,7 +23,7 @@ public class AccNoReserveServlet extends ServiceServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
             throws ServletException, IOException {
 
-        if (sess == null || sess.isAnonymouns()) {
+        if (sess == null || sess.isAnonymous()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().print("FAIL User not logged in");
             return;
