@@ -25,7 +25,7 @@ public class EUToxRiskFileValidator {
     private final String url;
 
     public EUToxRiskFileValidator(@Qualifier("eutoxrisk") RestTemplate restTemplate,
-                                  @Value("${endpoints.eutoxrisk-file-validator}") String url) {
+                                  @Value("${external-api.eutoxrisk-file-validator}") String url) {
         this.restTemplate = restTemplate;
         this.url = url;
     }
