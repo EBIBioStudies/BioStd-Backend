@@ -1,26 +1,9 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.config;
 
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -35,29 +18,22 @@ import uk.ac.ebi.biostd.webapp.server.mng.ServiceManager;
 import uk.ac.ebi.biostd.webapp.server.util.AccNoUtil;
 import uk.ac.ebi.biostd.webapp.server.util.Resource;
 
-
 public class BackendConfig {
 
-    public static final String SessionDir = "sessions";
-
-    public static Set<PosixFilePermission> rwxrwx___ = PosixFilePermissions.fromString("rwxrwx---");
-    public static Set<PosixFilePermission> rwxrwxr_x = PosixFilePermissions.fromString("rwxrwxr-x");
-    public static Set<PosixFilePermission> rwxrwxrwx = PosixFilePermissions.fromString("rwxrwxrwx");
-    public static Set<PosixFilePermission> rwx__x__x = PosixFilePermissions.fromString("rwx--x--x");
+    public static final Set<PosixFilePermission> rwxrwx___ = PosixFilePermissions.fromString("rwxrwx---");
+    public static final Set<PosixFilePermission> rwxrwxr_x = PosixFilePermissions.fromString("rwxrwxr-x");
+    public static final Set<PosixFilePermission> rwxrwxrwx = PosixFilePermissions.fromString("rwxrwxrwx");
+    public static final Set<PosixFilePermission> rwx__x__x = PosixFilePermissions.fromString("rwx--x--x");
 
     public static final String ConvertSpell = "*MYTA6OP!*";
 
     public static final String UserNamePlaceHolderRx = "\\{USERNAME\\}";
     public static final String ActivateKeyPlaceHolderRx = "\\{KEY\\}";
     public static final String ActivateURLPlaceHolderRx = "\\{URL\\}";
-    public static final String TextPlaceHolderRx = "\\{TEXT\\}";
     public static final String AccNoPlaceHolderRx = "\\{ACCNO\\}";
     public static final String TitlePlaceHolderRx = "\\{TITLE\\}";
-    public static final String SbmTitlePlaceHolderRx = "\\{SBTITLE\\}";
     public static final String MailToPlaceHolderRx = "\\{MAILTO\\}";
     public static final String UIURLPlaceHolderRx = "\\{UIURL\\}";
-    public static final String TypePlaceHolderRx = "\\{TYPE\\}";
-    public static final String TagsPlaceHolderRx = "\\{TAGS(:[^}]*)?\\}";
 
     public static final String googleVerifyURL = "https://www.google.com/recaptcha/api/siteverify";
     public static final String googleSecretParam = "secret";
@@ -69,29 +45,22 @@ public class BackendConfig {
     public static final long defaultActivationTimeout = 2 * 24 * 60 * 60 * 1000L;
     public static final long defaultPassResetTimeout = 1 * 24 * 60 * 60 * 1000L;
 
-    public static final long exportLockTimeout = 1 * 60 * 60 * 1000L;
-    public static final long exportLockDelay = 10 * 60 * 1000L;
+    private static final long exportLockTimeout = 1 * 60 * 60 * 1000L;
+    private static final long exportLockDelay = 10 * 60 * 1000L;
 
     public static final String DefaultSubmissionPrefix = "S-";
-
-
     public static final String PublicTag = "Public";
 
-    public static final String SubmissionHistoryPostfix = "#ver";
+    private static final String SubmissionHistoryPostfix = "#vzr";
     public static final String SubmissionFilesDir = "Files";
     public static final String UsersDir = "Users";
     public static final String GroupsDir = "Groups";
 
-
-    public static boolean EncodeFileNames = false;
-
-
+    private static final boolean EncodeFileNames = false;
     public static final int maxPageTabSize = 5000000;
 
-    private static final String sessionCookieName = "BIOSTDSESS";   //think about security issues on system that
-    // ignore file name cases
-    private static final String sessionTokenHeader = "X-Session-Token";   //think about security issues on system
-    // that ignore file name cases
+    private static final String sessionCookieName = "BIOSTDSESS";
+    private static final String sessionTokenHeader = "X-Session-Token";
 
     private static long instanceId;
     private static final AtomicInteger sequence = new AtomicInteger(1);
@@ -101,7 +70,6 @@ public class BackendConfig {
     private static ConfigBean conf = new ConfigBean();
 
     private static boolean configValid = false;
-
 
     public static boolean isConfigValid() {
         return configValid;
@@ -123,7 +91,6 @@ public class BackendConfig {
         instanceId = System.currentTimeMillis() ^ iid;
     }
 
-
     public static int getSeqNumber() {
         return sequence.getAndIncrement();
     }
@@ -140,13 +107,8 @@ public class BackendConfig {
         conf = cfg;
     }
 
-
     public static Path getWorkDirectory() {
         return conf.getWorkDirectory();
-    }
-
-    public static void setWorkDirectory(String dir) {
-        conf.setWorkDirectory(FileSystems.getDefault().getPath(dir));
     }
 
     public static ServiceManager getServiceManager() {
@@ -157,26 +119,12 @@ public class BackendConfig {
         conf.setDefaultServiceManager(serviceManager);
     }
 
-
     public static void setEntityManagerFactory(EntityManagerFactory e) {
         conf.setEmf(e);
     }
 
     public static EntityManagerFactory getEntityManagerFactory() {
         return conf.getEmf();
-    }
-
-
-    public static String getDataMountPath() {
-        return conf.getDataMountPath();
-    }
-
-    public static Path getUserGroupIndexPath() {
-        return conf.getUserGroupIndexPath();
-    }
-
-    public static Path getUserGroupDropboxPath() {
-        return conf.getUserGroupDropboxPath();
     }
 
     public static Path getUsersIndexPath() {
@@ -198,7 +146,6 @@ public class BackendConfig {
 
         return udir.substring(0, 2) + "/" + udir.substring(2);
     }
-
 
     public static Path getUserDirPath(User user) {
         return conf.getUserGroupDropboxPath().resolve(getUserDropboxRelPath(user));
@@ -244,10 +191,6 @@ public class BackendConfig {
         return getGroupIndexPath().resolve(AccNoUtil.encode(firstCh)).resolve(AccNoUtil.encode(name));
     }
 
-    public static Path getSubmissionsPath() {
-        return conf.getSubmissionsPath();
-    }
-
     public static String getSubmissionRelativePath(Submission sbm) {
         return AccNoUtil.getPartitionedPath(sbm.getAccNo());
     }
@@ -268,10 +211,6 @@ public class BackendConfig {
         return getPublicFTPPath().resolve(getSubmissionRelativePath(sbm));
     }
 
-    public static Path getSubmissionsHistoryPath() {
-        return conf.getSubmissionsHistoryPath();
-    }
-
     public static Path getSubmissionHistoryPath(Submission sbm) {
         return conf.getSubmissionsHistoryPath()
                 .resolve(getSubmissionRelativePath(sbm) + SubmissionHistoryPostfix + Math.abs(sbm.getVersion()));
@@ -284,7 +223,6 @@ public class BackendConfig {
     public static String getRecaptchaPrivateKey() {
         return conf.getRecaptchaPrivateKey();
     }
-
 
     public static boolean isLinkingAllowed() {
         return conf.isFileLinkAllowed();
@@ -302,16 +240,12 @@ public class BackendConfig {
         return conf.getUpdateListenerURLPfx();
     }
 
-    public static String getUIURL() {
-        return conf.getUIURL();
+    public static String getUiUrl() {
+        return conf.getUiURL();
     }
 
     public static String getUpdateListenerURLPostfix() {
         return conf.getUpdateListenerURLSfx();
-    }
-
-    public static void setPublicFTPPath(Path publicFTPPath) {
-        conf.setPublicFTPPath(publicFTPPath);
     }
 
     public static String getDefaultSubmissionAccPrefix() {
@@ -350,10 +284,6 @@ public class BackendConfig {
         conf.setExpTaskInfo(ti);
     }
 
-    public static void setDatabaseConfig(Map<String, Object> dbConfig) {
-        conf.setDatabaseConfig(new HashMap<>(dbConfig));
-    }
-
     public static Map<String, Object> getDatabaseConfig() {
         return conf.getDatabaseConfig();
     }
@@ -382,20 +312,12 @@ public class BackendConfig {
         return conf.isPublicDropboxes();
     }
 
-    public static boolean isSearchEnabled() {
-        return conf.isSearchEnabled();
-    }
-
     public static void setSearchEnabled(boolean searchEnabled) {
         conf.setSearchEnabled(searchEnabled);
     }
 
     public static long getActivationTimeout() {
         return conf.getActivationTimeout();
-    }
-
-    public static long getPasswordResetTimeout() {
-        return conf.getPassResetTimeout();
     }
 
     public static Resource getPassResetEmailHtmlFile() {
@@ -409,7 +331,6 @@ public class BackendConfig {
     public static String getPassResetEmailSubject() {
         return conf.getPassResetEmailSubject();
     }
-
 
     public static String getSessionCookieName() {
         return sessionCookieName;
@@ -463,14 +384,6 @@ public class BackendConfig {
         return conf.getTaskConfig();
     }
 
-    public static void setEmailConfig(Map<String, Object> emailConfig) {
-        conf.setEmailConfig(emailConfig);
-    }
-
-    public static void setTaskConfig(TaskConfig taskConfig) {
-        conf.setTaskConfig(taskConfig);
-    }
-
     public static ConfigurationManager getConfigurationManager() {
         return configurationManager;
     }
@@ -489,15 +402,15 @@ public class BackendConfig {
 
     // SSO support
     public static String getSSOPublicCertificatePemURL() {
-        return conf.getSSOPublicCertificatePemURL();
+        return conf.getSsoPemURL();
     }
 
     public static String getSSOPublicCertificateDerURL() {
-        return conf.getSSOPublicCertificateDerURL();
+        return conf.getSsoDerURL();
     }
 
     public static String getSSOAuthURL() {
-        return conf.getSSOAuthURL();
+        return conf.getSsoAuthURL();
     }
 
 }

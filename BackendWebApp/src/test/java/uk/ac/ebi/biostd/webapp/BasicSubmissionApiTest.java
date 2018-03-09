@@ -3,9 +3,11 @@ package uk.ac.ebi.biostd.webapp;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -71,6 +73,22 @@ public class BasicSubmissionApiTest {
         String jsonPayload = ResourceHandler.getResourceFileAsString(SUBMISSION_JSON_FILE);
 
         SubmissionResult submissionResult = operationsService.createJsonSubmission(sessionId, jsonPayload);
+        assertThat(submissionResult.getStatus()).isEqualTo("OK");
+        assertSubmissionsOutput("JSON");
+    }
+
+    @Test
+    public void testCreateBasicJsonSubmissionFromUnifiedSubmission() {
+        String securityToken = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+        String jsonPayload = ResourceHandler.getResourceFileAsString(SUBMISSION_JSON_FILE);
+
+        Map<String, String> params = ImmutableMap.of(
+                "BIOSTDSESS", securityToken,
+                "sse", "true",
+                "onBehalf", "new_user@ebi.ac.uk",
+                "name", "Jhon Doe");
+
+        SubmissionResult submissionResult = operationsService.createJsonSubmission(jsonPayload, params);
         assertThat(submissionResult.getStatus()).isEqualTo("OK");
         assertSubmissionsOutput("JSON");
     }

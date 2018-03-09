@@ -145,7 +145,7 @@ public class AccountActivation {
 
         textBody = textBody.replaceAll(BackendConfig.MailToPlaceHolderRx, from);
 
-        String uiURL = BackendConfig.getUIURL();
+        String uiURL = BackendConfig.getUiUrl();
 
         if (uiURL == null) {
             uiURL = "";

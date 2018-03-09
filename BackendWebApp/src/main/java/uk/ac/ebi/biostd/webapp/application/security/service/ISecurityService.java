@@ -30,4 +30,6 @@ public interface ISecurityService {
     boolean hasPermission(long submissionId, long userId, AccessType accessType);
 
     int getUsersCount();
+
+    User addInactiveUser(String email, String name);
 }
