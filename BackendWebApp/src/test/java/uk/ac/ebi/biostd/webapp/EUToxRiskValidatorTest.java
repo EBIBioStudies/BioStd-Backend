@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
+package uk.ac.ebi.biostd.webapp;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorConfig;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidator;
 
 import java.util.Collection;
 
