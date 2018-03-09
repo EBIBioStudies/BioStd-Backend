@@ -1,11 +1,11 @@
 /**
  * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
@@ -400,7 +400,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
     @Override
     public SubmissionReport createSubmission(byte[] data, DataFormat type, String charset, Operation op, User usr,
-            boolean validateOnly, boolean ignoreAbsntFiles) {
+                                             boolean validateOnly, boolean ignoreAbsntFiles) {
         try {
             return createSubmissionUnsafe(data, type, charset, op, usr, validateOnly, ignoreAbsntFiles);
         } catch (Throwable e) {
@@ -455,7 +455,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private SubmissionReport createSubmissionUnsafe(byte[] data, DataFormat type, String charset, Operation op,
-            User usr, boolean validateOnly, boolean ignoreFileAbs) {
+                                                    User usr, boolean validateOnly, boolean ignoreFileAbs) {
 
         final EntityManager em = BackendConfig.getServiceManager().getEntityManager();
         final FileManager fileManager = BackendConfig.getServiceManager().getFileManager();
@@ -647,15 +647,25 @@ public class JPASubmissionManager implements SubmissionManager {
                 if (si.getFileOccurrences() != null) {
                     for (FileOccurrence foc : si.getFileOccurrences()) {
                         FilePointer fp = fileManager.checkFileExist(foc.getFileRef().getName(), rootPI, usr);
+                        FilePointer oldFp = (fp == null && oldSbm != null) ?
+                                fileManager.checkFileExist(foc.getFileRef().getName(), rootPI, usr, oldSbm) : null;
+
+                        if (oldFp != null) {
+                            foc.getLogNode().log(Level.WARN, "File reference '" + foc.getFileRef().getName()
+                                    + "' can't be resolved in user directory. Using file from previous submission");
+                            fp = oldFp;
+                        }
 
                         if (fp != null) {
                             foc.setFilePointer(fp);
-                        } else if (oldSbm != null
-                                && (fp = fileManager.checkFileExist(foc.getFileRef().getName(), rootPI, usr, oldSbm))
-                                != null) {
-                            foc.setFilePointer(fp);
-                            foc.getLogNode().log(Level.WARN, "File reference '" + foc.getFileRef().getName()
-                                    + "' can't be resolved in user directory. Using file from previous submission");
+
+                            if (fp.getSize() == 0 && !fp.isDirectory()) {
+                                foc.getLogNode().log(Level.WARN,
+                                        "File reference: '" + foc.getFileRef().getName() + "' File size is zero");
+                            } else {
+                                // todo: file validation should be here
+                            }
+
                         } else if (ignoreFileAbs) {
                             foc.getLogNode().log(Level.WARN, "File reference '" + foc.getFileRef().getName()
                                     + "' can't be resolved. Ignoring in test mode");
@@ -664,12 +674,6 @@ public class JPASubmissionManager implements SubmissionManager {
                                     + "' can't be resolved. Check files in the user directory");
                             submOk = false;
                         }
-
-                        if (fp != null && fp.getSize() == 0 && !fp.isDirectory()) {
-                            foc.getLogNode().log(Level.WARN,
-                                    "File reference: '" + foc.getFileRef().getName() + "' File size is zero");
-                        }
-
                     }
                 }
 
@@ -1255,7 +1259,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private void commitFileTransaction(FileManager fileMngr, List<FileTransactionUnit> trans, Path trnPath,
-            Operation op) throws IOException {
+                                       Operation op) throws IOException {
         for (FileTransactionUnit ftu : trans) {
 
             Path dirToDel = null;
@@ -1303,7 +1307,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private boolean prepareFileTransaction(FileManager fileMngr, List<FileTransactionUnit> trans,
-            Collection<SubmissionInfo> subs, Path trnPath, Operation op) {
+                                           Collection<SubmissionInfo> subs, Path trnPath, Operation op) {
 
         for (SubmissionInfo si : subs) {
 
@@ -1874,7 +1878,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
     @Override
     public LogNode updateSubmissionMeta(String acc, Collection<TagRef> tgRefs, Set<String> access, long rTime,
-            User usr) {
+                                        User usr) {
         ErrorCounter ec = new ErrorCounterImpl();
         SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS, "Amending submission '" + acc + "' meta information", ec);
 
