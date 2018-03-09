@@ -42,6 +42,7 @@ public class SubmitServlet extends ServiceServlet {
     private static final String ID_PARAMETER = "id";
     private static final String ACC_NO_PARAMETER = "accno";
     private static final String ACC_NO_PATTERN_PARAMETER = "accnoPattern";
+    private static final String SS_ENABLED_PARAMETER = "sse";
     private static final String TAGS_PARAMETER = "tags";
     private static final String ACCESS_PARAMETER = "access";
     private static final String RELEASE_DATE_PARAMETER = "releaseDate";
@@ -77,6 +78,11 @@ public class SubmitServlet extends ServiceServlet {
             }
 
             user = userManager.getUserByLoginOrEmail(obUser);
+
+            if (user == null && getParameterAsBoolean(request.getParameter(SS_ENABLED_PARAMETER))) {
+                user = userManager.addInactiveUser(obUser, request.getParameter("name"));
+            }
+
             if (user == null) {
                 response.setStatus(SC_BAD_REQUEST);
                 response.setContentType("text/plain");
@@ -146,8 +152,8 @@ public class SubmitServlet extends ServiceServlet {
             return;
         }
 
-        boolean validateOnly = getParameterAsBolean(request.getParameter(VALIDATE_ONLY_PARAMETER));
-        boolean ignAbsFiles = getParameterAsBolean(request.getParameter(IGNORE_ABSENT_FILES_PARAMETER));
+        boolean validateOnly = getParameterAsBoolean(request.getParameter(VALIDATE_ONLY_PARAMETER));
+        boolean ignAbsFiles = getParameterAsBoolean(request.getParameter(IGNORE_ABSENT_FILES_PARAMETER));
 
         SubmissionReport submissionReport = submissionManager.createSubmission(
                 data, fmt, request.getCharacterEncoding(), operation, user, validateOnly, ignAbsFiles);
@@ -158,7 +164,7 @@ public class SubmitServlet extends ServiceServlet {
         JSON4Report.convert(submissionReport, response.getWriter());
     }
 
-    private boolean getParameterAsBolean(String parameter) {
+    private boolean getParameterAsBoolean(String parameter) {
         return parameter != null &&
                 ("true".equalsIgnoreCase(parameter) || "yes".equalsIgnoreCase(parameter) || "1".equals(parameter));
     }
@@ -250,7 +256,7 @@ public class SubmitServlet extends ServiceServlet {
 
     private void processDelete(HttpServletRequest request, HttpServletResponse response, boolean toHistory, User usr)
             throws IOException {
-        String sbmAcc = request.getParameter("accno");
+        String sbmAcc = request.getParameter(ACC_NO_PARAMETER);
 
         if (sbmAcc == null) {
             sbmAcc = request.getParameter("id");

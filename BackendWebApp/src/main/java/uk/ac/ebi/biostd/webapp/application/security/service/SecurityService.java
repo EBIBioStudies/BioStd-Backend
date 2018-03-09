@@ -101,6 +101,15 @@ public class SecurityService implements ISecurityService {
         userRepository.save(user.withPendingActivation(signUpRequest.getActivationURL()));
     }
 
+    @Override
+    public User addInactiveUser(String email, String name) {
+        User user = new User();
+        user.setEmail(email);
+        user.setFullName(name);
+        user.setAuxProfileInfo(new AuxInfo());
+        return userRepository.save(user);
+    }
+
     private AuxInfo createAuxInfo(List<String> dataList) {
         AuxInfo auxInfo = new AuxInfo();
         auxInfo.setParameters(dataList.stream()

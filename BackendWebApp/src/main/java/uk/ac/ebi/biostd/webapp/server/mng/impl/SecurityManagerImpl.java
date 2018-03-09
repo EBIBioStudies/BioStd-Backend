@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
+import static uk.ac.ebi.biostd.webapp.application.legacy.common.JpaResultHelper.getSingleResult;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -15,7 +17,7 @@ import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
-import uk.ac.ebi.biostd.webapp.application.security.service.SecurityService;
+import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
@@ -32,11 +34,16 @@ public class SecurityManagerImpl implements SecurityManager {
                 }
             });
 
-    private final SecurityService securityService;
+    private final ISecurityService securityService;
 
     @Override
     public int getUsersNumber() {
         return securityService.getUsersCount();
+    }
+
+    @Override
+    public User addInactiveUser(String email, String name) {
+        return getUserById(securityService.addInactiveUser(email, name).getId());
     }
 
     @Override
@@ -90,26 +97,28 @@ public class SecurityManagerImpl implements SecurityManager {
     }
 
     private User getUserByIdForCache(long id) {
-        EntityManager em = BackendConfig.getServiceManager().getEntityManager();
-        TypedQuery<User> uq = em.createNamedQuery(User.GetByIdQuery, User.class);
-        uq.setParameter("id", id);
-        return uq.getSingleResult();
+        EntityManager entityManager = BackendConfig.getServiceManager().getEntityManager();
+        TypedQuery<User> typedQuery = entityManager
+                .createNamedQuery(User.GetByIdQuery, User.class)
+                .setParameter("id", id);
+        return getSingleResult(typedQuery);
     }
 
     @Override
     public User getUserByLogin(String login) {
-        EntityManager em = BackendConfig.getServiceManager().getEntityManager();
-        TypedQuery<User> uq = em.createNamedQuery(User.GetByLoginQuery, User.class);
-        uq.setParameter("login", login);
-        return uq.getSingleResult();
+        EntityManager entityManager = BackendConfig.getServiceManager().getEntityManager();
+        TypedQuery<User> typedQuery = entityManager
+                .createNamedQuery(User.GetByLoginQuery, User.class)
+                .setParameter("login", login);
+        return getSingleResult(typedQuery);
     }
 
     @Override
     public User getUserByEmail(String email) {
         EntityManager em = BackendConfig.getServiceManager().getEntityManager();
-        TypedQuery<User> uq = em.createNamedQuery(User.GetByEMailQuery, User.class);
-        uq.setParameter("email", email);
-        return uq.getSingleResult();
+        TypedQuery<User> typedQuery = em.createNamedQuery(User.GetByEMailQuery, User.class);
+        typedQuery.setParameter("email", email);
+        return getSingleResult(typedQuery);
     }
 
 

@@ -21,4 +21,6 @@ public interface UserManager {
     List<UserData> getAllUserData(User user);
 
     List<UserData> getUserDataByTopic(User user, String topic);
+
+    User addInactiveUser(String email, String name);
 }

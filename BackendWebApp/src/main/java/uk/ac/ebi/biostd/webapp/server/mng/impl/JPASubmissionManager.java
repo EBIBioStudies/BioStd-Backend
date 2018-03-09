@@ -141,7 +141,6 @@ public class JPASubmissionManager implements SubmissionManager {
     private final EntityManagerFactory emf;
     private final PTDocumentParser parser;
 
-
     public JPASubmissionManager(EntityManagerFactory emf) {
         shutdown = false;
 

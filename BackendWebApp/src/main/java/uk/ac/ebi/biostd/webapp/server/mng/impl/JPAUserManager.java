@@ -8,12 +8,11 @@ import lombok.AllArgsConstructor;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserData;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
-import uk.ac.ebi.biostd.webapp.server.mng.SessionListener;
 import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 
 @AllArgsConstructor
-public class JPAUserManager implements UserManager, SessionListener {
+public class JPAUserManager implements UserManager {
 
     private final SecurityManager securityManager;
 
@@ -29,6 +28,11 @@ public class JPAUserManager implements UserManager, SessionListener {
     }
 
     @Override
+    public User addInactiveUser(String email, String name) {
+        return securityManager.addInactiveUser(email, name);
+    }
+
+    @Override
     public User getUserByLogin(String login) {
         return securityManager.getUserByLogin(login);
     }
@@ -36,14 +40,6 @@ public class JPAUserManager implements UserManager, SessionListener {
     @Override
     public int getUsersNumber() {
         return securityManager.getUsersNumber();
-    }
-
-    @Override
-    public void sessionOpened(User u) {
-    }
-
-    @Override
-    public void sessionClosed(User u) {
     }
 
     @Override
