@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorConfig;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
-import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFaileValidatorService;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidatorService;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidator;
 
 import java.util.Collection;
@@ -61,7 +61,7 @@ public class EUToxRiskValidatorTest {
 
     @Test
     public void testWithThreadPool() {
-        EUToxRiskFaileValidatorService service = new EUToxRiskFaileValidatorService(validator, taskExecutor);
+        EUToxRiskFileValidatorService service = new EUToxRiskFileValidatorService(validator, taskExecutor);
         Collection<EUToxRiskFileValidationError> errors = service.validate(
                 ResourceHandler.getResourceFile("/input/toxrisk_datafile_valid.xlsx"));
 

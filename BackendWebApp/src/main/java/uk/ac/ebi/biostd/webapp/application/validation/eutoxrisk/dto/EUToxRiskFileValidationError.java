@@ -30,4 +30,14 @@ public class EUToxRiskFileValidationError {
     public static EUToxRiskFileValidationError serverError(String msg) {
         return new EUToxRiskFileValidationError("unknown", 0, 0, msg);
     }
+
+    @Override
+    public String toString() {
+        return "EUToxRiskFileValidationError{" +
+                "sheet='" + sheet + '\'' +
+                ", line=" + line +
+                ", column=" + column +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }

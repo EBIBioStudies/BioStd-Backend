@@ -16,13 +16,13 @@ import java.util.concurrent.TimeoutException;
 import static java.util.Collections.singletonList;
 
 @Service
-public class EUToxRiskFaileValidatorService {
+public class EUToxRiskFileValidatorService {
 
     private EUToxRiskFileValidator validator;
     private ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
-    public EUToxRiskFaileValidatorService(
+    public EUToxRiskFileValidatorService(
             EUToxRiskFileValidator validator,
             @Qualifier("eutoxrisk-file-validator.TaskExecutor") ThreadPoolTaskExecutor taskExecutor) {
         this.validator = validator;

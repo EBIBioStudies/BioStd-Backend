@@ -25,6 +25,7 @@ import org.apache.lucene.search.*;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.User;
@@ -43,6 +44,7 @@ import uk.ac.ebi.biostd.treelog.*;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 import uk.ac.ebi.biostd.util.DataFormat;
 import uk.ac.ebi.biostd.util.FilePointer;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidatorService;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.AccessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.FileManager;
@@ -74,10 +76,6 @@ import java.util.stream.Collectors;
 
 import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
 import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
-import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCNO;
-import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ID;
-import static uk.ac.ebi.biostd.in.pageml.PageMLElements.SUBMISSION;
-import static uk.ac.ebi.biostd.util.StringUtils.xmlEscaped;
 
 @Slf4j
 public class JPASubmissionManager implements SubmissionManager {
@@ -117,11 +115,13 @@ public class JPASubmissionManager implements SubmissionManager {
 
     private final boolean shutDownManager = false;
     private boolean shutdown;
-    private final EntityManagerFactory emf;
     private final PTDocumentParser parser;
 
+    private final EntityManagerFactory emf;
+    private final EUToxRiskFileValidatorService eutoxriskFileValidator;
 
-    public JPASubmissionManager(EntityManagerFactory emf) {
+    @Autowired
+    public JPASubmissionManager(EntityManagerFactory emf, EUToxRiskFileValidatorService eutoxriskFileValidator) {
         shutdown = false;
 
         ParserConfig parserCfg = new ParserConfig();
@@ -129,6 +129,7 @@ public class JPASubmissionManager implements SubmissionManager {
         parserCfg.setPreserveId(false);
         parser = new PTDocumentParser(parserCfg);
         this.emf = emf;
+        this.eutoxriskFileValidator = eutoxriskFileValidator;
     }
 
     @Override
@@ -526,6 +527,7 @@ public class JPASubmissionManager implements SubmissionManager {
             for (SubmissionInfo si : doc.getSubmissions()) {
                 Submission submission = si.getSubmission();
 
+
                 submission.setOwner(usr);
 
                 submOk = submOk && checkAccNoPfxSfx(si);
@@ -662,8 +664,6 @@ public class JPASubmissionManager implements SubmissionManager {
                             if (fp.getSize() == 0 && !fp.isDirectory()) {
                                 foc.getLogNode().log(Level.WARN,
                                         "File reference: '" + foc.getFileRef().getName() + "' File size is zero");
-                            } else {
-                                // todo: file validation should be here
                             }
 
                         } else if (ignoreFileAbs) {
@@ -714,9 +714,9 @@ public class JPASubmissionManager implements SubmissionManager {
                     boolean matched = false;
 
                     for (String pAcc : pAccL) {
-                        Submission s = getSubmissionByAcc(pAcc, em);
+                        Submission parent = getSubmissionByAcc(pAcc, em);
 
-                        if (s == null) {
+                        if (parent == null) {
                             si.getLogNode().log(Level.ERROR,
                                     "Submission attribute 'AttachTo' points to non existing submission '" + pAcc + "'");
                             submOk = false;
@@ -724,22 +724,24 @@ public class JPASubmissionManager implements SubmissionManager {
                             continue;
                         }
 
-                        if (!securityManager.mayUserAttachToSubmission(s, usr)) {
+                        if (!securityManager.mayUserAttachToSubmission(parent, usr)) {
                             si.getLogNode().log(Level.ERROR, "User has no permission to attach to submission: " + pAcc);
                             submOk = false;
                             continue;
                         }
 
-                        AccNoMatcher.Match mtch = AccNoMatcher.match(si, s);
+                        validateEUToxRiskFiles(si, parent);
+
+                        AccNoMatcher.Match mtch = AccNoMatcher.match(si, parent);
 
                         if (mtch == Match.NO) {
-                            notMatched.add(s);
+                            notMatched.add(parent);
                         } else if (mtch == Match.YES) {
                             matched = true;
                         }
 
                         Collection<AccessTag> newSet = si.getSubmission().getAccessTags();
-                        Collection<AccessTag> parentTags = s.getAccessTags();
+                        Collection<AccessTag> parentTags = parent.getAccessTags();
 
                         if (parentTags != null) {
                             if (newSet == null) {
@@ -1016,6 +1018,23 @@ public class JPASubmissionManager implements SubmissionManager {
         }
 
         return res;
+    }
+
+    private void validateEUToxRiskFiles(SubmissionInfo si, Submission parent) {
+        boolean hasEUToxRiskTag = parent.getAccessTags().stream().anyMatch(at -> at.getName().equals("EUToxRisk"));
+
+        if (!hasEUToxRiskTag) {
+            return;
+        }
+        si.getFileOccurrences().stream()
+                .map(FileOccurrence::getFilePointer)
+                .filter(Objects::nonNull)
+                .map(FilePointer::getFullPath)
+                .forEach(path -> {
+                    eutoxriskValidator.validate(path.toFile()).stream().forEach(error -> {
+                        si.getLogNode().log(Level.ERROR, error.toString());
+                    });
+                });
     }
 
 
