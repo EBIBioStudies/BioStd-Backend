@@ -18,5 +18,9 @@ server:
 biostudy:
   tokenHash: biostd
 
-external-api:
-  eutoxrisk-file-validator: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
+
+eutoxrisk-file-validator:
+  endpoint: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
+  threadpool:
+    corepoolsize: 1
+    maxpoolsize: 2

@@ -7,7 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationResponse;
@@ -18,14 +18,14 @@ import java.util.Collection;
 /**
  * @author Olga Melnichuk
  */
-@Component
+@Service
 public class EUToxRiskFileValidator {
 
     private final RestTemplate restTemplate;
     private final String url;
 
-    public EUToxRiskFileValidator(@Qualifier("eutoxrisk") RestTemplate restTemplate,
-                                  @Value("${external-api.eutoxrisk-file-validator}") String url) {
+    public EUToxRiskFileValidator(@Qualifier("eutoxrisk-file-validator.RestTemplate") RestTemplate restTemplate,
+                                  @Value("${eutoxrisk-file-validator.endpoint}") String url) {
         this.restTemplate = restTemplate;
         this.url = url;
     }
