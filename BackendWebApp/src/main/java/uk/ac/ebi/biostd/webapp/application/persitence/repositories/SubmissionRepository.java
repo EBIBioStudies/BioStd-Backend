@@ -15,18 +15,11 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long>, J
     Optional<Submission> findByRootSectionTypeAndAccessTagAndVersionGreaterThan(
             String type, AccessTag accessTag, int version);
 
-    Optional<Submission> findByRootSectionTypeAndAccNoAndVersionGreaterThan(
-            String type, String accno, int version);
-
     default List<Submission> findProjectsByAccessTags(List<AccessTag> accessTags) {
         return findByRootSectionTypeAndAccessTagInAndVersionGreaterThan("Project", accessTags, 0);
     }
 
     default Optional<Submission> findProjectByAccessTag(AccessTag accessTag) {
         return findByRootSectionTypeAndAccessTagAndVersionGreaterThan("Project", accessTag, 0);
-    }
-
-    default Optional<Submission> findProjectByAccession(String accno) {
-        return findByRootSectionTypeAndAccNoAndVersionGreaterThan("Project", accno, 0);
     }
 }
