@@ -38,7 +38,6 @@ public class ServiceManagerImpl implements ServiceManager {
     private ServiceConfig config;
 
     private UserManager userManager;
-    private SubmissionManager submissionManager;
     private FileManager fileManager;
     private SecurityManager authzManager;
     private ReleaseManager releaser;
@@ -113,15 +112,6 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public SubmissionManager getSubmissionManager() {
-        return submissionManager;
-    }
-
-    public void setSubmissionManager(SubmissionManager submissionManager) {
-        this.submissionManager = submissionManager;
-    }
-
-    @Override
     public RemoteRequestManager getRemoteRequestManager() {
         // TODO Auto-generated method stub
         return null;
@@ -185,12 +175,6 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public void shutdown() {
         userManager = null;
-
-        if (submissionManager != null) {
-            submissionManager.shutdown();
-        }
-
-        submissionManager = null;
         fileManager = null;
         authzManager = null;
         releaser = null;

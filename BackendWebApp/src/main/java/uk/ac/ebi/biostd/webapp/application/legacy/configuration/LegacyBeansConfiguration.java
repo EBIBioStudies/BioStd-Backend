@@ -20,18 +20,12 @@ public class LegacyBeansConfiguration {
     }
 
     @Bean
-    public SubmissionManager submissionManager() {
-        return BackendConfig.getServiceManager().getSubmissionManager();
+    public SubmissionManager submissionManager(EUToxRiskFileValidatorService eutoxriskFileValidatorService) {
+        return new JPASubmissionManager(BackendConfig.getEntityManagerFactory(), eutoxriskFileValidatorService);
     }
 
     @Bean
     public SecurityManager securityManager() {
         return BackendConfig.getServiceManager().getSecurityManager();
     }
-
-    @Bean
-    public JPASubmissionManager submissionManager(EUToxRiskFileValidatorService eutoxriskFileValidatorService) {
-        return new JPASubmissionManager(BackendConfig.getEntityManagerFactory(), eutoxriskFileValidatorService);
-    }
-
 }

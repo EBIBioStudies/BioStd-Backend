@@ -8,6 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
 import uk.ac.ebi.biostd.model.Submission;
@@ -19,6 +21,7 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.JSONHttpResponse;
 import uk.ac.ebi.biostd.webapp.server.endpoint.Response;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.endpoint.TextHttpResponse;
+import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.security.Session;
 import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
 
@@ -30,6 +33,9 @@ public class SingleSubmissionServlet extends ServiceServlet {
     private static final String AccNoParameter = "accno";
     private static final String DefaultResponseFormat = "xml";
     private static final long serialVersionUID = 1L;
+
+    @Autowired
+    private SubmissionManager submissionManager;
 
     public SingleSubmissionServlet() {
         super();
@@ -88,7 +94,7 @@ public class SingleSubmissionServlet extends ServiceServlet {
             acc = acc.substring(1);
         }
 
-        Submission sub = BackendConfig.getServiceManager().getSubmissionManager().getSubmissionsByAccession(acc);
+        Submission sub = submissionManager.getSubmissionsByAccession(acc);
 
         if (sub == null) {
             getResponse(format, resp)
