@@ -37,33 +37,6 @@
   <Parameter name='biostd.publicFTPDir' value='/nfs/biostudies/ftp/pub/.beta'/>
   <Parameter name='biostd.defaultSubmissionAccNoPrefix' value='S-BSMS'/>
   <Parameter name='biostd.enableUnsafeRequests' value='true'/>
-  <Parameter name='export.invokeTime' value='01:00'/>
-  <Parameter name='export.threadTTL' value='1000'/>
-  <Parameter name='export.threads' value='8'/>
-  <Parameter name='export.output[ui-xml].class' value='uk.ac.ebi.biostd.webapp.server.export.formatting.FormattingOutputModule'/>
-  <Parameter name='export.output[ui-xml].outfile' value='updates/studies.xml'/>
-  <Parameter name='export.output[ui-xml].format' value='uk.ac.ebi.biostd.out.pageml.PageMLFormatter'/>
-  <Parameter name='export.output[ui-xml].tmpdir' value='tmp/xml'/>
-  <Parameter name='export.output[ui-json].class' value='uk.ac.ebi.biostd.webapp.server.export.formatting.FormattingOutputModule'/>
-  <Parameter name='export.output[ui-json].outfile' value='updates/studies.json'/>
-  <Parameter name='export.output[ui-json].format' value='uk.ac.ebi.biostd.out.json.JSONFormatter'/>
-  <Parameter name='export.output[ui-json].tmpdir' value='tmp/json'/>
-  <Parameter name='biostd.activationEmailSubject' value='Biostudy DB account activation (BETA instance)'/>
-  <Parameter name='biostd.activationEmailPlainTextFile' value='/nfs/biostudies/.adm/misc/email/activationMail-beta.txt'/>
-  <Parameter name='biostd.activationEmailHtmlFile' value='/nfs/biostudies/.adm/misc/email/activationMail-beta.html'/>
-  <Parameter name='biostd.passwordResetEmailSubject' value='Biostudy DB password reset (BETA instance)'/>
-  <Parameter name='biostd.passwordResetEmailPlainTextFile' value='/nfs/biostudies/.adm/misc/email/passResetMail.txt'/>
-  <Parameter name='biostd.passwordResetEmailHtmlFile' value='/nfs/biostudies/.adm/misc/email/passResetMail.html'/>
-  <Parameter name='biostd.subscriptionEmailSubject' value='Biostudy DB notification (BETA)'/>
-  <Parameter name='biostd.tagSubscriptionEmailPlainTextFile' value='/nfs/biostudies/.adm/misc/email/tagSubscriptionMail-beta.txt'/>
-  <Parameter name='biostd.tagSubscriptionEmailHtmlFile' value='/nfs/biostudies/.adm/misc/email/tagSubscriptionMail-beta.html'/>
-  <Parameter name='biostd.attributeSubscriptionEmailPlainTextFile' value='/nfs/biostudies/.adm/misc/email/attributeSubscriptionMail-beta.txt'/>
-  <Parameter name='biostd.attributeSubscriptionEmailHtmlFile' value='/nfs/biostudies/.adm/misc/email/attributeSubscriptionMail-beta.html'/>
-  <Parameter name='email.SMTPHost' value='localhost'/>
-  <Parameter name='email.to' value='gostev@ebi.ac.uk'/>
-  <Parameter name='email.errorsTo' value='gostev@ebi.ac.uk'/>
-  <Parameter name='email.from' value='BioStudy beta &lt;biostudies-dev@ebi.ac.uk&gt;'/>
-  <Parameter name='email.inquiries' value='biostudies@ebi.ac.uk'/>
   <Parameter name='biostd.dataMountPath' value='/data'/>
   <Parameter name='biostd.recaptcha_private_key' value='6Lcmlv0SAAAAANysy6M8YdozfJnOQxc2JB9WaOS1'/>
   <Parameter name='biostd.recaptcha_public_key' value='6Lcmlv0SAAAAAHofnIcb29l1LMZsnGFcSlH8Reve'/>

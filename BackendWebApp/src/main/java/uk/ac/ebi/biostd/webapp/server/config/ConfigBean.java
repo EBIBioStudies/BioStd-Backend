@@ -12,7 +12,6 @@ import lombok.Setter;
 import uk.ac.ebi.biostd.webapp.server.export.TaskConfig;
 import uk.ac.ebi.biostd.webapp.server.export.TaskInfo;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceManager;
-import uk.ac.ebi.biostd.webapp.server.util.Resource;
 
 @Getter
 @Setter
@@ -46,22 +45,6 @@ public class ConfigBean {
 
     private String updateListenerURLPfx;
     private String updateListenerURLSfx;
-
-    private String activationEmailSubject;
-    private String passResetEmailSubject;
-    private String subscriptionEmailSubject;
-
-    private Resource activationEmailPlainTextFile;
-    private Resource activationEmailHtmlFile;
-
-    private Resource passResetEmailPlainTextFile;
-    private Resource passResetEmailHtmlFile;
-
-    private Resource tagSubscriptionEmailHtmlFile;
-    private Resource tagSubscriptionEmailPlainTextFile;
-
-    private Resource attributeSubscriptionEmailHtmlFile;
-    private Resource attributeSubscriptionEmailPlainTextFile;
 
     private String defaultSubmissionAccPrefix = null;
     private String defaultSubmissionAccSuffix = null;

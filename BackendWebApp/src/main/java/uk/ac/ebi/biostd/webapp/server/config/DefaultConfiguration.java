@@ -6,7 +6,6 @@ import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.Hiberna
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import uk.ac.ebi.biostd.webapp.server.util.JavaResource;
 
 public class DefaultConfiguration {
 
@@ -32,23 +31,6 @@ public class DefaultConfiguration {
         cfgBean.setMaxUpdatesPerFile(50);
         cfgBean.setMandatoryAccountActivation(false);
         cfgBean.setDefaultSubmissionAccPrefix("S-");
-
-        // Email Settings
-        String basePath = "/resources/email/";
-        cfgBean.setActivationEmailSubject("Account activation request");
-        cfgBean.setActivationEmailPlainTextFile(new JavaResource(basePath + "activationMail.txt"));
-        cfgBean.setActivationEmailHtmlFile(new JavaResource(basePath + "activationMail.html"));
-
-        cfgBean.setPassResetEmailSubject("Password reset request");
-        cfgBean.setPassResetEmailPlainTextFile(new JavaResource(basePath + "passResetMail.txt"));
-        cfgBean.setPassResetEmailHtmlFile(new JavaResource(basePath + "passResetMail.html"));
-
-        cfgBean.setSubscriptionEmailSubject("Subscription notification");
-        cfgBean.setTagSubscriptionEmailPlainTextFile(new JavaResource(basePath + "tagSubscriptionMail.txt"));
-        cfgBean.setTagSubscriptionEmailHtmlFile(new JavaResource(basePath + "tagSubscriptionMail.html"));
-        cfgBean.setAttributeSubscriptionEmailPlainTextFile(
-                new JavaResource(basePath + "attributeSubscriptionMail.txt"));
-        cfgBean.setAttributeSubscriptionEmailHtmlFile(new JavaResource(basePath + "attributeSubscriptionMail.html"));
 
         // Sso Settings
         cfgBean.setSsoPemURL("https://explore.api.aap.tsi.ebi.ac.uk/meta/public.pem");

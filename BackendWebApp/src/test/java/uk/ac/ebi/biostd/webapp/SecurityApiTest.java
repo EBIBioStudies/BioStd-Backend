@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter.HEADER_NAME;
 
@@ -79,6 +80,13 @@ public class SecurityApiTest {
     }
 
     @Test
+    public void loginWithQueryParams() {
+        String url = format("%s?login=%s&password=%s", SIGN_URL, "admin_user@ebi.ac.uk", "123456");
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
     public void validateLoginFail() {
         ResponseEntity<ErrorMessage> login = tryLogin("admin_user@ebi.ac.uk", "a_wrong_password", ErrorMessage.class);
         assertThat(login.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
@@ -103,6 +111,21 @@ public class SecurityApiTest {
         String activationKey = requestResetPassword(user);
         changePassword(activationKey, "newPassword");
         tryLogin(user, "newPassword");
+    }
+
+    @Test
+    public void testCheckAccess() {
+        String url = format("/checkAccess?login=%s&hash=%s",
+                "admin_user@ebi.ac.uk",
+                "7C4A8D09CA3762AF61E59520943DC26494F8941B");
+        ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
+        assertThat(response.getBody()).isEqualTo("Status: OK\n"
+                + "Allow: ~admin_user@ebi.ac.uk;#3;\n"
+                + "Deny: \n"
+                + "Superuser: true\n"
+                + "Name: admin_user\n"
+                + "Login: admin_user@ebi.ac.uk\n"
+                + "EMail: admin_user@ebi.ac.uk\n");
     }
 
     private void logout(String token) {

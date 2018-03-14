@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.configuration;
 
+import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.BIOSTUDY_BASE_DIR;
+
 import com.google.common.base.Preconditions;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -12,8 +14,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigProperties {
-
-    public static final String CONFIG_FILE_LOCATION_VAR = "biostudy.configFile";
 
     private final Properties properties;
     private final Environment environment;
@@ -30,7 +30,7 @@ public class ConfigProperties {
     }
 
     private void loadProperties(ServletContext context) throws IOException {
-        String config = environment.getProperty(CONFIG_FILE_LOCATION_VAR);
+        String config = environment.getProperty(BIOSTUDY_BASE_DIR) + "/config.properties";
 
         if (StringUtils.isNotBlank(config)) {
             properties.load(new FileInputStream(config));

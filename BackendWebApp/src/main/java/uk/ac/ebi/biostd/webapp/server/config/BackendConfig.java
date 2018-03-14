@@ -16,7 +16,6 @@ import uk.ac.ebi.biostd.webapp.server.export.TaskConfig;
 import uk.ac.ebi.biostd.webapp.server.export.TaskInfo;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceManager;
 import uk.ac.ebi.biostd.webapp.server.util.AccNoUtil;
-import uk.ac.ebi.biostd.webapp.server.util.Resource;
 
 public class BackendConfig {
 
@@ -232,40 +231,12 @@ public class BackendConfig {
         return conf.getPublicFTPPath();
     }
 
-    public static Path getSubmissionUpdatePath() {
-        return conf.getSubmissionUpdatePath();
-    }
-
-    public static String getUpdateListenerURLPrefix() {
-        return conf.getUpdateListenerURLPfx();
-    }
-
-    public static String getUiUrl() {
-        return conf.getUiURL();
-    }
-
-    public static String getUpdateListenerURLPostfix() {
-        return conf.getUpdateListenerURLSfx();
-    }
-
     public static String getDefaultSubmissionAccPrefix() {
         return conf.getDefaultSubmissionAccPrefix();
     }
 
     public static String getDefaultSubmissionAccSuffix() {
         return conf.getDefaultSubmissionAccSuffix();
-    }
-
-    public static int getUpdateWaitPeriod() {
-        return conf.getUpdateWaitPeriod();
-    }
-
-    public static int getMaxUpdatesPerFile() {
-        return conf.getMaxUpdatesPerFile();
-    }
-
-    public static String getFrontendUpdateFormat() {
-        return conf.getFrontendUpdateFormat();
     }
 
     public static boolean isCreateFileStructure() {
@@ -288,22 +259,6 @@ public class BackendConfig {
         return conf.getDatabaseConfig();
     }
 
-    public static String getActivationEmailSubject() {
-        return conf.getActivationEmailSubject();
-    }
-
-    public static Resource getActivationEmailPlainTextFile() {
-        return conf.getActivationEmailPlainTextFile();
-    }
-
-    public static Resource getActivationEmailHtmlFile() {
-        return conf.getActivationEmailHtmlFile();
-    }
-
-    public static boolean isEnableUnsafeRequests() {
-        return conf.isEnableUnsafeRequests();
-    }
-
     public static boolean isMandatoryAccountActivation() {
         return conf.isMandatoryAccountActivation();
     }
@@ -314,50 +269,6 @@ public class BackendConfig {
 
     public static void setSearchEnabled(boolean searchEnabled) {
         conf.setSearchEnabled(searchEnabled);
-    }
-
-    public static long getActivationTimeout() {
-        return conf.getActivationTimeout();
-    }
-
-    public static Resource getPassResetEmailHtmlFile() {
-        return conf.getPassResetEmailHtmlFile();
-    }
-
-    public static Resource getPassResetEmailPlainTextFile() {
-        return conf.getPassResetEmailPlainTextFile();
-    }
-
-    public static String getPassResetEmailSubject() {
-        return conf.getPassResetEmailSubject();
-    }
-
-    public static String getSessionCookieName() {
-        return sessionCookieName;
-    }
-
-    public static String getSessionTokenHeader() {
-        return sessionTokenHeader;
-    }
-
-    public static Resource getTagSubscriptionEmailHtmlFile() {
-        return conf.getTagSubscriptionEmailHtmlFile();
-    }
-
-    public static Resource getTagSubscriptionEmailPlainTextFile() {
-        return conf.getTagSubscriptionEmailPlainTextFile();
-    }
-
-    public static Resource getAttributeSubscriptionEmailHtmlFile() {
-        return conf.getAttributeSubscriptionEmailHtmlFile();
-    }
-
-    public static Resource getAttributeSubscriptionEmailPlainTextFile() {
-        return conf.getAttributeSubscriptionEmailPlainTextFile();
-    }
-
-    public static String getSubscriptionEmailSubject() {
-        return conf.getSubscriptionEmailSubject();
     }
 
     public static Path getSubmissionsTransactionPath() {
@@ -398,19 +309,6 @@ public class BackendConfig {
 
     public static void setTimer(Timer timer) {
         conf.setTimer(timer);
-    }
-
-    // SSO support
-    public static String getSSOPublicCertificatePemURL() {
-        return conf.getSsoPemURL();
-    }
-
-    public static String getSSOPublicCertificateDerURL() {
-        return conf.getSsoDerURL();
-    }
-
-    public static String getSSOAuthURL() {
-        return conf.getSsoAuthURL();
     }
 
 }

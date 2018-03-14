@@ -2,7 +2,7 @@ import java.text.SimpleDateFormat
 
 buildscript {
     ext {
-        springBootVersion = '1.5.7.RELEASE'
+        springBootVersion = '1.5.9.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -87,5 +87,4 @@ dependencies {
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.9.1'
     testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.7'
     testCompile group: 'org.simplejavamail', name: 'simple-java-mail', version: '5.0.0'
-
 }
