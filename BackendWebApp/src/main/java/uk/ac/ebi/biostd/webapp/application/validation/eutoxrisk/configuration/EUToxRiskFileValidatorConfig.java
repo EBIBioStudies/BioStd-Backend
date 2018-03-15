@@ -25,7 +25,7 @@ import java.security.cert.X509Certificate;
 public class EUToxRiskFileValidatorConfig {
 
     @Bean
-    @Qualifier("eutoxrisk-file-validator.RestTemplate")
+    @Qualifier("eutoxrisk-file-validator")
     public RestTemplate restTemplate(SSLContext sslContext) throws EUToxRiskFileValidationException {
         SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
 
@@ -53,7 +53,7 @@ public class EUToxRiskFileValidatorConfig {
     }
 
     @Bean
-    @Qualifier("eutoxrisk-file-validator.TaskExecutor")
+    @Qualifier("eutoxrisk-file-validator")
     public ThreadPoolTaskExecutor taskExecutor(EUToxRiskFileValidatorProperties properties) {
         ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
         pool.setCorePoolSize(properties.getThreadPool().getCorePoolSize());

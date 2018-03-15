@@ -28,11 +28,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EUToxRiskValidatorTest {
 
     @Autowired
-    @Qualifier("eutoxrisk-file-validator.TaskExecutor")
+    @Qualifier("eutoxrisk-file-validator")
     private ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
-    @Qualifier("eutoxrisk-file-validator.RestTemplate")
+    @Qualifier("eutoxrisk-file-validator")
     private RestTemplate restTemplate;
 
     @Autowired

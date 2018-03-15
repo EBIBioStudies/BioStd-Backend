@@ -27,8 +27,8 @@ public class EUToxRiskFileValidatorService {
     @Autowired
     public EUToxRiskFileValidatorService(
             EUToxRiskFileValidatorProperties properties,
-            @Qualifier("eutoxrisk-file-validator.RestTemplate") RestTemplate restTemplate,
-            @Qualifier("eutoxrisk-file-validator.TaskExecutor") ThreadPoolTaskExecutor taskExecutor) {
+            @Qualifier("eutoxrisk-file-validator") RestTemplate restTemplate,
+            @Qualifier("eutoxrisk-file-validator") ThreadPoolTaskExecutor taskExecutor) {
         this.validator = new EUToxRiskFileValidator(restTemplate, properties.getEndpoint());
         this.taskExecutor = taskExecutor;
         this.properties = properties;
