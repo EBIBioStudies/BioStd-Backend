@@ -46,15 +46,15 @@ public class EUToxRiskValidatorTest {
     @Test
     public void testValidFile() {
         Collection<EUToxRiskFileValidationError> errors = validator.validate(
-                ResourceHandler.getResourceFile("/input/toxrisk_datafile_valid.xlsx"));
+                ResourceHandler.getResourceFile("/input/eutoxrisk_datafile_valid.xlsx"));
 
         assertThat(errors).isEmpty();
     }
 
     @Test
-    public void testInValidFile() {
+    public void testInvalidFile() {
         Collection<EUToxRiskFileValidationError> errors = validator.validate(
-                ResourceHandler.getResourceFile("/input/toxrisk_datafile_invalid.xlsx"));
+                ResourceHandler.getResourceFile("/input/eutoxrisk_datafile_invalid.xlsx"));
 
         assertThat(errors).hasSize(1);
     }
@@ -63,7 +63,7 @@ public class EUToxRiskValidatorTest {
     public void testWithThreadPool() {
         EUToxRiskFileValidatorService service = new EUToxRiskFileValidatorService(validator, taskExecutor);
         Collection<EUToxRiskFileValidationError> errors = service.validate(
-                ResourceHandler.getResourceFile("/input/toxrisk_datafile_valid.xlsx"));
+                ResourceHandler.getResourceFile("/input/eutoxrisk_datafile_valid.xlsx"));
 
         assertThat(errors).isEmpty();
     }
