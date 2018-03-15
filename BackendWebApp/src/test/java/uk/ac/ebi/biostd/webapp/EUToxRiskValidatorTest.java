@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorConfig;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorProperties;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidatorService;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidator;
@@ -34,13 +35,14 @@ public class EUToxRiskValidatorTest {
     @Qualifier("eutoxrisk-file-validator.RestTemplate")
     private RestTemplate restTemplate;
 
-    private static final String URL = "https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate";
+    @Autowired
+    private EUToxRiskFileValidatorProperties properties;
 
     private EUToxRiskFileValidator validator;
 
     @Before
     public void setup() {
-        validator = new EUToxRiskFileValidator(restTemplate, URL);
+        validator = new EUToxRiskFileValidator(restTemplate, properties.getEndpoint());
     }
 
     @Test
@@ -61,7 +63,7 @@ public class EUToxRiskValidatorTest {
 
     @Test
     public void testWithThreadPool() {
-        EUToxRiskFileValidatorService service = new EUToxRiskFileValidatorService(validator, taskExecutor);
+        EUToxRiskFileValidatorService service = new EUToxRiskFileValidatorService(properties, restTemplate, taskExecutor);
         Collection<EUToxRiskFileValidationError> errors = service.validate(
                 ResourceHandler.getResourceFile("/input/eutoxrisk_datafile_valid.xlsx"));
 

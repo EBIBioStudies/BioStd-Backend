@@ -6,6 +6,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -22,12 +23,6 @@ import java.security.cert.X509Certificate;
 
 @Configuration
 public class EUToxRiskFileValidatorConfig {
-
-    @Value("${eutoxrisk-file-validator.threadpool.corepoolsize:1}")
-    private int corePoolSize;
-
-    @Value("${eutoxrisk-file-validator.threadpool.maxpoolsize:1}")
-    private int maxPoolSize;
 
     @Bean
     @Qualifier("eutoxrisk-file-validator.RestTemplate")
@@ -59,11 +54,17 @@ public class EUToxRiskFileValidatorConfig {
 
     @Bean
     @Qualifier("eutoxrisk-file-validator.TaskExecutor")
-    public ThreadPoolTaskExecutor taskExecutor() {
+    public ThreadPoolTaskExecutor taskExecutor(EUToxRiskFileValidatorProperties properties) {
         ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-        pool.setCorePoolSize(corePoolSize);
-        pool.setMaxPoolSize(maxPoolSize);
+        pool.setCorePoolSize(properties.getThreadPool().getCorePoolSize());
+        pool.setMaxPoolSize(properties.getThreadPool().getMaxPoolSize());
         pool.setWaitForTasksToCompleteOnShutdown(false);
         return pool;
+    }
+
+    @Bean
+    @ConfigurationProperties("eutoxrisk-file-validator")
+    public EUToxRiskFileValidatorProperties properties() {
+        return new EUToxRiskFileValidatorProperties();
     }
 }

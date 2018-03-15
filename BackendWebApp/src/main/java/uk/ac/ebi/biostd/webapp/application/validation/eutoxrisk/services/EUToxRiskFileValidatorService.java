@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorProperties;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
 
 import java.io.File;
@@ -20,13 +22,16 @@ public class EUToxRiskFileValidatorService {
 
     private EUToxRiskFileValidator validator;
     private ThreadPoolTaskExecutor taskExecutor;
+    private EUToxRiskFileValidatorProperties properties;
 
     @Autowired
     public EUToxRiskFileValidatorService(
-            EUToxRiskFileValidator validator,
+            EUToxRiskFileValidatorProperties properties,
+            @Qualifier("eutoxrisk-file-validator.RestTemplate") RestTemplate restTemplate,
             @Qualifier("eutoxrisk-file-validator.TaskExecutor") ThreadPoolTaskExecutor taskExecutor) {
-        this.validator = validator;
+        this.validator = new EUToxRiskFileValidator(restTemplate, properties.getEndpoint());
         this.taskExecutor = taskExecutor;
+        this.properties = properties;
     }
 
     public Collection<EUToxRiskFileValidationError> validate(final File file) {
@@ -38,5 +43,9 @@ public class EUToxRiskFileValidatorService {
             e.printStackTrace();
             return singletonList(EUToxRiskFileValidationError.serverError("Unexpected server error"));
         }
+    }
+
+    public boolean matches(String accno) {
+        return properties.isEnabled() && properties.getProjectId().equals(accno);
     }
 }

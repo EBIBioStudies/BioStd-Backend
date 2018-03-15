@@ -1008,11 +1008,10 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private void validateEUToxRiskFiles(SubmissionInfo si, Submission parent) {
-        boolean hasEUToxRiskTag = parent.getAccessTags().stream().anyMatch(at -> at.getName().equals("EUToxRisk"));
-
-        if (!hasEUToxRiskTag) {
+        if (!eutoxriskFileValidator.matches(parent.getAccNo())) {
             return;
         }
+
         si.getFileOccurrences().stream()
                 .map(FileOccurrence::getFilePointer)
                 .filter(Objects::nonNull)

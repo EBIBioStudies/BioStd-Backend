@@ -46,6 +46,7 @@ dependencies {
     compile project(":BioStdCoreModel")
 
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile('org.springframework.boot:spring-boot-configuration-processor')
     compile group:'org.apache.tomcat', name:'tomcat-juli', version:property('tomcat.version')
 
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
