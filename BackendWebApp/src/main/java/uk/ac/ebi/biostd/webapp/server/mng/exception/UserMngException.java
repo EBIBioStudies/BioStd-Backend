@@ -15,7 +15,7 @@
 
 package uk.ac.ebi.biostd.webapp.server.mng.exception;
 
-public class UserMngException extends Exception {
+public class UserMngException extends RuntimeException {
 
     public UserMngException() {
     }

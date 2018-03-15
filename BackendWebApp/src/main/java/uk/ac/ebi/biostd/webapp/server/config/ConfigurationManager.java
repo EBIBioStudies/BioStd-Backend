@@ -61,10 +61,13 @@ import uk.ac.ebi.biostd.webapp.server.util.ServletContextParamPool;
 public class ConfigurationManager {
 
     public static final String BaseDirParameter = "baseDir";
-    public static final String HibernateDBConnectionURLParameter = "hibernate.connection.url";
-    public static final String IsEmbeddedH2Parameter = "isEmbeddedH2";
     public static final String EmailInquiresParameter = "email.inquiries";
+    public static final String BIOSTUDY_BASE_DIR = "biostudy." + BaseDirParameter;
 
+    static final String HibernateSearchIndexDirParameter = "hibernate.search.default.indexBase";
+    static final String HibernateDBConnectionURLParameter = "hibernate.connection.url";
+
+    private static final String IsEmbeddedH2Parameter = "isEmbeddedH2";
     private static final String ApplicationConfigNode = "BioStdWebApp";
     private static final String ConfigFileName = "config.properties";
     private static final String DBParamPrefix = "db.";
@@ -114,13 +117,11 @@ public class ConfigurationManager {
     private static final String DataMountPathParameter = "dataMountPath";
     private static final String RecaptchaPublicKeyParameter = "recaptcha_public_key";
     private static final String RecaptchaPrivateKeyParameter = "recaptcha_private_key";
-    static final String HibernateSearchIndexDirParameter = "hibernate.search.default.indexBase";
     private static final String SSOPemURLParameter = "sso.pem.url";
     private static final String SSODerURLParameter = "sso.der.url";
     private static final String SSOAuthPemURLParameter = "sso.auth.url";
     private static final long dayInMills = TimeUnit.DAYS.toMillis(1);
     private static final long hourInMills = TimeUnit.HOURS.toMillis(1);
-    public static final String BIOSTUDY_BASE_DIR = "biostudy.baseDir";
 
     private final ParamPool contextParamPool;
     private final Environment springEnvironment;
@@ -247,15 +248,9 @@ public class ConfigurationManager {
         adjustH2DBPath(cfgBean, baseP);
 
         validateConfiguration(cfgBean);
-
         stopServices();
-
-        ConfigBean oldConfig = BackendConfig.getConfig();
-
         BackendConfig.setConfig(cfgBean);
-
         startServices();
-
     }
 
 
@@ -550,8 +545,6 @@ public class ConfigurationManager {
 
 
     public static boolean readConfiguration(ParamPool config, ConfigBean cfgBean) throws ConfigurationException {
-//  ConfigBean cfgBean = BackendConfig.createConfig(); 
-
         Map<String, Object> dbConfig = cfgBean.getDatabaseConfig();
         Map<String, Object> emailConfig = cfgBean.getEmailConfig();
         TaskConfig taskConfig = cfgBean.getTaskConfig();
@@ -728,12 +721,6 @@ public class ConfigurationManager {
         if (!checkDirectory(dir, cfg.isCreateFileStructure())) {
             throw new ConfigurationException("Directory access error: " + dir);
         }
-
-//  if( BackendConfig.getServiceManager().getEmailService() == null )
-//  {
-//   log.error("Email service is not configured");
-//   throw new RuntimeException("Invalid configuration");
-//  }
 
         if (cfg.isMandatoryAccountActivation() && cfg.getActivationEmailSubject() == null) {
             log.error("Mandatory " + ServiceParamPrefix + ActivationEmailSubjectParameter + " parameter is not set");
@@ -933,7 +920,7 @@ public class ConfigurationManager {
         }
 
         if (UIURLParameter.equals(param)) {
-            cfg.setUIURL(val);
+            cfg.setUiURL(val);
             return true;
         }
 
@@ -1162,17 +1149,17 @@ public class ConfigurationManager {
 
         // SSO stuff
         if (SSOPemURLParameter.equals(param)) {
-            cfg.setSSOPublicCertificatePemURL(val);
+            cfg.setSsoPemURL(val);
             return true;
         }
 
         if (SSODerURLParameter.equals(param)) {
-            cfg.setSSOPublicCertificateDerURL(val);
+            cfg.setSsoDerURL(val);
             return true;
         }
 
         if (SSOAuthPemURLParameter.equals(param)) {
-            cfg.setSSOAuthURL(val);
+            cfg.setSsoAuthURL(val);
             return true;
         }
 

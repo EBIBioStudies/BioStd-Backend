@@ -22,7 +22,6 @@ import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
 import uk.ac.ebi.biostd.webapp.server.security.Session;
 
-
 @WebServlet("/sbmlist")
 public class SubmissionListServlet extends ServiceServlet {
 

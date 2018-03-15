@@ -26,7 +26,6 @@ import uk.ac.ebi.biostd.authz.ACR.Permit;
 @Entity
 public class Permission implements PermissionUnit {
 
-
     private SystemAction action;
     private boolean allow;
     private String description;
@@ -75,8 +74,4 @@ public class Permission implements PermissionUnit {
     public void setId(long id) {
         this.id = id;
     }
-
-// SystemAction getAction();
-// boolean isAllow();
-// String getDescription();
 }
