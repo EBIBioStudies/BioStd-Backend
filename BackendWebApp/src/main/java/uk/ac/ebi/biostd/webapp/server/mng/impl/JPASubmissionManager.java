@@ -25,7 +25,7 @@ import org.apache.lucene.search.*;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.User;
@@ -78,6 +78,7 @@ import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
 import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
 
 @Slf4j
+@Transactional
 public class JPASubmissionManager implements SubmissionManager {
 
     private static final String ACCESS_TAG_QUERY = "select t from AccessTag t";
@@ -113,16 +114,12 @@ public class JPASubmissionManager implements SubmissionManager {
     private final Map<String, LockInfo> lockedSmbIds = new HashMap<>();
     private final Set<String> lockedSecIds = new HashSet<>();
 
-    private final boolean shutDownManager = false;
-    private boolean shutdown;
     private final PTDocumentParser parser;
 
     private final EntityManagerFactory emf;
     private final EUToxRiskFileValidatorService eutoxriskFileValidator;
 
-    @Autowired
     public JPASubmissionManager(EntityManagerFactory emf, EUToxRiskFileValidatorService eutoxriskFileValidator) {
-        shutdown = false;
 
         ParserConfig parserCfg = new ParserConfig();
         parserCfg.setMultipleSubmissions(true);
@@ -168,11 +165,6 @@ public class JPASubmissionManager implements SubmissionManager {
         ErrorCounter ec = new ErrorCounterImpl();
         SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS,
                 (toHistory ? "Deleting" : "Removing") + " submission '" + acc + "'", ec);
-
-        if (shutdown) {
-            gln.log(Level.ERROR, "Service is shut down");
-            return gln;
-        }
 
         EntityManager em = emf.createEntityManager();
 
@@ -471,11 +463,6 @@ public class JPASubmissionManager implements SubmissionManager {
         SubmissionReport res = new SubmissionReport();
 
         res.setLog(logNode);
-
-        if (shutdown) {
-            logNode.log(Level.ERROR, "Service is shut down");
-            return res;
-        }
 
         if (op == Operation.CREATE && !securityManager.mayUserCreateSubmission(usr)) {
             logNode.log(Level.ERROR, "User has no permission to create submissions");
@@ -1031,7 +1018,7 @@ public class JPASubmissionManager implements SubmissionManager {
                 .filter(Objects::nonNull)
                 .map(FilePointer::getFullPath)
                 .forEach(path -> {
-                    eutoxriskValidator.validate(path.toFile()).stream().forEach(error -> {
+                    eutoxriskFileValidator.validate(path.toFile()).forEach(error -> {
                         si.getLogNode().log(Level.ERROR, error.toString());
                     });
                 });
@@ -1158,9 +1145,6 @@ public class JPASubmissionManager implements SubmissionManager {
                         lockedSmbIds.wait();
                         break;
                     } catch (InterruptedException e) {
-                        if (shutDownManager) {
-                            throw e;
-                        }
                     }
                 }
             }
@@ -1585,12 +1569,6 @@ public class JPASubmissionManager implements SubmissionManager {
         return ((Number) q.getSingleResult()).intValue() == 0;
     }
 
-
-    @Override
-    public void shutdown() {
-        shutdown = true;
-    }
-
     @Override
     public LogNode tranklucateSubmissionById(int id, User user) {
         return new SimpleLogNode(Level.ERROR, "Tranklucating submissions by id is not implemented", null);
@@ -1601,10 +1579,6 @@ public class JPASubmissionManager implements SubmissionManager {
         SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS, "Tranklucating submissions by pattern '" + accPfx + "'",
                 null);
 
-        if (shutdown) {
-            gln.log(Level.ERROR, "Service is shut down");
-            return gln;
-        }
 
         EntityManager em = emf.createEntityManager();
 
@@ -1646,11 +1620,6 @@ public class JPASubmissionManager implements SubmissionManager {
     @Override
     public LogNode tranklucateSubmissionByAccession(String acc, User usr) {
         SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS, "Tranklucating submission '" + acc + "'", null);
-
-        if (shutdown) {
-            gln.log(Level.ERROR, "Service is shut down");
-            return gln;
-        }
 
         EntityManager em = BackendConfig.getServiceManager().getEntityManager();
 
@@ -1901,11 +1870,6 @@ public class JPASubmissionManager implements SubmissionManager {
         ErrorCounter ec = new ErrorCounterImpl();
         SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS, "Amending submission '" + acc + "' meta information", ec);
 
-        if (shutdown) {
-            gln.log(Level.ERROR, "Service is shut down");
-            return gln;
-        }
-
         EntityManager em = emf.createEntityManager();
 
         boolean trnOk = true;
@@ -2111,11 +2075,6 @@ public class JPASubmissionManager implements SubmissionManager {
         ErrorCounter ec = new ErrorCounterImpl();
         SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS,
                 "Changing submission(s) '" + sbmAcc + "' owner to '" + owner + "'", ec);
-
-        if (shutdown) {
-            gln.log(Level.ERROR, "Service is shut down");
-            return gln;
-        }
 
         if (!usr.isSuperuser()) {
             gln.log(Level.ERROR, "Permission denied: only superuser can do it");

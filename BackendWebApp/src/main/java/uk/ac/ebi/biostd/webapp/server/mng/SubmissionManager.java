@@ -50,8 +50,6 @@ public interface SubmissionManager {
 
     LogNode changeOwnerByAccessionPattern(String sbmAcc, String owner, User usr);
 
-    void shutdown();
-
     enum Operation {
         CREATE,
         CREATEUPDATE,
