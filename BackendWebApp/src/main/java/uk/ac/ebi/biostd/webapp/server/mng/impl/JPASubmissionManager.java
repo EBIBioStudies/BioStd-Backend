@@ -78,7 +78,6 @@ import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
 import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
 
 @Slf4j
-@Transactional
 public class JPASubmissionManager implements SubmissionManager {
 
     private static final String ACCESS_TAG_QUERY = "select t from AccessTag t";
