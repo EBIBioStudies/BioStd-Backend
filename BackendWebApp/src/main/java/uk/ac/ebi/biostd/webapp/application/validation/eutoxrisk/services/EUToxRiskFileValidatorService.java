@@ -20,9 +20,9 @@ import static java.util.Collections.singletonList;
 @Service
 public class EUToxRiskFileValidatorService {
 
-    private EUToxRiskFileValidator validator;
-    private ThreadPoolTaskExecutor taskExecutor;
-    private EUToxRiskFileValidatorProperties properties;
+    private final EUToxRiskFileValidator validator;
+    private final ThreadPoolTaskExecutor taskExecutor;
+    private final EUToxRiskFileValidatorProperties properties;
 
     @Autowired
     public EUToxRiskFileValidatorService(
