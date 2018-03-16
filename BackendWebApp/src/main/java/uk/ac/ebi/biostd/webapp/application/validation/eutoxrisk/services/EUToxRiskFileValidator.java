@@ -20,8 +20,7 @@ public class EUToxRiskFileValidator {
     private final RestTemplate restTemplate;
     private final String url;
 
-    public EUToxRiskFileValidator(RestTemplate restTemplate,
-                                  String url) {
+    public EUToxRiskFileValidator(RestTemplate restTemplate, String url) {
         this.restTemplate = restTemplate;
         this.url = url;
     }
