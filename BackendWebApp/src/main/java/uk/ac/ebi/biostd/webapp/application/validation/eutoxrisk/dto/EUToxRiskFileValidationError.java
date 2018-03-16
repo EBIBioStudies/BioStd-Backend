@@ -2,11 +2,13 @@ package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * @author Olga Melnichuk
  */
 @Getter
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EUToxRiskFileValidationError {
 
@@ -28,14 +30,5 @@ public class EUToxRiskFileValidationError {
     public static EUToxRiskFileValidationError serverError(String msg) {
         return new EUToxRiskFileValidationError("unknown", 0, 0, msg);
     }
-
-    @Override
-    public String toString() {
-        return "EUToxRiskFileValidationError{" +
-                "sheet='" + sheet + '\'' +
-                ", line=" + line +
-                ", column=" + column +
-                ", message='" + message + '\'' +
-                '}';
-    }
 }
+
