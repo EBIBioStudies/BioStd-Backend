@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -18,10 +19,11 @@ import java.util.concurrent.TimeoutException;
 import static java.util.Collections.singletonList;
 
 @Service
+@Slf4j
 public class EUToxRiskFileValidatorService {
 
     private static final int VALIDATION_WAIT_TIME = 40;
-    
+
     private final EUToxRiskFileValidator validator;
     private final ThreadPoolTaskExecutor taskExecutor;
     private final EUToxRiskFileValidatorProperties properties;
@@ -41,8 +43,7 @@ public class EUToxRiskFileValidatorService {
         try {
             return future.get(VALIDATION_WAIT_TIME, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            // TODO use logger
-            e.printStackTrace();
+            log.error("EUToxRisk file validation error", e);
             return singletonList(EUToxRiskFileValidationError.serverError("Unexpected server error"));
         }
     }
