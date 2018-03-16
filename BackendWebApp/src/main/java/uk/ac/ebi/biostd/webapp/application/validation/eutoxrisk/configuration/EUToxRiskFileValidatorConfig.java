@@ -17,7 +17,6 @@ import javax.net.ssl.SSLContext;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 
 @Configuration
 public class EUToxRiskFileValidatorConfig {
@@ -38,7 +37,7 @@ public class EUToxRiskFileValidatorConfig {
     @Bean
     public SSLContext sslContext() throws EUToxRiskFileValidationException {
         try {
-            TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
+            TrustStrategy acceptingTrustStrategy = (chain, authType) -> true;
 
             return org.apache.http.ssl.SSLContexts.custom()
                     .loadTrustMaterial(null, acceptingTrustStrategy)
