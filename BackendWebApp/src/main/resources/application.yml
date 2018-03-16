@@ -20,6 +20,3 @@ eutoxrisk-file-validator:
   enabled: true
   project-id: EU-ToxRisk
   endpoint: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
-  thread-pool:
-    core-pool-size: 1
-    max-pool-size: 2
