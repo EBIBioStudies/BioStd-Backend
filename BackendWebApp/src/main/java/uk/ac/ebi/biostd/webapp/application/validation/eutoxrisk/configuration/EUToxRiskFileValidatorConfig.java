@@ -25,10 +25,8 @@ public class EUToxRiskFileValidatorConfig {
     @Bean
     @Qualifier("eutoxrisk-file-validator")
     public RestTemplate restTemplate(SSLContext sslContext) throws EUToxRiskFileValidationException {
-        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
-
         CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLSocketFactory(csf)
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(sslContext))
                 .build();
 
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
