@@ -30,9 +30,8 @@ public class EUToxRiskFileValidator {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        HttpEntity<FileSystemResource> requestEntity = new HttpEntity<>(value, headers);
 
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        HttpEntity<FileSystemResource> requestEntity = new HttpEntity<>(value, headers);
 
         EUToxRiskFileValidationResponse resp = restTemplate.postForObject(url, requestEntity, EUToxRiskFileValidationResponse.class);
         return resp.getErrors();
