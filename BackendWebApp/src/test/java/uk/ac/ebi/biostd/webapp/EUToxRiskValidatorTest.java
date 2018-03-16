@@ -27,6 +27,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(EUToxRiskFileValidatorConfig.class)
 public class EUToxRiskValidatorTest {
 
+    private static final String VALID_XLSX_FILE = "/input/eutoxrisk_datafile_valid.xlsx";
+    private static final String INVALID_XLSX_FILE = "/input/eutoxrisk_datafile_invalid.xlsx";
+
     @Autowired
     @Qualifier("eutoxrisk-file-validator")
     private ThreadPoolTaskExecutor taskExecutor;
@@ -48,7 +51,7 @@ public class EUToxRiskValidatorTest {
     @Test
     public void testValidFile() {
         Collection<EUToxRiskFileValidationError> errors = validator.validate(
-                ResourceHandler.getResourceFile("/input/eutoxrisk_datafile_valid.xlsx"));
+                ResourceHandler.getResourceFile(VALID_XLSX_FILE));
 
         assertThat(errors).isEmpty();
     }
@@ -56,7 +59,7 @@ public class EUToxRiskValidatorTest {
     @Test
     public void testInvalidFile() {
         Collection<EUToxRiskFileValidationError> errors = validator.validate(
-                ResourceHandler.getResourceFile("/input/eutoxrisk_datafile_invalid.xlsx"));
+                ResourceHandler.getResourceFile(INVALID_XLSX_FILE));
 
         assertThat(errors).hasSize(1);
     }
@@ -65,7 +68,7 @@ public class EUToxRiskValidatorTest {
     public void testWithThreadPool() {
         EUToxRiskFileValidatorService service = new EUToxRiskFileValidatorService(properties, restTemplate, taskExecutor);
         Collection<EUToxRiskFileValidationError> errors = service.validate(
-                ResourceHandler.getResourceFile("/input/eutoxrisk_datafile_valid.xlsx"));
+                ResourceHandler.getResourceFile(VALID_XLSX_FILE));
 
         assertThat(errors).isEmpty();
     }
