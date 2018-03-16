@@ -1,9 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Olga Melnichuk
