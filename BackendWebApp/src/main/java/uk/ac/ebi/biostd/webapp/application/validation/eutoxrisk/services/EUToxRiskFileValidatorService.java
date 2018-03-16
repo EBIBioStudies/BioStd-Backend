@@ -20,6 +20,8 @@ import static java.util.Collections.singletonList;
 @Service
 public class EUToxRiskFileValidatorService {
 
+    private static final int VALIDATION_WAIT_TIME = 40;
+    
     private final EUToxRiskFileValidator validator;
     private final ThreadPoolTaskExecutor taskExecutor;
     private final EUToxRiskFileValidatorProperties properties;
@@ -37,7 +39,7 @@ public class EUToxRiskFileValidatorService {
     public Collection<EUToxRiskFileValidationError> validate(final File file) {
         Future<Collection<EUToxRiskFileValidationError>> future = taskExecutor.submit(() -> validator.validate(file));
         try {
-            return future.get(40, TimeUnit.SECONDS);
+            return future.get(VALIDATION_WAIT_TIME, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             // TODO use logger
             e.printStackTrace();
