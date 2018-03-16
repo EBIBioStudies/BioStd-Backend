@@ -22,6 +22,9 @@ import java.security.NoSuchAlgorithmException;
 @Configuration
 public class EUToxRiskFileValidatorConfig {
 
+    private static final int CORE_POOL_SIZE = 1;
+    private static final int MAX_POOL_SIZE = 10;
+
     @Bean
     @Qualifier("eutoxrisk-file-validator")
     public RestTemplate restTemplate(SSLContext sslContext) throws EUToxRiskFileValidationException {
@@ -52,10 +55,10 @@ public class EUToxRiskFileValidatorConfig {
 
     @Bean
     @Qualifier("eutoxrisk-file-validator")
-    public ThreadPoolTaskExecutor taskExecutor(EUToxRiskFileValidatorProperties properties) {
+    public ThreadPoolTaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-        pool.setCorePoolSize(properties.getThreadPool().getCorePoolSize());
-        pool.setMaxPoolSize(properties.getThreadPool().getMaxPoolSize());
+        pool.setCorePoolSize(CORE_POOL_SIZE);
+        pool.setMaxPoolSize(MAX_POOL_SIZE);
         pool.setWaitForTasksToCompleteOnShutdown(false);
         return pool;
     }
