@@ -45,6 +45,6 @@ public class EUToxRiskFileValidator {
     }
 
     private boolean isExcelFile(File file) {
-        return EXCEL.matcher(file.getName()).matches();
+        return EXCEL.matcher(file.getName().toLowerCase()).matches();
     }
 }
