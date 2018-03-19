@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,9 +67,10 @@ public class SecurityController {
 
     @GetMapping(value = "/auth/check")
     @PreAuthorize("isAuthenticated()")
-    public @ResponseBody Map<String, String> getPermissions(@AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
-        Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getUser(user.getId()));
-        return permissions;
+    public @ResponseBody LoginResponseDto getPermissions(Authentication authentication) {
+        uk.ac.ebi.biostd.authz.User user = (uk.ac.ebi.biostd.authz.User) authentication.getPrincipal();
+        String token = (String) authentication.getCredentials();
+        return permissionMapper.getLoginResponse(new UserData(token, securityService.getUser(user.getId())));
     }
 
     @GetMapping(value = "/auth/signin")

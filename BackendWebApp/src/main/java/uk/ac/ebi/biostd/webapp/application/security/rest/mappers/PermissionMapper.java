@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessTag;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.AuxInfoDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
@@ -50,7 +52,14 @@ public class PermissionMapper {
         loginResponse.setStatus(STATUS_OK);
         loginResponse.setUsername(user.getFullName());
         loginResponse.setSessid(userData.getToken());
+        loginResponse.setAux(getAuxInfo(user.getAuxProfileInfo()));
 
         return loginResponse;
+    }
+
+    private AuxInfoDto getAuxInfo(AuxInfo auxProfileInfo) {
+        AuxInfoDto auxInfoDto = new AuxInfoDto();
+        auxInfoDto.setOrcid(auxProfileInfo.getOrcid());
+        return auxInfoDto;
     }
 }
