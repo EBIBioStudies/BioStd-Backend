@@ -14,8 +14,6 @@
  **/
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,14 +24,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.biostd.authz.AttributeSubscription;
 import uk.ac.ebi.biostd.authz.AttributeSubscriptionMatchEvent;
-import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.FileRef;
 import uk.ac.ebi.biostd.model.Link;
@@ -132,176 +127,6 @@ public class AttributeSubscriptionProcessor implements Runnable {
         parts.mainBody = text;
 
         return parts;
-    }
-
-    public static void processEvents() {
-
-        EmailTemplates htmlTemplates;
-        EmailTemplates textTemplates;
-
-        try {
-            htmlTemplates = parseMessage(BackendConfig.getAttributeSubscriptionEmailHtmlFile().
-                    readToString(Charsets.UTF_8));
-        } catch (IOException e1) {
-            log.error("Error!", e1);
-            return;
-        }
-
-        try {
-            textTemplates = parseMessage(BackendConfig.getAttributeSubscriptionEmailPlainTextFile().
-                    readToString(Charsets.UTF_8));
-        } catch (IOException e1) {
-            log.error("Error!", e1);
-            return;
-        }
-
-        try {
-            uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager secMan = BackendConfig.getServiceManager()
-                    .getSecurityManager();
-
-            EntityManager entityMan = BackendConfig.getEntityManagerFactory().createEntityManager();
-
-            // get all users with events
-            //
-            TypedQuery<User> userQuery = entityMan.createNamedQuery(
-                    AttributeSubscriptionMatchEvent.GetAllUsersWithEventsQuery, User.class);
-            List<User> users = userQuery.getResultList();
-
-            for (User u : users) {
-
-                // check user is activated and has valid email
-                //
-                if (!u.isActive() || u.getEmail() == null || u.getEmail().length() < 6) {
-                    continue;
-                }
-
-                HashMap<Long, SubscriptionBatch> subscriptionResultMap = new HashMap<>();
-
-                // get all subscriptions events
-                //
-                TypedQuery<AttributeSubscriptionMatchEvent> eventQuery = entityMan.createNamedQuery(
-                        AttributeSubscriptionMatchEvent.GetEventsByUserIdQuery, AttributeSubscriptionMatchEvent.class);
-
-                eventQuery.setParameter(AttributeSubscriptionMatchEvent.UserIdQueryParameter, u.getId());
-
-                List<AttributeSubscriptionMatchEvent> events = eventQuery.getResultList();
-
-                for (AttributeSubscriptionMatchEvent event : events) {
-                    // skip submission if user may not "see" it
-                    //
-                    if (!secMan.mayUserReadSubmission(event.getSubmission(), u)) {
-                        continue;
-                    }
-
-                    long id = event.getSubscription().getId();
-
-                    // batch results for each subscription
-                    //
-                    SubscriptionBatch batchData = subscriptionResultMap.get(id);
-                    if (batchData == null) {
-
-                        // init stuffs
-                        //
-                        batchData = new SubscriptionBatch();
-
-                        String attribute = event.getSubscription().getAttribute();
-                        String pattern = event.getSubscription().getPattern();
-
-                        batchData.htmlSummary = htmlTemplates.subscription;
-                        batchData.textSummary = textTemplates.subscription;
-
-                        // <h4>{ATTRIBUTE} matches {PATTERN}:</h4>
-                        batchData.htmlSummary = batchData.htmlSummary.replaceAll(AttributePlaceHolderRx,
-                                attribute);
-                        batchData.textSummary = batchData.textSummary.replaceAll(AttributePlaceHolderRx,
-                                attribute);
-
-                        // <h4>{ATTRIBUTE} matches {PATTERN}:</h4>
-                        batchData.htmlSummary = batchData.htmlSummary.replaceAll(PatternPlaceHolderRx,
-                                pattern);
-                        batchData.textSummary = batchData.textSummary.replaceAll(PatternPlaceHolderRx,
-                                pattern);
-
-                        batchData.htmlList = new StringBuilder();
-                        batchData.textList = new StringBuilder();
-                        subscriptionResultMap.put(id, batchData);
-                    }
-
-                    // <b>{TITLE}</b> (<a href="https://www.ebi.ac.uk/biostudies/studies/{ACCNO}">https://www.ebi.ac
-                    // .uk/biostudies/studies/{ACCNO}</a>)<br/>
-                    String accession = event.getSubmission().getAccNo();
-                    String title = event.getSubmission().getTitle();
-
-                    String htmlTesultLine = htmlTemplates.result;
-                    String textTesultLine = textTemplates.result;
-
-                    htmlTesultLine = htmlTesultLine.replaceAll(BackendConfig.AccNoPlaceHolderRx, accession);
-                    htmlTesultLine = htmlTesultLine.replaceAll(BackendConfig.TitlePlaceHolderRx, title);
-
-                    textTesultLine = textTesultLine.replaceAll(BackendConfig.AccNoPlaceHolderRx, accession);
-                    textTesultLine = textTesultLine.replaceAll(BackendConfig.TitlePlaceHolderRx, title);
-
-                    batchData.htmlList.append(htmlTesultLine);
-                    batchData.textList.append(textTesultLine);
-                }
-
-                Collection<SubscriptionBatch> resultSet = subscriptionResultMap.values();
-
-                // check user has got any matches
-                //
-                if (resultSet.size() == 0) {
-                    continue;
-                }
-
-                String htmlMessage = htmlTemplates.mainBody;
-                String textMessage = textTemplates.mainBody;
-
-                // assemble everything together
-                //
-                if (u.getFullName() != null) {
-                    htmlMessage = htmlMessage.replaceAll(BackendConfig.UserNamePlaceHolderRx, u.getFullName());
-                    textMessage = textMessage.replaceAll(BackendConfig.UserNamePlaceHolderRx, u.getFullName());
-                }
-
-                String htmlTotalBatch = "";
-                String textTotalBatch = "";
-
-                for (SubscriptionBatch batch : subscriptionResultMap.values()) {
-
-                    batch.htmlSummary = batch.htmlSummary.replaceAll(ResultsPlaceHolderRx,
-                            batch.htmlList.toString());
-                    batch.textSummary = batch.textSummary.replaceAll(ResultsPlaceHolderRx,
-                            batch.textList.toString());
-
-                    htmlTotalBatch = htmlTotalBatch + batch.htmlSummary;
-                    textTotalBatch = textTotalBatch + batch.textSummary;
-                }
-
-                htmlMessage = htmlMessage.replaceAll(SubscriptionPlaceHolderRx, htmlTotalBatch);
-                textMessage = textMessage.replaceAll(SubscriptionPlaceHolderRx, textTotalBatch);
-
-                BackendConfig.getServiceManager().getEmailService().sendMultipartEmail(u.getEmail(),
-                        BackendConfig.getSubscriptionEmailSubject(), textMessage, htmlMessage);
-
-                // remove events
-                //
-                Query deleteQuery = entityMan.createNamedQuery(
-                        AttributeSubscriptionMatchEvent.DeleteEventsByUserIdQuery);
-
-                deleteQuery.setParameter(AttributeSubscriptionMatchEvent.UserIdQueryParameter, u.getId());
-
-                EntityTransaction transation = entityMan.getTransaction();
-
-                transation.begin();
-
-                deleteQuery.executeUpdate();
-
-                transation.commit();
-            }
-
-        } catch (Exception ex) {
-            log.error("Error!", ex);
-        }
     }
 
     @Override

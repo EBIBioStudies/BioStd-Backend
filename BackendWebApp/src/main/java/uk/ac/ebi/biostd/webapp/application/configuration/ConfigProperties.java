@@ -1,6 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.configuration;
 
+import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.BIOSTUDY_BASE_DIR;
+
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collections;
@@ -30,7 +33,7 @@ public class ConfigProperties {
     }
 
     private void loadProperties(ServletContext context) throws IOException {
-        String config = environment.getProperty(CONFIG_FILE_LOCATION_VAR);
+        String config = getConfigFileLocation();
 
         if (StringUtils.isNotBlank(config)) {
             properties.load(new FileInputStream(config));
@@ -39,5 +42,12 @@ public class ConfigProperties {
 
         Collections.list(context.getInitParameterNames())
                 .forEach(key -> properties.setProperty(key, context.getInitParameter(key)));
+    }
+
+    private String getConfigFileLocation() {
+        String baseDir = environment.getProperty(BIOSTUDY_BASE_DIR);
+        return Strings.isNullOrEmpty(baseDir) ?
+                environment.getProperty(CONFIG_FILE_LOCATION_VAR) :
+                baseDir + "/config.properties";
     }
 }

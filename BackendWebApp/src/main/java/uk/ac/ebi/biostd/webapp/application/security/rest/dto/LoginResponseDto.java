@@ -10,5 +10,5 @@ public class LoginResponseDto {
     private String username;
     private String email;
     private String superuser;
-    private String dropbox;
+    private AuxInfoDto aux;
 }

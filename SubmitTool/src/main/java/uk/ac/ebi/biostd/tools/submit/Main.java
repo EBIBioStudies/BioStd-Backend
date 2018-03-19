@@ -534,7 +534,7 @@ public class Main {
 
         int beg = pos;
 
-        while (Character.isLetterOrDigit(resp.charAt(pos))) {
+        while (resp.charAt(pos) != '\n' && resp.charAt(pos) != '\r' && !Character.isWhitespace(resp.charAt(pos))) {
             pos++;
         }
 

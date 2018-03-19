@@ -10,11 +10,8 @@ spring:
     suffix: .html
     mode: LEGACYHTML5
     cache: false
-
-
+    enabled: false
 server:
   context-path: /biostd
-
 biostudy:
   tokenHash: biostd
-
