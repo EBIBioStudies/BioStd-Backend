@@ -1,21 +1,24 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
 
+import com.pri.util.collection.Collections;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationResponse;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 /**
  * @author Olga Melnichuk
  */
 public class EUToxRiskFileValidator {
+
+    private static final Pattern EXCEL = Pattern.compile(".*\\.xlsx");
 
     private final RestTemplate restTemplate;
     private final String url;
@@ -26,6 +29,10 @@ public class EUToxRiskFileValidator {
     }
 
     public Collection<EUToxRiskFileValidationError> validate(File file) {
+        if (!isExcelFile(file)) {
+            return Collections.emptyList();
+        }
+
         FileSystemResource value = new FileSystemResource(file);
 
         HttpHeaders headers = new HttpHeaders();
@@ -35,5 +42,9 @@ public class EUToxRiskFileValidator {
 
         EUToxRiskFileValidationResponse resp = restTemplate.postForObject(url, requestEntity, EUToxRiskFileValidationResponse.class);
         return resp.getErrors();
+    }
+
+    private boolean isExcelFile(File file) {
+        return EXCEL.matcher(file.getName()).matches();
     }
 }
