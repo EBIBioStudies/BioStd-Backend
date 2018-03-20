@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.webapp.application.domain.notifications;
+package uk.ac.ebi.biostd.webapp.application.domain.services;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
