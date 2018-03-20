@@ -7,7 +7,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,25 +57,43 @@ public class SecurityController {
         return projectMapper.getProjectsDto(submissionService.getAllowedProjects(user.getId(), ATTACH));
     }
 
-    @PostMapping(value = "/checkAccess", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String getPermissions(@ModelAttribute LoginRequest loginInfo) {
+    @PostMapping(value = "/checkAccess")
+    public ResponseEntity<String> getPermissions(@ModelAttribute LoginRequest loginInfo) {
         Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getPermissions(loginInfo));
-        return PlainFileFormat.asPlainFile(permissions);
+        return ResponseEntity.ok()
+                .header("produces", MediaType.TEXT_PLAIN_VALUE)
+                .body(PlainFileFormat.asPlainFile(permissions));
     }
 
     @GetMapping(value = "/auth/check")
     @PreAuthorize("isAuthenticated()")
-    public @ResponseBody Map<String, String> getPermissions(@AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
-        Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getUser(user.getId()));
-        return permissions;
+    public @ResponseBody LoginResponseDto getPermissions(Authentication authentication) {
+        uk.ac.ebi.biostd.authz.User user = (uk.ac.ebi.biostd.authz.User) authentication.getPrincipal();
+        String token = (String) authentication.getCredentials();
+        return permissionMapper.getLoginResponse(new UserData(token, securityService.getUser(user.getId())));
+    }
+
+    @GetMapping(value = "/auth/signin")
+    public ResponseEntity<String> signIn(@ModelAttribute SignInRequest signInRequest) {
+        UserData userData = securityService.signIn(signInRequest.getLogin(), signInRequest.getPassword());
+
+        String response = "OK" + "\n"
+                + "sessid" + ": " + userData.getToken() + "\n"
+                + "username" + ": " + userData.getUser().getFullName() + "\n"
+                + "email" + ": " + userData.getUser().getEmail();
+        return ResponseEntity.ok()
+                .header("produces", MediaType.TEXT_PLAIN_VALUE)
+                .body(response);
+
     }
 
     @PostMapping(value = "/auth/signin")
-    public @ResponseBody LoginResponseDto sign(@RequestBody SignInRequest request, HttpServletResponse response) {
-        UserData userData = securityService.signIn(request.getLogin(), request.getPassword());
+    public @ResponseBody LoginResponseDto sign(@RequestBody SignInRequest signInRequest, HttpServletResponse response) {
+        UserData userData = securityService.signIn(signInRequest.getLogin(), signInRequest.getPassword());
         response.addCookie(new Cookie(SECURITY_COOKIE_NAME, userData.getToken()));
         return permissionMapper.getLoginResponse(userData);
     }
+
 
     @PostMapping(value = "/auth/signout")
     public @ResponseBody SignoutResponseDto signOut(@RequestBody SignoutRequestDto signoutRequest,

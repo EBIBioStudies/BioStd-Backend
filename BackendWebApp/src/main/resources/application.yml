@@ -5,7 +5,6 @@ server:
 
 biostudy:
   baseDir: # set your nfs location i.e /home/jcamilorada/Projects/BioStudies/NFS
-  configFile: # set config file location i.e /home/jcamilorada/Projects/BioStudies/NFS/config.properties
   tokenHash: biostd
 
 spring:
@@ -15,6 +14,7 @@ spring:
     prefix: classpath:/email/
     suffix: .html
     mode: LEGACYHTML5
+    enabled: false
 
 eutoxrisk-file-validator:
   enabled: true

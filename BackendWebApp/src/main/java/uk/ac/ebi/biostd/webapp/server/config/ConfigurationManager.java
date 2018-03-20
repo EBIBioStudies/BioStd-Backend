@@ -96,30 +96,11 @@ public class ConfigurationManager {
     private static final String MaxUpdatesPerFileParameter = "maxUpdatesPerFile";
     private static final String FrontendUpdateFormatParameter = "frontendUpdateFormat";
     private static final String UIURLParameter = "UIURL";
-    private static final String MandatoryAccountActivationParameter = "mandatoryAccountActivation";
-    private static final String ActivationEmailSubjectParameter = "activationEmailSubject";
-    private static final String ActivationEmailPlainTextParameter = "activationEmailPlainTextFile";
-    private static final String ActivationEmailHtmlParameter = "activationEmailHtmlFile";
-    private static final String ActivationTimeoutParameter = "activationTimeout";
-    private static final String ActivationTimeoutParameterHours = "activationTimeoutHours";
-    private static final String SubscriptionEmailSubjectParameter = "subscriptionEmailSubject";
-    private static final String TagSubscriptionEmailPlainTextParameter = "tagSubscriptionEmailPlainTextFile";
-    private static final String TagSubscriptionEmailHtmlParameter = "tagSubscriptionEmailHtmlFile";
-    private static final String AttributeSubscriptionEmailPlainTextParameter =
-            "attributeSubscriptionEmailPlainTextFile";
-    private static final String AttributeSubscriptionEmailHtmlParameter = "attributeSubscriptionEmailHtmlFile";
-    private static final String PassResetTimeoutParameter = "passwordResetTimeout";
-    private static final String PassResetEmailSubjectParameter = "passwordResetEmailSubject";
-    private static final String PassResetEmailPlainTextParameter = "passwordResetEmailPlainTextFile";
-    private static final String PassResetEmailHtmlParameter = "passwordResetEmailHtmlFile";
     private static final String DefaultSubmissionAccPrefixParameter = "defaultSubmissionAccNoPrefix";
     private static final String DefaultSubmissionAccSuffixParameter = "defaultSubmissionAccNoSuffix";
     private static final String DataMountPathParameter = "dataMountPath";
     private static final String RecaptchaPublicKeyParameter = "recaptcha_public_key";
     private static final String RecaptchaPrivateKeyParameter = "recaptcha_private_key";
-    private static final String SSOPemURLParameter = "sso.pem.url";
-    private static final String SSODerURLParameter = "sso.der.url";
-    private static final String SSOAuthPemURLParameter = "sso.auth.url";
     private static final long dayInMills = TimeUnit.DAYS.toMillis(1);
     private static final long hourInMills = TimeUnit.HOURS.toMillis(1);
 
@@ -229,20 +210,7 @@ public class ConfigurationManager {
         cfgBean.setSubmissionsHistoryPath(adjustPath(cfgBean.getSubmissionsHistoryPath(), baseP));
         cfgBean.setSubmissionsTransactionPath(adjustPath(cfgBean.getSubmissionsTransactionPath(), baseP));
         cfgBean.setSubmissionUpdatePath(adjustPath(cfgBean.getSubmissionUpdatePath(), baseP));
-
         cfgBean.setPublicFTPPath(adjustPath(cfgBean.getPublicFTPPath(), baseP));
-
-        adjustResource(cfgBean.getActivationEmailHtmlFile(), baseP);
-        adjustResource(cfgBean.getActivationEmailPlainTextFile(), baseP);
-
-        adjustResource(cfgBean.getPassResetEmailHtmlFile(), baseP);
-        adjustResource(cfgBean.getPassResetEmailPlainTextFile(), baseP);
-
-        adjustResource(cfgBean.getTagSubscriptionEmailHtmlFile(), baseP);
-        adjustResource(cfgBean.getTagSubscriptionEmailPlainTextFile(), baseP);
-
-        adjustResource(cfgBean.getAttributeSubscriptionEmailHtmlFile(), baseP);
-        adjustResource(cfgBean.getAttributeSubscriptionEmailPlainTextFile(), baseP);
 
         adjustSearchIndexPath(cfgBean, baseP);
         adjustH2DBPath(cfgBean, baseP);
@@ -252,7 +220,6 @@ public class ConfigurationManager {
         BackendConfig.setConfig(cfgBean);
         startServices();
     }
-
 
     public void startServices() {
         Path idxPath = null;
@@ -722,120 +689,6 @@ public class ConfigurationManager {
             throw new ConfigurationException("Directory access error: " + dir);
         }
 
-        if (cfg.isMandatoryAccountActivation() && cfg.getActivationEmailSubject() == null) {
-            log.error("Mandatory " + ServiceParamPrefix + ActivationEmailSubjectParameter + " parameter is not set");
-            throw new ConfigurationException("Invalid configuration");
-        }
-
-        if (cfg.isMandatoryAccountActivation() && cfg.getActivationEmailPlainTextFile() == null
-                && cfg.getActivationEmailHtmlFile() == null) {
-            log.error("At least one of " + ServiceParamPrefix + ActivationEmailPlainTextParameter + " " +
-                    ServiceParamPrefix + ActivationEmailHtmlParameter + " parameters must be set");
-            throw new ConfigurationException("Invalid configuration");
-        }
-
-        Resource emailFile = cfg.getActivationEmailPlainTextFile();
-
-        if (cfg.isMandatoryAccountActivation() && emailFile != null && (!emailFile.isValid())) {
-            log.error(ServiceParamPrefix + ActivationEmailPlainTextParameter
-                    + " should point to a regular readable file");
-            throw new ConfigurationException("Invalid configuration");
-        }
-
-        emailFile = cfg.getActivationEmailHtmlFile();
-
-        if (cfg.isMandatoryAccountActivation() && emailFile != null && (!emailFile.isValid())) {
-            log.error(ServiceParamPrefix + ActivationEmailHtmlParameter + " should point to a regular readable file");
-            throw new ConfigurationException("Invalid configuration");
-        }
-
-        if (cfg.getPassResetEmailSubject() == null) {
-            log.error("Mandatory " + ServiceParamPrefix + PassResetEmailSubjectParameter + " parameter is not set");
-            throw new ConfigurationException("Invalid configuration");
-        }
-
-        if (cfg.getPassResetEmailPlainTextFile() == null && cfg.getPassResetEmailHtmlFile() == null) {
-            log.error("At least one of " + ServiceParamPrefix + PassResetEmailPlainTextParameter + " " +
-                    ServiceParamPrefix + PassResetEmailHtmlParameter + " parameters must be set");
-            throw new ConfigurationException("Invalid configuration");
-        }
-
-        emailFile = cfg.getPassResetEmailPlainTextFile();
-
-        if (emailFile == null || !emailFile.isValid()) {
-            log.error(
-                    ServiceParamPrefix + PassResetEmailPlainTextParameter + " should point to a regular readable file");
-            throw new ConfigurationException("Invalid configuration");
-        }
-
-        emailFile = cfg.getPassResetEmailHtmlFile();
-
-        if (emailFile == null || !emailFile.isValid()) {
-            log.error(ServiceParamPrefix + PassResetEmailHtmlParameter + " should point to a regular readable file");
-            throw new ConfigurationException("Invalid configuration");
-        }
-
-        // tag subscription
-        if (cfg.getSubscriptionEmailSubject() != null || cfg.getTagSubscriptionEmailPlainTextFile() != null
-                || cfg.getTagSubscriptionEmailHtmlFile() != null) {
-            if (cfg.getSubscriptionEmailSubject() == null || cfg.getTagSubscriptionEmailPlainTextFile() == null
-                    || cfg.getTagSubscriptionEmailHtmlFile() == null) {
-                log.error("To activate tag subscriptions service the following parameters should be set: "
-                        + ServiceParamPrefix + SubscriptionEmailSubjectParameter
-                        + ", " + ServiceParamPrefix + TagSubscriptionEmailPlainTextParameter
-                        + ", " + ServiceParamPrefix + TagSubscriptionEmailHtmlParameter
-                );
-                throw new ConfigurationException("Invalid configuration");
-            }
-
-            emailFile = cfg.getTagSubscriptionEmailPlainTextFile();
-
-            if (emailFile != null && !emailFile.isValid()) {
-                log.error(ServiceParamPrefix + TagSubscriptionEmailPlainTextParameter
-                        + " should point to a regular readable file");
-                throw new ConfigurationException("Invalid configuration");
-            }
-
-            emailFile = cfg.getTagSubscriptionEmailHtmlFile();
-
-            if (emailFile != null && !emailFile.isValid()) {
-                log.error(ServiceParamPrefix + TagSubscriptionEmailHtmlParameter
-                        + " should point to a regular readable file");
-                throw new ConfigurationException("Invalid configuration");
-            }
-        }
-
-        // attribute subscription
-        // would be nice to rework everything to remove code duplication
-        if (cfg.getAttributeSubscriptionEmailPlainTextFile() != null
-                || cfg.getAttributeSubscriptionEmailHtmlFile() != null) {
-            if (cfg.getSubscriptionEmailSubject() == null || cfg.getAttributeSubscriptionEmailPlainTextFile() == null ||
-                    cfg.getAttributeSubscriptionEmailHtmlFile() == null) {
-                log.error("To activate attribute subscriptions service the following parameters should be set: "
-                        + ServiceParamPrefix + SubscriptionEmailSubjectParameter
-                        + ", " + ServiceParamPrefix + AttributeSubscriptionEmailPlainTextParameter
-                        + ", " + ServiceParamPrefix + AttributeSubscriptionEmailHtmlParameter
-                );
-                throw new ConfigurationException("Invalid configuration");
-            }
-
-            emailFile = cfg.getAttributeSubscriptionEmailPlainTextFile();
-
-            if (emailFile != null && !emailFile.isValid()) {
-                log.error(ServiceParamPrefix + AttributeSubscriptionEmailPlainTextParameter
-                        + " should point to a regular readable file");
-                throw new ConfigurationException("Invalid configuration");
-            }
-
-            emailFile = cfg.getAttributeSubscriptionEmailHtmlFile();
-
-            if (emailFile != null && !emailFile.isValid()) {
-                log.error(ServiceParamPrefix + AttributeSubscriptionEmailHtmlParameter
-                        + " should point to a regular readable file");
-                throw new ConfigurationException("Invalid configuration");
-            }
-        }
-
         Path sbmTestDir = cfg.getSubmissionsPath().resolve("~tmp");
         try {
             Path trnTestDir = cfg.getSubmissionsTransactionPath().resolve("~tmp");
@@ -1044,122 +897,6 @@ public class ConfigurationManager {
 
         if (CreateFileStructureParameter.equals(param)) {
             cfg.setCreateFileStructure(val.equalsIgnoreCase("yes") || val.equalsIgnoreCase("true") || val.equals("1"));
-            return true;
-        }
-
-        if (MandatoryAccountActivationParameter.equals(param)) {
-            cfg.setMandatoryAccountActivation(
-                    val.equalsIgnoreCase("yes") || val.equalsIgnoreCase("true") || val.equals("1"));
-            return true;
-        }
-
-        if (ActivationEmailSubjectParameter.equals(param)) {
-            cfg.setActivationEmailSubject(val);
-
-            return true;
-        }
-
-        if (PassResetEmailSubjectParameter.equals(param)) {
-            cfg.setPassResetEmailSubject(val);
-
-            return true;
-        }
-
-        if (ActivationEmailPlainTextParameter.equals(param)) {
-            cfg.setActivationEmailPlainTextFile(
-                    new FileResource(createPath(ActivationEmailPlainTextParameter, val, cfg.getBaseDirectory())));
-
-            return true;
-        }
-
-        if (ActivationEmailHtmlParameter.equals(param)) {
-            cfg.setActivationEmailHtmlFile(
-                    new FileResource(createPath(ActivationEmailHtmlParameter, val, cfg.getBaseDirectory())));
-
-            return true;
-        }
-
-        if (ActivationTimeoutParameter.equals(param) || ActivationTimeoutParameterHours.equals(param)) {
-            try {
-                cfg.setActivationTimeout((long) (Double.parseDouble(val) * 60 * 60 * 1000L));
-            } catch (Exception e) {
-                throw new ServiceConfigException(ActivationTimeoutParameter + ": integer value expected '" + val + "'");
-            }
-
-            return true;
-        }
-
-        if (SubscriptionEmailSubjectParameter.equals(param)) {
-            cfg.setSubscriptionEmailSubject(val);
-
-            return true;
-        }
-
-        if (TagSubscriptionEmailPlainTextParameter.equals(param)) {
-            cfg.setTagSubscriptionEmailPlainTextFile(
-                    new FileResource(createPath(TagSubscriptionEmailPlainTextParameter, val, cfg.getBaseDirectory())));
-
-            return true;
-        }
-
-        if (TagSubscriptionEmailHtmlParameter.equals(param)) {
-            cfg.setTagSubscriptionEmailHtmlFile(
-                    new FileResource(createPath(TagSubscriptionEmailHtmlParameter, val, cfg.getBaseDirectory())));
-
-            return true;
-        }
-
-        if (AttributeSubscriptionEmailPlainTextParameter.equals(param)) {
-            cfg.setAttributeSubscriptionEmailPlainTextFile(new FileResource(createPath(
-                    AttributeSubscriptionEmailPlainTextParameter, val, cfg.getBaseDirectory())));
-
-            return true;
-        }
-
-        if (AttributeSubscriptionEmailHtmlParameter.equals(param)) {
-            cfg.setAttributeSubscriptionEmailHtmlFile(new FileResource(createPath(
-                    AttributeSubscriptionEmailHtmlParameter, val, cfg.getBaseDirectory())));
-
-            return true;
-        }
-
-        if (PassResetEmailPlainTextParameter.equals(param)) {
-            cfg.setPassResetEmailPlainTextFile(
-                    new FileResource(createPath(PassResetEmailPlainTextParameter, val, cfg.getBaseDirectory())));
-
-            return true;
-        }
-
-        if (PassResetEmailHtmlParameter.equals(param)) {
-            cfg.setPassResetEmailHtmlFile(
-                    new FileResource(createPath(PassResetEmailHtmlParameter, val, cfg.getBaseDirectory())));
-
-            return true;
-        }
-
-        if (PassResetTimeoutParameter.equals(param)) {
-            try {
-                cfg.setPassResetTimeout(Integer.parseInt(val) * 60 * 60 * 1000L);
-            } catch (Exception e) {
-                throw new ServiceConfigException(PassResetTimeoutParameter + ": integer value expected '" + val + "'");
-            }
-
-            return true;
-        }
-
-        // SSO stuff
-        if (SSOPemURLParameter.equals(param)) {
-            cfg.setSsoPemURL(val);
-            return true;
-        }
-
-        if (SSODerURLParameter.equals(param)) {
-            cfg.setSsoDerURL(val);
-            return true;
-        }
-
-        if (SSOAuthPemURLParameter.equals(param)) {
-            cfg.setSsoAuthURL(val);
             return true;
         }
 

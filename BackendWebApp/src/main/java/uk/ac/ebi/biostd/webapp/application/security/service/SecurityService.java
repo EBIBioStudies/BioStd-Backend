@@ -71,8 +71,7 @@ public class SecurityService implements ISecurityService {
         }
 
         if (!securityUtil.checkPassword(user.get().getPasswordDigest(), password)) {
-            throw new SecurityAccessException(
-                    format("Given password '%s' do not match for user '%s'", password, login));
+            throw new SecurityAccessException(format("Given password do not match for user '%s'", login));
         }
 
         String token = securityUtil.createToken(user.get());

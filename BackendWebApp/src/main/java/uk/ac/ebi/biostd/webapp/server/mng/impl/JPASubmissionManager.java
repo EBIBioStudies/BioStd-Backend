@@ -1933,10 +1933,6 @@ public class JPASubmissionManager implements SubmissionManager {
             List<AccessTag> accTags = Collections.emptyList();
 
             if (access != null && access.size() > 0) {
-                if (BackendConfig.getSubscriptionEmailSubject() != null) {
-                    wasPublic = BackendConfig.getServiceManager().getSecurityManager().mayEveryoneReadSubmission(sbm);
-                }
-
                 accTags = new ArrayList<>(access.size());
 
                 Query acctq = em.createNamedQuery("AccessTag.getByName");
@@ -1976,11 +1972,6 @@ public class JPASubmissionManager implements SubmissionManager {
             if (access != null) {
                 sbm.setAccessTags(accTags);
                 trnOk = true;
-
-                if (BackendConfig.getSubscriptionEmailSubject() != null && sbm.getTagRefs() != null
-                        && sbm.getTagRefs().size() > 0) {
-                    nowPublic = BackendConfig.getServiceManager().getSecurityManager().mayEveryoneReadSubmission(sbm);
-                }
             }
 
             if (rTime >= 0) {
