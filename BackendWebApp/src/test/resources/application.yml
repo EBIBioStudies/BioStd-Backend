@@ -15,3 +15,8 @@ server:
   context-path: /biostd
 biostudy:
   tokenHash: biostd
+
+eutoxrisk-file-validator:
+  enabled: true
+  project-id: EU-ToxRisk
+  endpoint: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate

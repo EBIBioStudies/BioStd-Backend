@@ -28,8 +28,6 @@ public interface ServiceManager {
 
     String getServiceName();
 
-    SubmissionManager getSubmissionManager();
-
     RemoteRequestManager getRemoteRequestManager();
 
     FileManager getFileManager();

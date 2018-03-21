@@ -10,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.util.StringUtils;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
@@ -17,6 +18,7 @@ import uk.ac.ebi.biostd.webapp.server.endpoint.HttpReqParameterPool;
 import uk.ac.ebi.biostd.webapp.server.endpoint.JSONReqParameterPool;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ParameterPool;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
+import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
 import uk.ac.ebi.biostd.webapp.server.security.Session;
 
@@ -40,6 +42,9 @@ public class SubmissionListServlet extends ServiceServlet {
     private static final String sortByParameter = "sortBy";
 
     private static final long serialVersionUID = 1L;
+
+    @Autowired
+    private SubmissionManager submissionManager;
 
     public SubmissionListServlet() {
         super();
@@ -169,14 +174,13 @@ public class SubmissionListServlet extends ServiceServlet {
             ssr.setLimit(limit);
 
             try {
-                subs = BackendConfig.getServiceManager().getSubmissionManager().searchSubmissions(sess.getUser(), ssr);
+                subs = submissionManager.searchSubmissions(sess.getUser(), ssr);
             } catch (ParseException e) {
                 out.print("{\n\"status\": \"FAIL\",\n\"message\": \"Invalid query string\"\n}");
                 return;
             }
         } else {
-            subs = BackendConfig.getServiceManager().getSubmissionManager()
-                    .getSubmissionsByOwner(sess.getUser(), offset, limit);
+            subs = submissionManager.getSubmissionsByOwner(sess.getUser(), offset, limit);
         }
 
         out.print("{\n\"status\": \"OK\",\n\"submissions\": [\n");
