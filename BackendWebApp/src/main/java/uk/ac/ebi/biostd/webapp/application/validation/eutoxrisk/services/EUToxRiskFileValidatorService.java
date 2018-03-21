@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
 
+import com.pri.util.collection.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,6 +12,7 @@ import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFil
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,18 @@ public class EUToxRiskFileValidatorService {
         this.properties = properties;
     }
 
-    public Collection<EUToxRiskFileValidationError> validate(final File file) {
+    public Collection<EUToxRiskFileValidationError> validateFirst(Collection<File> files) {
+        Optional<File> file = files.stream()
+                .filter(validator::isExcelFile)
+                .findFirst();
+
+        if (file.isPresent()) {
+            return validate(file.get());
+        }
+        return Collections.emptyList();
+    }
+
+    private Collection<EUToxRiskFileValidationError> validate(final File file) {
         Future<Collection<EUToxRiskFileValidationError>> future = taskExecutor.submit(() -> validator.validate(file));
         try {
             return future.get(VALIDATION_WAIT_TIME, TimeUnit.SECONDS);
@@ -48,7 +61,7 @@ public class EUToxRiskFileValidatorService {
         }
     }
 
-    public boolean matches(String accno) {
+    public boolean appliesToProjectId(String accno) {
         return properties.isEnabled() && properties.getProjectId().equals(accno);
     }
 }
