@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
 
-import com.pri.util.collection.Collections;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,14 +10,11 @@ import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFil
 
 import java.io.File;
 import java.util.Collection;
-import java.util.regex.Pattern;
 
 /**
  * @author Olga Melnichuk
  */
 public class EUToxRiskFileValidator {
-
-    private static final Pattern EXCEL = Pattern.compile(".*\\.xlsx");
 
     private final RestTemplate restTemplate;
     private final String url;
@@ -29,10 +25,6 @@ public class EUToxRiskFileValidator {
     }
 
     public Collection<EUToxRiskFileValidationError> validate(File file) {
-        if (!isExcelFile(file)) {
-            return Collections.emptyList();
-        }
-
         FileSystemResource value = new FileSystemResource(file);
 
         HttpHeaders headers = new HttpHeaders();
@@ -42,9 +34,5 @@ public class EUToxRiskFileValidator {
 
         EUToxRiskFileValidationResponse resp = restTemplate.postForObject(url, requestEntity, EUToxRiskFileValidationResponse.class);
         return resp.getErrors();
-    }
-
-    boolean isExcelFile(File file) {
-        return EXCEL.matcher(file.getName().toLowerCase()).matches();
     }
 }

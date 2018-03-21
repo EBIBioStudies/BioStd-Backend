@@ -17,12 +17,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
 import static java.util.Collections.singletonList;
 
 @Service
 @Slf4j
 public class EUToxRiskFileValidatorService {
+
+    private static final Pattern EXCEL = Pattern.compile(".*\\.xlsx");
 
     private static final int VALIDATION_WAIT_TIME = 40;
 
@@ -40,9 +43,13 @@ public class EUToxRiskFileValidatorService {
         this.properties = properties;
     }
 
+    public boolean appliesToProjectId(String accno) {
+        return properties.isEnabled() && properties.getProjectId().equals(accno);
+    }
+
     public Collection<EUToxRiskFileValidationError> validateFirst(Collection<File> files) {
         Optional<File> file = files.stream()
-                .filter(validator::isExcelFile)
+                .filter(this::isExcelFile)
                 .findFirst();
 
         if (file.isPresent()) {
@@ -61,7 +68,7 @@ public class EUToxRiskFileValidatorService {
         }
     }
 
-    public boolean appliesToProjectId(String accno) {
-        return properties.isEnabled() && properties.getProjectId().equals(accno);
+    private boolean isExcelFile(File file) {
+        return EXCEL.matcher(file.getName().toLowerCase()).matches();
     }
 }
