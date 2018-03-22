@@ -12,6 +12,7 @@ import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFil
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -47,7 +48,7 @@ public class EUToxRiskFileValidatorService {
         return properties.isEnabled() && properties.getProjectId().equals(accno);
     }
 
-    public Collection<EUToxRiskFileValidationError> validateFirst(Collection<File> files) {
+    public Collection<EUToxRiskFileValidationError> validateFirst(List<File> files) {
         Optional<File> file = files.stream()
                 .filter(this::isExcelFile)
                 .findFirst();
