@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
 
+import com.pri.util.collection.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,16 +12,21 @@ import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFil
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
 import static java.util.Collections.singletonList;
 
 @Service
 @Slf4j
 public class EUToxRiskFileValidatorService {
+
+    private static final Pattern EXCEL = Pattern.compile(".*\\.xlsx");
 
     private static final int VALIDATION_WAIT_TIME = 40;
 
@@ -38,7 +44,22 @@ public class EUToxRiskFileValidatorService {
         this.properties = properties;
     }
 
-    public Collection<EUToxRiskFileValidationError> validate(final File file) {
+    public boolean appliesToProjectId(String accno) {
+        return properties.isEnabled() && properties.getProjectId().equals(accno);
+    }
+
+    public Collection<EUToxRiskFileValidationError> validateFirst(List<File> files) {
+        Optional<File> file = files.stream()
+                .filter(this::isExcelFile)
+                .findFirst();
+
+        if (file.isPresent()) {
+            return validate(file.get());
+        }
+        return Collections.emptyList();
+    }
+
+    private Collection<EUToxRiskFileValidationError> validate(final File file) {
         Future<Collection<EUToxRiskFileValidationError>> future = taskExecutor.submit(() -> validator.validate(file));
         try {
             return future.get(VALIDATION_WAIT_TIME, TimeUnit.SECONDS);
@@ -48,7 +69,7 @@ public class EUToxRiskFileValidatorService {
         }
     }
 
-    public boolean matches(String accno) {
-        return properties.isEnabled() && properties.getProjectId().equals(accno);
+    private boolean isExcelFile(File file) {
+        return EXCEL.matcher(file.getName().toLowerCase()).matches();
     }
 }
