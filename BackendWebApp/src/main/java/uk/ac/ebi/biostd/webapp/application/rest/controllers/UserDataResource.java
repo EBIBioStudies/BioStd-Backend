@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
-import java.util.List;
+import static java.util.stream.Collectors.toList;
+
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -8,10 +9,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.domain.services.UserDataService;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.UserDataDto;
+import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserData;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.UserDataMapper;
 
 @AllArgsConstructor
@@ -23,11 +25,11 @@ public class UserDataResource {
     private final UserDataMapper userDataMapper;
 
     @GetMapping("/userdata/get")
-    public ResponseEntity<UserDataDto> getData(
+    public ResponseEntity<String> getData(
             @RequestParam(name = "key") String key,
             @AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
         return userDataService.findByUserAndKey(user.getId(), key)
-                .map(userDataMapper::map)
+                .map(UserData::getData)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.ok().build());
     }
@@ -41,18 +43,22 @@ public class UserDataResource {
     }
 
     @GetMapping("/userdata/listjson")
-    public List<UserDataDto> getTopicData(
+    public @ResponseBody String getTopicData(
             @RequestParam(required = false, name = "topic") String topic,
             @AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
-        return userDataMapper.map(userDataService.findAllByUserAndTopic(user.getId(), topic));
+        return userDataService.findAllByUserAndTopic(user.getId(), topic)
+                .stream()
+                .map(UserData::getData)
+                .collect(toList())
+                .toString();
     }
 
     @PostMapping("/userdata/set")
-    public UserDataDto save(
+    public @ResponseBody String save(
             @RequestParam(name = "topic") String topic,
             @RequestParam(name = "key") String key,
             @RequestParam(name = "value") String data,
             @AuthenticationPrincipal User user) {
-        return userDataMapper.map(userDataService.update(user.getId(), key, data, topic));
+        return userDataService.update(user.getId(), key, data, topic).getData();
     }
 }
