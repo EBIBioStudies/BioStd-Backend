@@ -5,7 +5,7 @@ import org.junit.Test;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.PmcImportProperties;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.PmcImporter;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.CvsTvsParser;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.PmcSubmissionManager;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.PmcFileManager;
 import uk.ac.ebi.biostd.remote.service.RemoteService;
 
 
@@ -26,7 +26,7 @@ public class PmcImporterTest {
 
         pmcImporter = new PmcImporter(properties,
                 new CvsTvsParser(),
-                new PmcSubmissionManager(properties.getSubmitterUserPath()),
+                new PmcFileManager(properties.getSubmitterUserPath()),
                 new RemoteService("http://localhost:8586/biostd"));
     }
 

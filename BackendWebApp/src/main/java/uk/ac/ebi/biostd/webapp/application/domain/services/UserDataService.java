@@ -30,9 +30,9 @@ public class UserDataService {
     }
 
     public UserData update(long userId, String key, String data, String topic) {
-        UserDataId dataId = new UserDataId(key, userId);
-        UserData userData = userDataRepository.findByUserDataId(dataId)
-                .orElse(new UserData(dataId, data, topic, ""));
+        UserData userData = userDataRepository.findByUserDataId(new UserDataId(key, userId)).orElse(new UserData());
+        userData.setData(data);
+        userData.setTopic(topic);
         return userDataRepository.save(userData);
     }
 }

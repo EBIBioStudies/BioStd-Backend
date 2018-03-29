@@ -3,7 +3,9 @@ package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 import static java.util.stream.Collectors.toList;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,10 +30,12 @@ public class UserDataResource {
     public ResponseEntity<String> getData(
             @RequestParam(name = "key") String key,
             @AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
+
+        BodyBuilder builder = ResponseEntity.ok().cacheControl(CacheControl.noCache());
         return userDataService.findByUserAndKey(user.getId(), key)
                 .map(UserData::getData)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.ok().build());
+                .map(builder::body)
+                .orElse(builder.build());
     }
 
     @PostMapping("/userdata/del")
@@ -43,14 +47,14 @@ public class UserDataResource {
     }
 
     @GetMapping("/userdata/listjson")
-    public @ResponseBody String getTopicData(
+    public ResponseEntity<String> getTopicData(
             @RequestParam(required = false, name = "topic") String topic,
             @AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
-        return userDataService.findAllByUserAndTopic(user.getId(), topic)
+        String response = userDataService.findAllByUserAndTopic(user.getId(), topic)
                 .stream()
                 .map(UserData::getData)
-                .collect(toList())
-                .toString();
+                .collect(toList()).toString();
+        return ResponseEntity.ok().cacheControl(CacheControl.noCache()).body(response);
     }
 
     @PostMapping("/userdata/set")
