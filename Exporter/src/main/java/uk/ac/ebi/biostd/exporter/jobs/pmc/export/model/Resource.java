@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc.model;
+package uk.ac.ebi.biostd.exporter.jobs.pmc.export.model;
 
 import static javax.xml.bind.annotation.XmlAccessType.NONE;
 
@@ -9,12 +9,12 @@ import lombok.Data;
 
 @Data
 @XmlAccessorType(NONE)
-@XmlRootElement(name = "record")
-public class PmcRecord {
+@XmlRootElement(name = "resource")
+public class Resource {
 
-    @XmlElement(name = "source")
-    private String source;
+    @XmlElement(name = "url")
+    private String url;
 
-    @XmlElement(name = "id")
-    private String id;
+    @XmlElement(name = "title")
+    private String title;
 }

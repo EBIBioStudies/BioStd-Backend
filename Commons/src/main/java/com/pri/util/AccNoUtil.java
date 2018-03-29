@@ -13,7 +13,7 @@
  * @author Mikhail Gostev <gostev@gmail.com>
  **/
 
-package uk.ac.ebi.biostd.webapp.server.util;
+package com.pri.util;
 
 public class AccNoUtil {
 

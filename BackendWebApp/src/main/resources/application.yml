@@ -4,7 +4,7 @@ server:
   contextPath: /biostd
 
 biostudy:
-  baseDir: # set your nfs location i.e /home/jcamilorada/Projects/BioStudies/NFS
+  baseDir: /home/jcamilorada/Projects/BioStudies/NFS
   tokenHash: biostd
 
 spring:

@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc;
+package uk.ac.ebi.biostd.exporter.jobs.pmc.export;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -12,7 +12,7 @@ import uk.ac.ebi.biostd.exporter.jobs.common.base.BaseJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
 import uk.ac.ebi.biostd.exporter.jobs.common.easybatch.DbRecordReader;
 import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.job.PmcRecordProcessor;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.job.PmcRecordProcessor;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 
 @AllArgsConstructor

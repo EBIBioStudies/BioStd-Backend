@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc;
+package uk.ac.ebi.biostd.exporter.jobs.pmc.export;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

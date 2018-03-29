@@ -29,6 +29,10 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.boot:spring-boot-starter-web')
 
+    compile project(":SpreadsheetReaders")
+    compile project(":BioStdCoreModel")
+    compile project(":Remote-Library")
+
     compile('org.easybatch:easybatch-core:5.2.0')
     compile('org.easybatch:easybatch-jdbc:5.2.0')
     compile('com.google.guava:guava:23.0')

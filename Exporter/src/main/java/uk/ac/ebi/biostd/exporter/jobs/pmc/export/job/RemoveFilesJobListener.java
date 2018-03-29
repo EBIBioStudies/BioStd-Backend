@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc.job;
+package uk.ac.ebi.biostd.exporter.jobs.pmc.export.job;
 
 import java.io.IOException;
 import lombok.AllArgsConstructor;

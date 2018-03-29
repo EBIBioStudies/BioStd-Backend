@@ -1,18 +1,3 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.db;
 
 import java.util.HashMap;
@@ -30,35 +15,32 @@ public class AdHocTagResolver implements TagResolver {
 
     @Override
     public Tag getTagByName(String clsfName, String tagName) {
-        Classifier clsf = clsfMap.get(clsfName);
+        Classifier classifier = clsfMap.get(clsfName);
+        Tag tag = null;
 
-        Tag t = null;
-
-        if (clsf == null) {
-            clsfMap.put(clsfName, clsf = new Classifier());
-
-            clsf.setName(clsfName);
+        if (classifier == null) {
+            clsfMap.put(clsfName, classifier = new Classifier());
+            classifier.setName(clsfName);
         } else {
-            t = clsf.getTag(tagName);
+            tag = classifier.getTag(tagName);
         }
 
-        if (t == null) {
-            t = new Tag();
+        if (tag == null) {
+            tag = new Tag();
 
-            t.setName(tagName);
-            t.setId(idGen++);
+            tag.setName(tagName);
+            tag.setId(idGen++);
 
-            t.setClassifier(clsf);
-            clsf.addTag(t);
+            tag.setClassifier(classifier);
+            classifier.addTag(tag);
         }
 
-        return t;
+        return tag;
     }
 
     @Override
     public AccessTag getAccessTagByName(String tagName) {
         AccessTag acct = accTagMap.get(tagName);
-
         if (acct == null) {
             accTagMap.put(tagName, acct = new AccessTag());
 

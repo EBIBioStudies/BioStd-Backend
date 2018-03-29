@@ -302,7 +302,6 @@ public class ConfigurationManager {
 
     }
 
-
     public void stopServices() {
         EntityManagerFactory emf = BackendConfig.getEntityManagerFactory();
 

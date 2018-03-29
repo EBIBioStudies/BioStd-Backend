@@ -37,9 +37,9 @@ import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.backend.testing.IntegrationTestUtil;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
-import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 import uk.ac.ebi.biostd.webapp.application.security.error.ErrorMessage;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignInRequestDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignoutRequestDto;
 
 @RunWith(SpringRunner.class)
@@ -187,7 +187,7 @@ public class SecurityApiTest {
     }
 
     private <T> ResponseEntity<T> tryLogin(String user, String password, Class<T> responseType) {
-        SignInRequest signInRequest = new SignInRequest();
+        SignInRequestDto signInRequest = new SignInRequestDto();
         signInRequest.setLogin(user);
         signInRequest.setPassword(password);
         return restTemplate.postForEntity(SIGN_URL, signInRequest, responseType);

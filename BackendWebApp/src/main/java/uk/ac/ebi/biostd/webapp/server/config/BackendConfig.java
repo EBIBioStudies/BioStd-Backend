@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.server.config;
 
+import com.pri.util.AccNoUtil;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
@@ -15,7 +16,6 @@ import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.webapp.server.export.TaskConfig;
 import uk.ac.ebi.biostd.webapp.server.export.TaskInfo;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceManager;
-import uk.ac.ebi.biostd.webapp.server.util.AccNoUtil;
 
 public class BackendConfig {
 

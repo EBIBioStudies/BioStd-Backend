@@ -1,9 +1,9 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc.job;
+package uk.ac.ebi.biostd.exporter.jobs.pmc.export.job;
 
 import static java.lang.String.format;
-import static uk.ac.ebi.biostd.exporter.jobs.pmc.PmcExportProperties.LINK_FORMAT;
-import static uk.ac.ebi.biostd.exporter.jobs.pmc.PmcExportProperties.PROVIDER_ID;
-import static uk.ac.ebi.biostd.exporter.jobs.pmc.PmcExportProperties.SOURCE;
+import static uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcExportProperties.LINK_FORMAT;
+import static uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcExportProperties.PROVIDER_ID;
+import static uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcExportProperties.SOURCE;
 
 import java.util.Date;
 import lombok.AllArgsConstructor;
@@ -12,9 +12,9 @@ import org.easybatch.core.record.GenericRecord;
 import org.easybatch.core.record.Header;
 import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.model.Link;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.model.PmcRecord;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.model.Resource;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.model.Link;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.model.PmcRecord;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.model.Resource;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 
 @AllArgsConstructor

@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc.job;
+package uk.ac.ebi.biostd.exporter.jobs.pmc.export.job;
 
 import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
@@ -8,15 +8,14 @@ import org.easybatch.core.processor.RecordProcessor;
 import org.easybatch.core.record.Record;
 import org.easybatch.core.record.StringRecord;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.model.Link;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.model.Link;
 
 @Component
 public class PmcXmlProcessor implements RecordProcessor<Record<Link>, Record<String>> {
 
     private final Marshaller marshaller;
 
-    @SneakyThrows
-    PmcXmlProcessor() {
+    @SneakyThrows PmcXmlProcessor() {
         JAXBContext jaxbContext = JAXBContext.newInstance(Link.class);
         marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc.model;
+package uk.ac.ebi.biostd.exporter.jobs.pmc.export.model;
 
 import static javax.xml.bind.annotation.XmlAccessType.NONE;
 

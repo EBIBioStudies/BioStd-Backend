@@ -23,13 +23,13 @@ import uk.ac.ebi.biostd.webapp.application.common.utils.WebUtils;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
-import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ActivationResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.PassRequestResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ProjectsDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ResetPassResponseDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignInRequestDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignUpResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignoutRequestDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignoutResponseDto;
@@ -74,7 +74,7 @@ public class SecurityController {
     }
 
     @GetMapping(value = "/auth/signin")
-    public ResponseEntity<String> signIn(@ModelAttribute SignInRequest signInRequest) {
+    public ResponseEntity<String> signIn(@ModelAttribute SignInRequestDto signInRequest) {
         UserData userData = securityService.signIn(signInRequest.getLogin(), signInRequest.getPassword());
 
         String response = "OK" + "\n"
@@ -88,7 +88,8 @@ public class SecurityController {
     }
 
     @PostMapping(value = "/auth/signin")
-    public @ResponseBody LoginResponseDto sign(@RequestBody SignInRequest signInRequest, HttpServletResponse response) {
+    public @ResponseBody LoginResponseDto sign(@RequestBody SignInRequestDto signInRequest,
+            HttpServletResponse response) {
         UserData userData = securityService.signIn(signInRequest.getLogin(), signInRequest.getPassword());
         response.addCookie(new Cookie(SECURITY_COOKIE_NAME, userData.getToken()));
         return permissionMapper.getLoginResponse(userData);

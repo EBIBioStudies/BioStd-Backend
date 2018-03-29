@@ -1,9 +1,9 @@
-package uk.ac.ebi.biostd.exporter.jobs.pmc;
+package uk.ac.ebi.biostd.exporter.jobs.pmc.export;
 
 import static org.easybatch.core.job.JobBuilder.aNewJob;
 import static uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob.QUEUE_SIZE;
-import static uk.ac.ebi.biostd.exporter.jobs.pmc.PmcExportProperties.JOIN_JOB;
-import static uk.ac.ebi.biostd.exporter.jobs.pmc.PmcExportProperties.MAX_RECORDS;
+import static uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcExportProperties.JOIN_JOB;
+import static uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcExportProperties.MAX_RECORDS;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +21,9 @@ import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportJob;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
 import uk.ac.ebi.biostd.exporter.jobs.common.easybatch.FtpRecordWriter;
 import uk.ac.ebi.biostd.exporter.jobs.common.model.FtpConfig;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.job.PmcXmlProcessor;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.job.RemoveFilesJobListener;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.job.XmlLinksWriter;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.job.PmcXmlProcessor;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.job.RemoveFilesJobListener;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.job.XmlLinksWriter;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 
 @Slf4j

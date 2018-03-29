@@ -23,7 +23,6 @@ import org.odftoolkit.simple.SpreadsheetDocument;
 import uk.ac.ebi.biostd.db.TagResolver;
 import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.ParserConfig;
-import uk.ac.ebi.biostd.in.ParserException;
 import uk.ac.ebi.biostd.in.json.JSONReader;
 import uk.ac.ebi.biostd.in.pagetab.PageTabSyntaxParser;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
@@ -123,14 +122,7 @@ public class PTDocumentParser {
 
         if (reader != null) {
             PageTabSyntaxParser prs = new PageTabSyntaxParser(tagRslv, parserCfg);
-
-            try {
-                doc = prs.parse(reader, gln);
-            } catch (ParserException e) {
-                gln.log(Level.ERROR, "Parser exception: " + e.getMessage());
-                SimpleLogNode.setLevels(gln);
-                return null;
-            }
+            doc = prs.parse(reader, gln);
         }
 
         for (SubmissionInfo si : doc.getSubmissions()) {
