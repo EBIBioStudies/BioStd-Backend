@@ -13,11 +13,12 @@ import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorConfig;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorProperties;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
-import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidatorService;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidator;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidatorService;
 
 import java.util.Collection;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -67,8 +68,8 @@ public class EUToxRiskValidatorTest {
     @Test
     public void testWithThreadPool() {
         EUToxRiskFileValidatorService service = new EUToxRiskFileValidatorService(properties, restTemplate, taskExecutor);
-        Collection<EUToxRiskFileValidationError> errors = service.validate(
-                ResourceHandler.getResourceFile(VALID_XLSX_FILE));
+        Collection<EUToxRiskFileValidationError> errors = service.validateFirst(
+                asList(ResourceHandler.getResourceFile(VALID_XLSX_FILE), ResourceHandler.getResourceFile(INVALID_XLSX_FILE)));
 
         assertThat(errors).isEmpty();
     }

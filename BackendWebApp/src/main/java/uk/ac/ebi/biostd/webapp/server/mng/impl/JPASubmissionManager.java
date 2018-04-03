@@ -89,6 +89,7 @@ import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
 import uk.ac.ebi.biostd.util.FilePointer;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidatorService;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.AccessionManager;
@@ -743,7 +744,7 @@ public class JPASubmissionManager implements SubmissionManager {
                             continue;
                         }
 
-                        validateEUToxRiskFiles(si, parent);
+                        submOk = submOk && isEUToxRiskFileValid(si, parent);
 
                         AccNoMatcher.Match mtch = AccNoMatcher.match(si, parent);
 
@@ -1033,20 +1034,23 @@ public class JPASubmissionManager implements SubmissionManager {
         return res;
     }
 
-    private void validateEUToxRiskFiles(SubmissionInfo si, Submission parent) {
-        if (!eutoxriskFileValidator.matches(parent.getAccNo())) {
-            return;
+    private boolean isEUToxRiskFileValid(SubmissionInfo si, Submission parent) {
+        if (!eutoxriskFileValidator.appliesToProjectId(parent.getAccNo())) {
+            return true;
         }
 
-        si.getFileOccurrences().stream()
-                .map(FileOccurrence::getFilePointer)
-                .filter(Objects::nonNull)
-                .map(FilePointer::getFullPath)
-                .forEach(path -> {
-                    eutoxriskFileValidator.validate(path.toFile()).forEach(error -> {
-                        si.getLogNode().log(Level.ERROR, error.toString());
-                    });
-                });
+        Collection<EUToxRiskFileValidationError> errors = eutoxriskFileValidator.validateFirst(
+                si.getFileOccurrences().stream()
+                        .map(FileOccurrence::getFilePointer)
+                        .filter(Objects::nonNull)
+                        .map(FilePointer::getFullPath)
+                        .map(Path::toFile)
+                        .collect(Collectors.toList()));
+
+        errors.forEach(error -> {
+            si.getLogNode().log(Level.ERROR, error.toString());
+        });
+        return errors.isEmpty();
     }
 
 

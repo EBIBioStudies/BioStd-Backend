@@ -33,6 +33,8 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 @AllArgsConstructor
 public class SecurityService implements ISecurityService {
 
+    public static final String PUBLIC_ACCESS_TAG = "Public";
+
     private final UserRepository userRepository;
     private final AccessPermissionRepository permissionsRepository;
     private final SubmissionRepository submissionRepository;
@@ -44,17 +46,17 @@ public class SecurityService implements ISecurityService {
         String login = loginInfo.getLogin();
         String hash = loginInfo.getHash();
 
-        Optional<User> user = userRepository.findByLoginOrEmail(login, login);
+        Optional<User> optionalUser = userRepository.findByLoginOrEmail(login, login);
 
-        if (!user.isPresent()) {
+        if (!optionalUser.isPresent()) {
             throw new SecurityAccessException(format("Could find an user register with email or login '%s'", login));
         }
 
-        if (!securityUtil.checkHash(hash, user.get().getPasswordDigest())) {
+        if (!securityUtil.checkHash(hash, optionalUser.get().getPasswordDigest())) {
             throw new SecurityAccessException(format("Given hash '%s' do not match for user '%s'", hash, login));
         }
 
-        return user.get();
+        return optionalUser.get();
     }
 
     @Override
@@ -193,6 +195,6 @@ public class SecurityService implements ISecurityService {
     }
 
     private boolean isPublicSubmission(Set<AccessTag> accessTags) {
-        return accessTags.stream().anyMatch(tag -> tag.getName().equals("Public"));
+        return accessTags.stream().anyMatch(tag -> tag.getName().equals(PUBLIC_ACCESS_TAG));
     }
 }
