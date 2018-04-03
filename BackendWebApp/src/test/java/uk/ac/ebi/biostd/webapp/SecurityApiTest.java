@@ -120,7 +120,7 @@ public class SecurityApiTest {
                 "7C4A8D09CA3762AF61E59520943DC26494F8941B");
         ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
         assertThat(response.getBody()).isEqualTo("Status: OK\n"
-                + "Allow: ~admin_user@ebi.ac.uk;#3;\n"
+                + "Allow: ~admin_user@ebi.ac.uk;#3;Public\n"
                 + "Deny: \n"
                 + "Superuser: true\n"
                 + "Name: admin_user\n"
