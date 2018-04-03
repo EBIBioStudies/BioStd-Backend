@@ -25,6 +25,10 @@ public class RemoteService {
 
     private final RestTemplate restTemplate;
 
+    public RemoteService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     public RemoteService(String baseUrl) {
         DefaultUriTemplateHandler defaultUriTemplateHandler = new DefaultUriTemplateHandler();
         defaultUriTemplateHandler.setBaseUrl(baseUrl);

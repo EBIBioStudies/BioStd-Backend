@@ -1,5 +1,10 @@
 package uk.ac.ebi.biostd.exporter;
 
+import static org.springframework.test.web.client.ExpectedCount.once;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
 import java.io.File;
 import java.io.IOException;
 import org.junit.Before;
@@ -7,6 +12,11 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.PmcImportProperties;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.PmcImporter;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.CvsTvsParser;
@@ -20,6 +30,9 @@ public class PmcImporterTest extends BaseIntegrationTest {
 
     private static final String USER_HOME_PATH =
             "/home/jcamilorada/Projects/BioStudies/NFS/ugindex/Users/j/jcamilorada@ebi.ac.uk.email";
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -46,6 +59,14 @@ public class PmcImporterTest extends BaseIntegrationTest {
                 new PmcFileManager(properties.getSubmitterUserPath()),
                 new RemoteService(properties.getBackendUrl()),
                 new SubmissionJsonSerializer());
+        setupRestCalls();
+    }
+
+    private void setupRestCalls() {
+        server.expect(once(), requestTo("/auth/signin"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON)
+                        .headers(new HttpHeaders().set("", "")));
     }
 
     @Test
