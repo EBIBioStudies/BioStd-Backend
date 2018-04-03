@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.domain.services.UserDataService;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserData;
-import uk.ac.ebi.biostd.webapp.application.rest.mappers.UserDataMapper;
 
 @AllArgsConstructor
 @RestController
@@ -24,7 +23,6 @@ import uk.ac.ebi.biostd.webapp.application.rest.mappers.UserDataMapper;
 public class UserDataResource {
 
     private final UserDataService userDataService;
-    private final UserDataMapper userDataMapper;
 
     @GetMapping("/userdata/get")
     public ResponseEntity<String> getData(
