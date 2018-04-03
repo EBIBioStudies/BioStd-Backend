@@ -13,4 +13,5 @@ public class PmcImportProperties {
     private String submitterUserPath;
     private String user;
     private String password;
+    private String backendUrl;
 }

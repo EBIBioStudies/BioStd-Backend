@@ -7,7 +7,6 @@ import uk.ac.ebi.biostd.db.AdHocTagResolver;
 import uk.ac.ebi.biostd.db.TagResolver;
 import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.ParserConfig;
-import uk.ac.ebi.biostd.in.ParserException;
 import uk.ac.ebi.biostd.in.pagetab.PageTabSyntaxParser;
 import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.util.FileUtil;
@@ -47,14 +46,7 @@ public class CVSTVSParse {
         PageTabSyntaxParser prs = new PageTabSyntaxParser(tr, pc);
 
         SpreadsheetReader sp = new CSVTSVSpreadsheetReader(text, sep);
-
-        try {
-            return prs.parse(sp, topLn);
-        } catch (ParserException e) {
-            System.err.println("Can't read CSV/TSV file: " + infile.getAbsolutePath() + " Error: " + e.getMessage());
-        }
-
-        return null;
+        return prs.parse(sp, topLn);
     }
 
 }
