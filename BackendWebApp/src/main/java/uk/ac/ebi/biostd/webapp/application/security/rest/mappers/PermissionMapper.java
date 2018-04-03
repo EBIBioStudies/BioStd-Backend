@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.security.rest.mappers;
 
+import static uk.ac.ebi.biostd.webapp.application.security.service.SecurityService.PUBLIC_ACCESS_TAG;
+
 import com.google.common.base.MoreObjects;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +42,7 @@ public class PermissionMapper {
                 .map(AccessPermission::getAccessTag)
                 .map(AccessTag::getName)
                 .collect(Collectors.toList());
+        accessTags.add(PUBLIC_ACCESS_TAG);
         return "~" + user.getEmail() + ";#" + user.getId() + ";" + String.join(";", accessTags);
     }
 
