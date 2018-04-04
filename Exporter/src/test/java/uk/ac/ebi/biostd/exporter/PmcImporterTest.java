@@ -12,7 +12,6 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -59,18 +58,14 @@ public class PmcImporterTest extends BaseIntegrationTest {
                 new PmcFileManager(properties.getSubmitterUserPath()),
                 new RemoteService(properties.getBackendUrl()),
                 new SubmissionJsonSerializer());
-        setupRestCalls();
-    }
-
-    private void setupRestCalls() {
-        server.expect(once(), requestTo("/auth/signin"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("{}", MediaType.APPLICATION_JSON)
-                        .headers(new HttpHeaders().set("", "")));
     }
 
     @Test
     public void execute() throws Exception {
+        server.expect(once(), requestTo("/auth/signin"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("{sessid: 12345}", MediaType.APPLICATION_JSON));
+
         pmcImporter.execute();
     }
 }
