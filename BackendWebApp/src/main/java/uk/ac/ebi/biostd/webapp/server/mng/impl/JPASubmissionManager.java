@@ -15,20 +15,61 @@
 
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
+import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
+import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.User;
-import uk.ac.ebi.biostd.in.*;
+import uk.ac.ebi.biostd.in.AccessionMapping;
+import uk.ac.ebi.biostd.in.ElementPointer;
+import uk.ac.ebi.biostd.in.PMDoc;
+import uk.ac.ebi.biostd.in.ParserConfig;
+import uk.ac.ebi.biostd.in.SubmissionMapping;
 import uk.ac.ebi.biostd.in.pagetab.FileOccurrence;
 import uk.ac.ebi.biostd.in.pagetab.SectionOccurrence;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
@@ -39,8 +80,12 @@ import uk.ac.ebi.biostd.model.SubmissionTagRef;
 import uk.ac.ebi.biostd.out.cell.CellFormatter;
 import uk.ac.ebi.biostd.out.json.JSONFormatter;
 import uk.ac.ebi.biostd.out.pageml.PageMLFormatter;
-import uk.ac.ebi.biostd.treelog.*;
+import uk.ac.ebi.biostd.treelog.ErrorCounter;
+import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
+import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
+import uk.ac.ebi.biostd.treelog.SimpleLogNode;
+import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
 import uk.ac.ebi.biostd.util.FilePointer;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
@@ -59,24 +104,6 @@ import uk.ac.ebi.biostd.webapp.server.vfs.InvalidPathException;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathInfo;
 import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
 import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
-
-import javax.persistence.*;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Root;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
-import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
 
 @Slf4j
 public class JPASubmissionManager implements SubmissionManager {
@@ -450,14 +477,15 @@ public class JPASubmissionManager implements SubmissionManager {
     private SubmissionReport createSubmissionUnsafe(byte[] data, DataFormat type, String charset, Operation op,
                                                     User usr, boolean validateOnly, boolean ignoreFileAbs) {
 
-        final EntityManager em = BackendConfig.getServiceManager().getEntityManager();
-        final FileManager fileManager = BackendConfig.getServiceManager().getFileManager();
-        final uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager securityManager = BackendConfig.getServiceManager().getSecurityManager();
-        final AccessionManager accessionManager = BackendConfig.getServiceManager().getAccessionManager();
+        EntityManager em = BackendConfig.getServiceManager().getEntityManager();
+        FileManager fileManager = BackendConfig.getServiceManager().getFileManager();
+        uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager securityManager = BackendConfig.getServiceManager()
+                .getSecurityManager();
+        AccessionManager accessionManager = BackendConfig.getServiceManager().getAccessionManager();
 
-        final ErrorCounter ec = new ErrorCounterImpl();
+        ErrorCounter ec = new ErrorCounterImpl();
 
-        final SimpleLogNode logNode = new SimpleLogNode(Level.SUCCESS,
+        SimpleLogNode logNode = new SimpleLogNode(Level.SUCCESS,
                 op.name() + " submission(s) from " + type.name() + " source", ec);
 
         SubmissionReport res = new SubmissionReport();
