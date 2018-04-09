@@ -3,13 +3,11 @@ package uk.ac.ebi.biostd.webapp.application.persitence.entities;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 public class UserData {
 
@@ -24,4 +22,8 @@ public class UserData {
 
     @Column(name = "contentType")
     private String contentType;
+
+    public UserData(UserDataId userDataId) {
+        this.userDataId = userDataId;
+    }
 }

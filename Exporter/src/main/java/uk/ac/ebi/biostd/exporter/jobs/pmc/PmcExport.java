@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,9 @@ import org.easybatch.core.filter.PoisonRecordFilter;
 import org.easybatch.core.job.Job;
 import org.easybatch.core.reader.BlockingQueueRecordReader;
 import org.easybatch.core.record.Record;
+import org.easybatch.core.retry.RetryPolicy;
+import org.easybatch.core.writer.RecordWriter;
+import org.easybatch.core.writer.RetryableRecordWriter;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportJob;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
@@ -59,7 +63,7 @@ public class PmcExport implements ExportJob {
                 .filter(new PoisonRecordFilter())
                 .jobListener(new RemoveFilesJobListener(ftpConfig))
                 .processor(pmcXmlProcessor)
-                .writer(new FtpRecordWriter(new XmlLinksWriter(), ftpConfig))
+                .writer(createRetryWriter(ftpConfig))
                 .build();
 
         return Collections.singletonList(new QueueJob(processQueue, job));
@@ -68,6 +72,12 @@ public class PmcExport implements ExportJob {
     @Override
     public int getWorkers() {
         return properties.getWorkers();
+    }
+
+    private RecordWriter createRetryWriter(FtpConfig ftpConfig) {
+        return new RetryableRecordWriter(
+                new FtpRecordWriter(new XmlLinksWriter(), ftpConfig),
+                new RetryPolicy(10, 5, TimeUnit.SECONDS));
     }
 
 }
