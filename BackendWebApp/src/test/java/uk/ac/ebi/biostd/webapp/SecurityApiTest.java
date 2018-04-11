@@ -136,7 +136,7 @@ public class SecurityApiTest {
         ResponseEntity<String> response = restTemplate.postForEntity(SIGN_OUT_URL + token, request, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         String cookie = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
-        assertThat(cookie).isEqualTo("BIOSTDSESS=\"\"; Expires=Thu, 01-Jan-1970 00:00:10 GMT");
+        assertThat(cookie).isEqualTo("BIOSTDSESS=; Max-Age=0; Expires=Thu, 01-Jan-1970 00:00:10 GMT");
     }
 
     private void changePassword(String activationKey, String newPassword) {

@@ -2,7 +2,7 @@ import java.text.SimpleDateFormat
 
 buildscript {
     ext {
-        springBootVersion = '1.5.9.RELEASE'
+        springBootVersion = '2.0.1.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -12,9 +12,12 @@ buildscript {
     }
 }
 
+//ext['tomcat.version'] = '8.0.44'
+
 apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 group = 'uk.ac.ebi.biostd'
 version = '0.0.1'
@@ -28,9 +31,15 @@ def buildTime() {
     return df.format(new Date())
 }
 
-war {
+bootWar {
+    enabled = true
     archiveName = "biostudy-${buildTime()}.war"
     rootSpec.exclude('**/tomcat-embed-*.jar', '**/mysql-connector-java-*.jar')
+}
+
+bootJar {
+    enabled = true
+    archiveName = "biostudy-${buildTime()}.jar"
 }
 
 repositories {
@@ -38,7 +47,6 @@ repositories {
     maven { url "http://repo1.maven.org/maven2" }
 }
 
-ext['tomcat.version'] = '8.0.44'
 
 dependencies {
     compile project(":Commons")
@@ -47,15 +55,14 @@ dependencies {
 
     compile("org.springframework.boot:spring-boot-starter-web")
     compile('org.springframework.boot:spring-boot-configuration-processor')
-    compile group:'org.apache.tomcat', name:'tomcat-juli', version:property('tomcat.version')
-
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-mail")
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 
-    compile ('io.jsonwebtoken:jjwt:0.9.0')
-    compile ('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.4')
+    compile('org.apache.tomcat:tomcat-jdbc:8.5.30')
+    compile('io.jsonwebtoken:jjwt:0.9.0')
+    compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.4')
     compileOnly('org.projectlombok:lombok')
 
     compile('mysql:mysql-connector-java:6.0.6')

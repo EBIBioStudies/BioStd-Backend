@@ -16,7 +16,7 @@ public class UserDataService {
     private final UserDataRepository userDataRepository;
 
     public void deleteModifiedSubmission(long userId, String key) {
-        userDataRepository.delete(new UserDataId(key, userId));
+        userDataRepository.deleteById(new UserDataId(key, userId));
     }
 
     public List<UserData> findAllByUserAndTopic(long userId, String topic) {
