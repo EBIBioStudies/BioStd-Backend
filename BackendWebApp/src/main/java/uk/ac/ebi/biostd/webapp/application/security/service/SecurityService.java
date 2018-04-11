@@ -138,8 +138,7 @@ public class SecurityService implements ISecurityService {
             return Optional.empty();
         }
 
-        return securityUtil.fromToken(key)
-                .map(tokenUser1 -> userRepository.findOne(tokenUser1.getId()));
+        return securityUtil.fromToken(key).map(tokenUser1 -> userRepository.getOne(tokenUser1.getId()));
     }
 
     @Override
@@ -165,8 +164,8 @@ public class SecurityService implements ISecurityService {
 
     @Override
     public boolean hasPermission(long submissionId, long userId, AccessType accessType) {
-        User user = userRepository.findOne(userId);
-        Submission submission = submissionRepository.findOne(submissionId);
+        User user = userRepository.getOne(userId);
+        Submission submission = submissionRepository.getOne(submissionId);
 
         boolean isAuthor = submission.getOwnerId() == userId;
         boolean isPublic = isPublicSubmission(submission.getAccessTag());

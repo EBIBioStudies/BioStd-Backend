@@ -1,9 +1,11 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
+@Setter
 @ConfigurationProperties("eutoxrisk-file-validator")
 public class EUToxRiskFileValidatorProperties {
     private boolean enabled = true;

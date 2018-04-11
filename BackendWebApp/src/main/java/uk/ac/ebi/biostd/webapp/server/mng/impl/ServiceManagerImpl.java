@@ -24,7 +24,6 @@ import uk.ac.ebi.biostd.webapp.server.mng.ReleaseManager;
 import uk.ac.ebi.biostd.webapp.server.mng.RemoteRequestManager;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.ServiceManager;
-import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubscriptionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.TagManager;
 import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
@@ -68,7 +67,7 @@ public class ServiceManagerImpl implements ServiceManager {
     public EntityManager getEntityManager() {
         EntityManager em = threadLocal.get();
 
-        if (em == null) {
+        if (em == null || !em.isOpen()) {
             threadLocal.set(entityManagerFactory.createEntityManager());
         }
 

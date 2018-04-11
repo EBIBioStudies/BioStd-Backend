@@ -28,7 +28,7 @@ public class SubmissionService implements ISubmissionService {
 
     @Override
     public List<Submission> getAllowedProjects(long userId, AccessType accessType) {
-        User user = userRepository.findOne(userId);
+        User user = userRepository.getOne(userId);
         List<AccessTag> accessTags = getAllowedTags(user, accessType);
 
         return accessTags.stream()

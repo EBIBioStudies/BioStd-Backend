@@ -18,7 +18,6 @@ package uk.ac.ebi.biostd.webapp.server.mng.impl;
 import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
 import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
 
-import com.pri.util.AccNoUtil;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
