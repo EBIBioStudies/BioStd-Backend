@@ -1,7 +1,6 @@
 # Server properties are used only for local deployment and jar mode, they are ignored in "war mode"
 server:
   port: 8586
-  contextPath: /biostd
   servlet:
     contextPath: /biostd
 
