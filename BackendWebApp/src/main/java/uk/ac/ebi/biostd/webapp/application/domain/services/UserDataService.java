@@ -16,7 +16,7 @@ public class UserDataService {
     private final UserDataRepository userDataRepository;
 
     public void deleteModifiedSubmission(long userId, String key) {
-        userDataRepository.delete(new UserDataId(key, userId));
+        userDataRepository.deleteById(new UserDataId(key, userId));
     }
 
     public List<UserData> findAllByUserAndTopic(long userId, String topic) {
@@ -30,9 +30,10 @@ public class UserDataService {
     }
 
     public UserData update(long userId, String key, String data, String topic) {
-        UserDataId dataId = new UserDataId(key, userId);
-        UserData userData = userDataRepository.findByUserDataId(dataId)
-                .orElse(new UserData(dataId, data, topic, ""));
+        UserDataId dataKey = new UserDataId(key, userId);
+        UserData userData = userDataRepository.findByUserDataId(dataKey).orElse(new UserData(dataKey));
+        userData.setData(data);
+        userData.setTopic(topic);
         return userDataRepository.save(userData);
     }
 }
