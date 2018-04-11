@@ -12,8 +12,6 @@ buildscript {
     }
 }
 
-//ext['tomcat.version'] = '8.0.44'
-
 apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'org.springframework.boot'

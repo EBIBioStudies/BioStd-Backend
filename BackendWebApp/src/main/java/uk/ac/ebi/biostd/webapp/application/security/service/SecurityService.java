@@ -170,16 +170,15 @@ public class SecurityService implements ISecurityService {
         boolean isAuthor = submission.getOwnerId() == userId;
         boolean isPublic = isPublicSubmission(submission.getAccessTag());
         boolean isSuperUser = user.isSuperuser();
-        boolean hasAccessTag = permissionsRepository
-                .existsByAccessTagInAndAccessType(submission.getAccessTag(), accessType);
+        boolean hasTag = permissionsRepository.existsByAccessTagInAndAccessType(submission.getAccessTag(), accessType);
 
         switch (accessType) {
             case READ:
-                return isPublic || isAuthor;
+                return isPublic || isAuthor || hasTag || isSuperUser;
             case SUBMIT:
                 return (isPublic && isAuthor) || isSuperUser;
             case ATTACH:
-                return hasAccessTag || isSuperUser;
+                return hasTag || isSuperUser;
             case UPDATE:
             case DELETE:
                 return isAuthor || isSuperUser;
