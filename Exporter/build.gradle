@@ -26,9 +26,15 @@ repositories {
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-jdbc')
-    compile('org.springframework.boot:spring-boot-configuration-processor')
+    //compile('org.springframework.boot:spring-boot-configuration-processor')
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-logging')
+
+
+   // compile group: 'io.micrometer', name: 'micrometer-core', version: '1.0.3'
+   // compile group: 'io.micrometer', name: 'micrometer-spring-legacy', version: '1.0.3'
+
 
     compile project(":SpreadsheetReaders")
     compile project(":BioStdCoreModel")
@@ -38,14 +44,14 @@ dependencies {
     compile('org.easybatch:easybatch-jdbc:5.2.0')
     compile('com.google.guava:guava:23.0')
     compile('com.fasterxml.jackson.core:jackson-core:2.9.1')
-    compile('org.apache.commons:commons-lang3:3.6')
+
     compile('commons-io:commons-io:2.6')
     compile('commons-net:commons-net:3.6')
 
     compile('com.fasterxml.jackson.core:jackson-annotations:2.9.1')
     compile('com.fasterxml.jackson.core:jackson-databind:2.9.1')
-    compile('com.zaxxer:HikariCP:2.7.1')
-    compile('log4j:log4j:1.2.17')
+    //compile('com.zaxxer:HikariCP:2.7.1')
+    //compile('log4j:log4j:1.2.17')
 
     compile('mysql:mysql-connector-java')
     runtime('com.h2database:h2:1.4.196')

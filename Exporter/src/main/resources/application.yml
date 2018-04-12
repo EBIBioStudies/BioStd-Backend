@@ -3,9 +3,6 @@ context:
     classes: uk.ac.ebi.biostd.exporter.configuration.QueryLoader
 server:
   port: 8181
-logging:
-  file: logs/log.file
-  level: INFO
 spring:
   profiles:
     active: local
