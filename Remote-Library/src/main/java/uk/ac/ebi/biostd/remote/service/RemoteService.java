@@ -67,7 +67,6 @@ public class RemoteService {
         return response.getBody();
     }
 
-
     private String getUrl(String url, Map<String, String> paramsMap) {
         if (paramsMap.isEmpty()) {
             return url;
