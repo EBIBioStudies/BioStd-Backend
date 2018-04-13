@@ -13,7 +13,7 @@
  * @author Mikhail Gostev <gostev@gmail.com>
  **/
 
-package uk.ac.ebi.biostd.webapp.shared.util;
+package uk.ac.ebi.biostd.webapp.server.shared.util;
 
 public class KV {
 

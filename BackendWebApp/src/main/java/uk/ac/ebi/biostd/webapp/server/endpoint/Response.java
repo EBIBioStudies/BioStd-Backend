@@ -18,7 +18,7 @@ package uk.ac.ebi.biostd.webapp.server.endpoint;
 import java.io.IOException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import uk.ac.ebi.biostd.webapp.shared.util.KV;
+import uk.ac.ebi.biostd.webapp.server.shared.util.KV;
 
 public interface Response {
 

@@ -8,14 +8,14 @@ import uk.ac.ebi.biostd.exporter.jobs.partial.PartialSubmissionExporter;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.PmcImporter;
 
 @RestController
-public class TasksControllers {
+public class TasksController {
 
     private final ExportPipeline fullExporter;
     private final ExportPipeline pmcExporter;
     private final PartialSubmissionExporter partialExporter;
     private final PmcImporter pmcImporter;
 
-    public TasksControllers(
+    public TasksController(
             @Qualifier("full") ExportPipeline fullExporter,
             @Qualifier("pmc") ExportPipeline pmcExporter,
             PartialSubmissionExporter partialExporter,
@@ -44,7 +44,7 @@ public class TasksControllers {
         return "ok";
     }
 
-    @GetMapping("/api/force/pmc")
+    @GetMapping("/api/force/pmc-import")
     public String pmcImporter() {
         pmcImporter.execute();
         return "ok";

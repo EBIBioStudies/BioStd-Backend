@@ -8,7 +8,9 @@ import uk.ac.ebi.biostd.exporter.configuration.GeneralConfiguration;
 import uk.ac.ebi.biostd.exporter.jobs.JobsPipelinesConfiguration;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.rest.NotificationController;
+import uk.ac.ebi.biostd.exporter.rest.TasksController;
 import uk.ac.ebi.biostd.exporter.service.SubmissionService;
+import uk.ac.ebi.biostd.remote.service.RemoteService;
 
 @Configuration
 @Import(GeneralConfiguration.class)
@@ -16,6 +18,8 @@ import uk.ac.ebi.biostd.exporter.service.SubmissionService;
         JobsPipelinesConfiguration.class,
         Queries.class,
         NotificationController.class,
+        TasksController.class,
+        RemoteService.class,
         SubmissionService.class})
 @EnableAutoConfiguration
 public class TestConfiguration {

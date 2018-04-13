@@ -13,7 +13,7 @@
  * @author Mikhail Gostev <gostev@gmail.com>
  **/
 
-package uk.ac.ebi.biostd.webapp.shared.tags;
+package uk.ac.ebi.biostd.webapp.server.shared.tags;
 
 import java.io.Serializable;
 

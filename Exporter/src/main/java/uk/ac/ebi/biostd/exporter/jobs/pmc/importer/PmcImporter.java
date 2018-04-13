@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.CvsTvsParser;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.PmcFileManager;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.SubmissionJsonSerializer;
@@ -14,6 +15,7 @@ import uk.ac.ebi.biostd.treelog.ErrorCounterImpl;
 import uk.ac.ebi.biostd.treelog.LogNode.Level;
 import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 
+@Component
 @AllArgsConstructor
 public class PmcImporter {
 

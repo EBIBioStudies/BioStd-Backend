@@ -59,9 +59,8 @@ public class PmcImporterTest extends BaseIntegrationTest {
         pmcImporter = new PmcImporter(
                 properties,
                 new CvsTvsParser(),
-                new PmcFileManager(properties.getSubmitterUserPath()),
+                new PmcFileManager(properties),
                 new RemoteService(restTemplate),
-                //new RemoteService(properties.getBackendUrl()),
                 new SubmissionJsonSerializer());
     }
 

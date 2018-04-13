@@ -98,11 +98,11 @@ import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.AccNoMatcher.Match;
 import uk.ac.ebi.biostd.webapp.server.search.SearchMapper;
+import uk.ac.ebi.biostd.webapp.server.shared.tags.TagRef;
 import uk.ac.ebi.biostd.webapp.server.util.DatabaseUtil;
 import uk.ac.ebi.biostd.webapp.server.util.ExceptionUtil;
 import uk.ac.ebi.biostd.webapp.server.vfs.InvalidPathException;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathInfo;
-import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
 import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
 
 @Slf4j
