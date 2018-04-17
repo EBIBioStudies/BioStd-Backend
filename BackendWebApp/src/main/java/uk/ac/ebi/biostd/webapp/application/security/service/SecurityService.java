@@ -176,12 +176,12 @@ public class SecurityService implements ISecurityService {
             case READ:
                 return isPublic || isAuthor || hasTag || isSuperUser;
             case SUBMIT:
-                return (isPublic && isAuthor) || isSuperUser;
+                return (isPublic && isAuthor) || isSuperUser || hasTag;
             case ATTACH:
                 return hasTag || isSuperUser;
             case UPDATE:
             case DELETE:
-                return isAuthor || isSuperUser;
+                return isAuthor || isSuperUser || hasTag;
         }
 
         throw new IllegalStateException("Not supported access type ");
