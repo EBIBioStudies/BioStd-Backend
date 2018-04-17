@@ -23,7 +23,6 @@ spring:
       password: # to be set in deployment script
 
 ---
-
 spring:
   profiles: local
 jobs:
@@ -52,8 +51,33 @@ jobs:
       fileNameFormat: EPMCLinks.part%03d.xml
       ftpPort: 21
       cron: 0 0/1 * * * ? # each minute
----
 
+---
+spring:
+  profiles: dev
+jobs:
+  partial:
+    enabled: true
+    filePath: /ebi/teams/biostudies/backend/development/updates
+    fileName: studies_partial
+    notificationUrl: http://ribs:8080/biostudies/biostudies/api/v1/index/reload/
+    cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
+  full:
+    enabled: true
+    filePath: /ebi/teams/biostudies/backend/development/updates
+    fileName: studies
+    workers: 4
+    queryModified:
+    notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/default
+    cron: 0 0 19 * * ? # everyday at 7 p.m.
+  pmc:
+    import:
+      user: admin_user@ebi.ac.uk
+      importPath: /nfs/ma/home/biostudy/EPMC-export/test_dum
+      submitterUserPath: /ebi/teams/biostudies/backend/development/dropbox/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3
+      backendUrl: http://biostudy-bia:8586/biostd
+
+---
 spring:
   profiles: beta
 jobs:
@@ -72,12 +96,8 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
-  pmc:
-    export:
-      enabled: false
-      cron:
----
 
+---
 spring:
   profiles: prod
 jobs:
