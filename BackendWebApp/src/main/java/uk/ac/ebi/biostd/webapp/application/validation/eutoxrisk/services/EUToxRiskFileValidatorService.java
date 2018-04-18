@@ -26,7 +26,7 @@ import static java.util.Collections.singletonList;
 @Slf4j
 public class EUToxRiskFileValidatorService {
 
-    private static final Pattern EXCEL = Pattern.compile(".*\\.xlsx");
+    private static final Pattern EXCEL = Pattern.compile(".*\\.xlsx?");
 
     private static final int VALIDATION_WAIT_TIME = 40;
 
