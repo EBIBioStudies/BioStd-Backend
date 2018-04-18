@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
+import uk.ac.ebi.biostd.webapp.application.persitence.common.AuxInfo;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessTag;

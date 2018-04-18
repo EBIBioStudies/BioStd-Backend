@@ -7,6 +7,7 @@ spring:
   datasource:
     generate-unique-name: true
 jobs:
+  backend-url: http://localhost:8181/biostd
   pmc:
     export:
       workers: 1

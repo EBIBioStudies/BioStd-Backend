@@ -12,7 +12,8 @@ spring:
     cache: false
     enabled: false
 server:
-  context-path: /biostd
+  servlet:
+    context-path: /biostd
 biostudy:
   tokenHash: biostd
 

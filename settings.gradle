@@ -7,3 +7,5 @@ include 'BackendWebApp'
 include 'ConvertTool'
 include 'SubmitTool'
 include 'Exporter'
+include 'Remote-Library'
+

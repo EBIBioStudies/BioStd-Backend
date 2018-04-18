@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ReqResp.Format;
-import uk.ac.ebi.biostd.webapp.shared.util.KV;
+import uk.ac.ebi.biostd.webapp.server.shared.util.KV;
 
 public class JSONHttpResponse implements Response {
 

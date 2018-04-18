@@ -18,6 +18,7 @@ package uk.ac.ebi.biostd.webapp.server.mng.impl;
 import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
 import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
 
+import com.pri.util.AccNoUtil;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -97,12 +98,11 @@ import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.AccNoMatcher.Match;
 import uk.ac.ebi.biostd.webapp.server.search.SearchMapper;
-import uk.ac.ebi.biostd.webapp.server.util.AccNoUtil;
+import uk.ac.ebi.biostd.webapp.server.shared.tags.TagRef;
 import uk.ac.ebi.biostd.webapp.server.util.DatabaseUtil;
 import uk.ac.ebi.biostd.webapp.server.util.ExceptionUtil;
 import uk.ac.ebi.biostd.webapp.server.vfs.InvalidPathException;
 import uk.ac.ebi.biostd.webapp.server.vfs.PathInfo;
-import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
 import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
 
 @Slf4j
@@ -420,7 +420,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
     @Override
     public SubmissionReport createSubmission(byte[] data, DataFormat type, String charset, Operation op, User usr,
-                                             boolean validateOnly, boolean ignoreAbsntFiles) {
+            boolean validateOnly, boolean ignoreAbsntFiles) {
         try {
             return createSubmissionUnsafe(data, type, charset, op, usr, validateOnly, ignoreAbsntFiles);
         } catch (Throwable e) {
@@ -475,7 +475,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private SubmissionReport createSubmissionUnsafe(byte[] data, DataFormat type, String charset, Operation op,
-                                                    User usr, boolean validateOnly, boolean ignoreFileAbs) {
+            User usr, boolean validateOnly, boolean ignoreFileAbs) {
 
         EntityManager em = BackendConfig.getServiceManager().getEntityManager();
         FileManager fileManager = BackendConfig.getServiceManager().getFileManager();
@@ -541,7 +541,6 @@ public class JPASubmissionManager implements SubmissionManager {
 
             for (SubmissionInfo si : doc.getSubmissions()) {
                 Submission submission = si.getSubmission();
-
 
                 submission.setOwner(usr);
 
@@ -1292,7 +1291,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private void commitFileTransaction(FileManager fileMngr, List<FileTransactionUnit> trans, Path trnPath,
-                                       Operation op) throws IOException {
+            Operation op) throws IOException {
         for (FileTransactionUnit ftu : trans) {
 
             Path dirToDel = null;
@@ -1340,7 +1339,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private boolean prepareFileTransaction(FileManager fileMngr, List<FileTransactionUnit> trans,
-                                           Collection<SubmissionInfo> subs, Path trnPath, Operation op) {
+            Collection<SubmissionInfo> subs, Path trnPath, Operation op) {
 
         for (SubmissionInfo si : subs) {
 
@@ -1608,7 +1607,6 @@ public class JPASubmissionManager implements SubmissionManager {
     public LogNode tranklucateSubmissionByAccessionPattern(String accPfx, User usr) {
         SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS, "Tranklucating submissions by pattern '" + accPfx + "'",
                 null);
-
 
         EntityManager em = emf.createEntityManager();
 
@@ -1896,7 +1894,7 @@ public class JPASubmissionManager implements SubmissionManager {
 
     @Override
     public LogNode updateSubmissionMeta(String acc, Collection<TagRef> tgRefs, Set<String> access, long rTime,
-                                        User usr) {
+            User usr) {
         ErrorCounter ec = new ErrorCounterImpl();
         SimpleLogNode gln = new SimpleLogNode(Level.SUCCESS, "Amending submission '" + acc + "' meta information", ec);
 

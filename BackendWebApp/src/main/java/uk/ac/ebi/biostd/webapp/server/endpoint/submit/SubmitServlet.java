@@ -29,8 +29,8 @@ import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation;
 import uk.ac.ebi.biostd.webapp.server.mng.UserManager;
 import uk.ac.ebi.biostd.webapp.server.security.Session;
-import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
-import uk.ac.ebi.biostd.webapp.shared.tags.TagRefParser;
+import uk.ac.ebi.biostd.webapp.server.shared.tags.TagRef;
+import uk.ac.ebi.biostd.webapp.server.shared.tags.TagRefParser;
 
 @WebServlet(urlPatterns = "/submit/*")
 public class SubmitServlet extends ServiceServlet {

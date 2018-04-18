@@ -22,7 +22,7 @@ import java.net.URLEncoder;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ReqResp.Format;
-import uk.ac.ebi.biostd.webapp.shared.util.KV;
+import uk.ac.ebi.biostd.webapp.server.shared.util.KV;
 
 public class TextHttpResponse implements Response {
 

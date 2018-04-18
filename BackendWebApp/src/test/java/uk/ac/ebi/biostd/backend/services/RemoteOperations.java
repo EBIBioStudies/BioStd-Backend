@@ -18,8 +18,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import uk.ac.ebi.biostd.backend.model.SubmissionResult;
-import uk.ac.ebi.biostd.webapp.application.security.entities.SignInRequest;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignInRequestDto;
 
 public class RemoteOperations {
 
@@ -34,7 +34,7 @@ public class RemoteOperations {
     }
 
     public LoginResponseDto login(String user, String password) {
-        SignInRequest signInRequest = new SignInRequest();
+        SignInRequestDto signInRequest = new SignInRequestDto();
         signInRequest.setLogin(user);
         signInRequest.setPassword(password);
 

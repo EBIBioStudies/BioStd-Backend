@@ -3,9 +3,6 @@ context:
     classes: uk.ac.ebi.biostd.exporter.configuration.QueryLoader
 server:
   port: 8181
-logging:
-  file: logs/log.file
-  level: INFO
 spring:
   profiles:
     active: local
@@ -26,22 +23,22 @@ spring:
       password: # to be set in deployment script
 
 ---
-
 spring:
   profiles: local
 jobs:
+  backend-url: http://localhost:8586/biostd
   partial:
     enabled: false
     filePath: ./generated/
     fileName: studies_partial
-    notificationUrl: http://localhost:8181/api/update/partial/
+    notificationUrl: http://localhost:8586/api/update/partial/
     cron: 0/20 * * * * ? # each 20 seconds
   full:
     enabled: false
     filePath: ./generated/
     fileName: studies
     workers: 1
-    notificationUrl: http://localhost:8181/api/update/full
+    notificationUrl: http://localhost:8586/api/update/full
     query-modified: limit 100
     cron: 0 0/1 * * * ? # each minute
   pmc:
@@ -55,11 +52,38 @@ jobs:
       fileNameFormat: EPMCLinks.part%03d.xml
       ftpPort: 21
       cron: 0 0/1 * * * ? # each minute
----
 
+---
+spring:
+  profiles: dev
+jobs:
+  backend-url: http://biostudy-bia:8586/biostd
+  partial:
+    enabled: true
+    filePath: /ebi/teams/biostudies/backend/development/updates/
+    fileName: studies_partial
+    notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/
+    cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
+  full:
+    enabled: true
+    filePath: /ebi/teams/biostudies/backend/development/updates/
+    fileName: studies
+    workers: 4
+    queryModified:
+    notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/default
+    cron: 0 0 19 * * ? # everyday at 7 p.m.
+  pmc:
+    import:
+      user: admin_user@ebi.ac.uk
+      importPath: /nfs/ma/home/biostudy/EPMC-export/test_dum
+      submitterUserPath: /ebi/teams/biostudies/backend/development/dropbox/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3
+      backendUrl: http://biostudy-bia:8586/biostd
+
+---
 spring:
   profiles: beta
 jobs:
+  backend-url: http://localhost:8586/biostd
   partial:
     enabled: true
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
@@ -75,15 +99,12 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
-  pmc:
-    export:
-      enabled: false
-      cron:
----
 
+---
 spring:
   profiles: prod
 jobs:
+  backend-url: http://localhost:8586/biostd
   partial:
     enabled: true
     filePath: /nfs/biostudies/.adm/databases/prod/updates/

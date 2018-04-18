@@ -23,7 +23,7 @@ import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
-import uk.ac.ebi.biostd.webapp.shared.tags.TagRef;
+import uk.ac.ebi.biostd.webapp.server.shared.tags.TagRef;
 
 public interface SubmissionManager {
 

@@ -33,8 +33,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.TestConfiguration;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.PmcExport;
-import uk.ac.ebi.biostd.exporter.jobs.pmc.PmcJobsFactory;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcExport;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcJobsFactory;
 import uk.ac.ebi.biostd.exporter.schedulers.JobsScheduler;
 
 @RunWith(SpringRunner.class)

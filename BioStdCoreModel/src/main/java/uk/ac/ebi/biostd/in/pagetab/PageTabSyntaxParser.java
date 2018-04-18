@@ -46,7 +46,6 @@ import uk.ac.ebi.biostd.in.CellPointer;
 import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.Parser;
 import uk.ac.ebi.biostd.in.ParserConfig;
-import uk.ac.ebi.biostd.in.ParserException;
 import uk.ac.ebi.biostd.in.pagetab.context.BlockContext;
 import uk.ac.ebi.biostd.in.pagetab.context.BlockContext.BlockType;
 import uk.ac.ebi.biostd.in.pagetab.context.FileContext;
@@ -71,19 +70,16 @@ import uk.ac.ebi.mg.spreadsheet.SpreadsheetReader;
 
 public class PageTabSyntaxParser extends Parser {
 
+    private static final Pattern NameQualifierPattern = Pattern.compile(NameQualifierRx);
+    private static final Pattern ValueQualifierPattern = Pattern.compile(ValueQualifierRx);
+    private static final Pattern ReferencePattern = Pattern.compile(ReferenceRx);
+    private static final Pattern GeneratedAccNo = Pattern.compile(GeneratedAccNoRx);
 
-    public static final Pattern NameQualifierPattern = Pattern.compile(NameQualifierRx);
-    public static final Pattern ValueQualifierPattern = Pattern.compile(ValueQualifierRx);
-    public static final Pattern TableBlockPattern = Pattern.compile(TableBlockRx);
-    public static final Pattern ReferencePattern = Pattern.compile(ReferenceRx);
-    public static final Pattern GeneratedAccNo = Pattern.compile(GeneratedAccNoRx);
-    private final TagResolver tagRslv;
+    private final TagResolver tagResolver;
     private final ParserConfig config;
 
-
     public PageTabSyntaxParser(TagResolver tr, ParserConfig pConf) {
-        tagRslv = tr;
-
+        tagResolver = tr;
         config = pConf;
     }
 
@@ -97,7 +93,7 @@ public class PageTabSyntaxParser extends Parser {
         return true;
     }
 
-    public PMDoc parse(SpreadsheetReader reader, LogNode topLn) throws ParserException {
+    public PMDoc parse(SpreadsheetReader reader, LogNode topLn) {
         Matcher tableBlockMtch = Pattern.compile(TableBlockRx).matcher("");
         Matcher genAccNoMtch = GeneratedAccNo.matcher("");
 
@@ -116,14 +112,7 @@ public class PageTabSyntaxParser extends Parser {
         BlockContext context = new VoidContext();
 
         List<String> parts = new ArrayList<>(100);
-
-//  Map<String,SectionContext> parentsSectionMap = new HashMap<String, SectionContext>();
-
         int lineNo = 0;
-
-//  Section lastSection = null;
-
-//  SectionContext lastSecContext = null;
 
         SectionOccurrence lastSectionOccurance = null;
         SectionOccurrence rootSectionOccurance = null;
@@ -155,14 +144,6 @@ public class PageTabSyntaxParser extends Parser {
             if (isEmptyLine(parts)) {
                 if (context.getBlockType() != BlockType.NONE) {
                     context.finish();
-
-//     BlockContext pc=null;
-
-//     if( context.getBlockType() == BlockType.SUBMISSION || context.getBlockType() == BlockType.SECTION )
-//      pc = context;
-//     else
-//      pc = context.getParentContext();
-
                     context = new VoidContext();
                 }
 
@@ -496,7 +477,7 @@ public class PageTabSyntaxParser extends Parser {
         List<T> tags = null;
 
         if (cell != null && cell.length() > 0) {
-            if (tagRslv == null) {
+            if (tagResolver == null) {
                 ln.log(Level.WARN, "(R" + r + ",C" + c + ") Tag resolver is not configured. Tags will be ignored");
             } else {
                 LogNode acNode = ln.branch("Resolving tags");
@@ -515,7 +496,7 @@ public class PageTabSyntaxParser extends Parser {
         List<AccessTag> tags = null;
 
         if (cell != null && cell.length() > 0) {
-            if (tagRslv == null) {
+            if (tagResolver == null) {
                 ln.log(Level.WARN,
                         "(R" + r + ",C" + c + ") Tag resolver is not configured. Access tags will be ignored");
             } else {
@@ -561,7 +542,7 @@ public class PageTabSyntaxParser extends Parser {
             String cls = StringUtils.removeEscapes(clsTg.get(0).trim(), EscChar);
             String tgn = StringUtils.removeEscapes(clsTg.get(1).trim(), EscChar);
 
-            Tag tg = tagRslv.getTagByName(cls, tgn);
+            Tag tg = tagResolver.getTagByName(cls, tgn);
 
             if (val != null && val.length() > 0) {
                 val = StringUtils.removeEscapes(val, EscChar);
@@ -587,7 +568,7 @@ public class PageTabSyntaxParser extends Parser {
         return res;
     }
 
-    public List<AccessTag> resolveAccessTags(String value, LogNode.Level ll, int r, int c, LogNode acNode) {
+    private List<AccessTag> resolveAccessTags(String value, LogNode.Level ll, int r, int c, LogNode acNode) {
         List<String> tags = StringUtils.splitEscapedString(value, TagSeparator1, PageTabElements.EscChar, 0);
 
         List<AccessTag> res = new ArrayList<>(tags.size());
@@ -600,7 +581,7 @@ public class PageTabSyntaxParser extends Parser {
                 continue;
             }
 
-            AccessTag tg = tagRslv.getAccessTagByName(t);
+            AccessTag tg = tagResolver.getAccessTagByName(t);
 
             if (tg != null) {
                 res.add(tg);

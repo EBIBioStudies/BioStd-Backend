@@ -18,8 +18,8 @@ import lombok.Setter;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import uk.ac.ebi.biostd.webapp.application.domain.events.PassResetEvent;
 import uk.ac.ebi.biostd.webapp.application.domain.events.UserCreatedEvent;
-import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
-import uk.ac.ebi.biostd.webapp.application.persitence.aux.UserAuxInfoConverter;
+import uk.ac.ebi.biostd.webapp.application.persitence.common.AuxInfo;
+import uk.ac.ebi.biostd.webapp.application.persitence.common.UserAuxInfoConverter;
 
 @Entity
 @Getter

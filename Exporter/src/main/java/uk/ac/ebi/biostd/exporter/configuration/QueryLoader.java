@@ -4,10 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-import org.springframework.boot.env.PropertySourcesLoader;
+import org.springframework.boot.env.PropertiesPropertySourceLoader;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -33,7 +32,6 @@ public class QueryLoader implements ApplicationListener<ApplicationEnvironmentPr
     @SneakyThrows
     private void loadResource(MutablePropertySources sources, String path) {
         Resource resource = loader.getResource(path);
-        PropertySource<?> propertySource = new PropertySourcesLoader().load(resource);
-        sources.addLast(propertySource);
+        new PropertiesPropertySourceLoader().load(resource.getFilename(), resource).forEach(sources::addLast);
     }
 }

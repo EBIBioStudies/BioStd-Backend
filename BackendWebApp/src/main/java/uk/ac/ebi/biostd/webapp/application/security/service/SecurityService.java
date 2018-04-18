@@ -12,8 +12,8 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostd.webapp.application.persitence.aux.AuxInfo;
-import uk.ac.ebi.biostd.webapp.application.persitence.aux.Parameter;
+import uk.ac.ebi.biostd.webapp.application.persitence.common.AuxInfo;
+import uk.ac.ebi.biostd.webapp.application.persitence.common.Parameter;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessTag;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.SecurityToken;
@@ -170,19 +170,18 @@ public class SecurityService implements ISecurityService {
         boolean isAuthor = submission.getOwnerId() == userId;
         boolean isPublic = isPublicSubmission(submission.getAccessTag());
         boolean isSuperUser = user.isSuperuser();
-        boolean hasAccessTag = permissionsRepository
-                .existsByAccessTagInAndAccessType(submission.getAccessTag(), accessType);
+        boolean hasTag = permissionsRepository.existsByAccessTagInAndAccessType(submission.getAccessTag(), accessType);
 
         switch (accessType) {
             case READ:
-                return isPublic || isAuthor;
+                return isPublic || isAuthor || hasTag || isSuperUser;
             case SUBMIT:
-                return (isPublic && isAuthor) || isSuperUser;
+                return (isPublic && isAuthor) || isSuperUser || hasTag;
             case ATTACH:
-                return hasAccessTag || isSuperUser;
+                return hasTag || isSuperUser;
             case UPDATE:
             case DELETE:
-                return isAuthor || isSuperUser;
+                return isAuthor || isSuperUser || hasTag;
         }
 
         throw new IllegalStateException("Not supported access type ");
