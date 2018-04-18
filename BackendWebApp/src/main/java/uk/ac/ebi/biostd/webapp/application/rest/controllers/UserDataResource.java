@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +37,9 @@ public class UserDataResource {
                 .orElse(builder.build());
     }
 
+    /**
+     * @deprecated use {@link #deleteData(String, String, User)} TODO: replace when ui start using delete method.
+     */
     @PostMapping("/userdata/del")
     public void delete(
             @RequestParam(name = "topic") String topic,
@@ -43,6 +47,15 @@ public class UserDataResource {
             @AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
         userDataService.deleteModifiedSubmission(user.getId(), key);
     }
+
+    @DeleteMapping("/userdata/del")
+    public void deleteData(
+            @RequestParam(name = "topic") String topic,
+            @RequestParam(name = "key") String key,
+            @AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
+        userDataService.deleteModifiedSubmission(user.getId(), key);
+    }
+
 
     @GetMapping("/userdata/listjson")
     public ResponseEntity<String> getTopicData(

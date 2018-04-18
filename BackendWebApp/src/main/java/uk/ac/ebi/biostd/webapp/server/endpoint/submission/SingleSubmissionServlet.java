@@ -4,11 +4,9 @@ import com.pri.util.HttpAccept;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostd.in.PMDoc;
 import uk.ac.ebi.biostd.in.pagetab.SubmissionInfo;
@@ -42,8 +40,7 @@ public class SingleSubmissionServlet extends ServiceServlet {
     }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
-            throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess) throws IOException {
         PrintWriter out = resp.getWriter();
 
         String format = req.getParameter(FormatParameter);
@@ -137,8 +134,6 @@ public class SingleSubmissionServlet extends ServiceServlet {
             resp.setContentType("text/xml; charset=utf-8");
             new PageMLFormatter(out, cutTech).format(sub, out);
         }
-
-
     }
 
     private Response getResponse(String fmt, HttpServletResponse response) {
