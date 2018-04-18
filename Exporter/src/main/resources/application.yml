@@ -60,13 +60,13 @@ jobs:
   backend-url: http://biostudy-bia:8586/biostd
   partial:
     enabled: true
-    filePath: /ebi/teams/biostudies/backend/development/updates
+    filePath: /ebi/teams/biostudies/backend/development/updates/
     fileName: studies_partial
-    notificationUrl: http://ribs:8080/biostudies/biostudies/api/v1/index/reload/
+    notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/
     cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
   full:
     enabled: true
-    filePath: /ebi/teams/biostudies/backend/development/updates
+    filePath: /ebi/teams/biostudies/backend/development/updates/
     fileName: studies
     workers: 4
     queryModified:

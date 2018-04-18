@@ -27,6 +27,9 @@ public class RemoveFilesJobListener implements JobListener {
             for (FTPFile ftpFile : files) {
                 ftpClient.deleteFile(ftpConfig.getOutputFolder() + "/" + ftpFile.getName());
             }
+
+            ftpClient.logout();
+            ftpClient.disconnect();
         } catch (IOException e) {
             log.error("error performing ftp operation", e);
         }
