@@ -31,19 +31,19 @@ public class JobsScheduler {
     @Value("${jobs.full.enabled:false}")
     private boolean enabledFullExport;
 
-    @Value("${jobs.full.cron}")
+    @Value("${jobs.full.cron:''}")
     private String fullCron;
 
     @Value("${jobs.partial.enabled:false}")
     private boolean enabledPartial;
 
-    @Value("${jobs.partial.cron}")
+    @Value("${jobs.partial.cron:''}")
     private String partialCron;
 
     @Value("${jobs.pmc.export.enabled:false}")
     private boolean enablePmc;
 
-    @Value("${jobs.pmc.export.cron}")
+    @Value("${jobs.pmc.export.cron:''}")
     private String pmcCron;
 
     public JobsScheduler(
