@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.webapp.application.persitence.aux;
+package uk.ac.ebi.biostd.webapp.application.persitence.common;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

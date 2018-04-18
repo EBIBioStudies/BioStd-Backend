@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.webapp.application.persitence.aux;
+package uk.ac.ebi.biostd.webapp.application.persitence.common;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
