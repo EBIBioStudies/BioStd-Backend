@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import uk.ac.ebi.biostd.authz.AccessTag;
@@ -46,11 +47,7 @@ public class JSONFormatter implements AbstractFormatter {
     public static final String rootSecProperty = "section";
     public static final String attrubutesProperty = "attributes";
     public static final String idProperty = "id";
-    public static final String ctimeProperty = "ctime";
-    public static final String mtimeProperty = "mtime";
-    public static final String rtimeProperty = "rtime";
     public static final String accNoProperty = "accno";
-    public static final String relPathProperty = "relPath";
     public static final String accTagsProperty = "accessTags";
     public static final String classTagsProperty = "tags";
     public static final String tagProperty = "tag";
@@ -67,45 +64,39 @@ public class JSONFormatter implements AbstractFormatter {
     public static final String linksProperty = "links";
     public static final String urlProperty = "url";
     public static final String pathProperty = "path";
-    public static final String seckeyProperty = "seckey";
 
-    public final static String dateFotmat = "yyyy-MM-dd";
+    private static final String ctimeProperty = "ctime";
+    private static final String mtimeProperty = "mtime";
+    private static final String rtimeProperty = "rtime";
+    private static final String seckeyProperty = "seckey";
+    private final static String dateFotmat = "yyyy-MM-dd";
+    private static final String relPathProperty = "relPath";
 
-
-    private Appendable outStream;
-
-    private DateFormat dateFmt;
-
-    private boolean cutTech = false;
-
-    public JSONFormatter() {
-    }
+    private final Appendable outStream;
+    private final DateFormat dateFmt;
+    private final boolean cutTech;
 
     public JSONFormatter(Appendable o, boolean cut) {
         outStream = o;
         cutTech = cut;
+        dateFmt = new SimpleDateFormat(dateFotmat);
     }
-
 
     @Override
     public void format(PMDoc document) throws IOException {
         header(document.getHeaders(), outStream);
+        boolean addSeparator = false;
 
-        boolean first = true;
-
-        for (SubmissionInfo s : document.getSubmissions()) {
-            if (first) {
-                first = false;
-            } else {
+        for (SubmissionInfo submission : document.getSubmissions()) {
+            if (addSeparator) {
                 separator(outStream);
             }
-
-            format(s.getSubmission(), outStream);
+            format(submission.getSubmission(), outStream);
+            addSeparator = true;
         }
 
         footer(outStream);
     }
-
 
     @Override
     public void header(Map<String, List<String>> hdrs, Appendable out) throws IOException {
@@ -132,12 +123,10 @@ public class JSONFormatter implements AbstractFormatter {
 
     }
 
-
     @Override
     public void footer(Appendable out) throws IOException {
         out.append("\n]\n}");
     }
-
 
     @Override
     public void separator(Appendable out) throws IOException {
@@ -189,10 +178,6 @@ public class JSONFormatter implements AbstractFormatter {
         }
 
         if (s.isRTimeSet()) {
-            if (dateFmt == null) {
-                dateFmt = new SimpleDateFormat(dateFotmat);
-            }
-
             auxAttrMap.put(Submission.canonicReleaseDateAttribute, dateFmt.format(new Date(s.getRTime() * 1000)));
         }
 
@@ -276,7 +261,6 @@ public class JSONFormatter implements AbstractFormatter {
         return jsobj;
     }
 
-
     private void appendFiles(JSONObject jsobj, Section s) {
         if (s.getFileRefs() == null || s.getFileRefs().size() == 0) {
             return;
@@ -289,7 +273,7 @@ public class JSONFormatter implements AbstractFormatter {
         for (FileRef fr : s.getFileRefs()) {
             JSONObject jsfl = new JSONObject();
 
-            jsfl.put(pathProperty, fr.getPath() != null ? fr.getPath() : fr.getName());
+            jsfl.put(pathProperty, formatPath(fr.getPath() != null ? fr.getPath() : fr.getName()));
 
             if (fr.getSize() != 0) {
                 jsfl.put(sizeProperty, fr.getSize());
@@ -315,6 +299,11 @@ public class JSONFormatter implements AbstractFormatter {
         }
 
         jsobj.put(filesProperty, flarr);
+    }
+
+    private String formatPath(String path) {
+        return StringUtils.startsWith(path, "u/") ?
+                StringUtils.replace(path, "u/", "") : path;
     }
 
     private void appendLinks(JSONObject jsobj, Section s) {
