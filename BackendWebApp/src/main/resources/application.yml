@@ -5,7 +5,7 @@ server:
     contextPath: /biostd
 
 biostudy:
-  baseDir: /home/jcamilorada/Projects/BioStudies/NFS
+  baseDir:
   tokenHash: biostd
 
 spring:
