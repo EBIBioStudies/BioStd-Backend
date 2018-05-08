@@ -36,6 +36,8 @@ dependencies {
 
     compile('org.easybatch:easybatch-core:5.2.0')
     compile('org.easybatch:easybatch-jdbc:5.2.0')
+    compile('org.easybatch:easybatch-apache-commons-csv:5.2.0')
+
     compile('com.google.guava:guava:23.0')
     compile('com.fasterxml.jackson.core:jackson-core:2.9.1')
 

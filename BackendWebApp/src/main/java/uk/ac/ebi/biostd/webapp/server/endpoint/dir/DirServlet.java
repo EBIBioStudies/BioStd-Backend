@@ -157,22 +157,6 @@ public class DirServlet extends ServiceServlet {
 
             if (pi.getTarget() == PathTarget.ROOT) {
                 findFiles(udir.toFile(), "/" + USER_VIRT_DIR, filt, files);
-
-                if (user.getGroups() != null) {
-                    for (UserGroup g : user.getGroups()) {
-                        if (!g.isProject() || !BackendConfig.getServiceManager().getSecurityManager()
-                                .mayUserReadGroupFiles(user, g)) {
-                            continue;
-                        }
-
-                        String gpath = "/" + GROUP_VIRT_DIR + "/" + g.getName();
-                        File rFile = BackendConfig.getGroupDirPath(g).toFile();
-
-                        if (rFile.exists()) {
-                            findFiles(rFile, gpath, filt, files);
-                        }
-                    }
-                }
             } else if (pi.getTarget() == PathTarget.GROUPS) {
                 if (user.getGroups() != null) {
                     for (UserGroup g : user.getGroups()) {

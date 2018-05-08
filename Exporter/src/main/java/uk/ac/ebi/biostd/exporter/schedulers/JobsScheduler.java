@@ -43,7 +43,17 @@ public class JobsScheduler {
     @Value("${jobs.pmc.export.enabled:false}")
     private boolean enablePmc;
 
+<<<<<<< Updated upstream
     @Value("${jobs.pmc.export.cron:''}")
+=======
+    @Value("${jobs.dummy.enabled}")
+    private boolean enableDummy;
+
+    @Value("${jobs.dummy.cron}")
+    private String dummyCron;
+
+    @Value("${jobs.pmc.export.cron}")
+>>>>>>> Stashed changes
     private String pmcCron;
 
     public JobsScheduler(
@@ -69,6 +79,10 @@ public class JobsScheduler {
 
         if (enablePmc) {
             taskScheduler.schedule(pmcExporter::execute, new CronTrigger(pmcCron, TIME_ZONE));
+        }
+
+        if (enableDummy) {
+            taskScheduler.schedule(pmcExporter::execute, new CronTrigger(dummyCron, TIME_ZONE));
         }
     }
 }
