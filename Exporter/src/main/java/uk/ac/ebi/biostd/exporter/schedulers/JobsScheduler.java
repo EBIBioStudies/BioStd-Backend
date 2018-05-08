@@ -43,17 +43,13 @@ public class JobsScheduler {
     @Value("${jobs.pmc.export.enabled:false}")
     private boolean enablePmc;
 
-<<<<<<< Updated upstream
-    @Value("${jobs.pmc.export.cron:''}")
-=======
     @Value("${jobs.dummy.enabled}")
     private boolean enableDummy;
 
     @Value("${jobs.dummy.cron}")
     private String dummyCron;
 
-    @Value("${jobs.pmc.export.cron}")
->>>>>>> Stashed changes
+    @Value("${jobs.pmc.export.cron:''}")
     private String pmcCron;
 
     public JobsScheduler(

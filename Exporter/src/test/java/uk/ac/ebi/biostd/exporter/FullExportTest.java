@@ -77,9 +77,10 @@ public class FullExportTest extends BaseIntegrationTest {
 
         File[] files = folder.getRoot().listFiles();
         assertThat(files).hasSize(2);
-        assertThatJsonFile(files[0]);
-        assertXmlFile(files[1]);
+        assertThatJsonFile(files[1]);
+        assertXmlFile(files[0]);
     }
+
 
     private void assertXmlFile(File file) {
         Source control = Input.fromFile(getResource("/test_files/full.xml").getAbsolutePath()).build();

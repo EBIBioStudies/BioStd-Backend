@@ -1,5 +1,9 @@
 package uk.ac.ebi.biostd.webapp;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,11 +20,6 @@ import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFil
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidator;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRiskFileValidatorService;
 
-import java.util.Collection;
-
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Olga Melnichuk
  */
@@ -32,11 +31,11 @@ public class EUToxRiskValidatorTest {
     private static final String INVALID_FILE = "/input/eutoxrisk_datafile_invalid.xls";
 
     @Autowired
-    @Qualifier("eutoxrisk-file-validator")
+    @Qualifier("eutoxrisk-file-validator-executor")
     private ThreadPoolTaskExecutor taskExecutor;
 
     @Autowired
-    @Qualifier("eutoxrisk-file-validator")
+    @Qualifier("eutoxrisk-file-validator-rest-template")
     private RestTemplate restTemplate;
 
     @Autowired
