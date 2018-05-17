@@ -1,8 +1,8 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -10,9 +10,13 @@ import java.util.List;
 public class PendingSubmissionListDto {
 
     private List<PendingSubmissionListItemDto> submissions;
-    private String status = "OK";
+    private final String status = "OK";
 
     public PendingSubmissionListDto(List<PendingSubmissionListItemDto> submissions) {
-        this.submissions = submissions;
+        this.submissions = Collections.unmodifiableList(submissions);
+    }
+
+    public void setSubmissions(List<PendingSubmissionListItemDto> submissions) {
+        this.submissions = Collections.unmodifiableList(submissions);
     }
 }

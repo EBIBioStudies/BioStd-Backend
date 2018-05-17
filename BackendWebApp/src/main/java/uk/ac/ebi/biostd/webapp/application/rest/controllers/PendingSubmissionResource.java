@@ -17,7 +17,7 @@ public class PendingSubmissionResource {
 
     private final PendingSubmissionService pendingSubmissionService;
 
-    @GetMapping("/submissions/pending")
+    @GetMapping("/sbmlist/pending")
     public @ResponseBody PendingSubmissionListDto getSubmissions(
             PendingSubmissionListFiltersDto filters,
             @AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
