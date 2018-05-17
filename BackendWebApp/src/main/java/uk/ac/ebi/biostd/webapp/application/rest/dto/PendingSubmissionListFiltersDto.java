@@ -3,7 +3,7 @@ package uk.ac.ebi.biostd.webapp.application.rest.dto;
 import lombok.Data;
 
 @Data
-public class SubmissionListFiltersDto {
+public class PendingSubmissionListFiltersDto {
     private final Integer offset;
     private final Integer limit;
     private final String accNo;

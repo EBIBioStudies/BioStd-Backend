@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.domain.services.UserDataService;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserData;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmissionListFiltersDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
 
@@ -38,8 +38,8 @@ public class PendingSubmissionService {
     private final UserDataService userDataService;
     private final PendingSubmissionUtil pendingSubmissionUtil;
 
-    public PendingSubmissionListDto getSubmissions(SubmissionListFiltersDto filters, User user) {
-        Predicate<? super PendingSubmissionListItemDto> predicate = new PendingSubmissionFilters(filters).asPredicate();
+    public PendingSubmissionListDto getSubmissions(PendingSubmissionListFiltersDto filters, User user) {
+        Predicate<? super PendingSubmissionListItemDto> predicate = new PendingSubmissionListFilter(filters).asPredicate();
 
         List<PendingSubmissionListItemDto> submissions = userDataService.findAllByUserAndTopic(user.getId(), TOPIC)
                 .stream()
