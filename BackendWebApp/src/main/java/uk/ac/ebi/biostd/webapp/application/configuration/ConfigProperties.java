@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.configuration;
 
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.BIOSTUDY_BASE_DIR;
 
 import com.google.common.base.Preconditions;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigProperties {
 
-    public static final String CONFIG_FILE_LOCATION_VAR = "biostudy.configFile";
+    private static final String CONFIG_FILE_LOCATION_VAR = "biostudy.configFile";
 
     private final Properties properties;
     private final Environment environment;
@@ -29,7 +30,10 @@ public class ConfigProperties {
     }
 
     public String get(String property) {
-        return Preconditions.checkNotNull(properties.getProperty(property), property + " property could not be found");
+        String propertyVal = properties.getProperty(property);
+        propertyVal = defaultIfNull(propertyVal, environment.getProperty(property));
+
+        return Preconditions.checkNotNull(propertyVal, property + " property could not be found");
     }
 
     private void loadProperties(ServletContext context) throws IOException {

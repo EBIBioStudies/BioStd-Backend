@@ -10,12 +10,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.WebUtils;
+import uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
 import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
@@ -23,14 +23,21 @@ import uk.ac.ebi.biostd.webapp.server.mng.security.SecurityManager;
 /**
  * Executed before any request is in charge of obtain and set security user.
  */
-@AllArgsConstructor
 public class SecurityFilter extends GenericFilterBean {
 
     public static final String HEADER_NAME = "X-Session-Token";
-    private static final String COOKIE_NAME = "BIOSTDSESS";
+    public static final String COOKIE_NAME = "BIOSTDSESS";
+    public static final String ENV_VAR = "biostudy.environment";
 
-    private ISecurityService securityService;
-    private SecurityManager securityManager;
+    private final ISecurityService securityService;
+    private final SecurityManager securityManager;
+    private final String cookieName;
+
+    public SecurityFilter(ISecurityService securityService, SecurityManager securityManager, ConfigProperties config) {
+        this.securityService = securityService;
+        this.securityManager = securityManager;
+        this.cookieName = COOKIE_NAME + "-" + config.get(ENV_VAR);
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -64,7 +71,7 @@ public class SecurityFilter extends GenericFilterBean {
             return header;
         }
 
-        Cookie cookie = WebUtils.getCookie(httpRequest, COOKIE_NAME);
+        Cookie cookie = WebUtils.getCookie(httpRequest, cookieName);
         if (cookie != null && !Strings.isNullOrEmpty(cookie.getValue())) {
             return cookie.getValue();
         }

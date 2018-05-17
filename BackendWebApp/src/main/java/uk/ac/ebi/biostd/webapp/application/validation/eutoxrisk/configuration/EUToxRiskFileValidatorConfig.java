@@ -1,5 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration;
 
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import javax.net.ssl.SSLContext;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -14,11 +18,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.common.EUToxRiskFileValidationException;
 
-import javax.net.ssl.SSLContext;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-
 @Configuration
 public class EUToxRiskFileValidatorConfig {
 
@@ -26,7 +25,7 @@ public class EUToxRiskFileValidatorConfig {
     private static final int MAX_POOL_SIZE = 10;
 
     @Bean
-    @Qualifier("eutoxrisk-file-validator")
+    @Qualifier("eutoxrisk-file-validator-rest-template")
     public RestTemplate restTemplate(SSLContext sslContext) throws EUToxRiskFileValidationException {
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setSSLSocketFactory(new SSLConnectionSocketFactory(sslContext))
@@ -54,7 +53,7 @@ public class EUToxRiskFileValidatorConfig {
     }
 
     @Bean
-    @Qualifier("eutoxrisk-file-validator")
+    @Qualifier("eutoxrisk-file-validator-executor")
     public ThreadPoolTaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
         pool.setCorePoolSize(CORE_POOL_SIZE);
@@ -65,7 +64,7 @@ public class EUToxRiskFileValidatorConfig {
 
     @Bean
     @ConfigurationProperties("eutoxrisk-file-validator")
-    public EUToxRiskFileValidatorProperties properties() {
+    public EUToxRiskFileValidatorProperties validatorProperties() {
         return new EUToxRiskFileValidatorProperties();
     }
 }

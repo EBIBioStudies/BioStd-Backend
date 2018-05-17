@@ -1,11 +1,12 @@
 package uk.ac.ebi.biostd.webapp.application.security.rest;
 
 import static uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType.ATTACH;
+import static uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter.COOKIE_NAME;
+import static uk.ac.ebi.biostd.webapp.application.security.rest.SecurityFilter.ENV_VAR;
 
 import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.biostd.webapp.application.common.utils.PlainFileFormat;
 import uk.ac.ebi.biostd.webapp.application.common.utils.WebUtils;
+import uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
@@ -39,17 +41,24 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 import uk.ac.ebi.biostd.webapp.application.security.service.ISecurityService;
 import uk.ac.ebi.biostd.webapp.application.submission.ISubmissionService;
 
-@AllArgsConstructor
 @Controller
 public class SecurityController {
 
-    private static final String SECURITY_COOKIE_NAME = "BIOSTDSESS";
-
+    private final String cookieName;
     private final ProjectMapper projectMapper;
     private final ISecurityService securityService;
     private final ISubmissionService submissionService;
 
     private final PermissionMapper permissionMapper;
+
+    public SecurityController(ConfigProperties config, ProjectMapper projectMapper,
+            ISecurityService securityService, ISubmissionService submissionService, PermissionMapper permissionMapper) {
+        this.projectMapper = projectMapper;
+        this.securityService = securityService;
+        this.submissionService = submissionService;
+        this.permissionMapper = permissionMapper;
+        this.cookieName = COOKIE_NAME + "-" + config.get(ENV_VAR);
+    }
 
     @GetMapping("/atthost")
     @PreAuthorize("isAuthenticated()")
@@ -91,7 +100,7 @@ public class SecurityController {
     public @ResponseBody LoginResponseDto sign(@RequestBody SignInRequestDto signInRequest,
             HttpServletResponse response) {
         UserData userData = securityService.signIn(signInRequest.getLogin(), signInRequest.getPassword());
-        response.addCookie(new Cookie(SECURITY_COOKIE_NAME, userData.getToken()));
+        response.addCookie(new Cookie(cookieName, userData.getToken()));
         return permissionMapper.getLoginResponse(userData);
     }
 
@@ -100,7 +109,7 @@ public class SecurityController {
     public @ResponseBody SignoutResponseDto signOut(@RequestBody SignoutRequestDto signoutRequest,
             HttpServletResponse response) {
         securityService.signOut(signoutRequest.getSessid());
-        response.addCookie(WebUtils.newExpiredCookie(SECURITY_COOKIE_NAME));
+        response.addCookie(WebUtils.newExpiredCookie(cookieName));
 
         return new SignoutResponseDto("User logged out", "OK");
     }

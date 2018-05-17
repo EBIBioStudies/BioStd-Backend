@@ -21,4 +21,9 @@ jobs:
     workers: 1
     filePath: ./generated/
     fileName: studies
+    queryModified:
     notificationUrl: http://localhost:8181/api/update/full
+  stats:
+    basePath: /nfs/biostudies/.adm/databases/beta/submission
+    outFilePath: /nfs/biostudies/.adm/databases/beta/updates/stats.csv
+    workers: 4

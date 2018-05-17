@@ -16,6 +16,7 @@ server:
     context-path: /biostd
 biostudy:
   tokenHash: biostd
+  environment: DEV
 
 eutoxrisk-file-validator:
   enabled: true

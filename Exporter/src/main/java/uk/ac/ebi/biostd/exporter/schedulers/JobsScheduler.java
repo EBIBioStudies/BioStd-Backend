@@ -43,6 +43,12 @@ public class JobsScheduler {
     @Value("${jobs.pmc.export.enabled:false}")
     private boolean enablePmc;
 
+    @Value("${jobs.dummy.enabled}")
+    private boolean enableDummy;
+
+    @Value("${jobs.dummy.cron}")
+    private String dummyCron;
+
     @Value("${jobs.pmc.export.cron:''}")
     private String pmcCron;
 
@@ -69,6 +75,10 @@ public class JobsScheduler {
 
         if (enablePmc) {
             taskScheduler.schedule(pmcExporter::execute, new CronTrigger(pmcCron, TIME_ZONE));
+        }
+
+        if (enableDummy) {
+            taskScheduler.schedule(pmcExporter::execute, new CronTrigger(dummyCron, TIME_ZONE));
         }
     }
 }
