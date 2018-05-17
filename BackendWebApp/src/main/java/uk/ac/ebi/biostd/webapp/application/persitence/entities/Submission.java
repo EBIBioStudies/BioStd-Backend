@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.persitence.entities;
 
+import static javax.persistence.FetchType.LAZY;
+
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,7 +51,7 @@ public class Submission {
     @Column(name = "version")
     private int version;
 
-    @OneToOne()
+    @OneToOne(fetch = LAZY)
     @JoinColumn(name = "rootSection_id")
     private Section rootSection;
 

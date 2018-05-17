@@ -5,8 +5,8 @@ server:
     contextPath: /biostd
 
 biostudy:
-  baseDir:
   tokenHash: biostd
+  environment: DEV
 
 spring:
   mail:

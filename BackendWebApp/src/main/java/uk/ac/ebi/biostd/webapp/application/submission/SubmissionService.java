@@ -1,9 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.submission;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,22 +26,22 @@ public class SubmissionService implements ISubmissionService {
     @Override
     public List<Submission> getAllowedProjects(long userId, AccessType accessType) {
         User user = userRepository.getOne(userId);
-        List<AccessTag> accessTags = getAllowedTags(user, accessType);
+        List<Long> accessTags = getAllowedTags(user, accessType);
 
-        return accessTags.stream()
-                .map(submissionRepository::findProjectByAccessTag)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(toList());
+        return submissionRepository.findProjectByAccessTagIdIn(accessTags);
     }
 
-    private List<AccessTag> getAllowedTags(User user, AccessType accessType) {
+    private List<Long> getAllowedTags(User user, AccessType accessType) {
         if (user.isSuperuser()) {
-            return tagsRepository.findAll();
+            return tagsRepository.findAll().stream()
+                    .map(AccessTag::getId)
+                    .collect(Collectors.toList());
         }
 
         return permissionsRepository.findByUserIdAndAccessType(user.getId(), accessType).stream()
                 .map(AccessPermission::getAccessTag)
+                .map(AccessTag::getId)
                 .collect(Collectors.toList());
+
     }
 }
