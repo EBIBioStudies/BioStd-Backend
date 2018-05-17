@@ -1,13 +1,15 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class PendingSubmissionListFiltersDto {
-    private final Integer offset = 0;
-    private final Integer limit = 50;
-    private final String accNo;
-    private final Long rTimeFrom;
-    private final Long rTimeTo;
-    private final String keywords;
+    private Integer offset = 0;
+    private Integer limit = 50;
+    private String accNo;
+    private Long rTimeFrom;
+    private Long rTimeTo;
+    private String keywords;
 }
