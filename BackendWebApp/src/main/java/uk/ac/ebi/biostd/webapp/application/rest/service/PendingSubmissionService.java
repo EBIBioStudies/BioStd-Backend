@@ -39,7 +39,7 @@ public class PendingSubmissionService {
     private final PendingSubmissionUtil pendingSubmissionUtil;
 
     public PendingSubmissionListDto getSubmissions(PendingSubmissionListFiltersDto filters, User user) {
-        Predicate<? super PendingSubmissionListItemDto> predicate = new PendingSubmissionListFilter(filters).asPredicate();
+        Predicate<? super PendingSubmissionListItemDto> predicate = PendingSubmissionListFilter.asPredicate(filters);
 
         List<PendingSubmissionListItemDto> submissions = userDataService.findAllByUserAndTopic(user.getId(), TOPIC)
                 .stream()
