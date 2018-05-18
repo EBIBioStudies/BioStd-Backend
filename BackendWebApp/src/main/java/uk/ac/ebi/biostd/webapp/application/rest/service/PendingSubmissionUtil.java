@@ -25,6 +25,10 @@ public class PendingSubmissionUtil {
 
     private final ObjectMapper objectMapper;
 
+    public String asString(PendingSubmissionDto dto) {
+        return objectMapper.valueToTree(dto).toString();
+    }
+
     public Optional<PendingSubmissionDto> parse(String data) {
         try {
             return Optional.of(objectMapper.readValue(data, PendingSubmissionDto.class));
