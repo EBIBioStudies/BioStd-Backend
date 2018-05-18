@@ -17,22 +17,30 @@ public class PendingSubmissionListFilter {
     public static Predicate<? super PendingSubmissionListItemDto> asPredicate(PendingSubmissionListFiltersDto filters) {
         List<Predicate<? super PendingSubmissionListItemDto>> predicates = new ArrayList<>();
 
-        Optional.ofNullable(filters.getAccNo()).ifPresent(v -> predicates.add(accNoFilter(v)));
+        Optional.ofNullable(filters.getAccNo())
+                .map(String::trim)
+                .filter(v -> !v.isEmpty())
+                .ifPresent(v -> predicates.add(accNoFilter(v)));
+
+        Optional.ofNullable(filters.getKeywords())
+                .map(String::trim)
+                .filter(v -> !v.isEmpty())
+                .ifPresent(v -> predicates.add(keywordsFilter(v)));
+
         Optional.ofNullable(filters.getRTimeFrom()).ifPresent(v -> predicates.add(rTimeFromFilter(v)));
-        Optional.ofNullable(filters.getRTimeFrom()).ifPresent(v -> predicates.add(rTimeToFilter(v)));
-        Optional.ofNullable(filters.getKeywords()).ifPresent(v -> predicates.add(keywordsFilter(v)));
+        Optional.ofNullable(filters.getRTimeTo()).ifPresent(v -> predicates.add(rTimeToFilter(v)));
 
         return item -> predicates.stream().allMatch(p -> p.test(item));
     }
 
-    private static Predicate<? super PendingSubmissionListItemDto> rTimeFromFilter(Long dateInSeconds) {
+    private static Predicate<? super PendingSubmissionListItemDto> rTimeFromFilter(final Long dateInSeconds) {
         return (Predicate<PendingSubmissionListItemDto>) dto -> {
             Long rtime = dto.getRtime();
             return rtime != null && rtime.compareTo(dateInSeconds) >= 0;
         };
     }
 
-    private static Predicate<? super PendingSubmissionListItemDto> rTimeToFilter(Long dateInSeconds) {
+    private static Predicate<? super PendingSubmissionListItemDto> rTimeToFilter(final Long dateInSeconds) {
         return (Predicate<PendingSubmissionListItemDto>) dto -> {
             Long rtime = dto.getRtime();
             return rtime != null && rtime.compareTo(dateInSeconds) < 0;
