@@ -48,9 +48,10 @@ public class PendingSubmissionResource {
     }
 
     @PostMapping("/submissions/pending")
-    public @ResponseBody
-    PendingSubmissionDto createSubmission(@RequestBody String request,
-                                          @AuthenticationPrincipal User user) {
-        return pendingSubmissionService.createSubmission(request, user);
+    public ResponseEntity<PendingSubmissionDto> createSubmission(@RequestBody String request,
+                                                                 @AuthenticationPrincipal User user) {
+        return pendingSubmissionService.createSubmission(request, user)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
     }
 }

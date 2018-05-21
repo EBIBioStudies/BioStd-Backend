@@ -38,7 +38,7 @@ public class PendingSubmissionService {
     };
 
     private final UserDataService userDataService;
-    private final PendingSubmissionUtil pendingSubmissionUtil;
+    private final PendingSubmissionUtil util;
 
     public PendingSubmissionListDto getSubmissionList(PendingSubmissionListFiltersDto filters, User user) {
         Predicate<? super PendingSubmissionListItemDto> predicate = PendingSubmissionListFilter.asPredicate(filters);
@@ -46,8 +46,8 @@ public class PendingSubmissionService {
         List<PendingSubmissionListItemDto> submissions = userDataService.findAllByUserAndTopic(user.getId(), TOPIC)
                 .stream()
                 .map(UserData::getData)
-                .map(pendingSubmissionUtil::parse)
-                .map(o -> o.flatMap(pendingSubmissionUtil::convert))
+                .map(util::parse)
+                .map(o -> o.flatMap(util::convert))
                 .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
                 .sorted(SORT_BY_MTIME)
                 .filter(predicate::test)
@@ -61,7 +61,7 @@ public class PendingSubmissionService {
     public Optional<PendingSubmissionDto> getSubmissionByAccNo(String accno, User user) {
         return userDataService.findByUserAndKey(user.getId(), accno)
                 .map(UserData::getData)
-                .flatMap(pendingSubmissionUtil::parse);
+                .flatMap(util::parse);
     }
 
     public void deleteSubmissionByAccNo(String accno, User user) {
@@ -69,13 +69,16 @@ public class PendingSubmissionService {
     }
 
     public PendingSubmissionDto updateSubmission(PendingSubmissionDto submission, User user) {
-        submission.setChanged(System.currentTimeMillis());
-        userDataService.update(user.getId(), submission.getAccno(), pendingSubmissionUtil.asString(submission), TOPIC);
-        return submission;
+        return this.update(submission, user);
     }
 
-    public PendingSubmissionDto createSubmission(String data, User user) {
-        //TODO
-        return null;
+    public Optional<PendingSubmissionDto> createSubmission(String data, User user) {
+        return util.create(data).map(s -> this.update(s, user));
+    }
+
+    private PendingSubmissionDto update(PendingSubmissionDto submission, User user) {
+        submission.setChanged(System.currentTimeMillis());
+        userDataService.update(user.getId(), submission.getAccno(), util.asString(submission), TOPIC);
+        return submission;
     }
 }

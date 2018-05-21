@@ -21,7 +21,10 @@ import java.util.function.Predicate;
 @Slf4j
 @AllArgsConstructor
 public class PendingSubmissionUtil {
+
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+    private static final String ACCNO_PREFIX = "TMP_";
 
     private final ObjectMapper objectMapper;
 
@@ -43,32 +46,54 @@ public class PendingSubmissionUtil {
             JsonNode node = objectMapper.readTree(pendingSubmission.getData());
             return Optional.of(
                     PendingSubmissionListItemDto.builder()
-                    .accno(pendingSubmission.getAccno())
-                    .mtime(pendingSubmission.getModificationTimeInSeconds())
-                    .rtime(getReleaseTimeInSeconds(node))
-                    .title(getTitle(node))
-                    .build());
+                            .accno(pendingSubmission.getAccno())
+                            .mtime(pendingSubmission.getModificationTimeInSeconds())
+                            .rtime(getReleaseTimeInSeconds(node).orElse(null))
+                            .title(getTitle(node).orElse(""))
+                            .build());
         } catch (IOException e) {
             log.error("error while parsing data filed of pending submission", e);
         }
         return Optional.empty();
     }
 
-    static private String getTitle(JsonNode jsonNode) {
+    public Optional<PendingSubmissionDto> create(String data) {
+        try {
+            JsonNode node = objectMapper.readTree(data);
+            PendingSubmissionDto submission = new PendingSubmissionDto();
+            submission.setAccno(getAccno(node).orElse(newAccno()));
+            submission.setData(data);
+            return Optional.of(submission);
+
+        } catch (IOException e) {
+            log.error("error while creating pending submission", e);
+        }
+        return Optional.empty();
+    }
+
+    static private String newAccno() {
+        return ACCNO_PREFIX + System.currentTimeMillis();
+    }
+
+    static private Optional<String> getAccno(JsonNode jsonNode) {
+        return Optional.ofNullable(jsonNode.get("accno")).map(JsonNode::asText).map(String::trim).filter(s -> !s.isEmpty());
+    }
+
+    static private Optional<String> getTitle(JsonNode jsonNode) {
         Optional<JsonNode> attrValueNode = attributes(jsonNode)
                 .stream()
                 .filter(attrNameFilter("title"))
                 .findFirst();
-        return attrValueNode.map(v -> attrValue(v, "")).orElse("");
+        return attrValueNode.map(v -> attrValue(v, ""));
     }
 
-    static private Long getReleaseTimeInSeconds(JsonNode node) {
+    static private Optional<Long> getReleaseTimeInSeconds(JsonNode node) {
         Optional<JsonNode> attrValueNode = attributes(node)
                 .stream()
                 .filter(attrNameFilter("releaseDate"))
                 .findFirst();
 
-        return attrValueNode.map(v -> numberOfSeconds(attrValue(v, ""))).orElse(null);
+        return attrValueNode.map(v -> numberOfSeconds(attrValue(v, "")));
     }
 
     static private List<JsonNode> attributes(JsonNode node) {
