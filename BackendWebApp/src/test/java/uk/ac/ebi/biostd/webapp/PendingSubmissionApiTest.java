@@ -17,6 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.backend.services.RemoteOperations;
 import uk.ac.ebi.biostd.backend.testing.IntegrationTestUtil;
+import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
 
 import java.io.IOException;
@@ -28,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(TestConfiguration.class)
 @DirtiesContext
 public class PendingSubmissionApiTest {
+
+    private static final String NEW_PAGETAB = "input/EMPTY.pagetab.json";
 
     @ClassRule
     public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
@@ -47,11 +51,28 @@ public class PendingSubmissionApiTest {
         operationsService = new RemoteOperations(restTemplate);
     }
 
+
+    @Test
+    public void testCreatePendingSubmissionNoErrors() {
+        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+        String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+","");
+        ResponseEntity<PendingSubmissionDto> submDto = restTemplate
+                .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
+
+        PendingSubmissionDto dto = submDto.getBody();
+        assertThat(dto).isNotNull();
+        assertThat(dto.getAccno()).matches("TMP_.+");
+        assertThat(dto.getChanged()).isGreaterThan(0);
+        assertThat(dto.getData().toString()).isEqualTo(data);
+
+        restTemplate.delete("/submissions/pending/" + dto.getAccno() + "?BIOSTDSESS=" + sessionId);
+    }
+
     @Test
     public void testGetPendingSubmissionsWithoutParams() {
         String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
         ResponseEntity<PendingSubmissionListDto> submListDto = restTemplate
-                .getForEntity("/sbmlist/pending?BIOSTDSESS=" + sessionId, PendingSubmissionListDto.class);
+                .getForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, PendingSubmissionListDto.class);
         assertThat(submListDto).isNotNull();
         assertThat(submListDto.getBody().getSubmissions()).isEmpty();
     }

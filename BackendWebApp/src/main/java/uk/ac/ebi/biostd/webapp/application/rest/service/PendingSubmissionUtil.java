@@ -41,20 +41,14 @@ public class PendingSubmissionUtil {
         return Optional.empty();
     }
 
-    public Optional<PendingSubmissionListItemDto> convert(PendingSubmissionDto pendingSubmission) {
-        try {
-            JsonNode node = objectMapper.readTree(pendingSubmission.getData());
-            return Optional.of(
-                    PendingSubmissionListItemDto.builder()
-                            .accno(pendingSubmission.getAccno())
-                            .mtime(pendingSubmission.getModificationTimeInSeconds())
-                            .rtime(getReleaseTimeInSeconds(node).orElse(null))
-                            .title(getTitle(node).orElse(""))
-                            .build());
-        } catch (IOException e) {
-            log.error("error while parsing data filed of pending submission", e);
-        }
-        return Optional.empty();
+    public PendingSubmissionListItemDto convert(PendingSubmissionDto pendingSubmission) {
+        JsonNode node = pendingSubmission.getData();
+        return PendingSubmissionListItemDto.builder()
+                .accno(pendingSubmission.getAccno())
+                .mtime(pendingSubmission.getModificationTimeInSeconds())
+                .rtime(getReleaseTimeInSeconds(node).orElse(null))
+                .title(getTitle(node).orElse(""))
+                .build();
     }
 
     public Optional<PendingSubmissionDto> create(String data) {
@@ -62,7 +56,7 @@ public class PendingSubmissionUtil {
             JsonNode node = objectMapper.readTree(data);
             PendingSubmissionDto submission = new PendingSubmissionDto();
             submission.setAccno(getAccno(node).orElse(newAccno()));
-            submission.setData(data);
+            submission.setData(node);
             return Optional.of(submission);
 
         } catch (IOException e) {
