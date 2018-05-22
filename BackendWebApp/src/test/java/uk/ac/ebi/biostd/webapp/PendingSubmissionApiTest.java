@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -53,13 +54,13 @@ public class PendingSubmissionApiTest {
 
 
     @Test
-    public void testCreatePendingSubmissionNoErrors() {
+    public void testCreatePendingSubmission() {
         String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
-        String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+","");
-        ResponseEntity<PendingSubmissionDto> submDto = restTemplate
+        String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
+        ResponseEntity<PendingSubmissionDto> response = restTemplate
                 .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
 
-        PendingSubmissionDto dto = submDto.getBody();
+        PendingSubmissionDto dto = response.getBody();
         assertThat(dto).isNotNull();
         assertThat(dto.getAccno()).matches("TMP_.+");
         assertThat(dto.getChanged()).isGreaterThan(0);
@@ -69,11 +70,43 @@ public class PendingSubmissionApiTest {
     }
 
     @Test
+    public void testCreatePendingSubmissionWithErrors() {
+        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+        String data = "data";
+        ResponseEntity<PendingSubmissionDto> response = restTemplate
+                .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    public void testUpdatePendingSubmission() {
+        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+        String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
+        ResponseEntity<PendingSubmissionDto> createResponse = restTemplate
+                .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
+
+        PendingSubmissionDto dto1 = createResponse.getBody();
+        long mTime1 = dto1.getChanged();
+
+        ResponseEntity<PendingSubmissionDto> updateResponse = restTemplate
+                .postForEntity("/submissions/pending/"+ dto1.getAccno() + "?BIOSTDSESS=" + sessionId, dto1, PendingSubmissionDto.class);
+
+        PendingSubmissionDto dto2 = updateResponse.getBody();
+        long mTime2 = dto2.getChanged();
+
+        assertThat(mTime1).isLessThan(mTime2);
+
+        restTemplate.delete("/submissions/pending/" + dto1.getAccno() + "?BIOSTDSESS=" + sessionId);
+    }
+
+
+    @Test
     public void testGetPendingSubmissionsWithoutParams() {
         String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
-        ResponseEntity<PendingSubmissionListDto> submListDto = restTemplate
+        ResponseEntity<PendingSubmissionListDto> response = restTemplate
                 .getForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, PendingSubmissionListDto.class);
-        assertThat(submListDto).isNotNull();
-        assertThat(submListDto.getBody().getSubmissions()).isEmpty();
+        assertThat(response).isNotNull();
+        assertThat(response.getBody().getSubmissions()).isEmpty();
     }
 }
