@@ -9,9 +9,9 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 @AllArgsConstructor
 public class PendingSubmissionUtil {
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private static final String ACCNO_PREFIX = "TMP_";
 
@@ -121,11 +121,6 @@ public class PendingSubmissionUtil {
     }
 
     static private Long numberOfSeconds(String date) {
-        try {
-            return DATE_FORMAT.parse(date).getTime() / 1000;
-        } catch (ParseException e) {
-            log.error("error while parsing date", date, e);
-        }
-        return null;
+        return LocalDate.parse(date, DATE_FORMAT).atStartOfDay(ZoneOffset.UTC).toInstant().getEpochSecond();
     }
 }
