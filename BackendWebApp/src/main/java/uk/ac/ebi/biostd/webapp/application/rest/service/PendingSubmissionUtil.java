@@ -10,6 +10,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -122,6 +123,6 @@ public class PendingSubmissionUtil {
     }
 
     static private Long numberOfSeconds(String date) {
-        return LocalDate.parse(date, DATE_FORMAT).atStartOfDay(ZoneOffset.UTC).toInstant().getEpochSecond();
+        return LocalDate.parse(date, DATE_FORMAT).atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
     }
 }

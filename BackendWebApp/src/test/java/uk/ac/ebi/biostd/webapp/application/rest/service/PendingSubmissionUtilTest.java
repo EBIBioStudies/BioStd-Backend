@@ -16,7 +16,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +82,7 @@ public class PendingSubmissionUtilTest {
         assertThat(listItem.getAccno()).isEqualTo(ACCNO);
         assertThat(listItem.getMtime()).isEqualTo(SECONDS);
         assertThat(listItem.getTitle()).isEqualTo(TITLE);
-        assertThat(listItem.getRtime()).isEqualTo(secondsInUTC(RELEASE_DATE));
+        assertThat(listItem.getRtime()).isEqualTo(seconds(RELEASE_DATE));
     }
 
     @Test
@@ -140,8 +140,8 @@ public class PendingSubmissionUtilTest {
         return dto;
     }
 
-    private static long secondsInUTC(LocalDate date) {
-        return date.atStartOfDay(ZoneOffset.UTC).toInstant().getEpochSecond();
+    private static long seconds(LocalDate date) {
+        return date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
     }
 }
 
