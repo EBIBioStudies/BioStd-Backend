@@ -14,6 +14,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.in.ParserException;
@@ -48,6 +49,7 @@ public class SubmitServlet extends ServiceServlet {
     private static final String RELEASE_DATE_PARAMETER = "releaseDate";
     private static final String ON_BEHALF_PARAMETER = "onBehalf";
     private static final String OWNER_PARAMETER = "owner";
+    private static final String DOMAIN_PARAMETER = "domain";
 
     @Autowired
     private UserManager userManager;
@@ -71,6 +73,7 @@ public class SubmitServlet extends ServiceServlet {
 
         User user = sess.getUser();
         String obUser = request.getParameter(ON_BEHALF_PARAMETER);
+        String domain = request.getParameter(DOMAIN_PARAMETER);
 
         if (obUser != null) {
             if (!user.isSuperuser()) {
@@ -87,7 +90,17 @@ public class SubmitServlet extends ServiceServlet {
                 response.setStatus(SC_BAD_REQUEST);
                 response.setContentType("text/plain");
                 response.getWriter().print("FAIL invalid 'onBehalf' user");
+                return;
             }
+
+            if (Strings.isBlank(domain)) {
+                response.setStatus(SC_BAD_REQUEST);
+                response.setContentType("text/plain");
+                response.getWriter().print("FAIL domain need to be provided");
+                return;
+            }
+
+            userManager.addPermision(user.getId(), domain);
         }
 
         if (operation == DELETE) {
@@ -156,7 +169,7 @@ public class SubmitServlet extends ServiceServlet {
         boolean ignAbsFiles = getParameterAsBoolean(request.getParameter(IGNORE_ABSENT_FILES_PARAMETER));
 
         SubmissionReport submissionReport = submissionManager.createSubmission(
-                data, fmt, request.getCharacterEncoding(), operation, user, validateOnly, ignAbsFiles);
+                data, fmt, request.getCharacterEncoding(), operation, user, validateOnly, ignAbsFiles, domain);
 
         LogNode topLn = submissionReport.getLog();
         SimpleLogNode.setLevels(topLn);
@@ -165,8 +178,7 @@ public class SubmitServlet extends ServiceServlet {
     }
 
     private boolean getParameterAsBoolean(String parameter) {
-        return parameter != null &&
-                ("true".equalsIgnoreCase(parameter) || "yes".equalsIgnoreCase(parameter) || "1".equals(parameter));
+        return ("true".equalsIgnoreCase(parameter) || "yes".equalsIgnoreCase(parameter) || "1".equals(parameter));
     }
 
     private Operation getOperation(String pathInfo) {

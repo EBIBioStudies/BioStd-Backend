@@ -35,6 +35,7 @@ public class BasicSubmissionApiTest {
 
     private static final String SUBMISSION_XLSX_FILE = "input/S-BSST56.pagetab_for_test.xlsx";
     private static final String SUBMISSION_JSON_FILE = "input/S-ACC-TEST.json";
+    private static final String UNIFIED_SUBMISSION_JSON_FILE = "input/S-ACC-TEST.json";
 
     @ClassRule
     public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
@@ -64,7 +65,7 @@ public class BasicSubmissionApiTest {
         SubmissionResult submissionResult = operationsService.createFileSubmission(sessionId, submissionFile);
 
         assertThat(submissionResult.getStatus()).isEqualTo("OK");
-        assertSubmissionsOutput("XLSX");
+        assertSubmissionsOutput("basic/S-ACC-TEST", "XLSX");
     }
 
     @Test
@@ -74,32 +75,50 @@ public class BasicSubmissionApiTest {
 
         SubmissionResult submissionResult = operationsService.createJsonSubmission(sessionId, jsonPayload);
         assertThat(submissionResult.getStatus()).isEqualTo("OK");
-        assertSubmissionsOutput("JSON");
+        assertSubmissionsOutput("basic/S-ACC-TEST", "JSON");
     }
 
     @Test
     public void testCreateBasicJsonSubmissionFromUnifiedSubmission() {
         String securityToken = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
-        String jsonPayload = ResourceHandler.getResourceFileAsString(SUBMISSION_JSON_FILE);
+        String jsonPayload = ResourceHandler.getResourceFileAsString(UNIFIED_SUBMISSION_JSON_FILE);
 
         Map<String, String> params = ImmutableMap.of(
                 "BIOSTDSESS", securityToken,
                 "sse", "true",
                 "onBehalf", "new_user@ebi.ac.uk",
+                "domain", "Unified_Domain_1",
                 "name", "Jhon Doe");
 
         SubmissionResult submissionResult = operationsService.createJsonSubmission(jsonPayload, params);
         assertThat(submissionResult.getStatus()).isEqualTo("OK");
-        assertSubmissionsOutput("JSON");
+        assertSubmissionsOutput("unified/S-ACC-TEST", "JSON");
     }
 
-    private void assertSubmissionsOutput(String postFix) {
+    @Test
+    public void testUpdateBasicJsonSubmissionFromUnifiedSubmission() {
+        String securityToken = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+        String jsonPayload = ResourceHandler.getResourceFileAsString(UNIFIED_SUBMISSION_JSON_FILE);
+
+        Map<String, String> params = ImmutableMap.of(
+                "BIOSTDSESS", securityToken,
+                "sse", "true",
+                "onBehalf", "new_user2@ebi.ac.uk",
+                "domain", "Unified_Domain_1",
+                "name", "Jane Smith");
+
+        SubmissionResult submissionResult = operationsService.createJsonSubmission(jsonPayload, params);
+        assertThat(submissionResult.getStatus()).isEqualTo("OK");
+        assertSubmissionsOutput("unified/S-ACC-TEST", "JSON");
+    }
+
+    private void assertSubmissionsOutput(String fileName, String postFix) {
         String accNo = "S-ACC-TEST-" + postFix;
         String basePath = format("%s/submission/%s/%s", NFS_PATH, accNo, accNo);
 
-        assertFile("basic/S-ACC-TEST.json", basePath + ".json", accNo);
-        assertFile("basic/S-ACC-TEST.pagetab.tsv", basePath + ".pagetab.tsv", accNo);
-        assertFile("basic/S-ACC-TEST.xml", basePath + ".xml", accNo);
+        assertFile(format("%s.json", fileName), basePath + ".json", accNo);
+        assertFile(format("%s.pagetab.tsv", fileName), basePath + ".pagetab.tsv", accNo);
+        assertFile(format("%s.xml", fileName), basePath + ".xml", accNo);
     }
 
     private void assertFile(String expectedPath, String resultFilePath, String accNo) {

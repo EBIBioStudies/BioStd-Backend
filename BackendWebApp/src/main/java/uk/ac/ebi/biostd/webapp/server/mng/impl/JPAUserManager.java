@@ -27,6 +27,11 @@ public class JPAUserManager implements UserManager {
     }
 
     @Override
+    public void addPermision(long userId, String domain) {
+        securityManager.addPermission(userId, domain);
+    }
+
+    @Override
     public User getUserByLogin(String login) {
         return securityManager.getUserByLogin(login);
     }

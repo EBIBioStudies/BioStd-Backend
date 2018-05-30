@@ -29,7 +29,7 @@ public interface SubmissionManager {
     Submission getSubmissionsByAccession(String acc);
 
     SubmissionReport createSubmission(byte[] data, DataFormat fmt, String charset, Operation op, User usr,
-            boolean validateOnly, boolean ignoreAbsFiles);
+            boolean validateOnly, boolean ignoreAbsFiles, String domain);
 
     LogNode updateSubmissionMeta(String sbmAcc, Collection<TagRef> tags, Set<String> access, long rTime, User user);
 
