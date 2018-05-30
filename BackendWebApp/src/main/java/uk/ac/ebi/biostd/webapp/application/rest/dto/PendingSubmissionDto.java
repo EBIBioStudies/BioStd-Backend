@@ -1,7 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 

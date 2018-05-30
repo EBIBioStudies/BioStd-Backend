@@ -25,10 +25,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(WebConfiguration.class)
 public class PendingSubmissionUtilTest {
 
-    private static final String ACCNO = "12345";
-    private static final String MINIMAL_PAGETAB = "12345.pagetab.json";
     private static final long MILLISECONDS = 1000L;
     private static final long SECONDS = MILLISECONDS / 1000L;
+
+    private static final String PAGETAB_DATA = "12345.pagetab.json";
+    private static final String ACCNO = "12345";
+    private static final String TITLE = "PageTab data";
+    private static final LocalDate RELEASE_DATE = LocalDate.of(2018, 5, 21);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -44,7 +47,7 @@ public class PendingSubmissionUtilTest {
     public void testParseInvalidData() {
         final String invalidData = "blah blah";
         Optional<PendingSubmissionDto> dto = util.parse(invalidData);
-        assertThat(dto.isPresent()).isEqualTo(false);
+        assertThat(dto.isPresent()).isFalse();
     }
 
     @Test
@@ -52,7 +55,7 @@ public class PendingSubmissionUtilTest {
         final JsonNode pageTab = getPageTab();
 
         Optional<PendingSubmissionDto> dto = util.parse(pendingSubmissionAsString(ACCNO, pageTab));
-        assertThat(dto.isPresent()).isEqualTo(true);
+        assertThat(dto.isPresent()).isTrue();
         dto.ifPresent(v -> {
             assertThat(v.getAccno()).isEqualTo(ACCNO);
             assertThat(v.getChanged()).isEqualTo(MILLISECONDS);
@@ -78,16 +81,47 @@ public class PendingSubmissionUtilTest {
         PendingSubmissionListItemDto listItem = util.convert(createPendingSubmission(ACCNO, pageTab));
         assertThat(listItem.getAccno()).isEqualTo(ACCNO);
         assertThat(listItem.getMtime()).isEqualTo(SECONDS);
-        assertThat(listItem.getTitle()).isEqualTo("Minimal page tab data");
-        assertThat(listItem.getRtime()).isEqualTo(seconds(2018, 5, 21));
+        assertThat(listItem.getTitle()).isEqualTo(TITLE);
+        assertThat(listItem.getRtime()).isEqualTo(secondsInUTC(RELEASE_DATE));
     }
 
-/*
     @Test
-    public void testCreate() {
+    public void testCreateFromExisted() throws IOException {
+        final String pageTab = getPageTab().toString();
 
+        long from = System.currentTimeMillis();
+        Optional<PendingSubmissionDto> dto = util.create(pageTab);
+        long to = System.currentTimeMillis();
+
+        assertThat(dto.isPresent()).isTrue();
+        dto.ifPresent(v -> {
+            assertThat(v.getAccno()).isEqualTo(ACCNO);
+            assertThat(v.getChanged()).isBetween(from, to);
+            assertThat(v.getData().toString()).isEqualTo(pageTab);
+        });
     }
-*/
+
+    @Test
+    public void testCreateFromEmpty() {
+        final String pageTab = "{}";
+
+        long from = System.currentTimeMillis();
+        Optional<PendingSubmissionDto> dto = util.create(pageTab);
+        long to = System.currentTimeMillis();
+
+        assertThat(dto.isPresent()).isTrue();
+        dto.ifPresent(v -> {
+            assertThat(v.getAccno()).matches("^TMP_.*");
+            assertThat(v.getChanged()).isBetween(from, to);
+            assertThat(v.getData().toString()).isEqualTo(pageTab);
+        });
+    }
+
+    @Test
+    public void testCreateFromInvalidString() {
+        Optional<PendingSubmissionDto> dto = util.create("blah blah");
+        assertThat(dto.isPresent()).isFalse();
+    }
 
     private String pendingSubmissionAsString(String accno, JsonNode pageTab) throws JsonProcessingException {
         return objectMapper.writeValueAsString(createPendingSubmission(accno, pageTab));
@@ -95,7 +129,7 @@ public class PendingSubmissionUtilTest {
 
     private JsonNode getPageTab() throws IOException {
         return objectMapper.readTree(ResourceHandler
-                .readFile(PendingSubmissionUtilTest.class.getResource(MINIMAL_PAGETAB).getPath()));
+                .readFile(PendingSubmissionUtilTest.class.getResource(PAGETAB_DATA).getPath()));
     }
 
     private static PendingSubmissionDto createPendingSubmission(String accno, JsonNode pageTab) {
@@ -106,9 +140,8 @@ public class PendingSubmissionUtilTest {
         return dto;
     }
 
-    private static long seconds(int year, int month, int day) {
-        return LocalDate.of(year, month, day).atStartOfDay(ZoneOffset.UTC).toInstant().getEpochSecond();
+    private static long secondsInUTC(LocalDate date) {
+        return date.atStartOfDay(ZoneOffset.UTC).toInstant().getEpochSecond();
     }
-
 }
 

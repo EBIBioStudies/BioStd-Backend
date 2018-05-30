@@ -51,12 +51,13 @@ public class PendingSubmissionUtil {
                 .build();
     }
 
-    public Optional<PendingSubmissionDto> create(String data) {
+    public Optional<PendingSubmissionDto> create(String pageTab) {
         try {
-            JsonNode node = objectMapper.readTree(data);
+            JsonNode node = objectMapper.readTree(pageTab);
             PendingSubmissionDto submission = new PendingSubmissionDto();
             submission.setAccno(getAccno(node).orElse(newAccno()));
             submission.setData(node);
+            submission.setChanged(System.currentTimeMillis());
             return Optional.of(submission);
 
         } catch (IOException e) {
