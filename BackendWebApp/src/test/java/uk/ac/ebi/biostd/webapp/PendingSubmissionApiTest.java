@@ -55,7 +55,8 @@ public class PendingSubmissionApiTest {
 
     @Test
     public void testCreatePendingSubmission() {
-        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+        String sessionId = login();
+
         String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
         ResponseEntity<PendingSubmissionDto> response = restTemplate
                 .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
@@ -78,25 +79,21 @@ public class PendingSubmissionApiTest {
 
     @Test
     public void testCreatePendingSubmissionWithErrors() {
-        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
-        String data = "data";
         ResponseEntity<PendingSubmissionDto> response = restTemplate
-                .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
+                .postForEntity("/submissions/pending?BIOSTDSESS=" + login(), "blah blah", PendingSubmissionDto.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
     public void testGetNoneExistedSubmission() {
-        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
-
-        ResponseEntity<PendingSubmissionDto> response = restTemplate.getForEntity("/submissions/pending/1234?BIOSTDSESS=" + sessionId, PendingSubmissionDto.class);
+        ResponseEntity<PendingSubmissionDto> response = restTemplate.getForEntity("/submissions/pending/1234?BIOSTDSESS=" + login(), PendingSubmissionDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
     public void testUpdatePendingSubmission() {
-        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+        String sessionId = login();
         String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
         ResponseEntity<PendingSubmissionDto> createResponse = restTemplate
                 .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
@@ -118,10 +115,13 @@ public class PendingSubmissionApiTest {
 
     @Test
     public void testGetPendingSubmissionsWithoutParams() {
-        String sessionId = operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
         ResponseEntity<PendingSubmissionListDto> response = restTemplate
-                .getForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, PendingSubmissionListDto.class);
+                .getForEntity("/submissions/pending?BIOSTDSESS=" + login(), PendingSubmissionListDto.class);
         assertThat(response).isNotNull();
         assertThat(response.getBody().getSubmissions()).isEmpty();
+    }
+
+    private String login() {
+        return operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
     }
 }
