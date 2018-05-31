@@ -17,7 +17,11 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,6 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @Import(WebConfiguration.class)
 public class PendingSubmissionUtilTest {
+
+    private static DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private static final long MILLISECONDS = 1000L;
     private static final long SECONDS = MILLISECONDS / 1000L;
@@ -39,7 +45,7 @@ public class PendingSubmissionUtilTest {
                 {
                     put("ACCNO", ACCNO);
                     put("TITLE", TITLE);
-                    put("RELEASE_DATE", format("%d-%02d-%02d", RELEASE_DATE.getYear(), RELEASE_DATE.getMonthValue(), RELEASE_DATE.getDayOfMonth()));
+                    put("RELEASE_DATE", RELEASE_DATE.format(DATE_FORMATTER));
                 }
             }
     );
