@@ -17,8 +17,9 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Optional;
+import java.util.*;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -28,10 +29,20 @@ public class PendingSubmissionUtilTest {
     private static final long MILLISECONDS = 1000L;
     private static final long SECONDS = MILLISECONDS / 1000L;
 
-    private static final String PAGETAB_DATA = "12345.pagetab.json";
+    private static final String PAGETAB_JSON = "12345.pagetab.json";
     private static final String ACCNO = "12345";
     private static final String TITLE = "PageTab data";
     private static final LocalDate RELEASE_DATE = LocalDate.of(2018, 5, 21);
+
+    private static final Map<String, String> PAGETAB_JSON_PARAMS = Collections.unmodifiableMap(
+            new HashMap<String, String>() {
+                {
+                    put("ACCNO", ACCNO);
+                    put("TITLE", TITLE);
+                    put("RELEASE_DATE", format("%d-%02d-%02d", RELEASE_DATE.getYear(), RELEASE_DATE.getMonthValue(), RELEASE_DATE.getDayOfMonth()));
+                }
+            }
+    );
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -128,8 +139,8 @@ public class PendingSubmissionUtilTest {
     }
 
     private JsonNode getPageTab() throws IOException {
-        return objectMapper.readTree(ResourceHandler
-                .readFile(PendingSubmissionUtilTest.class.getResource(PAGETAB_DATA).getPath()));
+        String template = ResourceHandler.readFile(PendingSubmissionUtilTest.class.getResource(PAGETAB_JSON).getPath());
+        return objectMapper.readTree(replace(template, PAGETAB_JSON_PARAMS));
     }
 
     private static PendingSubmissionDto createPendingSubmission(String accno, JsonNode pageTab) {
@@ -142,6 +153,12 @@ public class PendingSubmissionUtilTest {
 
     private static long seconds(LocalDate date) {
         return date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
+    }
+
+    private static String replace(String template, Map<String, String> valueMap) {
+        final String[] accum = new String[]{template};
+        valueMap.forEach((key, value) -> accum[0] = accum[0].replaceAll(format("\\$\\{%s\\}", key), value));
+        return accum[0];
     }
 }
 

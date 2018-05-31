@@ -1,16 +1,16 @@
 {
   "type": "Submission",
-  "accno": "12345",
+  "accno": "${ACCNO}",
   "tags": [],
   "accessTags": [],
   "attributes": [
     {
       "name": "Title",
-      "value": "PageTab data"
+      "value": "${TITLE}"
     },
     {
       "name": "ReleaseDate",
-      "value": "2018-05-21"
+      "value": "${RELEASE_DATE}"
     }
   ],
   "section": {
