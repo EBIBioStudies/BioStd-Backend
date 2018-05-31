@@ -80,10 +80,10 @@ public class ConfigBean {
     private String ssoAuthURL;
 
     public Map<String, Object> getDatabaseConfig() {
-        return defaultIfNull(databaseConfig, new HashMap<String, Object>());
+        return defaultIfNull(databaseConfig, new HashMap<>());
     }
 
     public Map<String, Object> getEmailConfig() {
-        return defaultIfNull(emailConfig, new HashMap<String, Object>());
+        return defaultIfNull(emailConfig, new HashMap<>());
     }
 }
