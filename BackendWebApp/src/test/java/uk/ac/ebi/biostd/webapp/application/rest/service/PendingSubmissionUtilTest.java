@@ -62,8 +62,7 @@ public class PendingSubmissionUtilTest {
 
     @Test
     public void testParseInvalidData() {
-        final String invalidData = "blah blah";
-        Optional<PendingSubmissionDto> dto = util.parse(invalidData);
+        Optional<PendingSubmissionDto> dto = util.parse("invalid data");
         assertThat(dto.isPresent()).isFalse();
     }
 
