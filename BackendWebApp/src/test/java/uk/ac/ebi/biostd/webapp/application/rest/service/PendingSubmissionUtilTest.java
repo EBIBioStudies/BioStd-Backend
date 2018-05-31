@@ -134,8 +134,8 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testCreateFromInvalidString() {
-        Optional<PendingSubmissionDto> dto = util.create("blah blah");
+    public void testCreateFromInvalidData() {
+        Optional<PendingSubmissionDto> dto = util.create("invalid data");
         assertThat(dto.isPresent()).isFalse();
     }
 
