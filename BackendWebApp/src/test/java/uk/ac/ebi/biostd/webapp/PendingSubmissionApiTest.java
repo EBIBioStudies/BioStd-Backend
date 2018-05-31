@@ -24,6 +24,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
 
 import java.io.IOException;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -59,7 +60,7 @@ public class PendingSubmissionApiTest {
 
         String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
         ResponseEntity<PendingSubmissionDto> response = restTemplate
-                .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
+                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId), data, PendingSubmissionDto.class);
 
         PendingSubmissionDto dto = response.getBody();
         assertThat(dto).isNotNull();
@@ -67,27 +68,27 @@ public class PendingSubmissionApiTest {
         assertThat(dto.getChanged()).isGreaterThan(0);
         assertThat(dto.getData().toString()).isEqualTo(data);
 
-        response = restTemplate.getForEntity("/submissions/pending/" + dto.getAccno() + "?BIOSTDSESS=" + sessionId, PendingSubmissionDto.class);
+        response = restTemplate.getForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", dto.getAccno(), sessionId), PendingSubmissionDto.class);
         PendingSubmissionDto dtoCopy = response.getBody();
         assertThat(dtoCopy).isNotNull();
         assertThat(dtoCopy.getAccno()).isEqualTo(dto.getAccno());
         assertThat(dtoCopy.getChanged()).isEqualTo(dto.getChanged());
         assertThat(dtoCopy.getData().toString()).isEqualTo(dto.getData().toString());
 
-        restTemplate.delete("/submissions/pending/" + dto.getAccno() + "?BIOSTDSESS=" + sessionId);
+        restTemplate.delete(format("/submissions/pending/%s?BIOSTDSESS=%s", dto.getAccno(), sessionId));
     }
 
     @Test
     public void testCreatePendingSubmissionWithErrors() {
         ResponseEntity<PendingSubmissionDto> response = restTemplate
-                .postForEntity("/submissions/pending?BIOSTDSESS=" + login(), "blah blah", PendingSubmissionDto.class);
+                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", login()), "blah blah", PendingSubmissionDto.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
     public void testGetNoneExistedSubmission() {
-        ResponseEntity<PendingSubmissionDto> response = restTemplate.getForEntity("/submissions/pending/1234?BIOSTDSESS=" + login(), PendingSubmissionDto.class);
+        ResponseEntity<PendingSubmissionDto> response = restTemplate.getForEntity(format("/submissions/pending/1234?BIOSTDSESS=%s", login()), PendingSubmissionDto.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
@@ -96,27 +97,27 @@ public class PendingSubmissionApiTest {
         String sessionId = login();
         String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
         ResponseEntity<PendingSubmissionDto> createResponse = restTemplate
-                .postForEntity("/submissions/pending?BIOSTDSESS=" + sessionId, data, PendingSubmissionDto.class);
+                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId), data, PendingSubmissionDto.class);
 
         PendingSubmissionDto dto1 = createResponse.getBody();
         long mTime1 = dto1.getChanged();
 
         ResponseEntity<PendingSubmissionDto> updateResponse = restTemplate
-                .postForEntity("/submissions/pending/" + dto1.getAccno() + "?BIOSTDSESS=" + sessionId, dto1, PendingSubmissionDto.class);
+                .postForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", dto1.getAccno(), sessionId), dto1, PendingSubmissionDto.class);
 
         PendingSubmissionDto dto2 = updateResponse.getBody();
         long mTime2 = dto2.getChanged();
 
         assertThat(mTime1).isLessThan(mTime2);
 
-        restTemplate.delete("/submissions/pending/" + dto1.getAccno() + "?BIOSTDSESS=" + sessionId);
+        restTemplate.delete(format("/submissions/pending/%s?BIOSTDSESS=%s", dto1.getAccno(), sessionId));
     }
 
 
     @Test
     public void testGetPendingSubmissionsWithoutParams() {
         ResponseEntity<PendingSubmissionListDto> response = restTemplate
-                .getForEntity("/submissions/pending?BIOSTDSESS=" + login(), PendingSubmissionListDto.class);
+                .getForEntity(format("/submissions/pending?BIOSTDSESS=%s", login()), PendingSubmissionListDto.class);
         assertThat(response).isNotNull();
         assertThat(response.getBody().getSubmissions()).isEmpty();
     }
