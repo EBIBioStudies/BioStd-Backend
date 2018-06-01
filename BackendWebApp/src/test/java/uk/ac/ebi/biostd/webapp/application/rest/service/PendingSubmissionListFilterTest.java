@@ -1,12 +1,12 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionListFilter.asPredicate;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
@@ -128,8 +128,9 @@ public class PendingSubmissionListFilterTest {
     }
 
     private static List<PendingSubmissionListItemDto> search(PendingSubmissionListFiltersDto filters) {
-        Predicate<? super PendingSubmissionListItemDto> predicate = PendingSubmissionListFilter.asPredicate(filters);
-        return submissions.stream().filter(predicate).collect(Collectors.toList());
+        return submissions.stream()
+                .filter(asPredicate(filters))
+                .collect(Collectors.toList());
     }
 
     private static long seconds(int year, int month, int day) {
