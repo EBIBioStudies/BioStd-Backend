@@ -47,8 +47,8 @@ public class PendingSubmissionListFilter {
 
     private static Predicate<? super PendingSubmissionListItemDto> keywordsFilter(String keywordsAsString) {
         final List<Predicate<String>> keywords = Arrays.stream(keywordsAsString.split(" "))
-                .filter(k -> !k.isEmpty())
-                .map(k -> (Predicate<String>) str -> str != null && str.contains(k))
+                .filter(keyword -> !keyword.isEmpty())
+                .map(keyword -> (Predicate<String>) str -> str != null && str.contains(keyword))
                 .collect(Collectors.toList());
 
         return (Predicate<PendingSubmissionListItemDto>) dto -> {
