@@ -1,34 +1,32 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
 
 public class PendingSubmissionListFilter {
 
     public static Predicate<? super PendingSubmissionListItemDto> asPredicate(PendingSubmissionListFiltersDto filters) {
         List<Predicate<? super PendingSubmissionListItemDto>> predicates = new ArrayList<>();
 
-        Optional.ofNullable(filters.getAccNo())
+        filters.getAccNo()
                 .map(String::trim)
                 .filter(v -> !v.isEmpty())
                 .ifPresent(v -> predicates.add(accNoFilter(v)));
 
-        Optional.ofNullable(filters.getKeywords())
+        filters.getKeywords()
                 .map(String::trim)
                 .filter(v -> !v.isEmpty())
                 .ifPresent(v -> predicates.add(keywordsFilter(v)));
 
-        Optional.ofNullable(filters.getRTimeFrom()).ifPresent(v -> predicates.add(rTimeFromFilter(v)));
-        Optional.ofNullable(filters.getRTimeTo()).ifPresent(v -> predicates.add(rTimeToFilter(v)));
+        filters.getRTimeFrom().ifPresent(v -> predicates.add(rTimeFromFilter(v)));
+        filters.getRTimeTo().ifPresent(v -> predicates.add(rTimeToFilter(v)));
 
         return item -> predicates.stream().allMatch(p -> p.test(item));
     }
