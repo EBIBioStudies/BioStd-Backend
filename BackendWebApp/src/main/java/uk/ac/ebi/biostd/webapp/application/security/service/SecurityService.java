@@ -14,12 +14,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.webapp.application.persitence.common.AuxInfo;
 import uk.ac.ebi.biostd.webapp.application.persitence.common.Parameter;
+import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessTag;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.SecurityToken;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.Submission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.AccessPermissionRepository;
+import uk.ac.ebi.biostd.webapp.application.persitence.repositories.AccessTagsRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.SubmissionRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.TokenRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserRepository;
@@ -39,6 +41,8 @@ public class SecurityService implements ISecurityService {
     private final AccessPermissionRepository permissionsRepository;
     private final SubmissionRepository submissionRepository;
     private final TokenRepository tokenRepository;
+    private final AccessTagsRepository tagsRepository;
+
     private final SecurityUtil securityUtil;
 
     @Override
@@ -103,12 +107,38 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
-    public User addInactiveUser(String email, String name) {
-        User user = new User();
-        user.setEmail(email);
-        user.setFullName(name);
-        user.setAuxProfileInfo(new AuxInfo());
-        return userRepository.save(user);
+    public User addInactiveUserIfNotExist(String email, String name) {
+        return userRepository.findByLoginOrEmail(email, email).orElseGet(() -> {
+            User user = new User();
+            user.setEmail(email);
+            user.setFullName(name);
+            user.setAuxProfileInfo(new AuxInfo());
+            return userRepository.save(user);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void addPermission(long userId, String domain) {
+        AccessTag tag = tagsRepository.findByName(domain).orElseGet(() -> {
+            AccessTag accessTag = new AccessTag();
+            accessTag.setName(domain);
+            return tagsRepository.save(accessTag);
+        });
+
+        addPermissionIfNotExist(tag, userId, AccessType.READ);
+        addPermissionIfNotExist(tag, userId, AccessType.UPDATE);
+        addPermissionIfNotExist(tag, userId, AccessType.SUBMIT);
+    }
+
+    private void addPermissionIfNotExist(AccessTag accessTag, long user, AccessType accessType) {
+        if (!permissionsRepository.existsByAccessTagNameAndAccessType(accessTag.getName(), accessType)) {
+            AccessPermission readPermission = new AccessPermission();
+            readPermission.setAccessTag(accessTag);
+            readPermission.setUser(userRepository.getOne(user));
+            readPermission.setAccessType(accessType);
+            permissionsRepository.save(readPermission);
+        }
     }
 
     private AuxInfo createAuxInfo(List<String> dataList) {

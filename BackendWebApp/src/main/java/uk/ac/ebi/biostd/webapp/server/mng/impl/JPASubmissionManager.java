@@ -1,8 +1,6 @@
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
-import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
-import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
-
+import com.google.common.base.Strings;
 import com.pri.util.AccNoUtil;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -341,18 +339,11 @@ public class JPASubmissionManager implements SubmissionManager {
         }
     }
 
-    private List<Long> getAllowedTags(List<AccessTag> tags, User user) {
-        return tags.stream()
-                .filter(tag -> tag.checkDelegatePermission(ATTACHSUBM, user) == ALLOW)
-                .map(AccessTag::getId)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public SubmissionReport createSubmission(byte[] data, DataFormat type, String charset, Operation op, User usr,
-            boolean validateOnly, boolean ignoreAbsntFiles) {
+            boolean validateOnly, boolean ignoreAbsntFiles, String domain) {
         try {
-            return createSubmissionUnsafe(data, type, charset, op, usr, validateOnly, ignoreAbsntFiles);
+            return createSubmissionUnsafe(data, type, charset, op, usr, validateOnly, ignoreAbsntFiles, domain);
         } catch (Throwable e) {
             log.error("createSubmissionUnsafe: uncought exception " + e);
 
@@ -405,7 +396,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private SubmissionReport createSubmissionUnsafe(byte[] data, DataFormat type, String charset, Operation op,
-            User usr, boolean validateOnly, boolean ignoreFileAbs) {
+            User usr, boolean validateOnly, boolean ignoreFileAbs, String domain) {
 
         EntityManager em = BackendConfig.getServiceManager().getEntityManager();
         FileManager fileManager = BackendConfig.getServiceManager().getFileManager();
@@ -472,6 +463,9 @@ public class JPASubmissionManager implements SubmissionManager {
             for (SubmissionInfo si : doc.getSubmissions()) {
                 Submission submission = si.getSubmission();
 
+                if (!Strings.isNullOrEmpty(domain)) {
+                    submission.addAccessTag(getDomainTag(em, domain));
+                }
                 submission.setOwner(usr);
 
                 submOk = submOk && checkAccNoPfxSfx(si);
@@ -1132,6 +1126,13 @@ public class JPASubmissionManager implements SubmissionManager {
     private AccessTag getPublicTag(EntityManager em) {
         Query q = em.createNamedQuery("AccessTag.getByName");
         q.setParameter("name", BackendConfig.PublicTag);
+
+        return (AccessTag) q.getSingleResult();
+    }
+
+    private AccessTag getDomainTag(EntityManager em, String domain) {
+        Query q = em.createNamedQuery("AccessTag.getByName");
+        q.setParameter("name", domain);
 
         return (AccessTag) q.getSingleResult();
     }

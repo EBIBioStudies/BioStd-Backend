@@ -1,0 +1,23 @@
+
+Submission	${SUB_ACC_NO}	Unified_Domain_1,Public
+Title	Submission title
+ReleaseDate	${TODAY}
+
+Study	$$$1
+Title	Main Section 1
+Description	Main Section 1 Description
+Attribute – 1	An Attribute value
+Attribute – 2	An Attribute value
+
+Author	
+<affiliation>	ref1
+Name	John Smith
+E-mail	john.smith@email.com
+Author-Atribute	An Attribute value
+
+Organization	ref1
+Name	The Francis Crick Institute
+
+Sub Section 1	
+Description	Subsection 1 description
+Sub section attribute	An Attribute value

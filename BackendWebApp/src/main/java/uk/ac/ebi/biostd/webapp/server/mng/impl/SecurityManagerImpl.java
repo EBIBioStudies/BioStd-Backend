@@ -43,7 +43,13 @@ public class SecurityManagerImpl implements SecurityManager {
 
     @Override
     public User addInactiveUser(String email, String name) {
-        return getUserById(securityService.addInactiveUser(email, name).getId());
+        User user = getUserById(securityService.addInactiveUserIfNotExist(email, name).getId());
+        return user;
+    }
+
+    @Override
+    public void addPermission(long userId, String domain) {
+        securityService.addPermission(userId, domain);
     }
 
     @Override

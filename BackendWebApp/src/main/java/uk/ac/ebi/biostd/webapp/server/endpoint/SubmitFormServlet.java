@@ -7,7 +7,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostd.treelog.JSON4Log;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -64,7 +63,8 @@ public class SubmitFormServlet extends ServiceServlet {
 
         byte[] bindata = baos.toByteArray();
 
-        LogNode ln = submissionManager.createSubmission(bindata, null, null, Operation.CREATE, sess.getUser(), true, false).getLog();
+        LogNode ln = submissionManager
+                .createSubmission(bindata, null, null, Operation.CREATE, sess.getUser(), true, false, null).getLog();
 
         JSON4Log.convert(ln, resp.getWriter());
 
