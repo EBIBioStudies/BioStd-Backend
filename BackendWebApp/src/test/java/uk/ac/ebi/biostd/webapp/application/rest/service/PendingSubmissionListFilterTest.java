@@ -1,8 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
-import org.junit.Test;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -10,8 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
 
 public class PendingSubmissionListFilterTest {
     private static List<PendingSubmissionListItemDto> submissions = Arrays.asList(
