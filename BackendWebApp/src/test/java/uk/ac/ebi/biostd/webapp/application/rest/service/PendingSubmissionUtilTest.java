@@ -148,7 +148,7 @@ public class PendingSubmissionUtilTest {
         return objectMapper.readTree(replace(template, PAGETAB_JSON_PARAMS));
     }
 
-    private static PendingSubmissionDto createPendingSubmission(String accno, JsonNode pageTab) {
+    private PendingSubmissionDto createPendingSubmission(String accno, JsonNode pageTab) {
         PendingSubmissionDto dto = new PendingSubmissionDto();
         dto.setAccno(accno);
         dto.setData(pageTab);
@@ -156,14 +156,14 @@ public class PendingSubmissionUtilTest {
         return dto;
     }
 
-    private static long seconds(LocalDate date) {
-        return date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
-    }
-
-    private static String replace(String template, Map<String, String> valueMap) {
+    private String replace(String template, Map<String, String> valueMap) {
         final String[] accum = new String[]{template};
         valueMap.forEach((key, value) -> accum[0] = accum[0].replaceAll(format("\\$\\{%s\\}", key), value));
         return accum[0];
+    }
+
+    private static long seconds(LocalDate date) {
+        return date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
     }
 }
 
