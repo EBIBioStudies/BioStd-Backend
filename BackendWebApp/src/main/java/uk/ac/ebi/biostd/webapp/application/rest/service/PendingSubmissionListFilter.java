@@ -12,6 +12,8 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto
 
 public class PendingSubmissionListFilter {
 
+    private static final Pattern WILDCARD_REGEXP = Pattern.compile("[^*]+|(\\*)|(\\?)");
+
     public static Predicate<? super PendingSubmissionListItemDto> asPredicate(PendingSubmissionListFiltersDto filters) {
         List<Predicate<? super PendingSubmissionListItemDto>> predicates = new ArrayList<>();
 
@@ -66,8 +68,7 @@ public class PendingSubmissionListFilter {
     }
 
     private static String fromWildcard(String wildcard) {
-        Pattern regex = Pattern.compile("[^*]+|(\\*)|(\\?)");
-        Matcher m = regex.matcher(wildcard);
+        Matcher m = WILDCARD_REGEXP.matcher(wildcard);
         StringBuffer b = new StringBuffer();
         while (m.find()) {
             if (m.group(1) != null) m.appendReplacement(b, ".*");
