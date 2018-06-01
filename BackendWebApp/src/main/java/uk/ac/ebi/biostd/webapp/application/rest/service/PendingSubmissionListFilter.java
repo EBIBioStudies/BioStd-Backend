@@ -67,6 +67,17 @@ public class PendingSubmissionListFilter {
         };
     }
 
+    /**
+     * Converts wildcard to the normal java regular expression.
+     * E.g.
+     *
+     * TMP_* -> \QTMP_\E.*
+     * ?-BSST-* -> .\Q-BSST-\E.*
+     *
+     * @param wildcard a wildcard string to convert. It can contain '*' or '?' to match multiple or single
+     *                 characters correspondingly.
+     * @return a string which is a regular expression
+     */
     private static String fromWildcard(String wildcard) {
         Matcher m = WILDCARD_REGEXP.matcher(wildcard);
         StringBuffer b = new StringBuffer();
