@@ -34,14 +34,14 @@ public class PendingSubmissionListFilter {
     }
 
     private static Predicate<? super PendingSubmissionListItemDto> rTimeFromFilter(final Long dateInSeconds) {
-        return (Predicate<PendingSubmissionListItemDto>) dto -> {
+        return dto -> {
             Long rtime = dto.getRtime();
             return rtime != null && rtime.compareTo(dateInSeconds) >= 0;
         };
     }
 
     private static Predicate<? super PendingSubmissionListItemDto> rTimeToFilter(final Long dateInSeconds) {
-        return (Predicate<PendingSubmissionListItemDto>) dto -> {
+        return dto -> {
             Long rtime = dto.getRtime();
             return rtime != null && rtime.compareTo(dateInSeconds) < 0;
         };
@@ -53,7 +53,7 @@ public class PendingSubmissionListFilter {
                 .map(keyword -> (Predicate<String>) str -> str != null && str.contains(keyword))
                 .collect(Collectors.toList());
 
-        return (Predicate<PendingSubmissionListItemDto>) dto -> {
+        return dto -> {
             String title = dto.getTitle();
             return title != null && keywords.stream().allMatch(p -> p.test(title));
         };
@@ -61,7 +61,7 @@ public class PendingSubmissionListFilter {
 
     private static Predicate<? super PendingSubmissionListItemDto> accNoFilter(String accNoPattern) {
         final Pattern pattern = Pattern.compile(fromWildcard(accNoPattern));
-        return (Predicate<PendingSubmissionListItemDto>) dto -> {
+        return dto -> {
             String accno = dto.getAccno();
             return accno != null && pattern.matcher(accno).matches();
         };
