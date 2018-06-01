@@ -1,8 +1,18 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,18 +23,6 @@ import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 import uk.ac.ebi.biostd.webapp.application.configuration.WebConfiguration;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @Import(WebConfiguration.class)
@@ -40,15 +38,8 @@ public class PendingSubmissionUtilTest {
     private static final String TITLE = "PageTab data";
     private static final LocalDate RELEASE_DATE = LocalDate.of(2018, 5, 21);
 
-    private static final Map<String, String> PAGETAB_JSON_PARAMS = Collections.unmodifiableMap(
-            new HashMap<String, String>() {
-                {
-                    put("ACCNO", ACCNO);
-                    put("TITLE", TITLE);
-                    put("RELEASE_DATE", RELEASE_DATE.format(DATE_FORMATTER));
-                }
-            }
-    );
+    private static final Map<String, String> PAGETAB_JSON_PARAMS = ImmutableMap.of("ACCNO", ACCNO, "TITLE",
+            TITLE, "RELEASE_DATE", RELEASE_DATE.format(DATE_FORMATTER));
 
     @Autowired
     private ObjectMapper objectMapper;
