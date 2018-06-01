@@ -67,15 +67,15 @@ public class PendingSubmissionUtil {
         return Optional.empty();
     }
 
-    static private String newAccno() {
+    private String newAccno() {
         return ACCNO_PREFIX + System.currentTimeMillis();
     }
 
-    static private Optional<String> getAccno(JsonNode jsonNode) {
+    private Optional<String> getAccno(JsonNode jsonNode) {
         return Optional.ofNullable(jsonNode.get("accno")).map(JsonNode::asText).map(String::trim).filter(s -> !s.isEmpty());
     }
 
-    static private Optional<String> getTitle(JsonNode jsonNode) {
+    private Optional<String> getTitle(JsonNode jsonNode) {
         Optional<JsonNode> attrValueNode = attributes(jsonNode)
                 .stream()
                 .filter(attrNameFilter("title"))
@@ -83,7 +83,7 @@ public class PendingSubmissionUtil {
         return attrValueNode.map(v -> attrValue(v, ""));
     }
 
-    static private Optional<Long> getReleaseTimeInSeconds(JsonNode node) {
+    private Optional<Long> getReleaseTimeInSeconds(JsonNode node) {
         Optional<JsonNode> attrValueNode = attributes(node)
                 .stream()
                 .filter(attrNameFilter("releaseDate"))
@@ -92,7 +92,7 @@ public class PendingSubmissionUtil {
         return attrValueNode.map(v -> numberOfSeconds(attrValue(v, "")));
     }
 
-    static private List<JsonNode> attributes(JsonNode node) {
+    private List<JsonNode> attributes(JsonNode node) {
         List<JsonNode> list = new ArrayList<>();
         final String attributesProp = "attributes";
         if (node.has(attributesProp)) {
@@ -109,20 +109,20 @@ public class PendingSubmissionUtil {
         return list;
     }
 
-    static private Predicate<JsonNode> attrNameFilter(String attrName) {
+    private Predicate<JsonNode> attrNameFilter(String attrName) {
         return jsonNode -> fieldValue(jsonNode, "name", "").equalsIgnoreCase(attrName);
     }
 
-    static private String attrValue(JsonNode jsonNode, String deflt) {
+    private String attrValue(JsonNode jsonNode, String deflt) {
         return fieldValue(jsonNode, "value", deflt);
     }
 
-    static private String fieldValue(JsonNode jsonNode, String fieldName, String deflt) {
+    private String fieldValue(JsonNode jsonNode, String fieldName, String deflt) {
         JsonNode valueNode = jsonNode.get(fieldName);
         return Optional.ofNullable(valueNode).map(JsonNode::asText).orElse(deflt);
     }
 
-    static private Long numberOfSeconds(String date) {
+    private Long numberOfSeconds(String date) {
         return LocalDate.parse(date, DATE_FORMAT).atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
     }
 }
