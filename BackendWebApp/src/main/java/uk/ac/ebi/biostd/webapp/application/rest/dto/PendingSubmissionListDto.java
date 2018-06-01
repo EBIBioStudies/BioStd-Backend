@@ -1,9 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
-import lombok.*;
-
 import java.util.Collections;
 import java.util.List;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
