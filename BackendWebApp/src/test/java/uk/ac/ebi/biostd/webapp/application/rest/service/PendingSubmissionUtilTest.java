@@ -53,7 +53,7 @@ public class PendingSubmissionUtilTest {
 
     @Test
     public void testParseInvalidData() {
-        Optional<PendingSubmissionDto> dto = util.parse("invalid data");
+        Optional<PendingSubmissionDto> dto = util.asPendingSubmission("invalid data");
         assertThat(dto.isPresent()).isFalse();
     }
 
@@ -61,7 +61,7 @@ public class PendingSubmissionUtilTest {
     public void testParseValidData() throws IOException {
         final JsonNode pageTab = getPageTab();
 
-        Optional<PendingSubmissionDto> dto = util.parse(pendingSubmissionAsString(ACCNO, pageTab));
+        Optional<PendingSubmissionDto> dto = util.asPendingSubmission(pendingSubmissionAsString(ACCNO, pageTab));
         assertThat(dto.isPresent()).isTrue();
         dto.ifPresent(v -> {
             assertThat(v.getAccno()).isEqualTo(ACCNO);
@@ -74,7 +74,7 @@ public class PendingSubmissionUtilTest {
     public void testConvertInvalidData() {
         final JsonNode pageTab = objectMapper.createObjectNode();
 
-        PendingSubmissionListItemDto listItem = util.convert(createPendingSubmission(ACCNO, pageTab));
+        PendingSubmissionListItemDto listItem = util.convertToPendingSubmissionListItem(createPendingSubmission(ACCNO, pageTab));
         assertThat(listItem.getAccno()).isEqualTo(ACCNO);
         assertThat(listItem.getTitle()).isEmpty();
         assertThat(listItem.getRtime()).isNull();
@@ -85,7 +85,7 @@ public class PendingSubmissionUtilTest {
     public void testConvertValidData() throws IOException {
         final JsonNode pageTab = getPageTab();
 
-        PendingSubmissionListItemDto listItem = util.convert(createPendingSubmission(ACCNO, pageTab));
+        PendingSubmissionListItemDto listItem = util.convertToPendingSubmissionListItem(createPendingSubmission(ACCNO, pageTab));
         assertThat(listItem.getAccno()).isEqualTo(ACCNO);
         assertThat(listItem.getMtime()).isEqualTo(SECONDS);
         assertThat(listItem.getTitle()).isEqualTo(TITLE);
@@ -97,7 +97,7 @@ public class PendingSubmissionUtilTest {
         final String pageTab = getPageTab().toString();
 
         long from = System.currentTimeMillis();
-        Optional<PendingSubmissionDto> dto = util.create(pageTab);
+        Optional<PendingSubmissionDto> dto = util.createPendingSubmission(pageTab);
         long to = System.currentTimeMillis();
 
         assertThat(dto.isPresent()).isTrue();
@@ -113,7 +113,7 @@ public class PendingSubmissionUtilTest {
         final String pageTab = "{}";
 
         long from = System.currentTimeMillis();
-        Optional<PendingSubmissionDto> dto = util.create(pageTab);
+        Optional<PendingSubmissionDto> dto = util.createPendingSubmission(pageTab);
         long to = System.currentTimeMillis();
 
         assertThat(dto.isPresent()).isTrue();
@@ -126,7 +126,7 @@ public class PendingSubmissionUtilTest {
 
     @Test
     public void testCreateFromInvalidData() {
-        Optional<PendingSubmissionDto> dto = util.create("invalid data");
+        Optional<PendingSubmissionDto> dto = util.createPendingSubmission("invalid data");
         assertThat(dto.isPresent()).isFalse();
     }
 

@@ -33,7 +33,7 @@ public class PendingSubmissionUtil {
         return objectMapper.valueToTree(dto).toString();
     }
 
-    public Optional<PendingSubmissionDto> parse(String data) {
+    public Optional<PendingSubmissionDto> asPendingSubmission(String data) {
         try {
             return Optional.of(objectMapper.readValue(data, PendingSubmissionDto.class));
         } catch (IOException e) {
@@ -42,7 +42,7 @@ public class PendingSubmissionUtil {
         return Optional.empty();
     }
 
-    public PendingSubmissionListItemDto convert(PendingSubmissionDto pendingSubmission) {
+    public PendingSubmissionListItemDto convertToPendingSubmissionListItem(PendingSubmissionDto pendingSubmission) {
         JsonNode node = pendingSubmission.getData();
         return PendingSubmissionListItemDto.builder()
                 .accno(pendingSubmission.getAccno())
@@ -52,7 +52,7 @@ public class PendingSubmissionUtil {
                 .build();
     }
 
-    public Optional<PendingSubmissionDto> create(String pageTab) {
+    public Optional<PendingSubmissionDto> createPendingSubmission(String pageTab) {
         try {
             JsonNode node = objectMapper.readTree(pageTab);
             PendingSubmissionDto submission = new PendingSubmissionDto();
