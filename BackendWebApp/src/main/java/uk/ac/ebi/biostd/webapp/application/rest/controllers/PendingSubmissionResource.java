@@ -19,15 +19,15 @@ public class PendingSubmissionResource {
     private final PendingSubmissionService pendingSubmissionService;
 
     @GetMapping("/submissions/pending")
-    public @ResponseBody
-    PendingSubmissionListDto getSubmissions(PendingSubmissionListFiltersDto filters,
-                                            @AuthenticationPrincipal User user) {
+    @ResponseBody
+    public PendingSubmissionListDto getSubmissions(PendingSubmissionListFiltersDto filters,
+            @AuthenticationPrincipal User user) {
         return pendingSubmissionService.getSubmissionList(filters, user);
     }
 
     @GetMapping("/submissions/pending/{accno}")
     public ResponseEntity<PendingSubmissionDto> getSubmission(@PathVariable String accno,
-                                                              @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal User user) {
         return pendingSubmissionService.getSubmissionByAccNo(accno, user)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
@@ -35,21 +35,21 @@ public class PendingSubmissionResource {
 
     @DeleteMapping("/submissions/pending/{accno}")
     public ResponseEntity<Void> deleteSubmission(@PathVariable String accno,
-                                                 @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal User user) {
         pendingSubmissionService.deleteSubmissionByAccNo(accno, user);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/submissions/pending/{accno}")
-    public @ResponseBody
-    PendingSubmissionDto updateSubmission(@RequestBody PendingSubmissionDto request,
-                                          @AuthenticationPrincipal User user) {
+    @ResponseBody
+    public PendingSubmissionDto updateSubmission(@RequestBody PendingSubmissionDto request,
+            @AuthenticationPrincipal User user) {
         return pendingSubmissionService.updateSubmission(request, user);
     }
 
     @PostMapping("/submissions/pending")
     public ResponseEntity<PendingSubmissionDto> createSubmission(@RequestBody String request,
-                                                                 @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal User user) {
         return pendingSubmissionService.createSubmission(request, user)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
