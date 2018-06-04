@@ -26,6 +26,8 @@ public interface ServiceManager {
 
     EntityManager getEntityManager();
 
+    void closeEntityManager();
+
     String getServiceName();
 
     RemoteRequestManager getRemoteRequestManager();
