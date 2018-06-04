@@ -102,6 +102,7 @@ public class SecurityService implements ISecurityService {
         user.setActivationKey(UUID.randomUUID().toString());
         user.setKeyTime(OffsetDateTime.now().toInstant().toEpochMilli());
         user.setPasswordDigest(securityUtil.getPasswordDigest(signUpRequest.getPassword()));
+        user.setSecret(UUID.randomUUID().toString());
 
         userRepository.save(user.withPendingActivation(signUpRequest.getActivationURL()));
     }
@@ -113,6 +114,7 @@ public class SecurityService implements ISecurityService {
             user.setEmail(email);
             user.setFullName(name);
             user.setAuxProfileInfo(new AuxInfo());
+            user.setSecret(UUID.randomUUID().toString());
             return userRepository.save(user);
         });
     }

@@ -21,17 +21,12 @@ Get the full list of submissions json representation and merge into single out f
 ### 2. Partial export
 Identify new submissions create json file whit their content and notify configured url.
 
-## Execution example
+### 3. Stats export
+Generate stats about each single submission in a CSV file. Stats are calculated as following:
 
-compile application using gradle 
+#### Page tab file size
+NFS is explorer to extract and calculate page tab file size
 
-```
-  ./gradlew clean build
-```
+#### Submission files (number and size)
+Database FileRef table is query for each submission to calculated the total number of files and their size.
 
-Run generated jar in ``build/libs`` folder 
-
-
-```
-java -jar exporter-0.0.1-SNAPSHOT.jar --application.queryModified=" limit 1"
-```

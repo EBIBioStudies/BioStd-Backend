@@ -42,6 +42,7 @@ public class User extends AbstractAggregateRoot {
     @Convert(converter = UserAuxInfoConverter.class)
     private AuxInfo auxProfileInfo;
     private String activationKey;
+    private String secret;
 
     @Lob
     private byte[] passwordDigest;
