@@ -56,7 +56,6 @@ public class UserDataResource {
         userDataService.deleteModifiedSubmission(user.getId(), key);
     }
 
-
     @GetMapping("/userdata/listjson")
     public ResponseEntity<String> getTopicData(
             @RequestParam(required = false, name = "topic") String topic,

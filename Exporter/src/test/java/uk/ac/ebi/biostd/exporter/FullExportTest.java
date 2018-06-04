@@ -9,6 +9,8 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 import javax.xml.transform.Source;
 import org.junit.Before;
 import org.junit.Rule;
@@ -77,9 +79,12 @@ public class FullExportTest extends BaseIntegrationTest {
 
         File[] files = folder.getRoot().listFiles();
         assertThat(files).hasSize(2);
+
+        Arrays.sort(files, Comparator.comparing(File::getName));
         assertThatJsonFile(files[0]);
         assertXmlFile(files[1]);
     }
+
 
     private void assertXmlFile(File file) {
         Source control = Input.fromFile(getResource("/test_files/full.xml").getAbsolutePath()).build();

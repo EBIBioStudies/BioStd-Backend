@@ -17,7 +17,6 @@ package uk.ac.ebi.biostd.webapp.server.mng;
 
 import java.util.Collection;
 import java.util.Set;
-import org.apache.lucene.queryparser.classic.ParseException;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.treelog.LogNode;
@@ -27,14 +26,10 @@ import uk.ac.ebi.biostd.webapp.server.shared.tags.TagRef;
 
 public interface SubmissionManager {
 
-    Collection<Submission> getSubmissionsByOwner(User u, int offset, int limit);
-
     Submission getSubmissionsByAccession(String acc);
 
-    Collection<Submission> searchSubmissions(User user, SubmissionSearchRequest ssr) throws ParseException;
-
     SubmissionReport createSubmission(byte[] data, DataFormat fmt, String charset, Operation op, User usr,
-            boolean validateOnly, boolean ignoreAbsFiles);
+            boolean validateOnly, boolean ignoreAbsFiles, String domain);
 
     LogNode updateSubmissionMeta(String sbmAcc, Collection<TagRef> tags, Set<String> access, long rTime, User user);
 

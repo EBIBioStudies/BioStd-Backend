@@ -11,5 +11,7 @@ public interface AccessPermissionRepository extends JpaRepository<AccessPermissi
 
     List<AccessPermission> findByUserIdAndAccessType(long userId, AccessType accessType);
 
+    boolean existsByAccessTagNameAndAccessType(String tag, AccessType accessType);
+
     boolean existsByAccessTagInAndAccessType(Set<AccessTag> accessTags, AccessType accessType);
 }

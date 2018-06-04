@@ -14,7 +14,6 @@ import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
-import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager.Operation;
@@ -140,7 +139,8 @@ public class FormSubmitServlet extends ServiceServlet {
                 ignPrm != null && ("true".equalsIgnoreCase(ignPrm) || "yes".equalsIgnoreCase(ignPrm) || "on"
                         .equalsIgnoreCase(ignPrm) || "1".equals(ignPrm));
 
-        SubmissionReport res = submissionManager.createSubmission(data, fmt, "UTF-8", act, sess.getUser(), validateOnly, ignAbsFiles);
+        SubmissionReport res = submissionManager
+                .createSubmission(data, fmt, "UTF-8", act, sess.getUser(), validateOnly, ignAbsFiles, null);
 
         LogNode topLn = res.getLog();
 

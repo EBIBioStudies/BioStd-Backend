@@ -1,23 +1,6 @@
-/**
- * Copyright 2014-2017 Functional Genomics Development Team, European Bioinformatics Institute
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
- *
- * @author Mikhail Gostev <gostev@gmail.com>
- **/
-
 package uk.ac.ebi.biostd.webapp.server.mng.impl;
 
-import static uk.ac.ebi.biostd.authz.ACR.Permit.ALLOW;
-import static uk.ac.ebi.biostd.authz.SystemAction.ATTACHSUBM;
-
+import com.google.common.base.Strings;
 import com.pri.util.AccNoUtil;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -49,20 +32,6 @@ import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
-import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.FullTextQuery;
-import org.hibernate.search.jpa.Search;
 import uk.ac.ebi.biostd.authz.AccessTag;
 import uk.ac.ebi.biostd.authz.Tag;
 import uk.ac.ebi.biostd.authz.User;
@@ -95,9 +64,7 @@ import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.mng.AccessionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.FileManager;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
-import uk.ac.ebi.biostd.webapp.server.mng.SubmissionSearchRequest;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.AccNoMatcher.Match;
-import uk.ac.ebi.biostd.webapp.server.search.SearchMapper;
 import uk.ac.ebi.biostd.webapp.server.shared.tags.TagRef;
 import uk.ac.ebi.biostd.webapp.server.util.DatabaseUtil;
 import uk.ac.ebi.biostd.webapp.server.util.ExceptionUtil;
@@ -107,14 +74,6 @@ import uk.ac.ebi.mg.spreadsheet.cell.XSVCellStream;
 
 @Slf4j
 public class JPASubmissionManager implements SubmissionManager {
-
-    private static final String ACCESS_TAG_QUERY = "select t from AccessTag t";
-
-    private static final String GET_ALL_HOST = "select sb from Submission sb join sb.rootSection rs where rs"
-            + ".type=:type and sb.version > 0";
-
-    private static final String GET_HOST_SUB_BY_TYPE_QUERY = "select sb from Submission sb join sb"
-            + ".rootSection rs join sb.accessTags at where rs.type=:type and at.id in :allow and sb.version > 0";
 
     private enum SubmissionDirState {
         ABSENT,
@@ -154,37 +113,6 @@ public class JPASubmissionManager implements SubmissionManager {
         parser = new PTDocumentParser(parserCfg);
         this.emf = emf;
         this.eutoxriskFileValidator = eutoxriskFileValidator;
-    }
-
-    @Override
-    public Collection<Submission> getSubmissionsByOwner(User u, int offset, int limit) {
-        EntityManager manager = BackendConfig.getServiceManager().getEntityManager();
-        EntityTransaction transaction = manager.getTransaction();
-
-        try {
-
-            transaction.begin();
-            TypedQuery<Submission> query = manager.
-                    createNamedQuery(Submission.GetByOwnerQuery, Submission.class)
-                    .setParameter("uid", u.getId());
-
-            if (offset > 0) {
-                query.setFirstResult(offset);
-            }
-
-            if (limit > 0) {
-                query.setMaxResults(limit);
-            }
-
-            return query.getResultList();
-
-        } catch (Throwable t) {
-            log.error("DB error query submissions for owner: " + t.getMessage());
-        } finally {
-            DatabaseUtil.commitIfActiveAndNotNull(transaction);
-        }
-
-        return null;
     }
 
     @Override
@@ -411,18 +339,11 @@ public class JPASubmissionManager implements SubmissionManager {
         }
     }
 
-    private List<Long> getAllowedTags(List<AccessTag> tags, User user) {
-        return tags.stream()
-                .filter(tag -> tag.checkDelegatePermission(ATTACHSUBM, user) == ALLOW)
-                .map(AccessTag::getId)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public SubmissionReport createSubmission(byte[] data, DataFormat type, String charset, Operation op, User usr,
-            boolean validateOnly, boolean ignoreAbsntFiles) {
+            boolean validateOnly, boolean ignoreAbsntFiles, String domain) {
         try {
-            return createSubmissionUnsafe(data, type, charset, op, usr, validateOnly, ignoreAbsntFiles);
+            return createSubmissionUnsafe(data, type, charset, op, usr, validateOnly, ignoreAbsntFiles, domain);
         } catch (Throwable e) {
             log.error("createSubmissionUnsafe: uncought exception " + e);
 
@@ -475,7 +396,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private SubmissionReport createSubmissionUnsafe(byte[] data, DataFormat type, String charset, Operation op,
-            User usr, boolean validateOnly, boolean ignoreFileAbs) {
+            User usr, boolean validateOnly, boolean ignoreFileAbs, String domain) {
 
         EntityManager em = BackendConfig.getServiceManager().getEntityManager();
         FileManager fileManager = BackendConfig.getServiceManager().getFileManager();
@@ -542,6 +463,9 @@ public class JPASubmissionManager implements SubmissionManager {
             for (SubmissionInfo si : doc.getSubmissions()) {
                 Submission submission = si.getSubmission();
 
+                if (!Strings.isNullOrEmpty(domain)) {
+                    submission.addAccessTag(getDomainTag(em, domain));
+                }
                 submission.setOwner(usr);
 
                 submOk = submOk && checkAccNoPfxSfx(si);
@@ -1206,6 +1130,13 @@ public class JPASubmissionManager implements SubmissionManager {
         return (AccessTag) q.getSingleResult();
     }
 
+    private AccessTag getDomainTag(EntityManager em, String domain) {
+        Query q = em.createNamedQuery("AccessTag.getByName");
+        q.setParameter("name", domain);
+
+        return (AccessTag) q.getSingleResult();
+    }
+
     private String checkAccNoPart(String acc) throws Exception {
         if (acc == null) {
             return null;
@@ -1762,135 +1693,6 @@ public class JPASubmissionManager implements SubmissionManager {
 
         return gln;
     }
-
-
-    @Override
-    public Collection<Submission> searchSubmissions(User u, SubmissionSearchRequest ssr) throws ParseException {
-        Collection<Submission> res = null;
-
-        EntityManager entityManager = BackendConfig.getEntityManagerFactory().createEntityManager();
-        FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-
-        try {
-
-            BooleanQuery.Builder qb = new BooleanQuery.Builder();
-
-            if (ssr.getKeywords() != null) {
-                QueryParser queryParser = new QueryParser(SearchMapper.titleField, new StandardAnalyzer());
-
-                qb.add(queryParser.parse(ssr.getKeywords()), BooleanClause.Occur.MUST);
-            }
-
-            if (u.isSuperuser() || BackendConfig.getServiceManager().getSecurityManager()
-                    .mayUserListAllSubmissions(u)) {
-                if (ssr.getOwnerId() > 0) {
-                    qb.add(NumericRangeQuery
-                            .newLongRange(SearchMapper.ownerField + '.' + SearchMapper.numidField, ssr.getOwnerId(),
-                                    ssr.getOwnerId(), true, true), BooleanClause.Occur.MUST);
-                }
-            } else {
-                qb.add(NumericRangeQuery
-                        .newLongRange(SearchMapper.ownerField + '.' + SearchMapper.numidField, u.getId(), u.getId(),
-                                true, true), BooleanClause.Occur.MUST);
-            }
-
-            if (ssr.getOwner() != null) {
-                TermQuery tq = new TermQuery(
-                        new Term(SearchMapper.ownerField + '.' + SearchMapper.emailField, ssr.getOwner()));
-                qb.add(tq, BooleanClause.Occur.MUST);
-            }
-
-            if (ssr.getAccNo() != null) {
-                WildcardQuery tq = new WildcardQuery(new Term(SearchMapper.accNoField, ssr.getAccNo()));
-                qb.add(tq, BooleanClause.Occur.MUST);
-            }
-
-            if (ssr.getFromVersion() > Integer.MIN_VALUE || ssr.getToVersion() < Integer.MAX_VALUE) {
-                qb.add(NumericRangeQuery
-                                .newIntRange(SearchMapper.versionField, ssr.getFromVersion(), ssr.getToVersion(),
-                                        true, false),
-                        BooleanClause.Occur.MUST);
-            } else {
-                qb.add(NumericRangeQuery.newIntRange(SearchMapper.versionField, 0, Integer.MAX_VALUE, true, false),
-                        BooleanClause.Occur.MUST);
-            }
-
-            long from, to;
-            String field;
-
-            from = ssr.getFromCTime();
-            to = ssr.getToCTime();
-            field = SearchMapper.cTimeField;
-
-            if (from > Long.MIN_VALUE || to < Long.MAX_VALUE) {
-                qb.add(NumericRangeQuery.newLongRange(field, from, to, true, true), BooleanClause.Occur.MUST);
-            }
-
-            from = ssr.getFromMTime();
-            to = ssr.getToMTime();
-            field = SearchMapper.mTimeField;
-
-            if (from > Long.MIN_VALUE || to < Long.MAX_VALUE) {
-                qb.add(NumericRangeQuery.newLongRange(field, from, to, true, true), BooleanClause.Occur.MUST);
-            }
-
-            from = ssr.getFromRTime();
-            to = ssr.getToRTime();
-            field = SearchMapper.rTimeField;
-
-            if (from > Long.MIN_VALUE || to < Long.MAX_VALUE) {
-                qb.add(NumericRangeQuery.newLongRange(field, from, to, true, true), BooleanClause.Occur.MUST);
-            }
-
-            Sort sort = null;
-
-            if (ssr.getSortBy() != null) {
-                switch (ssr.getSortBy()) {
-                    case CTime:
-                        sort = new Sort(new SortField(SearchMapper.cTimeField, SortField.Type.LONG, true));
-                        break;
-
-                    case MTime:
-                        sort = new Sort(new SortField(SearchMapper.mTimeField, SortField.Type.LONG, true));
-                        break;
-
-                    case RTime:
-                        sort = new Sort(new SortField(SearchMapper.rTimeField, SortField.Type.LONG, true));
-                        break;
-                }
-            }
-
-            org.apache.lucene.search.Query q = qb.build();
-
-            FullTextQuery query = fullTextEntityManager.createFullTextQuery(q, Submission.class);
-
-            if (sort != null) {
-                query.setSort(sort);
-            }
-
-            if (ssr.getSkip() > 0) {
-                query.setFirstResult(ssr.getSkip());
-            }
-
-            if (ssr.getLimit() > 0) {
-                query.setMaxResults(ssr.getLimit());
-            }
-
-            res = query.getResultList();
-
-        } finally {
-            if (fullTextEntityManager != null) {
-                fullTextEntityManager.close();
-            }
-
-            if (entityManager != null && entityManager.isOpen()) {
-                entityManager.close();
-            }
-        }
-
-        return res;
-    }
-
 
     @Override
     public LogNode updateSubmissionMeta(String acc, Collection<TagRef> tgRefs, Set<String> access, long rTime,

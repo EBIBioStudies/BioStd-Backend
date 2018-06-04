@@ -1,15 +1,8 @@
 package uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services;
 
-import com.pri.util.collection.Collections;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorProperties;
-import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
+import static java.util.Collections.singletonList;
 
+import com.pri.util.collection.Collections;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -19,8 +12,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
-
-import static java.util.Collections.singletonList;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorProperties;
+import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
 
 @Service
 @Slf4j
@@ -37,9 +36,9 @@ public class EUToxRiskFileValidatorService {
     @Autowired
     public EUToxRiskFileValidatorService(
             EUToxRiskFileValidatorProperties properties,
-            @Qualifier("eutoxrisk-file-validator") RestTemplate restTemplate,
-            @Qualifier("eutoxrisk-file-validator") ThreadPoolTaskExecutor taskExecutor) {
-        this.validator = new EUToxRiskFileValidator(restTemplate, properties.getEndpoint());
+            @Qualifier("eutoxrisk-file-validator-rest-template") RestTemplate restTemplate,
+            @Qualifier("eutoxrisk-file-validator-executor") ThreadPoolTaskExecutor taskExecutor) {
+        validator = new EUToxRiskFileValidator(restTemplate, properties.getEndpoint());
         this.taskExecutor = taskExecutor;
         this.properties = properties;
     }

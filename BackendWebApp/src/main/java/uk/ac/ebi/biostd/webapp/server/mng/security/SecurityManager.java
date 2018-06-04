@@ -45,4 +45,6 @@ public interface SecurityManager {
     int getUsersNumber();
 
     User addInactiveUser(String email, String name);
+
+    void addPermission(long userId, String domain);
 }

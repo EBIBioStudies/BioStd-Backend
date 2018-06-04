@@ -75,6 +75,16 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
+    public void closeEntityManager() {
+        EntityManager em = threadLocal.get();
+
+        if (em != null && em.isOpen()) {
+            em.close();
+            threadLocal.set(null);
+        }
+    }
+
+    @Override
     public EmailService getEmailService() {
         return emailService;
     }

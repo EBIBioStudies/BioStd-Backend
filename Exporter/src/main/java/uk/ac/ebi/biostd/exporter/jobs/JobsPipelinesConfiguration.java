@@ -11,12 +11,13 @@ import uk.ac.ebi.biostd.exporter.jobs.full.FullExport;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullJobJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcExport;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcJobsFactory;
+import uk.ac.ebi.biostd.exporter.jobs.stats.StatsExport;
+import uk.ac.ebi.biostd.exporter.jobs.stats.StatsJobsFactory;
 import uk.ac.ebi.biostd.remote.service.RemoteService;
 
 @Configuration
 @Slf4j
 public class JobsPipelinesConfiguration {
-
 
     @Bean
     @Qualifier("full")
@@ -34,5 +35,11 @@ public class JobsPipelinesConfiguration {
     public RemoteService remoteService(@Value("${jobs.backend-url}") String backendUrl) {
         log.info("creating remote service with url {}", backendUrl);
         return new RemoteService(backendUrl);
+    }
+
+    @Bean
+    @Qualifier("stats")
+    public ExportPipeline statsExportPipeline(StatsExport statsExport, StatsJobsFactory jobsFactory) {
+        return new ExportPipeline(statsExport.getWorkers(), ImmutableList.of(statsExport), jobsFactory);
     }
 }

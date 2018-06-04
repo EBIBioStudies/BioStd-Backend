@@ -27,12 +27,17 @@ spring:
   profiles: local
 jobs:
   backend-url: http://localhost:8586/biostd
+  dummy:
+    enabled: true
+    cron: 0/10 * * * * ? # each 10 seconds
+
   partial:
     enabled: false
     filePath: ./generated/
     fileName: studies_partial
     notificationUrl: http://localhost:8586/api/update/partial/
     cron: 0/20 * * * * ? # each 20 seconds
+
   full:
     enabled: false
     filePath: ./generated/
@@ -41,9 +46,10 @@ jobs:
     notificationUrl: http://localhost:8586/api/update/full
     query-modified: limit 100
     cron: 0 0/1 * * * ? # each minute
+
   pmc:
     export:
-      enabled: true
+      enabled: false
       workers: 1
       user: elinks
       password: # to be set in deployment script
@@ -84,13 +90,19 @@ spring:
   profiles: beta
 jobs:
   backend-url: http://localhost:8586/biostd
+  dummy:
+    enabled: false
+    cron: 0/10 * * * * ? # each 10 seconds
+  stats:
+    basePath: /nfs/biostudies/.adm/databases/beta/submission
+    outFilePath: /nfs/biostudies/.adm/databases/beta/updates/stats.csv
+    workers: 4
   partial:
     enabled: true
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies_partial
     notificationUrl: http://ves-ebi-6b:8080/biostudies/api/v1/index/reload/
     cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
-
   full:
     enabled: true
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
@@ -105,13 +117,19 @@ spring:
   profiles: prod
 jobs:
   backend-url: http://localhost:8586/biostd
+  dummy:
+    enabled: false
+    cron: 0/10 * * * * ? # each 10 seconds
+  stats:
+    basePath: /nfs/biostudies/.adm/databases/prod/submission
+    outFilePath: /nfs/biostudies/.adm/databases/prod/updates/stats.csv
+    workers: 4
   partial:
     enabled: true
     filePath: /nfs/biostudies/.adm/databases/prod/updates/
     fileName: studies_partial
     notificationUrl: http://ves-ebi-6e:8080/biostudies/preview/api/v1/index/reload/
     cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
-
   full:
     enabled: true
     filePath: /nfs/biostudies/.adm/databases/prod/updates/
@@ -120,7 +138,6 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 22 * * ? # everyday at 10 p.m.
-
   pmc:
     export:
       enabled: true

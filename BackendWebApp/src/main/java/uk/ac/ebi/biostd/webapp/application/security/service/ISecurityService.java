@@ -31,5 +31,7 @@ public interface ISecurityService {
 
     int getUsersCount();
 
-    User addInactiveUser(String email, String name);
+    User addInactiveUserIfNotExist(String email, String name);
+
+    void addPermission(long id, String domain);
 }
