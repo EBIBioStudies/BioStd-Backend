@@ -12,7 +12,8 @@ public class PmcExportProperties {
     public static final int MAX_RECORDS = 4000;
     public static final int BATCH_SIZE = 4;
     public static final String PROVIDER_ID = "1518";
-    public static final String LINK_FORMAT = "http://www.ebi.ac.uk/biostudies/studies/%s";
+    public static final String SHOW_FILES_PARAM = "?xr=true";
+    public static final String LINK_FORMAT = "http://www.ebi.ac.uk/biostudies/studies/%s" + SHOW_FILES_PARAM;
     public static final String SOURCE = "PMC";
 
     public static final String FORK_JOB = "pmc-fork-job";

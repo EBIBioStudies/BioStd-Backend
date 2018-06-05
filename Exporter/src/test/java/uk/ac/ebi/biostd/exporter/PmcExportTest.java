@@ -102,7 +102,7 @@ public class PmcExportTest {
                 create("links")
                     .element("link").attribute("providerId", "1518").
                         element("resource").
-                            element("url").text("http://www.ebi.ac.uk/biostudies/studies/S-EPMC4273986").up().
+                            element("url").text("http://www.ebi.ac.uk/biostudies/studies/S-EPMC4273986?xr=true").up().
                             element("title").text("Biology by rational protein-RNA engineering.").up(2).
                         element("record").
                             element("source").text("PMC").up().
