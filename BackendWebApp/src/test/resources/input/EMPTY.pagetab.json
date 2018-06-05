@@ -1,0 +1,63 @@
+{
+  "type": "Submission",
+  "accno": "",
+  "tags": [],
+  "accessTags": [],
+  "section": {
+    "type": "Study",
+    "tags": [],
+    "accessTags": [],
+    "attributes": [
+      {
+        "name": "Description",
+        "value": ""
+      }
+    ],
+    "files": [
+      {
+        "path": "",
+        "attributes": [
+          {
+            "name": "Description",
+            "value": ""
+          },
+          {
+            "name": "Type",
+            "value": ""
+          }
+        ],
+        "type": "File"
+      }
+    ],
+    "links": [
+      {
+        "url": "",
+        "attributes": [
+          {
+            "name": "Description",
+            "value": ""
+          },
+          {
+            "name": "Type",
+            "value": ""
+          }
+        ]
+      }
+    ],
+    "subsections": [
+      {
+        "type": "Author"
+      }
+    ]
+  },
+  "attributes": [
+    {
+      "name": "Title",
+      "value": ""
+    },
+    {
+      "name": "ReleaseDate",
+      "value": "2018-05-21"
+    }
+  ]
+}

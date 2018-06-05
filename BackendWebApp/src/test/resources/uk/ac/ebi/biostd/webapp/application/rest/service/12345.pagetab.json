@@ -1,0 +1,27 @@
+{
+  "type": "Submission",
+  "accno": "${ACCNO}",
+  "tags": [],
+  "accessTags": [],
+  "attributes": [
+    {
+      "name": "Title",
+      "value": "${TITLE}"
+    },
+    {
+      "name": "ReleaseDate",
+      "value": "${RELEASE_DATE}"
+    }
+  ],
+  "section": {
+    "type": "Study",
+    "tags": [],
+    "accessTags": [],
+    "attributes": [
+      {
+        "name": "Description",
+        "value": "Long description goes here"
+      }
+    ]
+  }
+}
