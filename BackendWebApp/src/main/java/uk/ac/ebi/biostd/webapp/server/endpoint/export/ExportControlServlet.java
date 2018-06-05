@@ -63,9 +63,5 @@ public class ExportControlServlet extends ServiceServlet {
         } else {
             rqrs.getResponse().respond(HttpServletResponse.SC_BAD_REQUEST, "FAIL", "Invalid operation");
         }
-
-
     }
-
-
 }
