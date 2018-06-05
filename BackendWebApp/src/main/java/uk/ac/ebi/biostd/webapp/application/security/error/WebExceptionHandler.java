@@ -12,8 +12,8 @@ public class WebExceptionHandler {
 
     private static final String FAIL_STATUS = "FAIL";
 
-    @ExceptionHandler(value = SecurityAccessException.class)
-    public ResponseEntity<ErrorMessage> handleConflict(SecurityAccessException exception) {
+    @ExceptionHandler(value = SecurityException.class)
+    public ResponseEntity<ErrorMessage> handleConflict(SecurityException exception) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ErrorMessage(exception.getMessage(), FAIL_STATUS));

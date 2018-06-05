@@ -27,7 +27,7 @@ import uk.ac.ebi.biostd.webapp.application.persitence.repositories.TokenReposito
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserRepository;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
-import uk.ac.ebi.biostd.webapp.application.security.error.SecurityAccessException;
+import uk.ac.ebi.biostd.webapp.application.security.error.SecurityException;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 @Service
@@ -53,11 +53,11 @@ public class SecurityService implements ISecurityService {
         Optional<User> optionalUser = userRepository.findByLoginOrEmail(login, login);
 
         if (!optionalUser.isPresent()) {
-            throw new SecurityAccessException(format("Could find an user register with email or login '%s'", login));
+            throw new SecurityException(format("Could find an user register with email or login '%s'", login));
         }
 
         if (!securityUtil.checkHash(hash, optionalUser.get().getPasswordDigest())) {
-            throw new SecurityAccessException(format("Given hash '%s' do not match for user '%s'", hash, login));
+            throw new SecurityException(format("Given hash '%s' do not match for user '%s'", hash, login));
         }
 
         return optionalUser.get();
@@ -73,11 +73,11 @@ public class SecurityService implements ISecurityService {
         Optional<User> user = userRepository.findByLoginOrEmail(login, login);
 
         if (!user.isPresent()) {
-            throw new SecurityAccessException(format("Could find an user register with email or login '%s'", login));
+            throw new SecurityException(format("Could find an user register with email or login '%s'", login));
         }
 
         if (!securityUtil.checkPassword(user.get().getPasswordDigest(), password)) {
-            throw new SecurityAccessException(format("Given password do not match for user '%s'", login));
+            throw new SecurityException(format("Given password do not match for user '%s'", login));
         }
 
         String token = securityUtil.createToken(user.get());
@@ -94,6 +94,12 @@ public class SecurityService implements ISecurityService {
 
     @Override
     public void addUser(SignUpRequest signUpRequest) {
+        Optional<User> created = userRepository.findByEmail(signUpRequest.getEmail());
+        if (created.isPresent()) {
+            throw new SecurityException(
+                    format("There is already a user register with email %s", created.get().getEmail()));
+        }
+
         User user = new User();
         user.setEmail(signUpRequest.getEmail());
         user.setFullName(signUpRequest.getUsername());
