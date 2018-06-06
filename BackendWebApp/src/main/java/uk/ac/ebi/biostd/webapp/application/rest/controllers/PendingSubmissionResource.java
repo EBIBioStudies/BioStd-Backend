@@ -1,14 +1,16 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
 import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionService;
 
 @AllArgsConstructor
@@ -40,18 +42,18 @@ public class PendingSubmissionResource {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/submissions/pending/{accno}")
-    @ResponseBody
-    public PendingSubmissionDto updateSubmission(@RequestBody PendingSubmissionDto request,
+    @PostMapping(value = "/submissions/pending/{accno}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PendingSubmissionDto> updateSubmission(@PathVariable String accno,
+            @RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
-        return pendingSubmissionService.updateSubmission(request, user);
+        return pendingSubmissionService.updateSubmission(accno, pageTab, user)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().build());
     }
 
-    @PostMapping("/submissions/pending")
-    public ResponseEntity<PendingSubmissionDto> createSubmission(@RequestBody String request,
+    @PostMapping(value = "/submissions/pending", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PendingSubmissionDto createSubmission(@RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
-        return pendingSubmissionService.createSubmission(request, user)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.noContent().build());
+        return pendingSubmissionService.createSubmission(pageTab, user);
     }
 }

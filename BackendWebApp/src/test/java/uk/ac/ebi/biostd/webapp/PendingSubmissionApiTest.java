@@ -11,8 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
@@ -58,9 +57,14 @@ public class PendingSubmissionApiTest {
     public void testCreatePendingSubmission() {
         String sessionId = login();
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
         String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
+        HttpEntity<String> request = new HttpEntity<>(data, headers);
+
         ResponseEntity<PendingSubmissionDto> response = restTemplate
-                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId), data, PendingSubmissionDto.class);
+                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId), request, PendingSubmissionDto.class);
 
         PendingSubmissionDto dto = response.getBody();
         assertThat(dto).isNotNull();
@@ -79,9 +83,9 @@ public class PendingSubmissionApiTest {
     }
 
     @Test
-    public void testCreatePendingSubmissionWithErrors() {
+    public void testCreatePendingSubmissionBadData() {
         ResponseEntity<PendingSubmissionDto> response = restTemplate
-                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", login()), "blah blah", PendingSubmissionDto.class);
+                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", login()), "bad data", PendingSubmissionDto.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
@@ -103,16 +107,33 @@ public class PendingSubmissionApiTest {
         long mTime1 = dto1.getChanged();
 
         ResponseEntity<PendingSubmissionDto> updateResponse = restTemplate
-                .postForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", dto1.getAccno(), sessionId), dto1, PendingSubmissionDto.class);
+                .postForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", dto1.getAccno(), sessionId), dto1.getData(), PendingSubmissionDto.class);
 
         PendingSubmissionDto dto2 = updateResponse.getBody();
         long mTime2 = dto2.getChanged();
 
         assertThat(mTime1).isLessThan(mTime2);
 
-        restTemplate.delete(format("/submissions/pending/%s?BIOSTDSESS=%s", dto1.getAccno(), sessionId));
+        delete(dto1.getAccno(), sessionId);
     }
 
+   /* @Test
+    public void testUpdatePendingSubmissionBadRequest() {
+        String sessionId = login();
+
+        String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
+        ResponseEntity<PendingSubmissionDto> createResponse = restTemplate
+                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId), data, PendingSubmissionDto.class);
+
+        PendingSubmissionDto dto = createResponse.getBody();
+
+        ResponseEntity<PendingSubmissionDto> updateResponse = restTemplate
+                .postForEntity(format("/submissions/pending/111?BIOSTDSESS=%s", sessionId), dto, PendingSubmissionDto.class);
+
+        assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        delete(dto.getAccno(), sessionId);
+    }*/
 
     @Test
     public void testGetPendingSubmissionsWithoutParams() {
@@ -124,5 +145,9 @@ public class PendingSubmissionApiTest {
 
     private String login() {
         return operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
+    }
+
+    private void delete(String accno, String sessionId) {
+        restTemplate.delete(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId));
     }
 }

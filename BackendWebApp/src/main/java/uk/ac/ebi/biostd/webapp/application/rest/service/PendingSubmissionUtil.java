@@ -2,21 +2,19 @@ package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
 
 @Component
 @Slf4j
@@ -55,16 +53,20 @@ public class PendingSubmissionUtil {
     public Optional<PendingSubmissionDto> createPendingSubmission(String pageTab) {
         try {
             JsonNode node = objectMapper.readTree(pageTab);
-            PendingSubmissionDto submission = new PendingSubmissionDto();
-            submission.setAccno(getAccno(node).orElse(newAccno()));
-            submission.setData(node);
-            submission.setChanged(System.currentTimeMillis());
-            return Optional.of(submission);
+            return Optional.of(this.createPendingSubmission(node));
 
         } catch (IOException e) {
             log.error("error while creating pending submission", e);
         }
         return Optional.empty();
+    }
+
+    public PendingSubmissionDto createPendingSubmission(JsonNode pageTab) {
+        PendingSubmissionDto submission = new PendingSubmissionDto();
+        submission.setAccno(getAccno(pageTab).orElse(newAccno()));
+        submission.setData(pageTab);
+        submission.setChanged(System.currentTimeMillis());
+        return submission;
     }
 
     private String newAccno() {
