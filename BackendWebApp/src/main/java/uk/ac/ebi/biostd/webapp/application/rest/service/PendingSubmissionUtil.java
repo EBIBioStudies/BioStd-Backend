@@ -50,17 +50,6 @@ public class PendingSubmissionUtil {
                 .build();
     }
 
-    public Optional<PendingSubmissionDto> createPendingSubmission(String pageTab) {
-        try {
-            JsonNode node = objectMapper.readTree(pageTab);
-            return Optional.of(this.createPendingSubmission(node));
-
-        } catch (IOException e) {
-            log.error("error while creating pending submission", e);
-        }
-        return Optional.empty();
-    }
-
     public PendingSubmissionDto createPendingSubmission(JsonNode pageTab) {
         PendingSubmissionDto submission = new PendingSubmissionDto();
         submission.setAccno(getAccno(pageTab).orElse(newAccno()));

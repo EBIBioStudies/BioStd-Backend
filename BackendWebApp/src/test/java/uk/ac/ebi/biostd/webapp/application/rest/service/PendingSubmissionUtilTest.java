@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -94,40 +95,28 @@ public class PendingSubmissionUtilTest {
 
     @Test
     public void testCreateFromExisted() throws IOException {
-        final String pageTab = getPageTab().toString();
+        final JsonNode pageTab = getPageTab();
 
         long from = System.currentTimeMillis();
-        Optional<PendingSubmissionDto> dto = util.createPendingSubmission(pageTab);
+        PendingSubmissionDto dto = util.createPendingSubmission(pageTab);
         long to = System.currentTimeMillis();
 
-        assertThat(dto.isPresent()).isTrue();
-        dto.ifPresent(v -> {
-            assertThat(v.getAccno()).isEqualTo(ACCNO);
-            assertThat(v.getChanged()).isBetween(from, to);
-            assertThat(v.getData().toString()).isEqualTo(pageTab);
-        });
+        assertThat(dto.getAccno()).isEqualTo(ACCNO);
+        assertThat(dto.getChanged()).isBetween(from, to);
+        assertThat(dto.getData()).isEqualTo(pageTab);
     }
 
     @Test
     public void testCreateFromEmpty() {
-        final String pageTab = "{}";
+        JsonNode data = objectMapper.createObjectNode();
 
         long from = System.currentTimeMillis();
-        Optional<PendingSubmissionDto> dto = util.createPendingSubmission(pageTab);
+        PendingSubmissionDto dto = util.createPendingSubmission(data);
         long to = System.currentTimeMillis();
 
-        assertThat(dto.isPresent()).isTrue();
-        dto.ifPresent(v -> {
-            assertThat(v.getAccno()).matches("^TMP_.*");
-            assertThat(v.getChanged()).isBetween(from, to);
-            assertThat(v.getData().toString()).isEqualTo(pageTab);
-        });
-    }
-
-    @Test
-    public void testCreateFromInvalidData() {
-        Optional<PendingSubmissionDto> dto = util.createPendingSubmission("invalid data");
-        assertThat(dto.isPresent()).isFalse();
+        assertThat(dto.getAccno()).matches("^TMP_.*");
+        assertThat(dto.getChanged()).isBetween(from, to);
+        assertThat(dto.getData()).isEqualTo(data);
     }
 
     private String pendingSubmissionAsString(String accno, JsonNode pageTab) throws JsonProcessingException {

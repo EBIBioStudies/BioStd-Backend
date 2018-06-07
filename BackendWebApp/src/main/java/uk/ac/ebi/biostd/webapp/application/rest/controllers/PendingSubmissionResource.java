@@ -42,7 +42,7 @@ public class PendingSubmissionResource {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/submissions/pending/{accno}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/submissions/pending/{accno}")
     public ResponseEntity<PendingSubmissionDto> updateSubmission(@PathVariable String accno,
             @RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
@@ -51,7 +51,7 @@ public class PendingSubmissionResource {
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    @PostMapping(value = "/submissions/pending", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/submissions/pending")
     public PendingSubmissionDto createSubmission(@RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
         return pendingSubmissionService.createSubmission(pageTab, user);
