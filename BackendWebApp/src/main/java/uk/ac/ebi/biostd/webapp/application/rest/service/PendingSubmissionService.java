@@ -46,9 +46,9 @@ public class PendingSubmissionService {
         List<PendingSubmissionListItemDto> submissions = userDataService.findAllByUserAndTopic(user.getId(), TOPIC)
                 .stream()
                 .map(UserData::getData)
-                .map(util::asPendingSubmission)
+                .map(util::pendingSubmissionFromString)
                 .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
-                .map(util::convertToPendingSubmissionListItem)
+                .map(util::pendingSubmissionToListItem)
                 .sorted(SORT_BY_MTIME)
                 .filter(predicate::test)
                 .skip(filters.getOffset())
@@ -82,13 +82,13 @@ public class PendingSubmissionService {
         updated.setChanged(System.currentTimeMillis());
         updated.setData(data);
 
-        userDataService.update(user.getId(), updated.getAccno(), util.asString(updated), TOPIC);
+        userDataService.update(user.getId(), updated.getAccno(), util.pendingSubmissionToString(updated), TOPIC);
         return updated;
     }
 
     private Optional<PendingSubmissionDto> findByAccNoAndUser(String accno, User user) {
         return userDataService.findByUserAndKey(user.getId(), accno)
                 .map(UserData::getData)
-                .flatMap(util::asPendingSubmission);
+                .flatMap(util::pendingSubmissionFromString);
     }
 }

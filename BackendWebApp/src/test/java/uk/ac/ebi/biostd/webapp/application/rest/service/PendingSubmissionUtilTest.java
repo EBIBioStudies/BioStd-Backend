@@ -53,7 +53,7 @@ public class PendingSubmissionUtilTest {
 
     @Test
     public void testParseInvalidData() {
-        Optional<PendingSubmissionDto> dto = util.asPendingSubmission("invalid data");
+        Optional<PendingSubmissionDto> dto = util.pendingSubmissionFromString("invalid data");
         assertThat(dto.isPresent()).isFalse();
     }
 
@@ -61,7 +61,7 @@ public class PendingSubmissionUtilTest {
     public void testParseValidData() throws IOException {
         final JsonNode pageTab = getPageTab();
 
-        Optional<PendingSubmissionDto> dto = util.asPendingSubmission(pendingSubmissionAsString(ACCNO, pageTab));
+        Optional<PendingSubmissionDto> dto = util.pendingSubmissionFromString(pendingSubmissionAsString(ACCNO, pageTab));
         assertThat(dto.isPresent()).isTrue();
         dto.ifPresent(v -> {
             assertThat(v.getAccno()).isEqualTo(ACCNO);
@@ -74,7 +74,7 @@ public class PendingSubmissionUtilTest {
     public void testConvertInvalidData() {
         final JsonNode pageTab = objectMapper.createObjectNode();
 
-        PendingSubmissionListItemDto listItem = util.convertToPendingSubmissionListItem(createPendingSubmission(ACCNO, pageTab));
+        PendingSubmissionListItemDto listItem = util.pendingSubmissionToListItem(createPendingSubmission(ACCNO, pageTab));
         assertThat(listItem.getAccno()).isEqualTo(ACCNO);
         assertThat(listItem.getTitle()).isEmpty();
         assertThat(listItem.getRtime()).isNull();
@@ -85,7 +85,7 @@ public class PendingSubmissionUtilTest {
     public void testConvertValidData() throws IOException {
         final JsonNode pageTab = getPageTab();
 
-        PendingSubmissionListItemDto listItem = util.convertToPendingSubmissionListItem(createPendingSubmission(ACCNO, pageTab));
+        PendingSubmissionListItemDto listItem = util.pendingSubmissionToListItem(createPendingSubmission(ACCNO, pageTab));
         assertThat(listItem.getAccno()).isEqualTo(ACCNO);
         assertThat(listItem.getMtime()).isEqualTo(SECONDS);
         assertThat(listItem.getTitle()).isEqualTo(TITLE);

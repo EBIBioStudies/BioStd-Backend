@@ -27,11 +27,11 @@ public class PendingSubmissionUtil {
 
     private final ObjectMapper objectMapper;
 
-    public String asString(PendingSubmissionDto dto) {
+    public String pendingSubmissionToString(PendingSubmissionDto dto) {
         return objectMapper.valueToTree(dto).toString();
     }
 
-    public Optional<PendingSubmissionDto> asPendingSubmission(String data) {
+    public Optional<PendingSubmissionDto> pendingSubmissionFromString(String data) {
         try {
             return Optional.of(objectMapper.readValue(data, PendingSubmissionDto.class));
         } catch (IOException e) {
@@ -40,7 +40,7 @@ public class PendingSubmissionUtil {
         return Optional.empty();
     }
 
-    public PendingSubmissionListItemDto convertToPendingSubmissionListItem(PendingSubmissionDto pendingSubmission) {
+    public PendingSubmissionListItemDto pendingSubmissionToListItem(PendingSubmissionDto pendingSubmission) {
         JsonNode node = pendingSubmission.getData();
         return PendingSubmissionListItemDto.builder()
                 .accno(pendingSubmission.getAccno())
