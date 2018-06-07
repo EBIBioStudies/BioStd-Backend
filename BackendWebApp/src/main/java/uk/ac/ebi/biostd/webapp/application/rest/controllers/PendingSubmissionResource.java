@@ -11,6 +11,7 @@ import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmissionReportDto;
 import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionService;
 
 @AllArgsConstructor
@@ -56,4 +57,15 @@ public class PendingSubmissionResource {
             @AuthenticationPrincipal User user) {
         return pendingSubmissionService.createSubmission(pageTab, user);
     }
+
+    @PostMapping("/submissions/pending/{accno}/submit")
+    public ResponseEntity<SubmissionReportDto> submitSubmission(@PathVariable String accno,
+            @RequestBody ObjectNode pageTab,
+            @AuthenticationPrincipal User user) {
+
+        return pendingSubmissionService.submitSubmission(accno, pageTab, user)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.badRequest().build());
+    }
+
 }
