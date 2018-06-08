@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -53,13 +52,13 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testParseInvalidData() {
+    public void testParsingPendingSubmissionFromInvalidString() {
         Optional<PendingSubmissionDto> dto = util.pendingSubmissionFromString("invalid data");
         assertThat(dto.isPresent()).isFalse();
     }
 
     @Test
-    public void testParseValidData() throws IOException {
+    public void testParsingPendingSubmissionFromValidString() throws IOException {
         final JsonNode pageTab = getPageTab();
 
         Optional<PendingSubmissionDto> dto = util.pendingSubmissionFromString(pendingSubmissionAsString(ACCNO, pageTab));
@@ -72,7 +71,7 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testConvertInvalidData() {
+    public void testConvertingEmptyPendingSubmissionToListItem() {
         final JsonNode pageTab = objectMapper.createObjectNode();
 
         PendingSubmissionListItemDto listItem = util.pendingSubmissionToListItem(createPendingSubmission(ACCNO, pageTab));
@@ -83,7 +82,7 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testConvertValidData() throws IOException {
+    public void testConvertingPendingSubmissionToListItem() throws IOException {
         final JsonNode pageTab = getPageTab();
 
         PendingSubmissionListItemDto listItem = util.pendingSubmissionToListItem(createPendingSubmission(ACCNO, pageTab));
@@ -94,7 +93,7 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testCreateFromExisted() throws IOException {
+    public void testCreatingPendingSubmissionFromExistedSubmission() throws IOException {
         final JsonNode pageTab = getPageTab();
 
         long from = System.currentTimeMillis();
@@ -107,7 +106,7 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testCreateFromEmpty() {
+    public void testCreatingPendingSubmissionFromNewSubmission() {
         JsonNode data = objectMapper.createObjectNode();
 
         long from = System.currentTimeMillis();
