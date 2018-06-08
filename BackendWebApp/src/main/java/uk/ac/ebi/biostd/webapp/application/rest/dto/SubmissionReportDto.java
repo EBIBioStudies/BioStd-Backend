@@ -1,6 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
+import com.pri.util.collection.Collections;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
@@ -17,8 +20,7 @@ public class SubmissionReportDto {
         return SubmissionReportDto.builder()
                 .status(report.getStatus())
                 .mapping(
-                        report.getMappings()
-                                .stream()
+                        Optional.ofNullable(report.getMappings()).orElse(Collections.emptyList()).stream()
                                 .map(SubmissionMappingDto::from)
                                 .collect(Collectors.toList()))
                 .log(LogNodeDto.from(report.getLog()))

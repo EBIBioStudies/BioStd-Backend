@@ -60,10 +60,8 @@ public class PendingSubmissionResource {
 
     @PostMapping("/submissions/pending/{accno}/submit")
     public ResponseEntity<SubmissionReportDto> submitSubmission(@PathVariable String accno,
-            @RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
-
-        return pendingSubmissionService.submitSubmission(accno, pageTab, user)
+        return pendingSubmissionService.submitSubmission(accno, user)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.badRequest().build());
     }

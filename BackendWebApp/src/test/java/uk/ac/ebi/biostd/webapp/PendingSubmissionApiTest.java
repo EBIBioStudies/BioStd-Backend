@@ -1,9 +1,10 @@
 package uk.ac.ebi.biostd.webapp;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,7 @@ import uk.ac.ebi.biostd.backend.testing.IntegrationTestUtil;
 import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
-
-import java.io.IOException;
-
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmissionReportDto;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -41,6 +38,7 @@ public class PendingSubmissionApiTest {
     private TestRestTemplate restTemplate;
 
     private RemoteOperations operationsService;
+    private String sessionId;
 
     @BeforeClass
     public static void beforeAll() throws IOException {
@@ -48,104 +46,127 @@ public class PendingSubmissionApiTest {
     }
 
     @Before
-    public void setup() {
+    public void setUp() {
         operationsService = new RemoteOperations(restTemplate);
+        sessionId = login();
     }
 
+    @After
+    public void tearDown() {
+        getAllPendingSubmissions(sessionId).getBody().getSubmissions()
+                .forEach(subm -> deletePendingSubmission(subm.getAccno(), sessionId));
+    }
 
     @Test
     public void testCreatePendingSubmission() {
         String sessionId = login();
 
-        String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
+        String data = getSubmissionSample();
 
-        ResponseEntity<PendingSubmissionDto> response = restTemplate
-                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId),
-                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class);
+        PendingSubmissionDto dto = createPendingSubmission(data, sessionId).getBody();
 
-        PendingSubmissionDto dto = response.getBody();
         assertThat(dto).isNotNull();
         assertThat(dto.getAccno()).matches("TMP_.+");
         assertThat(dto.getChanged()).isGreaterThan(0);
         assertThat(dto.getData().toString()).isEqualTo(data);
 
-        response = restTemplate
-                .getForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", dto.getAccno(), sessionId), PendingSubmissionDto.class);
+        PendingSubmissionDto dtoCopy = getPendingSubmission(dto.getAccno(), sessionId).getBody();
 
-        PendingSubmissionDto dtoCopy = response.getBody();
         assertThat(dtoCopy).isNotNull();
         assertThat(dtoCopy.getAccno()).isEqualTo(dto.getAccno());
         assertThat(dtoCopy.getChanged()).isEqualTo(dto.getChanged());
         assertThat(dtoCopy.getData().toString()).isEqualTo(dto.getData().toString());
-
-        restTemplate.delete(format("/submissions/pending/%s?BIOSTDSESS=%s", dto.getAccno(), sessionId));
     }
 
     @Test
     public void testCreatePendingSubmissionBadRequest() {
-        ResponseEntity<PendingSubmissionDto> response = restTemplate
-                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", login()),
-                        new HttpEntity<>("not a json data", headers()), PendingSubmissionDto.class);
-
+        ResponseEntity<PendingSubmissionDto> response = createPendingSubmission("not a json data", login());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     public void testGetNoneExistedSubmission() {
-        ResponseEntity<PendingSubmissionDto> response = restTemplate
-                .getForEntity(format("/submissions/pending/1234?BIOSTDSESS=%s", login()), PendingSubmissionDto.class);
-
+        ResponseEntity<PendingSubmissionDto> response = getPendingSubmission("12345", login());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
     public void testUpdatePendingSubmission() {
         String sessionId = login();
-        String data = ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
-        ResponseEntity<PendingSubmissionDto> createResponse = restTemplate
-                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId),
-                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class);
+        String data = getSubmissionSample();
 
-        PendingSubmissionDto dto1 = createResponse.getBody();
+        PendingSubmissionDto dto1 = createPendingSubmission(data, sessionId).getBody();
         long mTime1 = dto1.getChanged();
 
-        ResponseEntity<PendingSubmissionDto> updateResponse = restTemplate
-                .postForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", dto1.getAccno(), sessionId),
-                        new HttpEntity<>(dto1.getData(), headers()), PendingSubmissionDto.class);
-
-        PendingSubmissionDto dto2 = updateResponse.getBody();
+        PendingSubmissionDto dto2 = updatePendingSubmission(dto1.getAccno(), data, sessionId).getBody();
         long mTime2 = dto2.getChanged();
 
         assertThat(mTime1).isLessThan(mTime2);
-
-        delete(dto1.getAccno(), sessionId);
     }
 
     @Test
     public void testUpdatePendingSubmissionBadRequest() {
-        String sessionId = login();
-
-        ResponseEntity<PendingSubmissionDto> updateResponse = restTemplate
-                .postForEntity(format("/submissions/pending/111?BIOSTDSESS=%s", sessionId),
-                        new HttpEntity<>("not a json data", headers()), PendingSubmissionDto.class);
-
-        assertThat(updateResponse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ResponseEntity<PendingSubmissionDto> response = updatePendingSubmission("111", "not a json data", login());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     public void testGetAllPendingSubmissions() {
-        ResponseEntity<PendingSubmissionListDto> response = restTemplate
-                .getForEntity(format("/submissions/pending?BIOSTDSESS=%s", login()), PendingSubmissionListDto.class);
-        assertThat(response).isNotNull();
-        assertThat(response.getBody().getSubmissions()).isEmpty();
+        PendingSubmissionListDto dto = restTemplate
+                .getForEntity(format("/submissions/pending?BIOSTDSESS=%s", login()), PendingSubmissionListDto.class)
+                .getBody();
+
+        assertThat(dto.getSubmissions()).isEmpty();
+    }
+
+    @Test
+    public void testSubmitNewPendingSubmission() {
+        String sessionId = login();
+        PendingSubmissionDto dto = createPendingSubmission(getSubmissionSample(), sessionId).getBody();
+
+        ResponseEntity<SubmissionReportDto> response = submitPendingSubmission(dto.getAccno(), sessionId);
+
+        assertThat(response.getBody().getStatus()).isEqualTo("OK");
+    }
+
+    private String getSubmissionSample() {
+        return ResourceHandler.getResourceFileAsString(NEW_PAGETAB).replaceAll("\\s+", "");
     }
 
     private String login() {
         return operationsService.login("admin_user@ebi.ac.uk", "123456").getSessid();
     }
 
-    private void delete(String accno, String sessionId) {
+    private void deletePendingSubmission(String accno, String sessionId) {
         restTemplate.delete(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId));
+    }
+
+    private ResponseEntity<PendingSubmissionDto> createPendingSubmission(String data, String sessionId) {
+        return restTemplate
+                .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId),
+                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class);
+    }
+
+    private ResponseEntity<PendingSubmissionDto> updatePendingSubmission(String accno, String data, String sessionId) {
+        return restTemplate
+                .postForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId),
+                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class);
+    }
+
+    private ResponseEntity<SubmissionReportDto> submitPendingSubmission(String accno, String sessionId) {
+        return restTemplate
+                .postForEntity(format("/submissions/pending/%s/submit?BIOSTDSESS=%s", accno, sessionId),
+                        HttpEntity.EMPTY, SubmissionReportDto.class);
+    }
+
+    private ResponseEntity<PendingSubmissionDto> getPendingSubmission(String accno, String sessionId) {
+        return restTemplate
+                .getForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId), PendingSubmissionDto.class);
+    }
+
+    private ResponseEntity<PendingSubmissionListDto> getAllPendingSubmissions(String sessionId) {
+        return restTemplate
+                .getForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId), PendingSubmissionListDto.class);
     }
 
     private HttpHeaders headers() {

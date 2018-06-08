@@ -1,6 +1,8 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
+import com.pri.util.collection.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +26,7 @@ public class SubmissionMappingDto {
                 .order(mapping.getSubmissionMapping().getPosition()[0])
                 .original(mapping.getSubmissionMapping().getOrigAcc())
                 .assigned(mapping.getSubmissionMapping().getAssignedAcc())
-                .sections(mapping.getSectionsMapping().stream()
+                .sections(Optional.ofNullable(mapping.getSectionsMapping()).orElse(Collections.emptyList()).stream()
                         .map(SectionMappingDto::from)
                         .collect(Collectors.toList()))
                 .build();
