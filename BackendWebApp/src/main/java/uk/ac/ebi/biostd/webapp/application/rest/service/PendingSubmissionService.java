@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.model.AbstractAttribute;
 import uk.ac.ebi.biostd.model.Submission;
+import uk.ac.ebi.biostd.treelog.LogNode;
+import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
 import uk.ac.ebi.biostd.webapp.application.domain.services.UserDataService;
@@ -97,9 +99,16 @@ public class PendingSubmissionService {
         JsonNode data = multiSubmissionsWrap(isNew ? amendAccno(dto.getData()) : dto.getData());
 
         SubmissionManager.Operation operation = isNew ? SubmissionManager.Operation.CREATE : SubmissionManager.Operation.UPDATE;
+
+        //-- TODO: calling legacy code here; taken from SubmitServlet unchanged
         SubmissionReport report = submissionManager.createSubmission(
                 data.toString().getBytes(), DataFormat.json, Charset.defaultCharset().toString(), operation, user,
                 false, false, null);
+        SimpleLogNode.setLevels(report.getLog());
+
+        if (report.getLog().getLevel() != LogNode.Level.ERROR) {
+            deleteSubmissionByAccNo(dto.getAccno(), user);
+        }
         return SubmissionReportDto.from(report);
     }
 
