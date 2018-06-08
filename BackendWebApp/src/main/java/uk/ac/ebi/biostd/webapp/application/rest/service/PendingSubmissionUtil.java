@@ -38,7 +38,7 @@ public class PendingSubmissionUtil {
     }
 
     public PendingSubmissionListItemDto pendingSubmissionToListItem(PendingSubmissionDto pendingSubmission) {
-        PageTabUtil ptUtil = new PageTabUtil(pendingSubmission.getData());
+        PageTabProxy ptUtil = new PageTabProxy(pendingSubmission.getData());
         return PendingSubmissionListItemDto.builder()
                 .accno(pendingSubmission.getAccno())
                 .mtime(pendingSubmission.getModificationTimeInSeconds())
@@ -48,7 +48,7 @@ public class PendingSubmissionUtil {
     }
 
     public PendingSubmissionDto createPendingSubmission(JsonNode pageTab) {
-        Optional<String> accno = new PageTabUtil(pageTab).getAccno();
+        Optional<String> accno = new PageTabProxy(pageTab).getAccno();
 
         PendingSubmissionDto submission = new PendingSubmissionDto();
         submission.setAccno(accno.orElse(newAccno()));

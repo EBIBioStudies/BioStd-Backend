@@ -94,7 +94,7 @@ public class PendingSubmissionService {
     private SubmissionReportDto submit(PendingSubmissionDto dto, User user) {
         boolean isNew = util.isTemporaryAccno(dto.getAccno());
 
-        JsonNode data = arrayWrap(isNew ? amendAccno(dto.getData()) : dto.getData());
+        JsonNode data = multiSubmissionsWrap(isNew ? amendAccno(dto.getData()) : dto.getData());
 
         SubmissionManager.Operation operation = isNew ? SubmissionManager.Operation.CREATE : SubmissionManager.Operation.UPDATE;
         SubmissionReport report = submissionManager.createSubmission(
@@ -103,24 +103,24 @@ public class PendingSubmissionService {
         return SubmissionReportDto.from(report);
     }
 
-    private JsonNode arrayWrap(JsonNode pageTab) {
+    private JsonNode multiSubmissionsWrap(JsonNode pageTab) {
         ArrayNode arrayNode = objectMapper.createArrayNode();
         arrayNode.add(pageTab);
         return objectMapper.createObjectNode().set("submissions", arrayNode);
     }
 
     private JsonNode amendAccno(JsonNode pageTab) {
-        PageTabUtil pageTabUtil = new PageTabUtil(pageTab);
-        return pageTabUtil.amendAccno(getAccnoTemplate(pageTabUtil));
+        PageTabProxy pageTabProxy = new PageTabProxy(pageTab);
+        List<String> attachToAccessions = pageTabProxy.attachToAttr();
+
+        String accnoTemplate = attachToAccessions.size() == 1 ?
+                getAccnoTemplate(attachToAccessions.get(0)) : DEFAULT_ACCNO_TEMPLATE;
+
+        return pageTabProxy.amendAccno(accnoTemplate);
     }
 
-    private String getAccnoTemplate(PageTabUtil pageTabUtil) {
-        List<String> accessions = pageTabUtil.attachToAttr();
-        if (accessions.size() != 1) {
-            return DEFAULT_ACCNO_TEMPLATE;
-        }
-
-        Submission subm = submissionManager.getSubmissionsByAccession(accessions.get(0));
+    private String getAccnoTemplate(String parentAccno) {
+        Submission subm = submissionManager.getSubmissionsByAccession(parentAccno);
         return subm.getAttributes().stream()
                 .filter(attr -> attr.getName().equalsIgnoreCase("accnotemplate"))
                 .map(AbstractAttribute::getValue)

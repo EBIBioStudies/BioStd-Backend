@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class PageTabUtil {
+public class PageTabProxy {
 
     private final JsonNode pageTab;
 
-    public PageTabUtil(JsonNode pageTab) {
+    public PageTabProxy(JsonNode pageTab) {
         this.pageTab = pageTab;
     }
 
