@@ -4,7 +4,10 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.backend.services.RemoteOperations;
 import uk.ac.ebi.biostd.backend.testing.IntegrationTestUtil;
@@ -33,6 +38,9 @@ public class PendingSubmissionApiTest {
 
     @ClassRule
     public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
+
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -53,7 +61,7 @@ public class PendingSubmissionApiTest {
 
     @After
     public void tearDown() {
-        getAllPendingSubmissions(sessionId).getBody().getSubmissions()
+        getAllPendingSubmissions(sessionId).getSubmissions()
                 .forEach(subm -> deletePendingSubmission(subm.getAccno(), sessionId));
     }
 
@@ -63,14 +71,14 @@ public class PendingSubmissionApiTest {
 
         String data = getSubmissionSample();
 
-        PendingSubmissionDto dto = createPendingSubmission(data, sessionId).getBody();
+        PendingSubmissionDto dto = createPendingSubmission(data, sessionId);
 
         assertThat(dto).isNotNull();
         assertThat(dto.getAccno()).matches("TMP_.+");
         assertThat(dto.getChanged()).isGreaterThan(0);
         assertThat(dto.getData().toString()).isEqualTo(data);
 
-        PendingSubmissionDto dtoCopy = getPendingSubmission(dto.getAccno(), sessionId).getBody();
+        PendingSubmissionDto dtoCopy = getPendingSubmission(dto.getAccno(), sessionId);
 
         assertThat(dtoCopy).isNotNull();
         assertThat(dtoCopy.getAccno()).isEqualTo(dto.getAccno());
@@ -80,14 +88,18 @@ public class PendingSubmissionApiTest {
 
     @Test
     public void testCreatePendingSubmissionBadRequest() {
-        ResponseEntity<PendingSubmissionDto> response = createPendingSubmission("not a json data", login());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        expectedEx.expect(HttpResponseStatusException.class);
+        expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
+
+        createPendingSubmission("not a json data", login());
     }
 
-    @Test
+    @Test()
     public void testGetNoneExistedSubmission() {
-        ResponseEntity<PendingSubmissionDto> response = getPendingSubmission("12345", login());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        expectedEx.expect(HttpResponseStatusException.class);
+        expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
+
+        getPendingSubmission("12345", login());
     }
 
     @Test
@@ -95,10 +107,10 @@ public class PendingSubmissionApiTest {
         String sessionId = login();
         String data = getSubmissionSample();
 
-        PendingSubmissionDto dto1 = createPendingSubmission(data, sessionId).getBody();
+        PendingSubmissionDto dto1 = createPendingSubmission(data, sessionId);
         long mTime1 = dto1.getChanged();
 
-        PendingSubmissionDto dto2 = updatePendingSubmission(dto1.getAccno(), data, sessionId).getBody();
+        PendingSubmissionDto dto2 = updatePendingSubmission(dto1.getAccno(), data, sessionId);
         long mTime2 = dto2.getChanged();
 
         assertThat(mTime1).isLessThan(mTime2);
@@ -106,8 +118,10 @@ public class PendingSubmissionApiTest {
 
     @Test
     public void testUpdatePendingSubmissionBadRequest() {
-        ResponseEntity<PendingSubmissionDto> response = updatePendingSubmission("111", "not a json data", login());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        expectedEx.expect(HttpResponseStatusException.class);
+        expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
+
+        updatePendingSubmission("111", "not a json data", login());
     }
 
     @Test
@@ -122,11 +136,16 @@ public class PendingSubmissionApiTest {
     @Test
     public void testSubmitNewPendingSubmission() {
         String sessionId = login();
-        PendingSubmissionDto dto = createPendingSubmission(getSubmissionSample(), sessionId).getBody();
+        PendingSubmissionDto dto = createPendingSubmission(getSubmissionSample(), sessionId);
 
-        ResponseEntity<SubmissionReportDto> response = submitPendingSubmission(dto.getAccno(), sessionId);
+        SubmissionReportDto report = submitPendingSubmission(dto.getAccno(), sessionId);
 
-        assertThat(response.getBody().getStatus()).isEqualTo("OK");
+        assertThat(report.getStatus()).isEqualTo("OK");
+
+        expectedEx.expect(HttpResponseStatusException.class);
+        expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
+
+        getPendingSubmission(dto.getAccno(), sessionId);
     }
 
     private String getSubmissionSample() {
@@ -141,37 +160,77 @@ public class PendingSubmissionApiTest {
         restTemplate.delete(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId));
     }
 
-    private ResponseEntity<PendingSubmissionDto> createPendingSubmission(String data, String sessionId) {
-        return restTemplate
+    private PendingSubmissionDto createPendingSubmission(String data, String sessionId) {
+        return getBody(restTemplate
                 .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId),
-                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class);
+                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class));
     }
 
-    private ResponseEntity<PendingSubmissionDto> updatePendingSubmission(String accno, String data, String sessionId) {
-        return restTemplate
+    private PendingSubmissionDto updatePendingSubmission(String accno, String data, String sessionId) {
+        return getBody(restTemplate
                 .postForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId),
-                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class);
+                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class));
     }
 
-    private ResponseEntity<SubmissionReportDto> submitPendingSubmission(String accno, String sessionId) {
-        return restTemplate
+    private SubmissionReportDto submitPendingSubmission(String accno, String sessionId) {
+        return getBody(restTemplate
                 .postForEntity(format("/submissions/pending/%s/submit?BIOSTDSESS=%s", accno, sessionId),
-                        HttpEntity.EMPTY, SubmissionReportDto.class);
+                        HttpEntity.EMPTY, SubmissionReportDto.class));
     }
 
-    private ResponseEntity<PendingSubmissionDto> getPendingSubmission(String accno, String sessionId) {
-        return restTemplate
-                .getForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId), PendingSubmissionDto.class);
+    private PendingSubmissionDto getPendingSubmission(String accno, String sessionId) {
+        return getBody(restTemplate
+                .getForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId),
+                        PendingSubmissionDto.class));
     }
 
-    private ResponseEntity<PendingSubmissionListDto> getAllPendingSubmissions(String sessionId) {
-        return restTemplate
-                .getForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId), PendingSubmissionListDto.class);
+    private PendingSubmissionListDto getAllPendingSubmissions(String sessionId) {
+        return getBody(restTemplate
+                .getForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId),
+                        PendingSubmissionListDto.class));
+    }
+
+    private <T> T getBody(ResponseEntity<T> responseEntity) {
+        if (responseEntity.getStatusCode().value() >= HttpStatus.BAD_REQUEST.value()) {
+            throw new HttpResponseStatusException(responseEntity.getStatusCode());
+        }
+        return responseEntity.getBody();
     }
 
     private HttpHeaders headers() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return headers;
+    }
+
+    private static class HttpResponseStatusException extends RuntimeException {
+        private final HttpStatus status;
+
+        HttpResponseStatusException(HttpStatus status) {
+            this.status = status;
+        }
+
+        public HttpStatus getStatus() {
+            return status;
+        }
+    }
+
+    private static class HttpResponseStatusExceptionMatcher extends TypeSafeMatcher<HttpResponseStatusException> {
+        private final HttpStatus httpStatus;
+
+        HttpResponseStatusExceptionMatcher(HttpStatus httpStatus) {
+            this.httpStatus = httpStatus;
+        }
+
+        @Override
+        protected boolean matchesSafely(HttpResponseStatusException ex) {
+            return ex.getStatus().equals(httpStatus);
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("expects code ")
+                    .appendValue(httpStatus);
+        }
     }
 }
