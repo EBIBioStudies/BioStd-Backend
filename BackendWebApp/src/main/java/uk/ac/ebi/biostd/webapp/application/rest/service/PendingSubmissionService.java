@@ -99,7 +99,7 @@ public class PendingSubmissionService {
 
         SubmissionManager.Operation operation = isNew ? SubmissionManager.Operation.CREATE : SubmissionManager.Operation.UPDATE;
 
-        //-- TODO: calling legacy code here; taken from SubmitServlet unchanged
+        //-- NOTE: calling legacy code here; taken from SubmitServlet unchanged
         SubmissionReport report = submissionManager.createSubmission(
                 data.toString().getBytes(), DataFormat.json, Charset.defaultCharset().toString(), operation, user,
                 false, false, null);
