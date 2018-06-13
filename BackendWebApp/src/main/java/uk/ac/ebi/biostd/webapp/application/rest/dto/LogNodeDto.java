@@ -12,7 +12,7 @@ import uk.ac.ebi.biostd.treelog.LogNode;
 @Data
 public class LogNodeDto {
 
-    private String level;
+    private LogNode.Level level;
 
     @Builder.Default
     private String message = "";
@@ -21,7 +21,7 @@ public class LogNodeDto {
 
     public static LogNodeDto from(LogNode log) {
         return LogNodeDto.builder()
-                .level(log.getLevel().name())
+                .level(log.getLevel())
                 .message(log.getMessage())
                 .subnodes(Optional.ofNullable(log.getSubNodes()).orElse(Collections.emptyList()).stream()
                         .map(LogNodeDto::from)

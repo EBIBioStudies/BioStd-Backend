@@ -18,15 +18,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
 import uk.ac.ebi.biostd.backend.services.RemoteOperations;
 import uk.ac.ebi.biostd.backend.testing.IntegrationTestUtil;
 import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmissionReportDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -138,7 +136,7 @@ public class PendingSubmissionApiTest {
         String sessionId = login();
         PendingSubmissionDto dto = createPendingSubmission(getSubmissionSample(), sessionId);
 
-        SubmissionReportDto report = submitPendingSubmission(dto.getAccno(), sessionId);
+        SubmitReportDto report = submitPendingSubmission(dto.getAccno(), sessionId);
 
         assertThat(report.getStatus()).isEqualTo("OK");
 
@@ -172,10 +170,10 @@ public class PendingSubmissionApiTest {
                         new HttpEntity<>(data, headers()), PendingSubmissionDto.class));
     }
 
-    private SubmissionReportDto submitPendingSubmission(String accno, String sessionId) {
+    private SubmitReportDto submitPendingSubmission(String accno, String sessionId) {
         return getBody(restTemplate
                 .postForEntity(format("/submissions/pending/%s/submit?BIOSTDSESS=%s", accno, sessionId),
-                        HttpEntity.EMPTY, SubmissionReportDto.class));
+                        HttpEntity.EMPTY, SubmitReportDto.class));
     }
 
     private PendingSubmissionDto getPendingSubmission(String accno, String sessionId) {
