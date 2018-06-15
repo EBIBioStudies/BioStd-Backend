@@ -14,8 +14,4 @@ public class BatchSubmitReportDto {
     public BatchSubmitReportDto(List<SubmitReportDto> reports) {
         this.reports = Collections.unmodifiableList(reports);
     }
-
-    public void setReports(List<SubmitReportDto> reports) {
-        this.reports = Collections.unmodifiableList(reports);
-    }
 }

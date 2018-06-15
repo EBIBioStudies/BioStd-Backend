@@ -42,7 +42,6 @@ public class PendingSubmissionService {
 
     private final UserDataService userDataService;
     private final PendingSubmissionUtil util;
-    private final ObjectMapper objectMapper;
     private final SubmitService submitService;
 
     public PendingSubmissionListDto getSubmissionList(PendingSubmissionListFiltersDto filters, User user) {
@@ -89,21 +88,14 @@ public class PendingSubmissionService {
     private SubmitReportDto submit(PendingSubmissionDto dto, User user) {
         boolean isNew = util.isTemporaryAccno(dto.getAccno());
 
-        JsonNode data = multiSubmissionsWrap(isNew ? amendAccno(dto.getData()) : dto.getData());
-
-        SubmitOperation operation = isNew ? SubmitOperation.CREATE : SubmitOperation.UPDATE;
+        JsonNode data = isNew ? amendAccno(dto.getData()) : dto.getData();
+        SubmitOperation operation = isNew ? SubmitOperation.CREATE : SubmitOperation.CREATE_OR_UPDATE;
 
         SubmitReportDto report = submitService.submitJson(data, operation, user);
-        if (report.getLog().getLevel() != LogNode.Level.ERROR) {
+        if (report.getStatus() == SubmitStatus.OK) {
             deleteSubmissionByAccNo(dto.getAccno(), user);
         }
         return report;
-    }
-
-    private JsonNode multiSubmissionsWrap(JsonNode pageTab) {
-        ArrayNode arrayNode = objectMapper.createArrayNode();
-        arrayNode.add(pageTab);
-        return objectMapper.createObjectNode().set("submissions", arrayNode);
     }
 
     private JsonNode amendAccno(JsonNode pageTab) {

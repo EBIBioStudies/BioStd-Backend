@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.boot.logging.LogLevel;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.SubmissionReport;
 
@@ -29,17 +30,20 @@ public class SubmitReportDto {
                 .build();
     }
 
-    public static SubmitReportDto submitFailure(Exception ex) {
-        return submitFailure(ex.getMessage());
-    }
-
-    public static SubmitReportDto submitFailure(String message) {
+    public static SubmitReportDto fromErrorMessage(String message) {
         return SubmitReportDto.builder()
                 .status(SubmitStatus.FAIL)
                 .log(LogNodeDto.builder()
                         .level(LogNode.Level.ERROR)
                         .message(message)
                         .build())
+                .build();
+    }
+
+    public static SubmitReportDto fromLogNode(LogNode logNode) {
+        return SubmitReportDto.builder()
+                .status(submitStatus(logNode.getLevel() == LogNode.Level.ERROR))
+                .log(LogNodeDto.from(logNode))
                 .build();
     }
 }
