@@ -4,7 +4,7 @@
 
   <entry key="updatedSubmissionsQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
-    WHERE version > 0 and cTime > :sync_time
+    WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
   </entry>
 
   <entry key="submissionsQuery">
