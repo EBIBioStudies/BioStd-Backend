@@ -93,7 +93,6 @@ public class SecurityController {
         return ResponseEntity.ok()
                 .header("produces", MediaType.TEXT_PLAIN_VALUE)
                 .body(response);
-
     }
 
     @PostMapping(value = "/auth/signin")
@@ -103,7 +102,6 @@ public class SecurityController {
         response.addCookie(new Cookie(cookieName, userData.getToken()));
         return permissionMapper.getLoginResponse(userData);
     }
-
 
     @PostMapping(value = "/auth/signout")
     public @ResponseBody SignoutResponseDto signOut(@RequestBody SignoutRequestDto signoutRequest,
