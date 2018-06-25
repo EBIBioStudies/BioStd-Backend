@@ -16,6 +16,12 @@ public class NotificationController {
         return "ok";
     }
 
+    @GetMapping("/api/delete/{accNo}")
+    public String partialDelete(@PathVariable(name = "accNo") String accNo) {
+        log.info("received delete notification at {} for accNo {}", Instant.now(), accNo);
+        return "ok";
+    }
+
     @GetMapping("/api/update/full/{fileName}")
     public String fullUpdate(@PathVariable(name = "fileName") String fileName) {
         log.info("received full update notification at {} with file {}", Instant.now(), fileName);

@@ -7,6 +7,13 @@
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
   </entry>
 
+  <entry key="deletedSubmissionsQuery">
+    <![CDATA[
+    SELECT s1.accno from Submission s1 WHERE s1.version < 0 and (s1.cTime > :sync_time or s1.mTime > :sync_time)
+    AND NOT EXISTS (select '1' from Submission s2 where s2.accno = s1.accno and s2.version > 0)
+    ]]>
+  </entry>
+
   <entry key="submissionsQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0

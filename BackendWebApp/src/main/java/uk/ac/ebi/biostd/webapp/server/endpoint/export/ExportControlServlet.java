@@ -18,14 +18,13 @@ package uk.ac.ebi.biostd.webapp.server.endpoint.export;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ReqResp;
-import uk.ac.ebi.biostd.webapp.server.endpoint.ServiceServlet;
-import uk.ac.ebi.biostd.webapp.server.security.Session;
 
 @WebServlet("/export/*")
-public class ExportControlServlet extends ServiceServlet {
+public class ExportControlServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,14 +34,8 @@ public class ExportControlServlet extends ServiceServlet {
     private static final String CommandUnlockExport = "unlock";
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp, Session sess)
-            throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ReqResp rqrs = new ReqResp(req, resp);
-
-        if (sess == null || sess.isAnonymous()) {
-            rqrs.getResponse().respond(HttpServletResponse.SC_UNAUTHORIZED, "FAIL", "User not logged in");
-            return;
-        }
 
         String cmd = req.getPathInfo();
 
@@ -51,15 +44,15 @@ public class ExportControlServlet extends ServiceServlet {
         }
 
         if (CommandForceTask.equals(cmd)) {
-            ECTasks.forceExport(rqrs, sess.getUser());
+            ECTasks.forceExport(rqrs);
         } else if (CommandInterruptTask.equals(cmd)) {
-            ECTasks.forceInterrupt(rqrs, sess.getUser());
+            ECTasks.forceInterrupt(rqrs);
         } else if (CommandLockExport.equals(cmd)) {
-            ECTasks.lockExport(rqrs, sess.getUser());
+            ECTasks.lockExport(rqrs);
         } else if (CommandUnlockExport.equals(cmd)) {
-            ECTasks.unlockExport(rqrs, sess.getUser());
+            ECTasks.unlockExport(rqrs);
         } else if (cmd == null || cmd.length() == 0) {
-            ECTasks.reportTaskState(rqrs, sess.getUser());
+            ECTasks.reportTaskState(rqrs);
         } else {
             rqrs.getResponse().respond(HttpServletResponse.SC_BAD_REQUEST, "FAIL", "Invalid operation");
         }

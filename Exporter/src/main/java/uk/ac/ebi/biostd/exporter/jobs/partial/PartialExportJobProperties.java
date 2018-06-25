@@ -12,4 +12,5 @@ public class PartialExportJobProperties {
     private String fileName;
     private String filePath;
     private String notificationUrl;
+    private String deleteNotificationUrl;
 }

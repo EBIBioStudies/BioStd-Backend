@@ -19,7 +19,6 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
 import uk.ac.ebi.biostd.webapp.server.endpoint.ReqResp;
 import uk.ac.ebi.biostd.webapp.server.export.ExportTask;
@@ -35,13 +34,7 @@ public class ECTasks {
 
     private static final Logger log = LoggerFactory.getLogger(ECTasks.class);
 
-    static void reportTaskState(ReqResp rqrs, User usr) throws IOException {
-        if (!usr.isSuperuser() && !BackendConfig.getServiceManager().getSecurityManager().mayUserControlExport(usr)) {
-            rqrs.getResponse()
-                    .respond(HttpServletResponse.SC_FORBIDDEN, "FAIL", "User has no permission to view task state");
-            return;
-        }
-
+    static void reportTaskState(ReqResp rqrs) throws IOException {
         if (BackendConfig.getExportTask() == null) {
             rqrs.getResponse().respond(HttpServletResponse.SC_OK, "FAIL", "Export task is not configured");
             return;
@@ -53,13 +46,7 @@ public class ECTasks {
                 .respond(HttpServletResponse.SC_OK, "OK", "Export task is " + (task.isBusy() ? "" : "not ") + "busy");
     }
 
-    static void forceInterrupt(ReqResp rqrs, User usr) throws IOException {
-        if (!usr.isSuperuser() && !BackendConfig.getServiceManager().getSecurityManager().mayUserControlExport(usr)) {
-            rqrs.getResponse()
-                    .respond(HttpServletResponse.SC_FORBIDDEN, "FAIL", "User has no permission to interrupt task");
-            return;
-        }
-
+    static void forceInterrupt(ReqResp rqrs) throws IOException {
         if (BackendConfig.getExportTask() == null) {
             rqrs.getResponse().respond(HttpServletResponse.SC_OK, "FAIL", "Export task is not configured");
             return;
@@ -76,13 +63,7 @@ public class ECTasks {
     }
 
 
-    static void forceExport(ReqResp rqrs, User usr) throws IOException {
-        if (!usr.isSuperuser() && !BackendConfig.getServiceManager().getSecurityManager().mayUserControlExport(usr)) {
-            rqrs.getResponse()
-                    .respond(HttpServletResponse.SC_FORBIDDEN, "FAIL", "User has no permission to interrupt task");
-            return;
-        }
-
+    static void forceExport(ReqResp rqrs) throws IOException {
         if (BackendConfig.getExportTask() == null) {
             rqrs.getResponse().respond(HttpServletResponse.SC_OK, "FAIL", "Export task is not configured");
             return;
@@ -138,13 +119,7 @@ public class ECTasks {
     }
 
 
-    private static void lockExport(ReqResp rqrs, User usr, boolean lck) throws IOException {
-        if (!usr.isSuperuser() && !BackendConfig.getServiceManager().getSecurityManager().mayUserLockExport(usr)) {
-            rqrs.getResponse()
-                    .respond(HttpServletResponse.SC_FORBIDDEN, "FAIL", "User has no permission to lock export task");
-            return;
-        }
-
+    private static void lockExport(ReqResp rqrs, boolean lck) throws IOException {
         String locker = rqrs.getParameterPool().getParameter(LockerParameter);
         if (locker == null || (locker = locker.trim()).length() == 0) {
             rqrs.getResponse()
@@ -179,12 +154,12 @@ public class ECTasks {
 
     }
 
-    public static void lockExport(ReqResp rqrs, User usr) throws IOException {
-        lockExport(rqrs, usr, true);
+    public static void lockExport(ReqResp rqrs) throws IOException {
+        lockExport(rqrs, true);
     }
 
-    public static void unlockExport(ReqResp rqrs, User usr) throws IOException {
-        lockExport(rqrs, usr, false);
+    public static void unlockExport(ReqResp rqrs) throws IOException {
+        lockExport(rqrs, false);
     }
 
 }

@@ -42,15 +42,31 @@ public class PartialSubmissionExporter {
 
     public void execute() {
         log.info("executing partial export file job at {}", Instant.now(Clock.systemUTC()));
+
+        processCreatedAndUpdatedSubmissions();
+        processDeletedSubmissions();
+
+        lastSyncTime = getNowEpoch();
+        log.info("finish processing updated/deleting submissions");
+    }
+
+    private void processDeletedSubmissions() {
+        submissionService.getDeletedSubmissions(lastSyncTime).forEach(this::notifyDeletion);
+    }
+
+    private void notifyDeletion(String submissionAccno) {
+        String url = configProperties.getDeleteNotificationUrl() + submissionAccno;
+        log.info("notifying deleted submission to frontend at {}", url);
+        restTemplate.getForEntity(url, String.class);
+    }
+
+    private void processCreatedAndUpdatedSubmissions() {
         List<Submission> submissions = submissionService.getUpdatedSubmissions(lastSyncTime);
 
         if (submissions.size() > 0) {
             String fileName = writeFile(submissions);
             notifyFrontend(fileName);
         }
-
-        lastSyncTime = getNowEpoch();
-        log.info("finish processing updated submissions");
     }
 
     @SneakyThrows

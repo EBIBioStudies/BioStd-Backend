@@ -33,6 +33,10 @@ public class SubmissionService {
         return submissions;
     }
 
+    public List<String> getDeletedSubmissions(long syncTime) {
+        return submissionDao.getDeletedSubmissions(syncTime);
+    }
+
     public Submission processSubmission(Submission submission) {
         log.debug("processing submissions with accno: '{}' and id '{}'", submission.getAccno(), submission.getId());
         submission.setAccessTags(getAccessTags(submission));

@@ -46,8 +46,6 @@ dependencies {
 
     compile('com.fasterxml.jackson.core:jackson-annotations:2.9.1')
     compile('com.fasterxml.jackson.core:jackson-databind:2.9.1')
-    //compile('com.zaxxer:HikariCP:2.7.1')
-    //compile('log4j:log4j:1.2.17')
 
     compile('mysql:mysql-connector-java')
     runtime('com.h2database:h2:1.4.196')
