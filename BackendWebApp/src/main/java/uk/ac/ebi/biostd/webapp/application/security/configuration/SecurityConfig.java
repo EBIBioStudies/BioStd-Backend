@@ -30,8 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/passrstreq",
             "/auth/passreset",
             "/checkAccess",
-            "/test/**",
-            "/export/**"
+            "/test/**"
     };
 
     private final ISecurityService securityService;

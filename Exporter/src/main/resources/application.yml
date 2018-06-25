@@ -36,6 +36,7 @@ jobs:
     filePath: ./generated/
     fileName: studies_partial
     notificationUrl: http://localhost:8586/api/update/partial/
+    deleteNotificationUrl: http://localhost:8586/api/delete/
     cron: 0/20 * * * * ? # each 20 seconds
 
   full:
@@ -64,11 +65,15 @@ spring:
   profiles: dev
 jobs:
   backend-url: http://biostudy-bia:8586/biostd
+  dummy:
+    enabled: false
+    cron: 0/10 * * * * ? # each 10 seconds
   partial:
     enabled: true
     filePath: /ebi/teams/biostudies/backend/development/updates/
     fileName: studies_partial
     notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/
+    deleteNotificationUrl: http://ribs:8080/biostudies/api/v1/index/delete/
     cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
   full:
     enabled: true
@@ -102,6 +107,7 @@ jobs:
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies_partial
     notificationUrl: http://ves-ebi-6b:8080/biostudies/api/v1/index/reload/
+    deleteNotificationUrl: http://ves-ebi-6b:8080/biostudies/api/v1/index/delete/
     cron: 0 0/5 5-19 * * ? # each five minute between 5 am and 7 pm.
   full:
     enabled: true

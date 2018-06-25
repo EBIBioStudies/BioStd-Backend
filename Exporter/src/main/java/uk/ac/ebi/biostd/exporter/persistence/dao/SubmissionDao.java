@@ -26,11 +26,16 @@ public class SubmissionDao {
     private final AttributeMapper attributeMapper;
     private final SubmissionMapper submissionMapper;
 
+
     public List<Submission> getUpdatedSubmissions(long syncTime) {
-        return template
-                .query(queries.getUpdatedSubmissionsQuery(), singletonMap("sync_time", syncTime), submissionMapper);
+        return template.query(
+                queries.getUpdatedSubmissionsQuery(), singletonMap("sync_time", syncTime), submissionMapper);
     }
 
+    public List<String> getDeletedSubmissions(long syncTime) {
+        return template.queryForList(
+                queries.getDeletedSubmissionsQuery(), singletonMap("sync_time", syncTime), String.class);
+    }
     public List<String> getAccessTags(long submissionId) {
         return template.queryForList(queries.getSubmissionAccessTagQuery(), singletonMap("submissionId", submissionId),
                 String.class);
