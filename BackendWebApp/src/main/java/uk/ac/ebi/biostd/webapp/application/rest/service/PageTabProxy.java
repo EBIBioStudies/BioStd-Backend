@@ -1,52 +1,96 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class PageTabProxy {
+    private static String ACCNO_FIELD = "accno";
+    private static String NAME_FIELD = "name";
+    private static String VALUE_FIELD = "value";
+    private static String ATTRIBUTES_FIELD = "attributes";
+    private static String SECTION_FIELD = "section";
+    private static String TITLE_ATTRIBUTE = "title";
+    private static String RELEASE_DATE_ATTRIBUTE = "releaseDate";
+    private static String ATTACH_TO_ATTRIBUTE = "attachTo";
 
-    private final JsonNode pageTab;
+    private JsonNode pageTab;
+    private JsonNode root;
 
-    public PageTabProxy(JsonNode pageTab) {
-        this.pageTab = pageTab;
+    public PageTabProxy(JsonNode root) {
+        this.root = root;
+
+        Iterable<Map.Entry<String, JsonNode>> iterable = () -> root.fields();
+        this.pageTab = StreamSupport.stream(iterable.spliterator(), false)
+                .filter(field -> field.getKey().equalsIgnoreCase("submissions"))
+                .findFirst()
+                .map(field -> field.getValue())
+                .orElse(root);
     }
 
     public Optional<String> getAccno() {
-        return Optional.ofNullable(pageTab.get("accno")).map(JsonNode::asText).map(String::trim).filter(s -> !s.isEmpty());
+        return getTextField(pageTab, ACCNO_FIELD);
+    }
+
+    public PageTabProxy setAccno(String value) {
+        setTextField(pageTab, ACCNO_FIELD, value);
+        return this;
     }
 
     public Optional<String> getTitle() {
-        return attributes(pageTab)
-                .stream()
-                .filter(attrNameFilter("title"))
-                .findFirst()
-                .map(attrNode -> attrValue(attrNode, ""));
+        return getAttribute(pageTab, TITLE_ATTRIBUTE).stream().findFirst();
     }
 
     public Optional<String> getReleaseDate() {
-        return attributes(pageTab)
+        return getAttribute(pageTab, RELEASE_DATE_ATTRIBUTE).stream().findFirst();
+    }
+
+    public Set<String> getAttachToAttr() {
+        return getAttribute(pageTab, ATTACH_TO_ATTRIBUTE);
+    }
+
+    public PageTabProxy setAttachToAttr(Set<String> values, ObjectMapper objectMapper) {
+        setAttribute(pageTab, ATTACH_TO_ATTRIBUTE, values, objectMapper);
+        return this;
+    }
+
+    private Optional<String> getTextField(JsonNode node, String propertyName) {
+        return Optional.ofNullable(node.get(propertyName)).map(JsonNode::asText).map(String::trim);
+    }
+
+    private void setTextField(JsonNode node, String propertyName, String propertyValue) {
+        ((ObjectNode) node).put(propertyName, propertyValue);
+    }
+
+    private Set<String> getAttribute(JsonNode node, String attrName) {
+        return getAttributes(node)
                 .stream()
-                .filter(attrNameFilter("releaseDate"))
-                .findFirst()
-                .map(attrNode -> attrValue(attrNode, ""));
+                .filter(attrNameFilter(attrName))
+                .map(this::getAttrValue)
+                .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
+                .collect(Collectors.toSet());
     }
 
-    public List<String> attachToAttr() {
-        return attributes(pageTab).stream()
-                .filter(attrNameFilter("attachto"))
-                .map(attrNode -> attrValue(attrNode, ""))
-                .filter(String::isEmpty)
-                .collect(Collectors.toList());
+    private void setAttribute(JsonNode node, String attrName, Set<String> values, ObjectMapper objectMapper) {
+        List<JsonNode> attrNodes = Stream.concat(
+                getAttributes(node)
+                        .stream()
+                        .filter(attrNameFilter(attrName).negate()),
+                values.stream().map(value ->
+                        objectMapper.createObjectNode().put(NAME_FIELD, attrName).put(VALUE_FIELD, value)
+                )).collect(Collectors.toList());
+
+        ((ObjectNode) node).set(ATTRIBUTES_FIELD, objectMapper.createArrayNode().addAll(attrNodes));
     }
 
-    private List<JsonNode> attributes(JsonNode node) {
+    private List<JsonNode> getAttributes(JsonNode node) {
         List<JsonNode> list = new ArrayList<>();
-        final String attributesProp = "attributes";
+        final String attributesProp = ATTRIBUTES_FIELD;
         if (node.has(attributesProp)) {
             JsonNode attributesNode = node.get(attributesProp);
             if (attributesNode.isArray()) {
@@ -54,27 +98,17 @@ public class PageTabProxy {
             }
         }
         // NB: only submission node has 'section' property
-        final String sectionProp = "section";
-        if (node.has(sectionProp)) {
-            list.addAll(attributes(node.get(sectionProp)));
-        }
+        Optional.ofNullable(node.get(SECTION_FIELD)).ifPresent(sectionNode -> {
+            list.addAll(getAttributes(sectionNode));
+        });
         return list;
     }
 
     private Predicate<JsonNode> attrNameFilter(String attrName) {
-        return jsonNode -> fieldValue(jsonNode, "name", "").equalsIgnoreCase(attrName);
+        return jsonNode -> getTextField(jsonNode, NAME_FIELD).orElse("").equalsIgnoreCase(attrName);
     }
 
-    private String attrValue(JsonNode jsonNode, String deflt) {
-        return fieldValue(jsonNode, "value", deflt);
-    }
-
-    private String fieldValue(JsonNode jsonNode, String fieldName, String deflt) {
-        JsonNode valueNode = jsonNode.get(fieldName);
-        return Optional.ofNullable(valueNode).map(JsonNode::asText).orElse(deflt);
-    }
-
-    public JsonNode amendAccno(String accnoTemplate) {
-        return ((ObjectNode)pageTab).put("accno", accnoTemplate);
+    private Optional<String> getAttrValue(JsonNode jsonNode) {
+        return getTextField(jsonNode, VALUE_FIELD);
     }
 }
