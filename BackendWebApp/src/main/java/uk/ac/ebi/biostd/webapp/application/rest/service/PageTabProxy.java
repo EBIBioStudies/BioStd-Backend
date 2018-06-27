@@ -29,7 +29,7 @@ public class PageTabProxy {
         this.pageTab = StreamSupport.stream(iterable.spliterator(), false)
                 .filter(field -> field.getKey().equalsIgnoreCase("submissions"))
                 .findFirst()
-                .map(field -> field.getValue())
+                .map(Map.Entry::getValue)
                 .orElse(root);
     }
 
@@ -57,6 +57,20 @@ public class PageTabProxy {
     public PageTabProxy setAttachToAttr(Set<String> values, ObjectMapper objectMapper) {
         setAttribute(pageTab, ATTACH_TO_ATTRIBUTE, values, objectMapper);
         return this;
+    }
+
+    public JsonNode json() {
+        return root;
+    }
+
+    public JsonNode wrappedJson(ObjectMapper objectMapper) {
+        if (root != pageTab) {
+            return root;
+        }
+
+        return objectMapper.createObjectNode()
+                .set("submissions", objectMapper.createArrayNode().add(pageTab));
+
     }
 
     private Optional<String> getTextField(JsonNode node, String propertyName) {

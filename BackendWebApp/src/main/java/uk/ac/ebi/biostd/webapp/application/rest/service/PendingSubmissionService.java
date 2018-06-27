@@ -3,8 +3,6 @@ package uk.ac.ebi.biostd.webapp.application.rest.service;
 import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +11,6 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.authz.User;
-import uk.ac.ebi.biostd.model.AbstractAttribute;
-import uk.ac.ebi.biostd.model.Submission;
-import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.webapp.application.domain.services.UserDataService;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserData;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.*;
@@ -99,7 +94,7 @@ public class PendingSubmissionService {
     }
 
     private JsonNode amendAccno(JsonNode pageTab) {
-        return new PageTabProxy(pageTab).amendAccno(BSST_ACCNO_TEMPLATE);
+        return new PageTabProxy(pageTab).setAccno(BSST_ACCNO_TEMPLATE).json();
     }
 
     private PendingSubmissionDto update(PendingSubmissionDto original, JsonNode data, User user) {

@@ -40,7 +40,7 @@ public class PendingSubmissionResource {
         pendingSubmissionService.deleteSubmissionByAccNo(accno, user);
     }
 
-    @PutMapping("/submissions/pending/{accno}")
+    @PostMapping("/submissions/pending/{accno}")
     @ResponseBody
     public PendingSubmissionDto updateSubmission(@PathVariable String accno,
             @RequestBody ObjectNode pageTab,

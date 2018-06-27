@@ -108,7 +108,8 @@ public class PendingSubmissionApiTest {
         PendingSubmissionDto dto1 = createPendingSubmission(data, sessionId);
         long mTime1 = dto1.getChanged();
 
-        PendingSubmissionDto dto2 = updatePendingSubmission(dto1.getAccno(), data, sessionId);
+        updatePendingSubmission(dto1.getAccno(), data, sessionId);
+        PendingSubmissionDto dto2 = getPendingSubmission(dto1.getAccno(), sessionId);
         long mTime2 = dto2.getChanged();
 
         assertThat(mTime1).isLessThan(mTime2);
@@ -164,16 +165,16 @@ public class PendingSubmissionApiTest {
                         new HttpEntity<>(data, headers()), PendingSubmissionDto.class));
     }
 
-    private PendingSubmissionDto updatePendingSubmission(String accno, String data, String sessionId) {
-        return getBody(restTemplate
-                .postForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId),
-                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class));
+    private void updatePendingSubmission(String accno, String data, String sessionId) {
+        restTemplate
+                .put(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId),
+                        new HttpEntity<>(data, headers()));
     }
 
     private SubmitReportDto submitPendingSubmission(String accno, String sessionId) {
         return getBody(restTemplate
                 .postForEntity(format("/submissions/pending/%s/submit?BIOSTDSESS=%s", accno, sessionId),
-                        HttpEntity.EMPTY, SubmitReportDto.class));
+                        new HttpEntity<>("{}", headers()), SubmitReportDto.class));
     }
 
     private PendingSubmissionDto getPendingSubmission(String accno, String sessionId) {

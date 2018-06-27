@@ -1,9 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import static java.lang.String.format;
-import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.fromLogNode;
-import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.fromSubmissionReport;
-import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.fromErrorMessage;
+import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,10 +12,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
@@ -36,7 +34,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.JPASubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.PTDocumentParser;
 
-@Log4j
+@Slf4j
 @Service
 @AllArgsConstructor
 public class SubmitService {
@@ -56,12 +54,14 @@ public class SubmitService {
             return fromErrorMessage(format("Unrecognized data format: %s, %s", file.getOriginalFilename(), file.getContentType()));
         }
 
+        byte[] bytes;
         try {
-            return submit(file.getBytes(), format.get(), projectAccNumbers, operation, user);
+            bytes = file.getBytes();
         } catch (IOException e) {
-            log.error("submit error", e);
+            log.error("getBytes()", e);
             return fromErrorMessage(e.getMessage());
         }
+        return submit(bytes, format.get(), projectAccNumbers, operation, user);
     }
 
     public SubmitReportDto submit(byte[] data, DataFormat dataFormat, List<String> projectAccNumbers, SubmitOperation operation, User user) {
@@ -73,16 +73,23 @@ public class SubmitService {
 
     public SubmitReportDto submitJson(JsonNode jsonNode, SubmitOperation operation, User user) {
         SubmissionReport report = submissionManager.createSubmission(
-                jsonNode.toString().getBytes(), DataFormat.json, "UTF-8", operation.toLegacyOp(), user,
+                asMultipleSubmissions(jsonNode).toString().getBytes(), DataFormat.json, "UTF-8", operation.toLegacyOp(), user,
                 false, false, null);
         SimpleLogNode.setLevels(report.getLog());
         return fromSubmissionReport(report);
     }
 
     private JsonNode amendJson(JsonNode pageTab, List<String> projectAccNumbers) {
-        return Stream.of(new PageTabProxy(pageTab).with(objectMapper))
-                .map(proxy -> proxy.addAttachTo(projectAccNumbers))
-                .map(proxy -> proxy.setAccnoIfEmpty(getAccnoTemplate(proxy.getAttachTo)));
+        return Optional.of(new PageTabProxy(pageTab))
+                .map(proxy -> proxy.setAttachToAttr(
+                        Stream.concat(proxy.getAttachToAttr().stream(), projectAccNumbers.stream())
+                                .collect(Collectors.toSet()), objectMapper))
+                .map(proxy -> {
+                    String accno = proxy.getAccno().orElse("");
+                    return accno.isEmpty() ? proxy.setAccno(getAccnoTemplate(proxy.getAttachToAttr())) : proxy;
+                })
+                .map(PageTabProxy::json)
+                .get();
     }
 
     private String getAccnoTemplate(Set<String> projectAccNumbers) {
@@ -98,51 +105,36 @@ public class SubmitService {
     }
 
     private Result<JsonNode, SubmitReportDto> convertToJson(byte[] data, DataFormat dataFormat) {
-        if (dataFormat == DataFormat.json) {
-            return readTree(data);
-        }
-
-        ParserConfig pc = new ParserConfig();
-
-        pc.setMultipleSubmissions(true);
-        pc.setPreserveId(false);
-
-        SimpleLogNode logNode = new SimpleLogNode(LogNode.Level.SUCCESS, "Converting " + dataFormat + " document", null);
-        PMDoc doc = new PTDocumentParser(pc).parseDocument(data, dataFormat, "UTF-8", new AdHocTagResolver(), logNode);
-        SimpleLogNode.setLevels(logNode);
-
-        if (logNode.getLevel() == LogNode.Level.ERROR) {
-            return Result.error(fromLogNode(logNode));
-        }
-
-        final StringWriter stringWriter = new StringWriter();
-        new JSONFormatter(stringWriter, true).format(doc);
-
-        return readTree(stringWriter.toString());
-    }
-
-    private Result<JsonNode, SubmitReportDto> readTree(byte[] data) {
         try {
+            if (dataFormat == DataFormat.json) {
+                return Result.success(objectMapper.readTree(data));
+            }
+
+            ParserConfig pc = new ParserConfig();
+
+            pc.setMultipleSubmissions(true);
+            pc.setPreserveId(false);
+
+            SimpleLogNode logNode = new SimpleLogNode(LogNode.Level.SUCCESS, "Converting " + dataFormat + " document", null);
+            PMDoc doc = new PTDocumentParser(pc).parseDocument(data, dataFormat, "UTF-8", new AdHocTagResolver(), logNode);
+            SimpleLogNode.setLevels(logNode);
+
+            if (logNode.getLevel() == LogNode.Level.ERROR) {
+                return Result.error(fromLogNode(logNode));
+            }
+
+            final StringWriter stringWriter = new StringWriter();
+            new JSONFormatter(stringWriter, true).format(doc);
+
             return Result.success(objectMapper.readTree(data));
-        } catch (IOException ex) {
-            return Result.error(fromErrorMessage(ex.getMessage()));
+        } catch (IOException e) {
+            return Result.error(fromErrorMessage(e.getMessage()));
         }
     }
 
-    private Result<JsonNode, SubmitReportDto> readTree(String data) {
-        try {
-            return Result.success(objectMapper.readTree(data));
-        } catch (IOException ex) {
-            return Result.error(fromErrorMessage(ex.getMessage()));
-        }
+    private JsonNode asMultipleSubmissions(JsonNode pageTab) {
+        return new PageTabProxy(pageTab).wrappedJson(objectMapper);
     }
-
-     /*private JsonNode multiSubmissionsWrap(JsonNode pageTab) {
-        ArrayNode arrayNode = objectMapper.createArrayNode();
-        arrayNode.add(pageTab);
-        return objectMapper.createObjectNode().set("submissions", arrayNode);
-    }*/
-
 
     private interface Result<R, E> {
 
