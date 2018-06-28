@@ -5,6 +5,7 @@ server:
     contextPath: /biostd
 
 biostudy:
+  baseDir: # main file system location, config.properties file is expected to be at root level.
   tokenHash: biostd
   environment: DEV
 
