@@ -58,7 +58,7 @@ public class SubmitService {
         try {
             bytes = file.getBytes();
         } catch (IOException e) {
-            log.error("getBytes()", e);
+            log.error("An error in getBytes()", e);
             return fromErrorMessage(e.getMessage());
         }
         return submit(bytes, format.get(), projectAccNumbers, operation, user);
@@ -81,13 +81,8 @@ public class SubmitService {
 
     private JsonNode amendJson(JsonNode pageTab, List<String> projectAccNumbers) {
         return Optional.of(new PageTabProxy(pageTab))
-                .map(proxy -> proxy.setAttachToAttr(
-                        Stream.concat(proxy.getAttachToAttr().stream(), projectAccNumbers.stream())
-                                .collect(Collectors.toSet()), objectMapper))
-                .map(proxy -> {
-                    String accno = proxy.getAccno().orElse("");
-                    return accno.isEmpty() ? proxy.setAccno(getAccnoTemplate(proxy.getAttachToAttr())) : proxy;
-                })
+                .map(proxy -> proxy.addAttachToAttr(projectAccNumbers, objectMapper))
+                .map(proxy -> proxy.setAccnoIfEmpty(getAccnoTemplate(proxy.getAttachToAttr())))
                 .map(PageTabProxy::json)
                 .get();
     }

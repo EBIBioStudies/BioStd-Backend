@@ -34,12 +34,17 @@ public class PageTabProxy {
     }
 
     public Optional<String> getAccno() {
-        return getTextField(pageTab, ACCNO_FIELD);
+        return getTextField(pageTab, ACCNO_FIELD).filter(v -> !v.isEmpty());
     }
 
     public PageTabProxy setAccno(String value) {
         setTextField(pageTab, ACCNO_FIELD, value);
         return this;
+    }
+
+    public PageTabProxy setAccnoIfEmpty(String value) {
+        final PageTabProxy proxy = this;
+        return getAccno().map(v -> proxy).orElse(setAccno(value));
     }
 
     public Optional<String> getTitle() {
@@ -57,6 +62,12 @@ public class PageTabProxy {
     public PageTabProxy setAttachToAttr(Set<String> values, ObjectMapper objectMapper) {
         setAttribute(pageTab, ATTACH_TO_ATTRIBUTE, values, objectMapper);
         return this;
+    }
+
+    public PageTabProxy addAttachToAttr(Collection<String> values, ObjectMapper objectMapper) {
+        return setAttachToAttr(
+                Stream.concat(getAttachToAttr().stream(), values.stream())
+                        .collect(Collectors.toSet()), objectMapper);
     }
 
     public JsonNode json() {

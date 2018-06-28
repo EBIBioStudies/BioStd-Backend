@@ -25,6 +25,7 @@ import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitStatus;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -139,7 +140,7 @@ public class PendingSubmissionApiTest {
 
         SubmitReportDto report = submitPendingSubmission(dto.getAccno(), sessionId);
 
-        assertThat(report.getStatus()).isEqualTo("OK");
+        assertThat(report.getStatus()).isEqualTo(SubmitStatus.OK);
 
         expectedEx.expect(HttpResponseStatusException.class);
         expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
