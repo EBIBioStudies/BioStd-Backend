@@ -42,7 +42,7 @@ public class PendingSubmissionUtil {
         return PendingSubmissionListItemDto.builder()
                 .accno(pendingSubmission.getAccno())
                 .mtime(pendingSubmission.getModificationTimeInSeconds())
-                .rtime(ptUtil.getReleaseDate().map(this::numberOfSeconds).orElse(null))
+                .rtime(ptUtil.getReleaseDate().map(this::numberOfSeconds).orElse(0L))
                 .title(ptUtil.getTitle().orElse(""))
                 .build();
     }

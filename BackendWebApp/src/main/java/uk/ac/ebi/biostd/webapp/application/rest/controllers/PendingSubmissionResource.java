@@ -21,9 +21,10 @@ public class PendingSubmissionResource {
 
     @GetMapping("/submissions/pending")
     @ResponseBody
-    public PendingSubmissionListDto getSubmissions(PendingSubmissionListFiltersDto filters,
+    public PendingSubmissionListDto getSubmissionList(PendingSubmissionListFiltersDto filters,
             @AuthenticationPrincipal User user) {
-        return pendingSubmissionService.getSubmissionList(filters, user);
+        PendingSubmissionListDto list =  pendingSubmissionService.getSubmissionList(filters, user);
+        return list;
     }
 
     @GetMapping("/submissions/pending/{accno}")
