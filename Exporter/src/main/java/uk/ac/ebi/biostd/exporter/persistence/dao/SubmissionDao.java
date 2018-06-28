@@ -26,6 +26,9 @@ public class SubmissionDao {
     private final AttributeMapper attributeMapper;
     private final SubmissionMapper submissionMapper;
 
+    public List<String> getPublicSubmissionsPaths() {
+        return template.queryForList(queries.getPublicSubmissions(), emptyMap(), String.class);
+    }
 
     public List<Submission> getUpdatedSubmissions(long syncTime) {
         return template.query(
@@ -36,6 +39,7 @@ public class SubmissionDao {
         return template.queryForList(
                 queries.getDeletedSubmissionsQuery(), singletonMap("sync_time", syncTime), String.class);
     }
+
     public List<String> getAccessTags(long submissionId) {
         return template.queryForList(queries.getSubmissionAccessTagQuery(), singletonMap("submissionId", submissionId),
                 String.class);

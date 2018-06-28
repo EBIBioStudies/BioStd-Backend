@@ -28,4 +28,6 @@ public class Queries {
     private String updatedSubmissionsQuery;
     private String deletedSubmissionsQuery;
     private String submissionPublicationQuery;
+    private String publicSubmissions;
+    private String userDropboxes;
 }

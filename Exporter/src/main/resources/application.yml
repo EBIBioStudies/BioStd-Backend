@@ -20,7 +20,7 @@ spring:
         maintainTimeStats: false
       jdbc-url: # to be set in deployment script
       username: # to be set in deployment script
-      password: # to be set in deployment script
+      password:
 
 ---
 spring:
@@ -89,6 +89,12 @@ jobs:
       importPath: /nfs/ma/home/biostudy/EPMC-export/test_dum
       submitterUserPath: /ebi/teams/biostudies/backend/development/dropbox/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3
       backendUrl: http://biostudy-bia:8586/biostd
+  ftp:
+    baseFtpPath: /ebi/teams/biostudies/backend/development/ftp
+    baseBioStudiesPath: /ebi/teams/biostudies/backend/development/submission
+  users:
+    baseDropboxPath: /ebi/teams/biostudies/backend/development/dropbox
+    symLinksPath: /ebi/teams/biostudies/backend/development/usergroup/Users
 
 ---
 spring:
@@ -117,6 +123,12 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
+  ftp:
+    baseFtpPath: /nfs/biostudies/.adm/databases/beta/ftp
+    baseBioStudiesPath: /nfs/biostudies/.adm/databases/beta/submission
+  users:
+    baseDropboxPath: /nfs/biostudies/ftp/pub/.dropbox
+    symLinksPath: /nfs/biostudies/.adm/databases/beta/usergroup/Users
 
 ---
 spring:

@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
+import uk.ac.ebi.biostd.exporter.jobs.ftp.FtpService;
 import uk.ac.ebi.biostd.exporter.jobs.partial.PartialSubmissionExporter;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.PmcImporter;
+import uk.ac.ebi.biostd.exporter.jobs.users.UserService;
 
 @RestController
 public class TasksController {
@@ -15,18 +17,24 @@ public class TasksController {
     private final PartialSubmissionExporter partialExporter;
     private final PmcImporter pmcImporter;
     private final ExportPipeline statsExporter;
+    private final FtpService ftpService;
+    private final UserService userService;
 
     public TasksController(
             @Qualifier("full") ExportPipeline fullExporter,
             @Qualifier("pmc") ExportPipeline pmcExporter,
             @Qualifier("stats") ExportPipeline statsExporter,
             PartialSubmissionExporter partialExporter,
-            PmcImporter pmcImporter) {
+            PmcImporter pmcImporter,
+            FtpService ftpService,
+            UserService userService) {
         this.fullExporter = fullExporter;
         this.pmcExporter = pmcExporter;
         this.partialExporter = partialExporter;
         this.pmcImporter = pmcImporter;
         this.statsExporter = statsExporter;
+        this.ftpService = ftpService;
+        this.userService = userService;
     }
 
     @GetMapping("/api/force/full")
@@ -56,6 +64,18 @@ public class TasksController {
     @GetMapping("/api/force/stats")
     public String statsExport() {
         statsExporter.execute();
+        return "ok";
+    }
+
+    @GetMapping("/api/force/ftp")
+    public String executeFtp() {
+        ftpService.execute();
+        return "ok";
+    }
+
+    @GetMapping("/api/force/users")
+    public String executeUsers() {
+        userService.execute();
         return "ok";
     }
 }

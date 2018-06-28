@@ -2,6 +2,28 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 
+  <entry key="publicSubmissions">
+    <![CDATA[
+    SELECT s.relPath
+      FROM Submission s,
+           Submission_AccessTag sa,
+           AccessTag a,
+           Section se
+      WHERE sa.Submission_id = s.id
+        AND sa.accessTags_id = a.id
+        AND a.name = 'Public'
+        AND s.version > 0
+        AND s.rootSection_id = se.id
+        AND se.type = 'Study'
+    ]]>
+  </entry>
+
+  <entry key="userDropboxes">
+    <![CDATA[
+    SELECT email, secret from User where secret is not null and active = true
+    ]]>
+  </entry>
+
   <entry key="updatedSubmissionsQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
