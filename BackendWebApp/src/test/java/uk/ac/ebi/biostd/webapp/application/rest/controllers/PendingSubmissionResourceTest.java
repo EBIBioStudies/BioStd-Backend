@@ -4,9 +4,12 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -164,6 +167,39 @@ public class PendingSubmissionResourceTest {
                 .content("not a json data")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateSubmission() throws Exception {
+        final String accno = "1234";
+        when(pendingSubmissionService.updateSubmission(eq(accno), any(JsonNode.class), eq(user)))
+                .thenReturn(Optional.of(new PendingSubmissionDto()));
+
+        mvc.perform(put("/submissions/pending/" + accno)
+                .content("{}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testUpdateSubmissionBadRequest() throws Exception {
+        final String accno = "1234";
+        when(pendingSubmissionService.updateSubmission(eq(accno), any(JsonNode.class), eq(user)))
+                .thenReturn(Optional.empty());
+
+        mvc.perform(put("/submissions/pending/" + accno)
+                .content("{}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testDeleteSubmission() throws Exception {
+        final String accno = "1234";
+        doNothing().when(pendingSubmissionService).deleteSubmissionByAccNo(accno, user);
+
+        mvc.perform(delete("/submissions/pending/" + accno))
+                .andExpect(status().isOk());
     }
 
     private PendingSubmissionDto newPendingSubmission() {
