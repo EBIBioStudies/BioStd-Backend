@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
+import static java.lang.String.format;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,9 +36,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.ac.ebi.biostd.authz.User;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.*;
 import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionService;
 import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionUtil;
 
@@ -200,6 +199,30 @@ public class PendingSubmissionResourceTest {
 
         mvc.perform(delete("/submissions/pending/" + accno))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testSubmitSubmission() throws Exception {
+        final String accno = "1234";
+
+        when(pendingSubmissionService.submitSubmission(accno, user))
+                .thenReturn(Optional.of(
+                        SubmitReportDto.builder().status(SubmitStatus.OK).build()));
+
+        mvc.perform(post(format("/submissions/pending/%s/submit", accno)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is("OK")));
+    }
+
+    @Test
+    public void testSubmitSubmissionBadRequest() throws Exception {
+        final String accno = "1234";
+
+        when(pendingSubmissionService.submitSubmission(accno, user))
+                .thenReturn(Optional.empty());
+
+        mvc.perform(post(format("/submissions/pending/%s/submit", accno)))
+                .andExpect(status().isBadRequest());
     }
 
     private PendingSubmissionDto newPendingSubmission() {
