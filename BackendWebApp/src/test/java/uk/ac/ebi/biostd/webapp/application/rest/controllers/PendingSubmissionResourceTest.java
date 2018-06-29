@@ -1,20 +1,26 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -58,20 +64,57 @@ public class PendingSubmissionResourceTest {
 
     @Test
     public void testGetSubmissionList() throws Exception {
-        PendingSubmissionListFiltersDto filters = new PendingSubmissionListFiltersDto();
+        final PendingSubmissionListFiltersDto filters = new PendingSubmissionListFiltersDto();
+        filters.setAccNo("ABC");
+        filters.setKeywords("test");
+        filters.setOffset(1);
+        filters.setLimit(15);
+        filters.setRTimeFrom(2L);
+        filters.setRTimeTo(3L);
 
-        when(pendingSubmissionService.getSubmissionList(filters, user))
-                .thenReturn(new PendingSubmissionListDto(
-                        ImmutableList.of(
-                                newPendingSubmission("1"),
-                                newPendingSubmission("2"),
-                                newPendingSubmission("3")
-                        ).stream().map(util::pendingSubmissionToListItem).collect(Collectors.toList())));
+        PendingSubmissionListDto listDto = new PendingSubmissionListDto(
+                ImmutableList.of(
+                        newPendingSubmission("1"),
+                        newPendingSubmission("2"),
+                        newPendingSubmission("3")
+                ).stream().map(util::pendingSubmissionToListItem).collect(Collectors.toList()));
 
-        //TODO: add filter params
-        mvc.perform(get("/submissions/pending"))
+        when(pendingSubmissionService.getSubmissionList(any(PendingSubmissionListFiltersDto.class), eq(user)))
+                .thenAnswer(new Answer<PendingSubmissionListDto>() {
+                    @Override
+                    public PendingSubmissionListDto answer(InvocationOnMock invocation) throws Throwable {
+                        PendingSubmissionListFiltersDto filtersArg = invocation.getArgument(0);
+                        return isEqual(filters, filtersArg) ? listDto : new PendingSubmissionListDto();
+                    }
+
+                    private boolean isEqual(PendingSubmissionListFiltersDto o1, PendingSubmissionListFiltersDto o2) {
+                        return Objects.equals(o1.getOffset(), o2.getOffset()) &&
+                                Objects.equals(o1.getLimit(), o2.getLimit()) &&
+                                Objects.equals(o1.getAccNo(), o2.getAccNo()) &&
+                                Objects.equals(o1.getRTimeFrom(), o2.getRTimeFrom()) &&
+                                Objects.equals(o1.getRTimeTo(), o2.getRTimeTo()) &&
+                                Objects.equals(o1.getKeywords(), o2.getKeywords());
+                    }
+                });
+
+        mvc.perform(get("/submissions/pending")
+                .param("offset", filters.getOffset() + "")
+                .param("limit", filters.getLimit() + "")
+                .param("accNo", filters.getAccNo().orElse(""))
+                .param("rTimeFrom", filters.getRTimeFrom().orElse(1L) + "")
+                .param("rTimeTo", filters.getRTimeTo().orElse(1L) + "")
+                .param("keywords", filters.getKeywords().orElse("")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.submissions").exists());
+                .andExpect(jsonPath("$.submissions").exists())
+                .andExpect(jsonPath("$.submissions", hasSize(3)));
+    }
+
+    @Test
+    public void testGetSubmissionListBadRequest() throws Exception {
+        mvc.perform(get("/submissions/pending")
+                .param("offset", "not a number")
+                .param("limit", "not a number"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
