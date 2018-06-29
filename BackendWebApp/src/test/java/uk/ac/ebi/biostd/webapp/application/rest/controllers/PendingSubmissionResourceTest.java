@@ -149,7 +149,7 @@ public class PendingSubmissionResourceTest {
         PendingSubmissionDto dto = newPendingSubmission();
 
         when(pendingSubmissionService.createSubmission(dto.getData(), user))
-                .thenReturn(dto);
+                .thenReturn(Optional.of(dto));
 
         mvc.perform(post("/submissions/pending")
                 .content(dto.getData().toString())

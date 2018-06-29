@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
@@ -24,8 +25,9 @@ public class PendingSubmissionUtil {
 
     private final ObjectMapper objectMapper;
 
+    @SneakyThrows
     public String pendingSubmissionToString(PendingSubmissionDto dto) {
-        return objectMapper.valueToTree(dto).toString();
+        return objectMapper.writeValueAsString(dto);
     }
 
     public Optional<PendingSubmissionDto> pendingSubmissionFromString(String data) {

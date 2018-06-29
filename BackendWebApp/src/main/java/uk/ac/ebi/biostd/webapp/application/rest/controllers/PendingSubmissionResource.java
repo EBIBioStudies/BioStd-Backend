@@ -23,8 +23,7 @@ public class PendingSubmissionResource {
     @ResponseBody
     public PendingSubmissionListDto getSubmissionList(PendingSubmissionListFiltersDto filters,
             @AuthenticationPrincipal User user) {
-        PendingSubmissionListDto list =  pendingSubmissionService.getSubmissionList(filters, user);
-        return list;
+        return pendingSubmissionService.getSubmissionList(filters, user);
     }
 
     @GetMapping("/submissions/pending/{accno}")
@@ -53,7 +52,8 @@ public class PendingSubmissionResource {
     @ResponseBody
     public PendingSubmissionDto createSubmission(@RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
-        return pendingSubmissionService.createSubmission(pageTab, user);
+        return pendingSubmissionService.createSubmission(pageTab, user)
+                .orElseThrow(() -> new BadRequestException("Server error; see logs for details"));
     }
 
     @PostMapping("/submissions/pending/{accno}/submit")

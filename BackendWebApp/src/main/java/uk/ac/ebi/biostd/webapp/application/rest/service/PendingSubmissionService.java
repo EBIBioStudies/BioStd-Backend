@@ -67,10 +67,10 @@ public class PendingSubmissionService {
 
     public Optional<PendingSubmissionDto> updateSubmission(String accno, JsonNode pageTab, User user) {
         return findByAccNoAndUser(accno, user)
-                .map(subm -> this.update(subm, pageTab, user));
+                .flatMap(subm -> this.update(subm, pageTab, user));
     }
 
-    public PendingSubmissionDto createSubmission(JsonNode pageTab, User user) {
+    public Optional<PendingSubmissionDto> createSubmission(JsonNode pageTab, User user) {
         PendingSubmissionDto subm = util.createPendingSubmission(pageTab);
         return this.update(subm, pageTab, user);
     }
@@ -97,14 +97,15 @@ public class PendingSubmissionService {
         return new PageTabProxy(pageTab).setAccno(BSST_ACCNO_TEMPLATE).json();
     }
 
-    private PendingSubmissionDto update(PendingSubmissionDto original, JsonNode data, User user) {
+    private Optional<PendingSubmissionDto> update(PendingSubmissionDto original, JsonNode data, User user) {
         PendingSubmissionDto updated = new PendingSubmissionDto();
         updated.setAccno(original.getAccno());
         updated.setChanged(System.currentTimeMillis());
         updated.setData(data);
 
-        userDataService.update(user.getId(), updated.getAccno(), util.pendingSubmissionToString(updated), TOPIC);
-        return updated;
+        UserData userData =
+                userDataService.update(user.getId(), updated.getAccno(), util.pendingSubmissionToString(updated), TOPIC);
+        return util.pendingSubmissionFromString(userData.getData());
     }
 
     private Optional<PendingSubmissionDto> findByAccNoAndUser(String accno, User user) {

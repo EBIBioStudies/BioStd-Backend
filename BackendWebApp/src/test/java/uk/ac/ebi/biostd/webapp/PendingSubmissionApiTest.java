@@ -4,10 +4,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.*;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.backend.configuration.TestConfiguration;
@@ -37,9 +36,6 @@ public class PendingSubmissionApiTest {
 
     @ClassRule
     public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -85,21 +81,6 @@ public class PendingSubmissionApiTest {
         assertThat(dtoCopy.getData().toString()).isEqualTo(dto.getData().toString());
     }
 
-    @Test
-    public void testCreatePendingSubmissionBadRequest() {
-        expectedEx.expect(HttpResponseStatusException.class);
-        expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
-
-        createPendingSubmission("not a json data", login());
-    }
-
-    @Test()
-    public void testGetNoneExistedSubmission() {
-        expectedEx.expect(HttpResponseStatusException.class);
-        expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
-
-        getPendingSubmission("12345", login());
-    }
 
     @Test
     public void testUpdatePendingSubmission() {
@@ -117,35 +98,24 @@ public class PendingSubmissionApiTest {
     }
 
     @Test
-    public void testUpdatePendingSubmissionBadRequest() {
-        expectedEx.expect(HttpResponseStatusException.class);
-        expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
-
-        updatePendingSubmission("111", "not a json data", login());
-    }
-
-    @Test
-    public void testGetAllPendingSubmissions() {
+    public void testGetPendingSubmissionList() {
         PendingSubmissionListDto dto = restTemplate
                 .getForEntity(format("/submissions/pending?BIOSTDSESS=%s", login()), PendingSubmissionListDto.class)
                 .getBody();
 
+        assertThat(dto).isNotNull();
+        assertThat(dto.getSubmissions()).isNotNull();
         assertThat(dto.getSubmissions()).isEmpty();
     }
 
     @Test
-    public void testSubmitNewPendingSubmission() {
+    public void testSubmitPendingSubmission() {
         String sessionId = login();
         PendingSubmissionDto dto = createPendingSubmission(getSubmissionSample(), sessionId);
 
         SubmitReportDto report = submitPendingSubmission(dto.getAccno(), sessionId);
 
         assertThat(report.getStatus()).isEqualTo(SubmitStatus.OK);
-
-        expectedEx.expect(HttpResponseStatusException.class);
-        expectedEx.expect(new HttpResponseStatusExceptionMatcher(HttpStatus.BAD_REQUEST));
-
-        getPendingSubmission(dto.getAccno(), sessionId);
     }
 
     private String getSubmissionSample() {
@@ -161,9 +131,9 @@ public class PendingSubmissionApiTest {
     }
 
     private PendingSubmissionDto createPendingSubmission(String data, String sessionId) {
-        return getBody(restTemplate
+        return restTemplate
                 .postForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId),
-                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class));
+                        new HttpEntity<>(data, headers()), PendingSubmissionDto.class).getBody();
     }
 
     private void updatePendingSubmission(String accno, String data, String sessionId) {
@@ -173,64 +143,26 @@ public class PendingSubmissionApiTest {
     }
 
     private SubmitReportDto submitPendingSubmission(String accno, String sessionId) {
-        return getBody(restTemplate
+        return restTemplate
                 .postForEntity(format("/submissions/pending/%s/submit?BIOSTDSESS=%s", accno, sessionId),
-                        new HttpEntity<>("{}", headers()), SubmitReportDto.class));
+                        new HttpEntity<>("{}", headers()), SubmitReportDto.class).getBody();
     }
 
     private PendingSubmissionDto getPendingSubmission(String accno, String sessionId) {
-        return getBody(restTemplate
+        return restTemplate
                 .getForEntity(format("/submissions/pending/%s?BIOSTDSESS=%s", accno, sessionId),
-                        PendingSubmissionDto.class));
+                        PendingSubmissionDto.class).getBody();
     }
 
     private PendingSubmissionListDto getAllPendingSubmissions(String sessionId) {
-        return getBody(restTemplate
+        return restTemplate
                 .getForEntity(format("/submissions/pending?BIOSTDSESS=%s", sessionId),
-                        PendingSubmissionListDto.class));
-    }
-
-    private <T> T getBody(ResponseEntity<T> responseEntity) {
-        if (responseEntity.getStatusCode().value() >= HttpStatus.BAD_REQUEST.value()) {
-            throw new HttpResponseStatusException(responseEntity.getStatusCode());
-        }
-        return responseEntity.getBody();
+                        PendingSubmissionListDto.class).getBody();
     }
 
     private HttpHeaders headers() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return headers;
-    }
-
-    private static class HttpResponseStatusException extends RuntimeException {
-        private final HttpStatus status;
-
-        HttpResponseStatusException(HttpStatus status) {
-            this.status = status;
-        }
-
-        public HttpStatus getStatus() {
-            return status;
-        }
-    }
-
-    private static class HttpResponseStatusExceptionMatcher extends TypeSafeMatcher<HttpResponseStatusException> {
-        private final HttpStatus httpStatus;
-
-        HttpResponseStatusExceptionMatcher(HttpStatus httpStatus) {
-            this.httpStatus = httpStatus;
-        }
-
-        @Override
-        protected boolean matchesSafely(HttpResponseStatusException ex) {
-            return ex.getStatus().equals(httpStatus);
-        }
-
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("expects code ")
-                    .appendValue(httpStatus);
-        }
     }
 }
