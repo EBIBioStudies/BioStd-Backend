@@ -5,6 +5,7 @@ import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pri.util.collection.Collections;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
@@ -39,10 +40,13 @@ import uk.ac.ebi.biostd.webapp.server.mng.impl.PTDocumentParser;
 @AllArgsConstructor
 public class SubmitService {
 
+    private static final String DEFAULT_ACCNO_TEMPLATE = "!{S-BSST}";
+
     private final JPASubmissionManager submissionManager;
     private final ObjectMapper objectMapper;
 
-    public SubmitReportDto createOrUpdateSubmission(MultipartFile file, List<String> projectAccNumbers, SubmitOperation operation, User user) {
+    public SubmitReportDto createOrUpdateSubmission(MultipartFile file, List<String> projectAccNumbers,
+            String accnoTemplate, SubmitOperation operation, User user) {
         if (file.isEmpty()) {
             return fromErrorMessage(format("File %s is empty", file.getOriginalFilename()));
         }
@@ -61,17 +65,25 @@ public class SubmitService {
             log.error("An error in getBytes()", e);
             return fromErrorMessage(e.getMessage());
         }
-        return submit(bytes, format.get(), projectAccNumbers, operation, user);
+        return submit(bytes, format.get(), projectAccNumbers, accnoTemplate, operation, user);
     }
 
-    public SubmitReportDto submit(byte[] data, DataFormat dataFormat, List<String> projectAccNumbers, SubmitOperation operation, User user) {
+    public SubmitReportDto submit(byte[] data, DataFormat dataFormat, List<String> projectAccNumbers,
+            String accnoTemplate, SubmitOperation operation, User user) {
         return convertToJson(data, dataFormat)
-                .map(jsonNode -> amendJson(jsonNode, projectAccNumbers))
-                .map(jsonNode -> submitJson(jsonNode, operation, user))
+                .map(jsonNode -> submitJson(jsonNode, projectAccNumbers, accnoTemplate, operation, user))
                 .complete((resultLog, errorLog) -> Optional.ofNullable(resultLog).orElse(errorLog));
     }
 
     public SubmitReportDto submitJson(JsonNode jsonNode, SubmitOperation operation, User user) {
+        return submitJson(jsonNode, Collections.emptyList(), DEFAULT_ACCNO_TEMPLATE, operation, user);
+    }
+
+    private SubmitReportDto submitJson(JsonNode jsonNode, List<String> projectAccNumbers, String accnoTemplate,
+            SubmitOperation operation, User user) {
+
+        jsonNode = amendJson(jsonNode, projectAccNumbers, accnoTemplate);
+
         SubmissionReport report = submissionManager.createSubmission(
                 asMultipleSubmissions(jsonNode).toString().getBytes(), DataFormat.json, "UTF-8", operation.toLegacyOp(), user,
                 false, false, null);
@@ -79,24 +91,25 @@ public class SubmitService {
         return fromSubmissionReport(report);
     }
 
-    private JsonNode amendJson(JsonNode pageTab, List<String> projectAccNumbers) {
+    private JsonNode amendJson(JsonNode pageTab, List<String> projectAccNumbers, String accnoTemplate) {
         return Optional.of(new PageTabProxy(pageTab))
                 .map(proxy -> proxy.addAttachToAttr(projectAccNumbers, objectMapper))
-                .map(proxy -> proxy.setAccnoIfEmpty(getAccnoTemplate(proxy.getAttachToAttr())))
+                .map(proxy -> proxy.setAccnoIfEmpty(getAccnoTemplate(proxy.getAttachToAttr(),
+                        Optional.ofNullable(accnoTemplate).orElse(DEFAULT_ACCNO_TEMPLATE))))
                 .map(PageTabProxy::json)
                 .get();
     }
 
-    private String getAccnoTemplate(Set<String> projectAccNumbers) {
+    private String getAccnoTemplate(Set<String> projectAccNumbers, String dflt) {
         if (projectAccNumbers.size() != 1) {
-            return "";
+            return dflt;
         }
         Submission subm = submissionManager.getSubmissionsByAccession(projectAccNumbers.iterator().next());
         return subm.getAttributes().stream()
                 .filter(attr -> attr.getName().equalsIgnoreCase("accnotemplate"))
                 .map(AbstractAttribute::getValue)
                 .findFirst()
-                .orElse("");
+                .orElse(dflt);
     }
 
     private Result<JsonNode, SubmitReportDto> convertToJson(byte[] data, DataFormat dataFormat) {

@@ -37,14 +37,15 @@ public class SubmissionResource {
     }
 
     @PostMapping("/submissions/batch/{operation}")
-    public BatchSubmitReportDto batchCreateOrUpdate(@PathVariable SubmitOperation operation,
+    public BatchSubmitReportDto batchSubmit(@PathVariable SubmitOperation operation,
             @RequestParam List<String> attachTo,
+            @RequestParam String accnoTemplate,
             @RequestParam("file") MultipartFile[] files,
             @AuthenticationPrincipal User user) {
 
         List<SubmitReportDto> reports =
                 Arrays.stream(files)
-                        .map(file -> submitService.createOrUpdateSubmission(file, attachTo, operation, user))
+                        .map(file -> submitService.createOrUpdateSubmission(file, attachTo, accnoTemplate, operation, user))
                         .collect(Collectors.toList());
         return new BatchSubmitReportDto(reports);
     }
