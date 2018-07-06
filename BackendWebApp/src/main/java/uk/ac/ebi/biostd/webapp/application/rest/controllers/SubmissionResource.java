@@ -3,7 +3,6 @@ package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.domain.model.SubmissionFilter;
 import uk.ac.ebi.biostd.webapp.application.domain.services.SubmissionDataService;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.BatchSubmitReportDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmissionsDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitOperation;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto;
@@ -36,18 +34,13 @@ public class SubmissionResource {
         return submissionsMapper.toSubmissionsDto(submissionService.getSubmissionsByUser(user.getId(), filter));
     }
 
-    @PostMapping("/submissions/batch/{operation}")
-    public BatchSubmitReportDto batchSubmit(@PathVariable SubmitOperation operation,
+    @PostMapping("/submissions/direct_submit/{operation}")
+    public SubmitReportDto directSubmit(@PathVariable SubmitOperation operation,
             @RequestParam List<String> attachTo,
             @RequestParam String accnoTemplate,
-            @RequestParam("file") MultipartFile[] files,
+            @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal User user) {
-
-        List<SubmitReportDto> reports =
-                Arrays.stream(files)
-                        .map(file -> submitService.createOrUpdateSubmission(file, attachTo, accnoTemplate, operation, user))
-                        .collect(Collectors.toList());
-        return new BatchSubmitReportDto(reports);
+        return submitService.createOrUpdateSubmission(file, attachTo, accnoTemplate, operation, user);
     }
 
     @InitBinder
