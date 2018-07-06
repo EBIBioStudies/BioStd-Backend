@@ -8,13 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pri.util.collection.Collections;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,7 +42,7 @@ public class SubmitService {
     private final JPASubmissionManager submissionManager;
     private final ObjectMapper objectMapper;
 
-    public SubmitReportDto createOrUpdateSubmission(MultipartFile file, List<String> projectAccNumbers,
+    public SubmitReportDto createOrUpdateSubmission(MultipartFile file, Set<String> projectAccNumbers,
             String accnoTemplate, SubmitOperation operation, User user) {
         if (file.isEmpty()) {
             return fromErrorMessage(format("File %s is empty", file.getOriginalFilename()));
@@ -68,7 +65,7 @@ public class SubmitService {
         return submit(bytes, format.get(), projectAccNumbers, accnoTemplate, operation, user);
     }
 
-    public SubmitReportDto submit(byte[] data, DataFormat dataFormat, List<String> projectAccNumbers,
+    public SubmitReportDto submit(byte[] data, DataFormat dataFormat, Set<String> projectAccNumbers,
             String accnoTemplate, SubmitOperation operation, User user) {
         return convertToJson(data, dataFormat)
                 .map(jsonNode -> submitJson(jsonNode, projectAccNumbers, accnoTemplate, operation, user))
@@ -76,10 +73,10 @@ public class SubmitService {
     }
 
     public SubmitReportDto submitJson(JsonNode jsonNode, SubmitOperation operation, User user) {
-        return submitJson(jsonNode, Collections.emptyList(), DEFAULT_ACCNO_TEMPLATE, operation, user);
+        return submitJson(jsonNode, Collections.emptySet(), DEFAULT_ACCNO_TEMPLATE, operation, user);
     }
 
-    private SubmitReportDto submitJson(JsonNode jsonNode, List<String> projectAccNumbers, String accnoTemplate,
+    private SubmitReportDto submitJson(JsonNode jsonNode, Set<String> projectAccNumbers, String accnoTemplate,
             SubmitOperation operation, User user) {
 
         jsonNode = amendJson(jsonNode, projectAccNumbers, accnoTemplate);
@@ -91,7 +88,7 @@ public class SubmitService {
         return fromSubmissionReport(report);
     }
 
-    private JsonNode amendJson(JsonNode pageTab, List<String> projectAccNumbers, String accnoTemplate) {
+    private JsonNode amendJson(JsonNode pageTab, Set<String> projectAccNumbers, String accnoTemplate) {
         return Optional.of(new PageTabProxy(pageTab))
                 .map(proxy -> proxy.addAttachToAttr(projectAccNumbers, objectMapper))
                 .map(proxy -> proxy.setAccnoIfEmpty(getAccnoTemplate(proxy.getAttachToAttr(),

@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,7 +37,7 @@ public class SubmissionResource {
 
     @PostMapping("/submissions/direct_submit/{operation}")
     public SubmitReportDto directSubmit(@PathVariable SubmitOperation operation,
-            @RequestParam List<String> attachTo,
+            @RequestParam Set<String> attachTo,
             @RequestParam String accnoTemplate,
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal User user) {
