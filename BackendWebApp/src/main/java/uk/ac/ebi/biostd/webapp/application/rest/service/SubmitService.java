@@ -36,8 +36,7 @@ import uk.ac.ebi.biostd.webapp.server.mng.impl.PTDocumentParser;
 @Service
 @AllArgsConstructor
 public class SubmitService {
-
-    private static final String DEFAULT_ACCNO_TEMPLATE = "!{S-BSST}";
+    public static final String DEFAULT_ACCNO_TEMPLATE = "!{S-BSST}";
 
     private final JPASubmissionManager submissionManager;
     private final ObjectMapper objectMapper;
@@ -131,7 +130,7 @@ public class SubmitService {
             final StringWriter stringWriter = new StringWriter();
             new JSONFormatter(stringWriter, true).format(doc);
 
-            return Result.success(objectMapper.readTree(data));
+            return Result.success(objectMapper.readTree(stringWriter.toString()));
         } catch (IOException e) {
             return Result.error(fromErrorMessage(e.getMessage()));
         }

@@ -2,12 +2,15 @@ package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mysql.cj.xdevapi.JsonArray;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.swing.text.html.Option;
 
 public class PageTabProxy {
     private static String ACCNO_FIELD = "accno";
@@ -15,52 +18,68 @@ public class PageTabProxy {
     private static String VALUE_FIELD = "value";
     private static String ATTRIBUTES_FIELD = "attributes";
     private static String SECTION_FIELD = "section";
-    private static String TITLE_ATTRIBUTE = "title";
-    private static String RELEASE_DATE_ATTRIBUTE = "releaseDate";
-    private static String ATTACH_TO_ATTRIBUTE = "attachTo";
+    private static String TITLE_ATTRIBUTE = "Title";
+    private static String RELEASE_DATE_ATTRIBUTE = "ReleaseDate";
+    private static String ATTACH_TO_ATTRIBUTE = "AttachTo";
 
-    private JsonNode pageTab;
     private JsonNode root;
+    private JsonNode pageTab;
 
     public PageTabProxy(JsonNode root) {
         this.root = root;
 
         Iterable<Map.Entry<String, JsonNode>> iterable = () -> root.fields();
-        this.pageTab = StreamSupport.stream(iterable.spliterator(), false)
+
+        Optional<JsonNode> submissions = StreamSupport.stream(iterable.spliterator(), false)
                 .filter(field -> field.getKey().equalsIgnoreCase("submissions"))
                 .findFirst()
-                .map(Map.Entry::getValue)
-                .orElse(root);
+                .map(Map.Entry::getValue);
+
+        if (submissions.isPresent()) {
+            pageTab = submissions.filter(arrayNode -> arrayNode.has(0))
+                    .map(arrayNode -> arrayNode.get(0)).orElse(null);
+        } else {
+            pageTab = root;
+        }
     }
 
     public Optional<String> getAccno() {
-        return getTextField(pageTab, ACCNO_FIELD).filter(v -> !v.isEmpty());
+        return Optional.ofNullable(pageTab)
+                .flatMap(pt -> getTextField(pt, ACCNO_FIELD))
+                .filter(v -> !v.isEmpty());
     }
 
     public PageTabProxy setAccno(String value) {
-        setTextField(pageTab, ACCNO_FIELD, value);
+        Optional.ofNullable(pageTab)
+                .ifPresent(pt -> setTextField(pt, ACCNO_FIELD, value));
         return this;
     }
 
     public PageTabProxy setAccnoIfEmpty(String value) {
-        final PageTabProxy proxy = this;
-        return getAccno().map(v -> proxy).orElse(setAccno(value));
+        return getAccno().map(v -> this).orElseGet(() -> setAccno(value));
     }
 
     public Optional<String> getTitle() {
-        return getAttribute(pageTab, TITLE_ATTRIBUTE).stream().findFirst();
+        return Optional.ofNullable(pageTab)
+                .map(pt -> getAttribute(pt, TITLE_ATTRIBUTE))
+                .flatMap(set -> set.stream().findFirst());
     }
 
     public Optional<String> getReleaseDate() {
-        return getAttribute(pageTab, RELEASE_DATE_ATTRIBUTE).stream().findFirst();
+        return Optional.ofNullable(pageTab)
+                .map(pt -> getAttribute(pt, RELEASE_DATE_ATTRIBUTE))
+                .flatMap(set -> set.stream().findFirst());
     }
 
     public Set<String> getAttachToAttr() {
-        return getAttribute(pageTab, ATTACH_TO_ATTRIBUTE);
+        return Optional.ofNullable(pageTab)
+                .map(pt -> getAttribute(pt, ATTACH_TO_ATTRIBUTE))
+                .orElse(Collections.emptySet());
     }
 
     public PageTabProxy setAttachToAttr(Set<String> values, ObjectMapper objectMapper) {
-        setAttribute(pageTab, ATTACH_TO_ATTRIBUTE, values, objectMapper);
+        Optional.ofNullable(pageTab)
+                .ifPresent(pt -> setAttribute(pt, ATTACH_TO_ATTRIBUTE, values, objectMapper));
         return this;
     }
 
@@ -81,7 +100,6 @@ public class PageTabProxy {
 
         return objectMapper.createObjectNode()
                 .set("submissions", objectMapper.createArrayNode().add(pageTab));
-
     }
 
     private Optional<String> getTextField(JsonNode node, String propertyName) {

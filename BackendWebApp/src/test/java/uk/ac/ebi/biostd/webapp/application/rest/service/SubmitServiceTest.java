@@ -1,30 +1,36 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
 import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableSet;
 import com.pri.util.collection.Collections;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.model.SubmissionAttribute;
@@ -34,6 +40,8 @@ import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
 import uk.ac.ebi.biostd.webapp.application.configuration.WebConfiguration;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitOperation;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitStatus;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.JPASubmissionManager;
 
@@ -58,41 +66,85 @@ public class SubmitServiceTest {
 
     @Test
     public void testEmptyFile() {
-       //TODO:  submitService.createOrUpdateSubmission();
+        MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", new byte[]{});
+        SubmitReportDto dto = submitService.createOrUpdateSubmission(testFile, Collections.emptySet(), null, SubmitOperation.CREATE, user);
+        assertThat(dto.getStatus(), equalTo(SubmitStatus.FAIL));
+        assertThat(dto.getLog().getMessage(), is(notNullValue()));
     }
 
     @Test
-    public void testJsonSubmit() throws IOException {
-        Set<String> projectAccNumbers = Collections.emptySet();
-
-        createMocks(DataFormat.json, "UTF-8", SubmissionManager.Operation.CREATE, user, projectAccNumbers, "!{PROJECT-}");
-
+    public void testJSONSubmit() throws IOException {
         MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", "{}".getBytes());
-        submitService.createOrUpdateSubmission(testFile, projectAccNumbers, null, SubmitOperation.CREATE, user);
 
-        ArgumentCaptor<byte[]> argCaptor = ArgumentCaptor.forClass(byte[].class);
-        verify(submissionManager).createSubmission(argCaptor.capture(), any(DataFormat.class), any(String.class),
-                any(SubmissionManager.Operation.class), any(User.class), anyBoolean(), anyBoolean(), any(String.class));
+        String result = createSubmission(testFile, SubmitOperation.CREATE, Collections.emptyMap(), null);
 
-        JsonNode result = objectMapper.readTree(argCaptor.getValue());
-        //TODO verify result
-
+        assertThat(result, isJson());
+        assertThat(result, hasJsonPath("$.submissions"));
+        assertThat(result, hasJsonPath("$.submissions[0].accno", equalTo(SubmitService.DEFAULT_ACCNO_TEMPLATE)));
     }
 
-    private void createMocks(DataFormat dataFormat, String charset, SubmissionManager.Operation operation, User user, Set<String> accNumbers, String accnoTemplate) {
+    @Test
+    public void testXLSXSubmit() throws IOException {
+        byte[] bytes = Files.readAllBytes(new File(PendingSubmissionUtilTest.class.getResource("test.xlsx").getPath()).toPath());
+        MockMultipartFile testFile = new MockMultipartFile("file", "test.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", bytes);
+
+        String result = createSubmission(testFile, SubmitOperation.CREATE_OR_UPDATE, Collections.emptyMap(), null);
+
+        assertThat(result, isJson());
+        assertThat(result, hasJsonPath("$.submissions"));
+        assertThat(result, hasJsonPath("$.submissions[0].accno", equalTo("TEST_12345")));
+    }
+
+    @Test
+    public void testAccnoTemplate() throws IOException {
+        String accnoTemplate = "!{A-BCD-}";
+        MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", "{}".getBytes());
+
+        String result = createSubmission(testFile, SubmitOperation.CREATE, Collections.emptyMap(), accnoTemplate);
+
+        assertThat(result, isJson());
+        assertThat(result, hasJsonPath("$.submissions"));
+        assertThat(result, hasJsonPath("$.submissions[0].accno", equalTo(accnoTemplate)));
+    }
+
+    @Test
+    public void testProjectAccno() throws IOException {
+        String template = "!{A-BCD-}";
+        Map<String, String> projectAccessions = new HashMap<>();
+        projectAccessions.put("Parent-1", template);
+
+        MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", "{}".getBytes());
+
+        String result = createSubmission(testFile, SubmitOperation.CREATE, projectAccessions, null);
+
+        assertThat(result, isJson());
+        assertThat(result, hasJsonPath("$.submissions"));
+        assertThat(result, hasJsonPath("$.submissions[0].accno", equalTo(template)));
+        assertThat(result, hasJsonPath("$.submissions[0].attributes[?(@.name == 'AttachTo')].value", hasItem("Parent-1")));
+    }
+
+    private String createSubmission(MultipartFile testFile, SubmitOperation operation,
+            Map<String, String> projectAccNumbers, String accnoTemplate) throws IOException {
+
         SubmissionReport submissionReport = new SubmissionReport();
         submissionReport.setLog(new SimpleLogNode(LogNode.Level.SUCCESS, "success", null));
-        when(submissionManager.createSubmission(any(byte[].class), eq(dataFormat), eq(charset), eq(operation), eq(user), eq(false), eq(false), any(String.class)))
+        when(submissionManager.createSubmission(any(byte[].class), eq(DataFormat.json), eq("UTF-8"),
+                eq(operation.toLegacyOp()), eq(user), eq(false), eq(false), any()))
                 .thenReturn(submissionReport);
 
         when(submissionManager.getSubmissionsByAccession(any(String.class)))
-                .thenAnswer(new Answer<Submission>() {
-                    @Override
-                    public Submission answer(InvocationOnMock invocation) throws Throwable {
-                        String arg = invocation.getArgument(0);
-                        return accNumbers.contains(arg) ? submissionMock(accnoTemplate) : null;
-                    }
+                .thenAnswer((Answer<Submission>) invocation -> {
+                    String arg = invocation.getArgument(0);
+                    return projectAccNumbers.containsKey(arg) ? submissionMock(projectAccNumbers.get(arg)) : null;
                 });
+
+        submitService.createOrUpdateSubmission(testFile, projectAccNumbers.keySet(), accnoTemplate, operation, user);
+
+        ArgumentCaptor<byte[]> argCaptor = ArgumentCaptor.forClass(byte[].class);
+        verify(submissionManager).createSubmission(argCaptor.capture(), eq(DataFormat.json), eq("UTF-8"),
+                any(SubmissionManager.Operation.class), any(User.class), anyBoolean(), anyBoolean(), any());
+
+        return new String(argCaptor.getValue(), "UTF-8");
     }
 
     private Submission submissionMock(String accnoTemplate) {

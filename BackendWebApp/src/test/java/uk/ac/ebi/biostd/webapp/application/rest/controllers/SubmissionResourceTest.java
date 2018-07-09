@@ -6,7 +6,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
+import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,7 +61,7 @@ public class SubmissionResourceTest {
 
         MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", "{}".getBytes());
 
-        when(submitService.createOrUpdateSubmission(testFile, Arrays.asList(attachTo), accnoTemplate, SubmitOperation.CREATE, user))
+        when(submitService.createOrUpdateSubmission(testFile, new HashSet<>(Arrays.asList(attachTo)), accnoTemplate, SubmitOperation.CREATE, user))
                 .thenReturn(SubmitReportDto.builder().status(SubmitStatus.OK).build());
 
         mvc.perform(multipart("/submissions/direct_submit/create")
