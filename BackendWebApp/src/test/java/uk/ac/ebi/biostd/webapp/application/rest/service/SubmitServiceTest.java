@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.ac.ebi.biostd.webapp.application.rest.service.SubmitService.DEFAULT_ACCNO_TEMPLATE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pri.util.collection.Collections;
@@ -80,7 +81,7 @@ public class SubmitServiceTest {
 
         assertThat(result, isJson());
         assertThat(result, hasJsonPath("$.submissions"));
-        assertThat(result, hasJsonPath("$.submissions[0].accno", equalTo(SubmitService.DEFAULT_ACCNO_TEMPLATE)));
+        assertThat(result, hasJsonPath("$.submissions[0].accno", equalTo(DEFAULT_ACCNO_TEMPLATE)));
     }
 
     @Test
@@ -108,7 +109,7 @@ public class SubmitServiceTest {
     }
 
     @Test
-    public void testProjectAccno() throws IOException {
+    public void testSingleProjectAccno() throws IOException {
         String template = "!{A-BCD-}";
         Map<String, String> projectAccessions = new HashMap<>();
         projectAccessions.put("Parent-1", template);
@@ -121,6 +122,22 @@ public class SubmitServiceTest {
         assertThat(result, hasJsonPath("$.submissions"));
         assertThat(result, hasJsonPath("$.submissions[0].accno", equalTo(template)));
         assertThat(result, hasJsonPath("$.submissions[0].attributes[?(@.name == 'AttachTo')].value", hasItem("Parent-1")));
+    }
+
+    @Test
+    public void testMultipleProjectAccno() throws IOException {
+        Map<String, String> projectAccessions = new HashMap<>();
+        projectAccessions.put("Parent-1", "!{AAA}");
+        projectAccessions.put("Parent-2", "!{BBB}");
+
+        MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", "{}".getBytes());
+
+        String result = createSubmission(testFile, SubmitOperation.CREATE, projectAccessions, null);
+
+        assertThat(result, isJson());
+        assertThat(result, hasJsonPath("$.submissions"));
+        assertThat(result, hasJsonPath("$.submissions[0].accno", equalTo(DEFAULT_ACCNO_TEMPLATE)));
+        assertThat(result, hasJsonPath("$.submissions[0].attributes[?(@.name == 'AttachTo')].value", hasItems("Parent-1", "Parent-2")));
     }
 
     private String createSubmission(MultipartFile testFile, SubmitOperation operation,
