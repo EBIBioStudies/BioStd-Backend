@@ -41,10 +41,10 @@ public class PendingSubmissionResource {
     }
 
     @PutMapping("/submissions/pending/{accno}")
-    public void updateSubmission(@PathVariable String accno,
+    public PendingSubmissionDto updateSubmission(@PathVariable String accno,
             @RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
-        pendingSubmissionService.updateSubmission(accno, pageTab, user)
+        return pendingSubmissionService.updateSubmission(accno, pageTab, user)
                 .orElseThrow(() -> pendingSubmissionNotFound(accno));
     }
 
