@@ -2,7 +2,6 @@ package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
 import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
