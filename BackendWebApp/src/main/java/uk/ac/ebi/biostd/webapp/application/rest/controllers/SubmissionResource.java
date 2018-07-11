@@ -51,7 +51,7 @@ public class SubmissionResource {
                 SubmitOperation value = Arrays.stream(SubmitOperation.values())
                         .filter(v -> v.toString().equalsIgnoreCase(text))
                         .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Operation '" + text + "' is not known"));
+                        .orElseThrow(() -> new IllegalArgumentException("Operation '" + text + "' is unknown"));
                 setValue(value);
             }
         });
