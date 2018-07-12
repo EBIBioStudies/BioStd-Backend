@@ -91,16 +91,13 @@ public class PendingSubmissionServiceTest {
                     return ud;
                 });
 
-        Optional<PendingSubmissionDto> result = pendingSubmissionService.updateSubmission(dto.getAccno(), dto.getData(), user);
+        Optional<PendingSubmissionDto> optResult = pendingSubmissionService.updateSubmission(dto.getAccno(), dto.getData(), user);
+        assertThat(optResult.isPresent()).isTrue();
 
-        assertThat(result.isPresent()).isTrue();
-        result.ifPresent(
-                r -> {
-                    assertThat(r.getChanged()).isGreaterThan(dto.getChanged());
-                    assertThat(r.getData().toString()).isEqualTo(dto.getData().toString());
-                    assertThat(r.getAccno()).isEqualTo(dto.getAccno());
-                }
-        );
+        PendingSubmissionDto result = optResult.get();
+        assertThat(result.getChanged()).isGreaterThan(dto.getChanged());
+        assertThat(result.getData().toString()).isEqualTo(dto.getData().toString());
+        assertThat(result.getAccno()).isEqualTo(dto.getAccno());
     }
 
     @Test
@@ -115,15 +112,13 @@ public class PendingSubmissionServiceTest {
                     return ud;
                 });
 
-        Optional<PendingSubmissionDto> result = pendingSubmissionService.createSubmission(json, user);
-        assertThat(result.isPresent()).isTrue();
-        result.ifPresent(
-                r -> {
-                    assertThat(r.getAccno()).matches("TMP_.+");
-                    assertThat(r.getChanged()).isGreaterThan(0);
-                    assertThat(r.getData().toString()).isEqualTo(json.toString());
-                }
-        );
+        Optional<PendingSubmissionDto> optResult = pendingSubmissionService.createSubmission(json, user);
+        assertThat(optResult.isPresent()).isTrue();
+
+        PendingSubmissionDto result = optResult.get();
+        assertThat(result.getAccno()).matches("TMP_.+");
+        assertThat(result.getChanged()).isGreaterThan(0);
+        assertThat(result.getData().toString()).isEqualTo(json.toString());
     }
 
     @Test
@@ -140,15 +135,13 @@ public class PendingSubmissionServiceTest {
                     return ud;
                 });
 
-        Optional<PendingSubmissionDto> result = pendingSubmissionService.createSubmission(json, user);
-        assertThat(result.isPresent()).isTrue();
-        result.ifPresent(
-                r -> {
-                    assertThat(r.getAccno()).isEqualTo(accno);
-                    assertThat(r.getChanged()).isGreaterThan(0);
-                    assertThat(r.getData().toString()).isEqualTo(json.toString());
-                }
-        );
+        Optional<PendingSubmissionDto> optResult = pendingSubmissionService.createSubmission(json, user);
+        assertThat(optResult.isPresent()).isTrue();
+
+        PendingSubmissionDto result = optResult.get();
+        assertThat(result.getAccno()).isEqualTo(accno);
+        assertThat(result.getChanged()).isGreaterThan(0);
+        assertThat(result.getData().toString()).isEqualTo(json.toString());
     }
 
     @Test
@@ -170,13 +163,11 @@ public class PendingSubmissionServiceTest {
         when(submitService.submitJson(any(JsonNode.class), eq(op), eq(user)))
                 .thenReturn(SubmitReportDto.builder().status(SubmitStatus.OK).build());
 
-        Optional<SubmitReportDto> result = pendingSubmissionService.submitSubmission(accno, user);
-        assertThat(result.isPresent()).isTrue();
-        result.ifPresent(
-                r -> {
-                    assertThat(r.getStatus()).isEqualTo(SubmitStatus.OK);
-                }
-        );
+        Optional<SubmitReportDto> optResult = pendingSubmissionService.submitSubmission(accno, user);
+        assertThat(optResult.isPresent()).isTrue();
+
+        SubmitReportDto result = optResult.get();
+        assertThat(result.getStatus()).isEqualTo(SubmitStatus.OK);
     }
 
     private User newUser() {
