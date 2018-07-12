@@ -25,7 +25,7 @@ public class PageTabProxy {
 
     private static class InnerProxyImpl implements InnerProxy {
 
-        private JsonNode pageTab;
+        private final JsonNode pageTab;
 
         private InnerProxyImpl(JsonNode pageTab) {
             this.pageTab = pageTab;
