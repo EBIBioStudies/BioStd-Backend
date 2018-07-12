@@ -48,11 +48,7 @@ public class SubmissionResource {
         webdataBinder.registerCustomEditor(SubmitOperation.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String text) throws IllegalArgumentException {
-                SubmitOperation value = Arrays.stream(SubmitOperation.values())
-                        .filter(v -> v.toString().equalsIgnoreCase(text))
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Operation '" + text + "' is unknown"));
-                setValue(value);
+                setValue(SubmitOperation.fromString(text));
             }
         });
     }

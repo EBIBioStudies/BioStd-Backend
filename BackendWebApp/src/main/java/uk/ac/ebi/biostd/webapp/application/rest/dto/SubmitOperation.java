@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
+import java.util.Arrays;
 import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 
 public enum SubmitOperation {
@@ -15,5 +16,12 @@ public enum SubmitOperation {
 
     public SubmissionManager.Operation toLegacyOp() {
         return legacyOp;
+    }
+
+    public static Object fromString(String text) {
+        return Arrays.stream(SubmitOperation.values())
+                .filter(v -> v.toString().equalsIgnoreCase(text))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Operation '" + text + "' is unknown"));
     }
 }
