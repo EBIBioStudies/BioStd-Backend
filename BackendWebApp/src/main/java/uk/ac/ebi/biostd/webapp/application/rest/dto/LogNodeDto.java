@@ -1,8 +1,8 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
-import com.pri.util.collection.Collections;
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
+
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class LogNodeDto {
         return LogNodeDto.builder()
                 .level(log.getLevel())
                 .message(log.getMessage())
-                .subnodes(Optional.ofNullable(log.getSubNodes()).orElse(Collections.emptyList()).stream()
+                .subnodes(emptyIfNull(log.getSubNodes()).stream()
                         .map(LogNodeDto::from)
                         .collect(Collectors.toList()))
                 .build();

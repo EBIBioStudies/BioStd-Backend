@@ -1,14 +1,12 @@
 package uk.ac.ebi.biostd.webapp.application.rest.dto;
 
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitStatus.submitStatus;
 
-import com.pri.util.collection.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.boot.logging.LogLevel;
 import uk.ac.ebi.biostd.treelog.LogNode;
 import uk.ac.ebi.biostd.treelog.SubmissionReport;
 
@@ -23,7 +21,7 @@ public class SubmitReportDto {
         return SubmitReportDto.builder()
                 .status(submitStatus(report.getLog().getLevel().getPriority() < LogNode.Level.ERROR.getPriority()))
                 .mapping(
-                        Optional.ofNullable(report.getMappings()).orElse(Collections.emptyList()).stream()
+                        emptyIfNull(report.getMappings()).stream()
                                 .map(SubmissionMappingDto::from)
                                 .collect(Collectors.toList()))
                 .log(LogNodeDto.from(report.getLog()))
