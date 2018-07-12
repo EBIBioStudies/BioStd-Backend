@@ -19,7 +19,6 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.*;
 @AllArgsConstructor
 public class PendingSubmissionService {
 
-    private static final String BSST_ACCNO_TEMPLATE = "!{S-BSST}";
     private static final String TOPIC = "submission";
 
     private static final Comparator<PendingSubmissionListItemDto> SORT_BY_MTIME = (o1, o2) -> {
@@ -82,19 +81,13 @@ public class PendingSubmissionService {
 
     private SubmitReportDto submit(PendingSubmissionDto dto, User user) {
         boolean isNew = pendingSubmissionUtil.isTemporaryAccno(dto.getAccno());
-
-        JsonNode data = isNew ? amendAccno(dto.getData()) : dto.getData();
         SubmitOperation operation = isNew ? SubmitOperation.CREATE : SubmitOperation.CREATE_OR_UPDATE;
 
-        SubmitReportDto report = submitService.submitJson(data, operation, user);
+        SubmitReportDto report = submitService.submitJson(dto.getData(), operation, user);
         if (report.getStatus() == SubmitStatus.OK) {
             deleteSubmissionByAccNo(dto.getAccno(), user);
         }
         return report;
-    }
-
-    private JsonNode amendAccno(JsonNode pageTab) {
-        return new PageTabProxy(pageTab).setAccno(BSST_ACCNO_TEMPLATE).json();
     }
 
     private Optional<PendingSubmissionDto> update(PendingSubmissionDto original, JsonNode data, User user) {
