@@ -18,6 +18,7 @@ import uk.ac.ebi.biostd.webapp.application.configuration.WebConfiguration;
 @RunWith(SpringRunner.class)
 @Import(WebConfiguration.class)
 public class PageTabProxyTest {
+
     @Autowired
     private ObjectMapper objectMapper;
 
