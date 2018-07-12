@@ -32,7 +32,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.service.SubmitService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(SubmissionResource.class)
-@AutoConfigureMockMvc(secure = false)
+@AutoConfigureMockMvc(secure = false, addFilters = false)
 public class SubmissionResourceTest {
 
     @Autowired

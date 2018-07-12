@@ -19,10 +19,7 @@ public class EntityManagerFilter extends GenericFilterBean {
         try {
             chain.doFilter(req, res);
         } finally {
-            ServiceManager sm = BackendConfig.getServiceManager();
-            if (sm != null) {
-                sm.closeEntityManager();
-            }
+            BackendConfig.getServiceManager().closeEntityManager();
         }
     }
 }

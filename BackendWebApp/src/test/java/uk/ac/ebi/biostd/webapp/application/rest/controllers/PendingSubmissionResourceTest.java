@@ -43,7 +43,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PendingSubmissionResource.class)
-@AutoConfigureMockMvc(secure = false)
+@AutoConfigureMockMvc(secure = false, addFilters = false)
 public class PendingSubmissionResourceTest {
 
     @Autowired
@@ -126,7 +126,7 @@ public class PendingSubmissionResourceTest {
         when(pendingSubmissionService.getSubmissionByAccNo(dto.getAccno(), user))
                 .thenReturn(Optional.of(dto));
 
-        mvc.perform(get("/submissions/pending/" + dto.getAccno()))
+        mvc.perform(get("/submissions/pending/{accno}", dto.getAccno()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accno", is(dto.getAccno())))
                 .andExpect(jsonPath("$.changed", is((int) dto.getChanged())))
@@ -140,7 +140,7 @@ public class PendingSubmissionResourceTest {
         when(pendingSubmissionService.getSubmissionByAccNo(accno, user))
                 .thenReturn(Optional.empty());
 
-        mvc.perform(get("/submissions/pending/" + accno))
+        mvc.perform(get("/submissions/pending/{accno}", accno))
                 .andExpect(status().isBadRequest());
     }
 
@@ -174,7 +174,7 @@ public class PendingSubmissionResourceTest {
         when(pendingSubmissionService.updateSubmission(eq(accno), any(JsonNode.class), eq(user)))
                 .thenReturn(Optional.of(new PendingSubmissionDto()));
 
-        mvc.perform(put("/submissions/pending/" + accno)
+        mvc.perform(put("/submissions/pending/{accno}", accno)
                 .content("{}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -186,7 +186,7 @@ public class PendingSubmissionResourceTest {
         when(pendingSubmissionService.updateSubmission(eq(accno), any(JsonNode.class), eq(user)))
                 .thenReturn(Optional.empty());
 
-        mvc.perform(put("/submissions/pending/" + accno)
+        mvc.perform(put("/submissions/pending/{accno}", accno)
                 .content("{}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -197,7 +197,7 @@ public class PendingSubmissionResourceTest {
         final String accno = "1234";
         doNothing().when(pendingSubmissionService).deleteSubmissionByAccNo(accno, user);
 
-        mvc.perform(delete("/submissions/pending/" + accno))
+        mvc.perform(delete("/submissions/pending/{accno}", accno))
                 .andExpect(status().isOk());
     }
 
@@ -209,7 +209,7 @@ public class PendingSubmissionResourceTest {
                 .thenReturn(Optional.of(
                         SubmitReportDto.builder().status(SubmitStatus.OK).build()));
 
-        mvc.perform(post(format("/submissions/pending/%s/submit", accno)))
+        mvc.perform(post("/submissions/pending/{accno}/submit", accno))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("OK")));
     }
@@ -221,7 +221,7 @@ public class PendingSubmissionResourceTest {
         when(pendingSubmissionService.submitSubmission(accno, user))
                 .thenReturn(Optional.empty());
 
-        mvc.perform(post(format("/submissions/pending/%s/submit", accno)))
+        mvc.perform(post("/submissions/pending/{accno}/submit", accno))
                 .andExpect(status().isBadRequest());
     }
 
