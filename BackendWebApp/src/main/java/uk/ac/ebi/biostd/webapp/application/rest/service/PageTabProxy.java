@@ -123,14 +123,14 @@ public class PageTabProxy {
         }
     };
 
-    private static String ACCNO_FIELD = "accno";
-    private static String NAME_FIELD = "name";
-    private static String VALUE_FIELD = "value";
-    private static String ATTRIBUTES_FIELD = "attributes";
-    private static String SECTION_FIELD = "section";
-    private static String TITLE_ATTRIBUTE = "Title";
-    private static String RELEASE_DATE_ATTRIBUTE = "ReleaseDate";
-    private static String ATTACH_TO_ATTRIBUTE = "AttachTo";
+    private static final String ACCNO_FIELD = "accno";
+    private static final String NAME_FIELD = "name";
+    private static final String VALUE_FIELD = "value";
+    private static final String ATTRIBUTES_FIELD = "attributes";
+    private static final String SECTION_FIELD = "section";
+    private static final String TITLE_ATTRIBUTE = "Title";
+    private static final String RELEASE_DATE_ATTRIBUTE = "ReleaseDate";
+    private static final String ATTACH_TO_ATTRIBUTE = "AttachTo";
 
     private final JsonNode root;
     private final InnerProxy innerProxy;
