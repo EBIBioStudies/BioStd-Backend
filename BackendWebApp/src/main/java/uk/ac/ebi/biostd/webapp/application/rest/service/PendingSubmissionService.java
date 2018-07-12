@@ -36,7 +36,7 @@ public class PendingSubmissionService {
     };
 
     private final UserDataService userDataService;
-    private final PendingSubmissionUtil util;
+    private final PendingSubmissionUtil pendingSubmissionUtil;
     private final SubmitService submitService;
 
     public PendingSubmissionListDto getSubmissionList(PendingSubmissionListFiltersDto filters, User user) {
@@ -45,9 +45,9 @@ public class PendingSubmissionService {
         List<PendingSubmissionListItemDto> submissions = userDataService.findAllByUserAndTopic(user.getId(), TOPIC)
                 .stream()
                 .map(UserData::getData)
-                .map(util::pendingSubmissionFromString)
+                .map(pendingSubmissionUtil::pendingSubmissionFromString)
                 .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
-                .map(util::pendingSubmissionToListItem)
+                .map(pendingSubmissionUtil::pendingSubmissionToListItem)
                 .sorted(SORT_BY_MTIME)
                 .filter(predicate::test)
                 .skip(filters.getOffset())
@@ -71,7 +71,7 @@ public class PendingSubmissionService {
     }
 
     public Optional<PendingSubmissionDto> createSubmission(JsonNode pageTab, User user) {
-        PendingSubmissionDto subm = util.createPendingSubmission(pageTab);
+        PendingSubmissionDto subm = pendingSubmissionUtil.createPendingSubmission(pageTab);
         return this.update(subm, pageTab, user);
     }
 
@@ -81,7 +81,7 @@ public class PendingSubmissionService {
     }
 
     private SubmitReportDto submit(PendingSubmissionDto dto, User user) {
-        boolean isNew = util.isTemporaryAccno(dto.getAccno());
+        boolean isNew = pendingSubmissionUtil.isTemporaryAccno(dto.getAccno());
 
         JsonNode data = isNew ? amendAccno(dto.getData()) : dto.getData();
         SubmitOperation operation = isNew ? SubmitOperation.CREATE : SubmitOperation.CREATE_OR_UPDATE;
@@ -104,14 +104,14 @@ public class PendingSubmissionService {
         updated.setData(data);
 
         UserData userData =
-                userDataService.update(user.getId(), updated.getAccno(), util.pendingSubmissionToString(updated), TOPIC);
-        return util.pendingSubmissionFromString(userData.getData());
+                userDataService.update(user.getId(), updated.getAccno(), pendingSubmissionUtil.pendingSubmissionToString(updated), TOPIC);
+        return pendingSubmissionUtil.pendingSubmissionFromString(userData.getData());
     }
 
     private Optional<PendingSubmissionDto> findByAccNoAndUser(String accno, User user) {
         return userDataService.findByUserAndKey(user.getId(), accno)
                 .map(UserData::getData)
-                .flatMap(util::pendingSubmissionFromString);
+                .flatMap(pendingSubmissionUtil::pendingSubmissionFromString);
     }
 
 }
