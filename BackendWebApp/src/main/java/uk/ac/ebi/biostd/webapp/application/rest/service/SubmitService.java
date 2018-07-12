@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +42,7 @@ public class SubmitService {
     private final JPASubmissionManager submissionManager;
     private final ObjectMapper objectMapper;
 
+    @SneakyThrows
     public SubmitReportDto createOrUpdateSubmission(MultipartFile file, Set<String> projectAccNumbers,
             String accnoTemplate, SubmitOperation operation, User user) {
         if (file.isEmpty()) {
@@ -54,14 +56,7 @@ public class SubmitService {
             return fromErrorMessage(format("Unrecognized data format: %s, %s", file.getOriginalFilename(), file.getContentType()));
         }
 
-        byte[] bytes;
-        try {
-            bytes = file.getBytes();
-        } catch (IOException e) {
-            log.error("An error in getBytes()", e);
-            return fromErrorMessage(e.getMessage());
-        }
-        return submit(bytes, format.get(), projectAccNumbers, accnoTemplate, operation, user);
+        return submit(file.getBytes(), format.get(), projectAccNumbers, accnoTemplate, operation, user);
     }
 
     public SubmitReportDto submit(byte[] data, DataFormat dataFormat, Set<String> projectAccNumbers,
