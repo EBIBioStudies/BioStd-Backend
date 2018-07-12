@@ -14,41 +14,20 @@ import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionService
 
 @AllArgsConstructor
 @RestController
+@RequestMapping("/submissions/pending")
 @PreAuthorize("isAuthenticated()")
 public class PendingSubmissionResource {
 
     private final PendingSubmissionService pendingSubmissionService;
 
-    @GetMapping("/submissions/pending")
+    @GetMapping
     @ResponseBody
     public PendingSubmissionListDto getSubmissionList(PendingSubmissionListFiltersDto filters,
             @AuthenticationPrincipal User user) {
         return pendingSubmissionService.getSubmissionList(filters, user);
     }
 
-    @GetMapping("/submissions/pending/{accno}")
-    @ResponseBody
-    public PendingSubmissionDto getSubmission(@PathVariable String accno,
-            @AuthenticationPrincipal User user) {
-        return pendingSubmissionService.getSubmissionByAccNo(accno, user)
-                .orElseThrow(() -> pendingSubmissionNotFound(accno));
-    }
-
-    @DeleteMapping("/submissions/pending/{accno}")
-    public void deleteSubmission(@PathVariable String accno,
-            @AuthenticationPrincipal User user) {
-        pendingSubmissionService.deleteSubmissionByAccNo(accno, user);
-    }
-
-    @PutMapping("/submissions/pending/{accno}")
-    public PendingSubmissionDto updateSubmission(@PathVariable String accno,
-            @RequestBody ObjectNode pageTab,
-            @AuthenticationPrincipal User user) {
-        return pendingSubmissionService.updateSubmission(accno, pageTab, user)
-                .orElseThrow(() -> pendingSubmissionNotFound(accno));
-    }
-
-    @PostMapping("/submissions/pending")
+    @PostMapping
     @ResponseBody
     public PendingSubmissionDto createSubmission(@RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
@@ -56,7 +35,29 @@ public class PendingSubmissionResource {
                 .orElseThrow(() -> new BadRequestException("Server error; see logs for details"));
     }
 
-    @PostMapping("/submissions/pending/{accno}/submit")
+    @GetMapping("/{accno}")
+    @ResponseBody
+    public PendingSubmissionDto getSubmission(@PathVariable String accno,
+            @AuthenticationPrincipal User user) {
+        return pendingSubmissionService.getSubmissionByAccNo(accno, user)
+                .orElseThrow(() -> pendingSubmissionNotFound(accno));
+    }
+
+    @DeleteMapping("/{accno}")
+    public void deleteSubmission(@PathVariable String accno,
+            @AuthenticationPrincipal User user) {
+        pendingSubmissionService.deleteSubmissionByAccNo(accno, user);
+    }
+
+    @PutMapping("/{accno}")
+    public PendingSubmissionDto updateSubmission(@PathVariable String accno,
+            @RequestBody ObjectNode pageTab,
+            @AuthenticationPrincipal User user) {
+        return pendingSubmissionService.updateSubmission(accno, pageTab, user)
+                .orElseThrow(() -> pendingSubmissionNotFound(accno));
+    }
+
+    @PostMapping("/{accno}/submit")
     @ResponseBody
     public SubmitReportDto submitSubmission(@PathVariable String accno,
             @AuthenticationPrincipal User user) {
