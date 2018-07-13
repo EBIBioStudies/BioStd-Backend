@@ -1,16 +1,12 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
-import static java.lang.String.format;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -149,7 +145,7 @@ public class PendingSubmissionResourceTest {
         PendingSubmissionDto dto = newPendingSubmission();
 
         when(pendingSubmissionService.createSubmission(dto.getData(), user))
-                .thenReturn(Optional.of(dto));
+                .thenReturn(dto);
 
         mvc.perform(post("/submissions/pending")
                 .content(dto.getData().toString())

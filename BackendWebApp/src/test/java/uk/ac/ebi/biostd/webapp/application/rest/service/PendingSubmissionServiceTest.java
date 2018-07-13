@@ -112,10 +112,7 @@ public class PendingSubmissionServiceTest {
                     return ud;
                 });
 
-        Optional<PendingSubmissionDto> optResult = pendingSubmissionService.createSubmission(json, user);
-        assertThat(optResult.isPresent()).isTrue();
-
-        PendingSubmissionDto result = optResult.get();
+        PendingSubmissionDto result = pendingSubmissionService.createSubmission(json, user);
         assertThat(result.getAccno()).matches("TMP_.+");
         assertThat(result.getChanged()).isGreaterThan(0);
         assertThat(result.getData().toString()).isEqualTo(json.toString());
@@ -135,10 +132,7 @@ public class PendingSubmissionServiceTest {
                     return ud;
                 });
 
-        Optional<PendingSubmissionDto> optResult = pendingSubmissionService.createSubmission(json, user);
-        assertThat(optResult.isPresent()).isTrue();
-
-        PendingSubmissionDto result = optResult.get();
+        PendingSubmissionDto result = pendingSubmissionService.createSubmission(json, user);
         assertThat(result.getAccno()).isEqualTo(accno);
         assertThat(result.getChanged()).isGreaterThan(0);
         assertThat(result.getData().toString()).isEqualTo(json.toString());

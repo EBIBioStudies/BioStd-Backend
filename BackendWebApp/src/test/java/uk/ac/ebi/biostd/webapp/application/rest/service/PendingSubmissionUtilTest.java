@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,22 +51,13 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testParsingPendingSubmissionFromInvalidString() {
-        Optional<PendingSubmissionDto> dto = util.pendingSubmissionFromString("invalid data");
-        assertThat(dto.isPresent()).isFalse();
-    }
-
-    @Test
     public void testParsingPendingSubmissionFromValidString() throws IOException {
         final JsonNode pageTab = getPageTab();
 
-        Optional<PendingSubmissionDto> dto = util.pendingSubmissionFromString(pendingSubmissionAsString(ACCNO, pageTab));
-        assertThat(dto.isPresent()).isTrue();
-        dto.ifPresent(v -> {
-            assertThat(v.getAccno()).isEqualTo(ACCNO);
-            assertThat(v.getChanged()).isEqualTo(MILLISECONDS);
-            assertThat(v.getData().toString()).isEqualTo(pageTab.toString());
-        });
+        PendingSubmissionDto dto = util.pendingSubmissionFromString(pendingSubmissionAsString(ACCNO, pageTab));
+        assertThat(dto.getAccno()).isEqualTo(ACCNO);
+        assertThat(dto.getChanged()).isEqualTo(MILLISECONDS);
+        assertThat(dto.getData().toString()).isEqualTo(pageTab.toString());
     }
 
     @Test
