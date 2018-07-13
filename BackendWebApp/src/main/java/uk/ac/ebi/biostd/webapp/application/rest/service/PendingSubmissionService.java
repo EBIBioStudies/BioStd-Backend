@@ -71,8 +71,10 @@ public class PendingSubmissionService {
         return this.update(subm, pageTab, user);
     }
 
-    public Optional<SubmitReportDto> submitSubmission(String accno, User user) {
-        return findByAccNoAndUser(accno, user).map(subm -> this.submit(subm, user));
+    public Optional<SubmitReportDto> submitSubmission(String accno, JsonNode pageTab, User user) {
+        return findByAccNoAndUser(accno, user)
+                .map(subm -> this.update(subm, pageTab, user))
+                .map(subm -> this.submit(subm, user));
     }
 
     private SubmitReportDto submit(PendingSubmissionDto dto, User user) {

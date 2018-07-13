@@ -54,8 +54,9 @@ public class PendingSubmissionResource {
 
     @PostMapping("/{accno}/submit")
     @ResponseBody
-    public SubmitReportDto submitSubmission(@PathVariable String accno, @AuthenticationPrincipal User user) {
-        return pendingSubmissionService.submitSubmission(accno, user)
+    public SubmitReportDto submitSubmission(@PathVariable String accno, @RequestBody ObjectNode pageTab,
+            @AuthenticationPrincipal User user) {
+        return pendingSubmissionService.submitSubmission(accno, pageTab, user)
                 .orElseThrow(() -> pendingSubmissionNotFound(accno));
     }
 

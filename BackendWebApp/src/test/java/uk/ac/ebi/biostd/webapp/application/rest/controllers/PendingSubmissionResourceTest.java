@@ -201,11 +201,13 @@ public class PendingSubmissionResourceTest {
     public void testSubmitSubmission() throws Exception {
         final String accno = "1234";
 
-        when(pendingSubmissionService.submitSubmission(accno, user))
+        when(pendingSubmissionService.submitSubmission(eq(accno), any(JsonNode.class), eq(user)))
                 .thenReturn(Optional.of(
                         SubmitReportDto.builder().status(SubmitStatus.OK).build()));
 
-        mvc.perform(post("/submissions/pending/{accno}/submit", accno))
+        mvc.perform(post("/submissions/pending/{accno}/submit", accno)
+                .content("{}")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("OK")));
     }
@@ -214,10 +216,12 @@ public class PendingSubmissionResourceTest {
     public void testSubmitSubmissionBadRequest() throws Exception {
         final String accno = "1234";
 
-        when(pendingSubmissionService.submitSubmission(accno, user))
+        when(pendingSubmissionService.submitSubmission(eq(accno), any(), eq(user)))
                 .thenReturn(Optional.empty());
 
-        mvc.perform(post("/submissions/pending/{accno}/submit", accno))
+        mvc.perform(post("/submissions/pending/{accno}/submit", accno)
+                .content("{}")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 

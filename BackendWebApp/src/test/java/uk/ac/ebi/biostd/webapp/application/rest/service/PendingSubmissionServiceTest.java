@@ -154,10 +154,13 @@ public class PendingSubmissionServiceTest {
         when(userDataService.findByUserAndKey(user.getId(), accno))
                 .thenReturn(Optional.of(newUserData(accno)));
 
+        when(userDataService.update(eq(user.getId()), eq(accno), any(String.class), any(String.class)))
+                .thenReturn(newUserData(accno));
+
         when(submitService.submitJson(any(JsonNode.class), eq(op), eq(user)))
                 .thenReturn(SubmitReportDto.builder().status(SubmitStatus.OK).build());
 
-        Optional<SubmitReportDto> optResult = pendingSubmissionService.submitSubmission(accno, user);
+        Optional<SubmitReportDto> optResult = pendingSubmissionService.submitSubmission(accno,  objectMapper.createObjectNode(), user);
         assertThat(optResult.isPresent()).isTrue();
 
         SubmitReportDto result = optResult.get();
