@@ -1,7 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
-import java.util.Arrays;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,13 +34,22 @@ public class SubmissionResource {
         return submissionsMapper.toSubmissionsDto(submissionService.getSubmissionsByUser(user.getId(), filter));
     }
 
-    @PostMapping("/submissions/direct_submit/{operation}")
-    public SubmitReportDto directSubmit(@PathVariable SubmitOperation operation,
+    @PostMapping("/submissions/file_submit/{operation}")
+    public SubmitReportDto fileSubmit(@PathVariable SubmitOperation operation,
             @RequestParam Set<String> attachTo,
             @RequestParam String accnoTemplate,
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal User user) {
-        return submitService.createOrUpdateSubmission(file, attachTo, accnoTemplate, operation, user);
+        return submitService.submit(file, attachTo, accnoTemplate, operation, user);
+    }
+
+    @PostMapping("/submissions/submit/{operation}")
+    public SubmitReportDto submit(@PathVariable SubmitOperation operation,
+            @RequestParam Set<String> attachTo,
+            @RequestParam String accnoTemplate,
+            @RequestBody ObjectNode pageTab,
+            @AuthenticationPrincipal User user) {
+        return submitService.submitJson(pageTab, attachTo, accnoTemplate, operation, user);
     }
 
     @InitBinder
