@@ -13,22 +13,7 @@
         "value": ""
       }
     ],
-    "files": [
-      {
-        "path": "",
-        "attributes": [
-          {
-            "name": "Description",
-            "value": ""
-          },
-          {
-            "name": "Type",
-            "value": ""
-          }
-        ],
-        "type": "File"
-      }
-    ],
+    "files": [],
     "links": [
       {
         "url": "",

@@ -1,22 +1,19 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostd.authz.User;
-import uk.ac.ebi.biostd.webapp.application.domain.services.UserDataService;
-import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserData;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListFiltersDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto;
+import static java.util.stream.Collectors.toList;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostd.authz.User;
+import uk.ac.ebi.biostd.webapp.application.domain.services.UserDataService;
+import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserData;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.*;
 
 @Service
 @AllArgsConstructor
@@ -38,7 +35,8 @@ public class PendingSubmissionService {
     };
 
     private final UserDataService userDataService;
-    private final PendingSubmissionUtil util;
+    private final PendingSubmissionUtil pendingSubmissionUtil;
+    private final SubmitService submitService;
 
     public PendingSubmissionListDto getSubmissionList(PendingSubmissionListFiltersDto filters, User user) {
         Predicate<? super PendingSubmissionListItemDto> predicate = PendingSubmissionListFilter.asPredicate(filters);
@@ -46,9 +44,9 @@ public class PendingSubmissionService {
         List<PendingSubmissionListItemDto> submissions = userDataService.findAllByUserAndTopic(user.getId(), TOPIC)
                 .stream()
                 .map(UserData::getData)
-                .map(util::asPendingSubmission)
+                .map(pendingSubmissionUtil::pendingSubmissionFromString)
                 .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
-                .map(util::convertToPendingSubmissionListItem)
+                .map(pendingSubmissionUtil::pendingSubmissionToListItem)
                 .sorted(SORT_BY_MTIME)
                 .filter(predicate::test)
                 .skip(filters.getOffset())
@@ -59,26 +57,52 @@ public class PendingSubmissionService {
     }
 
     public Optional<PendingSubmissionDto> getSubmissionByAccNo(String accno, User user) {
-        return userDataService.findByUserAndKey(user.getId(), accno)
-                .map(UserData::getData)
-                .flatMap(util::asPendingSubmission);
+        return findByAccNoAndUser(accno, user);
     }
 
     public void deleteSubmissionByAccNo(String accno, User user) {
         userDataService.deleteModifiedSubmission(user.getId(), accno);
     }
 
-    public PendingSubmissionDto updateSubmission(PendingSubmissionDto submission, User user) {
-        return this.update(submission, user);
+    public Optional<PendingSubmissionDto> updateSubmission(String accno, JsonNode pageTab, User user) {
+        return findByAccNoAndUser(accno, user).flatMap(subm -> this.update(subm, pageTab, user));
     }
 
-    public Optional<PendingSubmissionDto> createSubmission(String data, User user) {
-        return util.createPendingSubmission(data).map(s -> this.update(s, user));
+    public Optional<PendingSubmissionDto> createSubmission(JsonNode pageTab, User user) {
+        PendingSubmissionDto subm = pendingSubmissionUtil.createPendingSubmission(pageTab);
+        return this.update(subm, pageTab, user);
     }
 
-    private PendingSubmissionDto update(PendingSubmissionDto submission, User user) {
-        submission.setChanged(System.currentTimeMillis());
-        userDataService.update(user.getId(), submission.getAccno(), util.asString(submission), TOPIC);
-        return submission;
+    public Optional<SubmitReportDto> submitSubmission(String accno, User user) {
+        return findByAccNoAndUser(accno, user).map(subm -> this.submit(subm, user));
     }
+
+    private SubmitReportDto submit(PendingSubmissionDto dto, User user) {
+        boolean isNew = pendingSubmissionUtil.isTemporaryAccno(dto.getAccno());
+        SubmitOperation operation = isNew ? SubmitOperation.CREATE : SubmitOperation.CREATE_OR_UPDATE;
+
+        SubmitReportDto report = submitService.submitJson(dto.getData(), operation, user);
+        if (report.getStatus() == SubmitStatus.OK) {
+            deleteSubmissionByAccNo(dto.getAccno(), user);
+        }
+        return report;
+    }
+
+    private Optional<PendingSubmissionDto> update(PendingSubmissionDto original, JsonNode data, User user) {
+        PendingSubmissionDto updated = new PendingSubmissionDto();
+        updated.setAccno(original.getAccno());
+        updated.setChanged(System.currentTimeMillis());
+        updated.setData(data);
+
+        UserData userData =
+                userDataService.update(user.getId(), updated.getAccno(), pendingSubmissionUtil.pendingSubmissionToString(updated), TOPIC);
+        return pendingSubmissionUtil.pendingSubmissionFromString(userData.getData());
+    }
+
+    private Optional<PendingSubmissionDto> findByAccNoAndUser(String accno, User user) {
+        return userDataService.findByUserAndKey(user.getId(), accno)
+                .map(UserData::getData)
+                .flatMap(pendingSubmissionUtil::pendingSubmissionFromString);
+    }
+
 }

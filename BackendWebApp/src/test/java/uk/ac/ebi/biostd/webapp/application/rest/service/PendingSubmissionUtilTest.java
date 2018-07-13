@@ -52,16 +52,16 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testParseInvalidData() {
-        Optional<PendingSubmissionDto> dto = util.asPendingSubmission("invalid data");
+    public void testParsingPendingSubmissionFromInvalidString() {
+        Optional<PendingSubmissionDto> dto = util.pendingSubmissionFromString("invalid data");
         assertThat(dto.isPresent()).isFalse();
     }
 
     @Test
-    public void testParseValidData() throws IOException {
+    public void testParsingPendingSubmissionFromValidString() throws IOException {
         final JsonNode pageTab = getPageTab();
 
-        Optional<PendingSubmissionDto> dto = util.asPendingSubmission(pendingSubmissionAsString(ACCNO, pageTab));
+        Optional<PendingSubmissionDto> dto = util.pendingSubmissionFromString(pendingSubmissionAsString(ACCNO, pageTab));
         assertThat(dto.isPresent()).isTrue();
         dto.ifPresent(v -> {
             assertThat(v.getAccno()).isEqualTo(ACCNO);
@@ -71,10 +71,10 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testConvertInvalidData() {
+    public void testConvertingEmptyPendingSubmissionToListItem() {
         final JsonNode pageTab = objectMapper.createObjectNode();
 
-        PendingSubmissionListItemDto listItem = util.convertToPendingSubmissionListItem(createPendingSubmission(ACCNO, pageTab));
+        PendingSubmissionListItemDto listItem = util.pendingSubmissionToListItem(createPendingSubmission(ACCNO, pageTab));
         assertThat(listItem.getAccno()).isEqualTo(ACCNO);
         assertThat(listItem.getTitle()).isEmpty();
         assertThat(listItem.getRtime()).isNull();
@@ -82,10 +82,10 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testConvertValidData() throws IOException {
+    public void testConvertingPendingSubmissionToListItem() throws IOException {
         final JsonNode pageTab = getPageTab();
 
-        PendingSubmissionListItemDto listItem = util.convertToPendingSubmissionListItem(createPendingSubmission(ACCNO, pageTab));
+        PendingSubmissionListItemDto listItem = util.pendingSubmissionToListItem(createPendingSubmission(ACCNO, pageTab));
         assertThat(listItem.getAccno()).isEqualTo(ACCNO);
         assertThat(listItem.getMtime()).isEqualTo(SECONDS);
         assertThat(listItem.getTitle()).isEqualTo(TITLE);
@@ -93,41 +93,29 @@ public class PendingSubmissionUtilTest {
     }
 
     @Test
-    public void testCreateFromExisted() throws IOException {
-        final String pageTab = getPageTab().toString();
+    public void testCreatingPendingSubmissionFromExistedSubmission() throws IOException {
+        final JsonNode pageTab = getPageTab();
 
         long from = System.currentTimeMillis();
-        Optional<PendingSubmissionDto> dto = util.createPendingSubmission(pageTab);
+        PendingSubmissionDto dto = util.createPendingSubmission(pageTab);
         long to = System.currentTimeMillis();
 
-        assertThat(dto.isPresent()).isTrue();
-        dto.ifPresent(v -> {
-            assertThat(v.getAccno()).isEqualTo(ACCNO);
-            assertThat(v.getChanged()).isBetween(from, to);
-            assertThat(v.getData().toString()).isEqualTo(pageTab);
-        });
+        assertThat(dto.getAccno()).isEqualTo(ACCNO);
+        assertThat(dto.getChanged()).isBetween(from, to);
+        assertThat(dto.getData()).isEqualTo(pageTab);
     }
 
     @Test
-    public void testCreateFromEmpty() {
-        final String pageTab = "{}";
+    public void testCreatingPendingSubmissionFromNewSubmission() {
+        JsonNode data = objectMapper.createObjectNode();
 
         long from = System.currentTimeMillis();
-        Optional<PendingSubmissionDto> dto = util.createPendingSubmission(pageTab);
+        PendingSubmissionDto dto = util.createPendingSubmission(data);
         long to = System.currentTimeMillis();
 
-        assertThat(dto.isPresent()).isTrue();
-        dto.ifPresent(v -> {
-            assertThat(v.getAccno()).matches("^TMP_.*");
-            assertThat(v.getChanged()).isBetween(from, to);
-            assertThat(v.getData().toString()).isEqualTo(pageTab);
-        });
-    }
-
-    @Test
-    public void testCreateFromInvalidData() {
-        Optional<PendingSubmissionDto> dto = util.createPendingSubmission("invalid data");
-        assertThat(dto.isPresent()).isFalse();
+        assertThat(dto.getAccno()).matches("^TMP_.*");
+        assertThat(dto.getChanged()).isBetween(from, to);
+        assertThat(dto.getData()).isEqualTo(data);
     }
 
     private String pendingSubmissionAsString(String accno, JsonNode pageTab) throws JsonProcessingException {

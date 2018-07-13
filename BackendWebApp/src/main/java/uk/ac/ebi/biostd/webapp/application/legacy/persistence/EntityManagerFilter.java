@@ -8,6 +8,7 @@ import javax.servlet.ServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import uk.ac.ebi.biostd.webapp.server.config.BackendConfig;
+import uk.ac.ebi.biostd.webapp.server.mng.ServiceManager;
 
 @Component
 public class EntityManagerFilter extends GenericFilterBean {
