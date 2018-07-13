@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.authz.User;
@@ -45,7 +44,6 @@ public class PendingSubmissionService {
                 .stream()
                 .map(UserData::getData)
                 .map(pendingSubmissionUtil::pendingSubmissionFromString)
-                .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
                 .map(pendingSubmissionUtil::pendingSubmissionToListItem)
                 .sorted(SORT_BY_MTIME)
                 .filter(predicate::test)
@@ -65,10 +63,10 @@ public class PendingSubmissionService {
     }
 
     public Optional<PendingSubmissionDto> updateSubmission(String accno, JsonNode pageTab, User user) {
-        return findByAccNoAndUser(accno, user).flatMap(subm -> this.update(subm, pageTab, user));
+        return findByAccNoAndUser(accno, user).map(subm -> this.update(subm, pageTab, user));
     }
 
-    public Optional<PendingSubmissionDto> createSubmission(JsonNode pageTab, User user) {
+    public PendingSubmissionDto createSubmission(JsonNode pageTab, User user) {
         PendingSubmissionDto subm = pendingSubmissionUtil.createPendingSubmission(pageTab);
         return this.update(subm, pageTab, user);
     }
@@ -88,7 +86,7 @@ public class PendingSubmissionService {
         return report;
     }
 
-    private Optional<PendingSubmissionDto> update(PendingSubmissionDto original, JsonNode data, User user) {
+    private PendingSubmissionDto update(PendingSubmissionDto original, JsonNode data, User user) {
         PendingSubmissionDto updated = new PendingSubmissionDto();
         updated.setAccno(original.getAccno());
         updated.setChanged(System.currentTimeMillis());
@@ -102,7 +100,7 @@ public class PendingSubmissionService {
     private Optional<PendingSubmissionDto> findByAccNoAndUser(String accno, User user) {
         return userDataService.findByUserAndKey(user.getId(), accno)
                 .map(UserData::getData)
-                .flatMap(pendingSubmissionUtil::pendingSubmissionFromString);
+                .map(pendingSubmissionUtil::pendingSubmissionFromString);
     }
 
 }

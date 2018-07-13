@@ -30,13 +30,9 @@ public class PendingSubmissionUtil {
         return objectMapper.writeValueAsString(dto);
     }
 
-    public Optional<PendingSubmissionDto> pendingSubmissionFromString(String data) {
-        try {
-            return Optional.of(objectMapper.readValue(data, PendingSubmissionDto.class));
-        } catch (IOException e) {
-            log.error("error while parsing pending submission", e);
-        }
-        return Optional.empty();
+    @SneakyThrows
+    public PendingSubmissionDto pendingSubmissionFromString(String data) {
+        return objectMapper.readValue(data, PendingSubmissionDto.class);
     }
 
     public PendingSubmissionListItemDto pendingSubmissionToListItem(PendingSubmissionDto pendingSubmission) {
