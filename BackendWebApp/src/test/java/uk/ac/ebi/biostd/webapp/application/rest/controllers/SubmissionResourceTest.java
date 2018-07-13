@@ -55,16 +55,16 @@ public class SubmissionResourceTest {
     }
 
     @Test
-    public void testDirectSubmit() throws Exception {
+    public void testFileSubmit() throws Exception {
         final String accnoTemplate = "!{TEST-}";
         final String[] attachTo = new String[]{"1", "2"};
 
         MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", "{}".getBytes());
 
-        when(submitService.createOrUpdateSubmission(testFile, new HashSet<>(Arrays.asList(attachTo)), accnoTemplate, SubmitOperation.CREATE, user))
+        when(submitService.submit(testFile, new HashSet<>(Arrays.asList(attachTo)), accnoTemplate, SubmitOperation.CREATE, user))
                 .thenReturn(SubmitReportDto.builder().status(SubmitStatus.OK).build());
 
-        mvc.perform(multipart("/submissions/direct_submit/create")
+        mvc.perform(multipart("/submissions/file_submit/create")
                 .file(testFile)
                 .param("attachTo", attachTo[0])
                 .param("attachTo", attachTo[1])
