@@ -42,6 +42,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionUtil;
 @AutoConfigureMockMvc(secure = false, addFilters = false)
 public class PendingSubmissionResourceTest {
 
+    public static final String EMPTY_JSON_OBJECT = "{}";
     @Autowired
     private MockMvc mvc;
 
@@ -171,7 +172,7 @@ public class PendingSubmissionResourceTest {
                 .thenReturn(Optional.of(new PendingSubmissionDto()));
 
         mvc.perform(put("/submissions/pending/{accno}", accno)
-                .content("{}")
+                .content(EMPTY_JSON_OBJECT)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -183,7 +184,7 @@ public class PendingSubmissionResourceTest {
                 .thenReturn(Optional.empty());
 
         mvc.perform(put("/submissions/pending/{accno}", accno)
-                .content("{}")
+                .content(EMPTY_JSON_OBJECT)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -206,7 +207,7 @@ public class PendingSubmissionResourceTest {
                         SubmitReportDto.builder().status(SubmitStatus.OK).build()));
 
         mvc.perform(post("/submissions/pending/{accno}/submit", accno)
-                .content("{}")
+                .content(EMPTY_JSON_OBJECT)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("OK")));
@@ -220,7 +221,7 @@ public class PendingSubmissionResourceTest {
                 .thenReturn(Optional.empty());
 
         mvc.perform(post("/submissions/pending/{accno}/submit", accno)
-                .content("{}")
+                .content(EMPTY_JSON_OBJECT)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
