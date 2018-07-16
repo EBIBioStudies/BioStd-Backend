@@ -43,7 +43,7 @@ public class SubmitService {
     private final ObjectMapper objectMapper;
 
     @SneakyThrows
-    public SubmitReportDto createOrUpdateSubmission(MultipartFile file, Set<String> projectAccNumbers,
+    public SubmitReportDto submit(MultipartFile file, Set<String> projectAccNumbers,
             String accnoTemplate, SubmitOperation operation, User user) {
         if (file.isEmpty()) {
             return fromErrorMessage(format("File %s is empty", file.getOriginalFilename()));
@@ -70,7 +70,7 @@ public class SubmitService {
         return submitJson(jsonNode, Collections.emptySet(), DEFAULT_ACCNO_TEMPLATE, operation, user);
     }
 
-    private SubmitReportDto submitJson(JsonNode jsonNode, Set<String> projectAccNumbers, String accnoTemplate,
+    public SubmitReportDto submitJson(JsonNode jsonNode, Set<String> projectAccNumbers, String accnoTemplate,
             SubmitOperation operation, User user) {
 
         jsonNode = amendJson(jsonNode, projectAccNumbers, accnoTemplate);

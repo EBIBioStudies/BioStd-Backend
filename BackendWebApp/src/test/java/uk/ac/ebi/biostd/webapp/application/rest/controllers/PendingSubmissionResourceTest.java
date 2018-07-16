@@ -1,16 +1,12 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
-import static java.lang.String.format;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,6 +42,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionUtil;
 @AutoConfigureMockMvc(secure = false, addFilters = false)
 public class PendingSubmissionResourceTest {
 
+    public static final String EMPTY_JSON_OBJECT = "{}";
     @Autowired
     private MockMvc mvc;
 
@@ -149,7 +146,7 @@ public class PendingSubmissionResourceTest {
         PendingSubmissionDto dto = newPendingSubmission();
 
         when(pendingSubmissionService.createSubmission(dto.getData(), user))
-                .thenReturn(Optional.of(dto));
+                .thenReturn(dto);
 
         mvc.perform(post("/submissions/pending")
                 .content(dto.getData().toString())
@@ -175,7 +172,7 @@ public class PendingSubmissionResourceTest {
                 .thenReturn(Optional.of(new PendingSubmissionDto()));
 
         mvc.perform(put("/submissions/pending/{accno}", accno)
-                .content("{}")
+                .content(EMPTY_JSON_OBJECT)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -187,7 +184,7 @@ public class PendingSubmissionResourceTest {
                 .thenReturn(Optional.empty());
 
         mvc.perform(put("/submissions/pending/{accno}", accno)
-                .content("{}")
+                .content(EMPTY_JSON_OBJECT)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -205,11 +202,13 @@ public class PendingSubmissionResourceTest {
     public void testSubmitSubmission() throws Exception {
         final String accno = "1234";
 
-        when(pendingSubmissionService.submitSubmission(accno, user))
+        when(pendingSubmissionService.submitSubmission(eq(accno), any(JsonNode.class), eq(user)))
                 .thenReturn(Optional.of(
                         SubmitReportDto.builder().status(SubmitStatus.OK).build()));
 
-        mvc.perform(post("/submissions/pending/{accno}/submit", accno))
+        mvc.perform(post("/submissions/pending/{accno}/submit", accno)
+                .content(EMPTY_JSON_OBJECT)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("OK")));
     }
@@ -218,10 +217,12 @@ public class PendingSubmissionResourceTest {
     public void testSubmitSubmissionBadRequest() throws Exception {
         final String accno = "1234";
 
-        when(pendingSubmissionService.submitSubmission(accno, user))
+        when(pendingSubmissionService.submitSubmission(eq(accno), any(), eq(user)))
                 .thenReturn(Optional.empty());
 
-        mvc.perform(post("/submissions/pending/{accno}/submit", accno))
+        mvc.perform(post("/submissions/pending/{accno}/submit", accno)
+                .content(EMPTY_JSON_OBJECT)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 

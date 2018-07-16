@@ -68,7 +68,7 @@ public class SubmitServiceTest {
     @Test
     public void testEmptyFile() {
         MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", new byte[]{});
-        SubmitReportDto dto = submitService.createOrUpdateSubmission(testFile, Collections.emptySet(), null, SubmitOperation.CREATE, user);
+        SubmitReportDto dto = submitService.submit(testFile, Collections.emptySet(), null, SubmitOperation.CREATE, user);
         assertThat(dto.getStatus(), equalTo(SubmitStatus.FAIL));
         assertThat(dto.getLog().getMessage(), is(notNullValue()));
     }
@@ -155,7 +155,7 @@ public class SubmitServiceTest {
                     return projectAccNumbers.containsKey(arg) ? submissionMock(projectAccNumbers.get(arg)) : null;
                 });
 
-        submitService.createOrUpdateSubmission(testFile, projectAccNumbers.keySet(), accnoTemplate, operation, user);
+        submitService.submit(testFile, projectAccNumbers.keySet(), accnoTemplate, operation, user);
 
         ArgumentCaptor<byte[]> argCaptor = ArgumentCaptor.forClass(byte[].class);
         verify(submissionManager).createSubmission(argCaptor.capture(), eq(DataFormat.json), eq("UTF-8"),

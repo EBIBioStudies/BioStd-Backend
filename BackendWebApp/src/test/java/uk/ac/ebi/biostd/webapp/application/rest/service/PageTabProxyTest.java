@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.webapp.application.configuration.WebConfiguration;
+import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmissionMappingDto;
 
 @RunWith(SpringRunner.class)
 @Import(WebConfiguration.class)
@@ -91,6 +92,14 @@ public class PageTabProxyTest {
 
         assertThat(wrapNode.has("submissions")).isTrue();
         assertThat(wrapNode.get("submissions").get(0)).isEqualTo(origNode);
+    }
+
+    @Test
+    public void testBuilderDefaults() {
+        SubmissionMappingDto dto1 = SubmissionMappingDto.builder().build();
+        SubmissionMappingDto dto2 = SubmissionMappingDto.builder().original(null).build();
+        assertThat(dto2).isNotNull();
+
     }
 
 }
