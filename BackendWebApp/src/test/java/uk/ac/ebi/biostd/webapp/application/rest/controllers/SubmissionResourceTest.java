@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -69,6 +70,20 @@ public class SubmissionResourceTest {
                 .param("attachTo", attachTo[0])
                 .param("attachTo", attachTo[1])
                 .param("accnoTemplate", accnoTemplate))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.status", is("OK")));
+    }
+
+    @Test
+    public void testFileSubmitNoParams() throws Exception {
+        MockMultipartFile testFile = new MockMultipartFile("file", "study.json", "application/json", "{}".getBytes());
+
+        when(submitService.submit(eq(testFile), anySet(), isNull(), eq(SubmitOperation.CREATE), eq(user)))
+                .thenReturn(SubmitReportDto.builder().status(SubmitStatus.OK).build());
+
+        mvc.perform(multipart("/submissions/file_submit/create")
+                .file(testFile))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.status", is("OK")));

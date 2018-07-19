@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
+import static org.apache.commons.collections4.SetUtils.emptyIfNull;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
 import java.util.Set;
@@ -36,20 +38,20 @@ public class SubmissionResource {
 
     @PostMapping("/submissions/file_submit/{operation}")
     public SubmitReportDto fileSubmit(@PathVariable SubmitOperation operation,
-            @RequestParam Set<String> attachTo,
-            @RequestParam String accnoTemplate,
+            @RequestParam(required = false) Set<String> attachTo,
+            @RequestParam(required = false) String accnoTemplate,
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal User user) {
-        return submitService.submit(file, attachTo, accnoTemplate, operation, user);
+        return submitService.submit(file, emptyIfNull(attachTo), accnoTemplate, operation, user);
     }
 
     @PostMapping("/submissions/submit/{operation}")
     public SubmitReportDto submit(@PathVariable SubmitOperation operation,
-            @RequestParam Set<String> attachTo,
-            @RequestParam String accnoTemplate,
+            @RequestParam(required = false) Set<String> attachTo,
+            @RequestParam(required = false) String accnoTemplate,
             @RequestBody ObjectNode pageTab,
             @AuthenticationPrincipal User user) {
-        return submitService.submitJson(pageTab, attachTo, accnoTemplate, operation, user);
+        return submitService.submitJson(pageTab, emptyIfNull(attachTo), accnoTemplate, operation, user);
     }
 
     @InitBinder
@@ -61,5 +63,4 @@ public class SubmissionResource {
             }
         });
     }
-
 }
