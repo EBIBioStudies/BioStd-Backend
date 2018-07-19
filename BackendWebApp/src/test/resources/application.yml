@@ -2,6 +2,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+  datasource:
+    platform: h2
   mail:
     host: localhost
     port: 3025

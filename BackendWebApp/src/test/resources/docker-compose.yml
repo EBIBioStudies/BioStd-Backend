@@ -1,0 +1,8 @@
+mysql:
+  image: biostudies-mysql
+  container_name: biostudies-mysql01
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: admin
+    MYSQL_DATABASE: BioStudiesDev
