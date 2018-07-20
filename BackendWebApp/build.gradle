@@ -29,6 +29,11 @@ def buildTime() {
     return df.format(new Date())
 }
 
+task setUpDatabase(type: Exec) {
+    workingDir './src/test/resources/scripts'
+    commandLine './setUpDatabase.sh'
+}
+
 bootWar {
     enabled = true
     archiveName = "biostudy-${buildTime()}.war"
