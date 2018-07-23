@@ -2,7 +2,7 @@
 
 ## Modules
 ### Backend Web App
-Java application that support bio studies data submission thought http web services.
+Java application that supports the bio studies data submission thought http web services.
 
 ### Core Model
 Contains model/database representation classes of Bio-Studies backend application.
@@ -14,13 +14,13 @@ Contains utility methods and classes.
 Contains utility methods and classes used to read submissions input files.
 
 ### Submit Tools
-Help perform submissions thought terminal
+Helps to perform submissions through terminal
 
 ### Convert tool
-Helps to converts between different submissions formats
+Helps to convert between different submissions formats
 
 ## Coding standards
-Project follow google [java coding standards](https://google.github.io/styleguide/javaguide.html)
+The project follows the google [java coding standards](https://google.github.io/styleguide/javaguide.html)
 
 - [Eclipse formatter](https://github.com/google/styleguide/blob/gh-pages/eclipse-java-google-style.xml)
 - [Idea formatter](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml)
@@ -30,7 +30,7 @@ Project follow google [java coding standards](https://google.github.io/styleguid
 
 ### Importing project
 
-import as gradle project in your favorite IDE
+Import as gradle project in your favorite IDE
 
 
 ### Generating artifact
@@ -43,4 +43,3 @@ Run gradle build command either using local distribution or wrapper
  ```
 
 Generated war will be available under `BackendWebApp/builds/libs` folder. 
-
