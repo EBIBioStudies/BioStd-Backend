@@ -76,9 +76,5 @@ public class JobsScheduler {
         if (enablePmc) {
             taskScheduler.schedule(pmcExporter::execute, new CronTrigger(pmcCron, TIME_ZONE));
         }
-
-        if (enableDummy) {
-            taskScheduler.schedule(pmcExporter::execute, new CronTrigger(dummyCron, TIME_ZONE));
-        }
     }
 }
