@@ -47,9 +47,9 @@ Generated war will be available under `BackendWebApp/builds/libs` folder.
 ## Getting Started
 
 ### Dependencies
-In order to build and execute the application in your local environment it's necessary to have the following
-dependencies installed
-* Java SDK (at least version 8)
+In order to build and execute the application in your local environment, it's necessary to have the following
+dependencies installed:
+* Java SDK (version 8 at least)
 * Gradle 4.7
 * Docker 
 
@@ -77,7 +77,7 @@ dependencies installed
  [http://localhost:8586/biostd/test/testLogin.html](http://localhost:8586/biostd/test/testLogin.html)
 
 ### Session Key
-There are two mechanisms to get an session key to be used for the requests to the backend:
+There are two mechanisms to get a session key to be used for the requests to the backend:
 
 * **Command Line:**
   1. Inside `BackendWebApp` folder execute `gradle getAuthToken`
