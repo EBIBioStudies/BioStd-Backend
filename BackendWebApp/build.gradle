@@ -34,6 +34,11 @@ task setUpDatabase(type: Exec) {
     commandLine './setUpDatabase.sh'
 }
 
+task getAuthToken(type: Exec) {
+    workingDir './src/test/resources/scripts'
+    commandLine './getAuthToken.sh'
+}
+
 bootWar {
     enabled = true
     archiveName = "biostudy-${buildTime()}.war"
