@@ -7,4 +7,4 @@ RESPONSE=$(curl -s \
 
 TOKEN=$(echo $RESPONSE | python -c 'import sys, json; print json.load(sys.stdin)["sessid"]');
 
-echo "Auth Token: $TOKEN";
+echo "Session Key: $TOKEN";
