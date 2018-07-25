@@ -37,7 +37,12 @@ In order to start the application, please follow these steps
   * jdbc-url
   * username
   * password
-3. Configure the local stats job by replacing:
+3. Execyte `gradle bootRun`  
+  
+### Stats Setup
+In order to configure the local stats job, please follow these steps:
+1. Open the configuration file: `src/main/resources/application.yml`
+2. Look for the **stats** section in the local profile
+3. Provide the proper values for:
    * `${BASE_PATH}` is the path were the submissions are stored (the **nfs** folder)
    * `${OUTPUT_PATH}` is the path for a folder that will be used to store the stats report
-4. Execute `gradle bootRun`
