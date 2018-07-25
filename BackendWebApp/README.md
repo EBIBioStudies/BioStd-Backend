@@ -51,6 +51,16 @@ There are two mechanisms to get a session key to be used for the requests to the
   4. Leave the PassHash field empty
   5. Click `Login`
   6. Copy the value after **Session Key:**
+  
+### Send A Submission
+Execute a request with this information:
+* **Endpoint:** http://localhost:8586/biostd/submit/createupdate?BIOSTDSESS=${SESSION_KEY}
+* **Request Type:** POST
+* **content/type:** application/json
+* **body:** You can find an example of a submision in
+[src/test/resources/intput/S-ACC-TEST.json](src/test/resources/intput/S-ACC-TEST.json)
+
+> Note: Replace ${SESSION_KEY} with the value obtained from [Session Key](#session-key) section.
 
 ## How to generate artifacts
 Both war and jar deployment type is supported only execute build command
