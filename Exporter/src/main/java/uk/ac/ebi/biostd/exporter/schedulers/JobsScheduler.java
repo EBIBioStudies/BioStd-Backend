@@ -25,6 +25,7 @@ public class JobsScheduler {
 
     private final ExportPipeline fullExporter;
     private final ExportPipeline pmcExporter;
+    private final ExportPipeline statsExporter;
     private final PartialSubmissionExporter partialExporter;
     private final TaskScheduler taskScheduler;
 
@@ -52,14 +53,22 @@ public class JobsScheduler {
     @Value("${jobs.pmc.export.cron:''}")
     private String pmcCron;
 
+    @Value("${jobs.stats.enabled:false}")
+    private boolean enableStats;
+
+    @Value("${jobs.stats.cron:''}")
+    private String statsCron;
+
     public JobsScheduler(
             @Qualifier("full") ExportPipeline fullExporter,
             @Qualifier("pmc") ExportPipeline pmcExporter,
+            @Qualifier("stats") ExportPipeline statsExporter,
             PartialSubmissionExporter partialExporter,
             TaskScheduler taskScheduler) {
         this.fullExporter = fullExporter;
         this.partialExporter = partialExporter;
         this.pmcExporter = pmcExporter;
+        this.statsExporter = statsExporter;
         this.taskScheduler = taskScheduler;
     }
 
@@ -75,6 +84,10 @@ public class JobsScheduler {
 
         if (enablePmc) {
             taskScheduler.schedule(pmcExporter::execute, new CronTrigger(pmcCron, TIME_ZONE));
+        }
+
+        if (enableStats) {
+            taskScheduler.schedule(statsExporter::execute, new CronTrigger(statsCron, TIME_ZONE));
         }
     }
 }
