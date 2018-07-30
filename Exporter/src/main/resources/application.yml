@@ -3,6 +3,11 @@ context:
     classes: uk.ac.ebi.biostd.exporter.configuration.QueryLoader
 server:
   port: 8181
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'scheduledtasks'
 spring:
   profiles:
     active: local

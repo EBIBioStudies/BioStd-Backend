@@ -31,7 +31,6 @@ import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullExport;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullJobJobsFactory;
-import uk.ac.ebi.biostd.exporter.schedulers.JobsScheduler;
 import uk.ac.ebi.biostd.exporter.utils.FileUtil;
 import uk.ac.ebi.biostd.test.util.JsonComparator;
 import uk.ac.ebi.biostd.test.util.XmlAttributeFilter;
@@ -49,9 +48,6 @@ public class FullExportTest extends BaseIntegrationTest {
     public TemporaryFolder folder = new TemporaryFolder();
 
     private ExportPipeline exportPipeline;
-
-    @MockBean
-    private JobsScheduler jobsScheduler;
 
     @MockBean
     private FullExportJobProperties exportProperties;
