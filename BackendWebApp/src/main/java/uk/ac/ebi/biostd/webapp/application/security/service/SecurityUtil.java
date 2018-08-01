@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.webapp.application.security.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pri.util.StringUtils;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,11 +26,13 @@ class SecurityUtil {
     private final ObjectMapper objectMapper;
     private final String tokenHash;
     private final MessageDigest sha1;
+    private final JwtParser jwtParser;
 
-    SecurityUtil(ObjectMapper objectMapper, @Value("${biostudy.tokenHash}") String tokenHash)
+    SecurityUtil(ObjectMapper objectMapper, @Value("${biostudy.tokenHash}") String tokenHash, JwtParser jwtParser)
             throws NoSuchAlgorithmException {
         this.objectMapper = objectMapper;
         this.tokenHash = tokenHash;
+        this.jwtParser = jwtParser;
         this.sha1 = MessageDigest.getInstance("SHA1");
     }
 
@@ -55,17 +58,13 @@ class SecurityUtil {
         Optional<TokenUser> tokenUser = Optional.empty();
 
         try {
-            String payload = getSerializedTokenUser(token);
+            String payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).getBody().getSubject();
             tokenUser = Optional.of(objectMapper.readValue(payload, TokenUser.class));
         } catch (SignatureException | MalformedJwtException exception) {
             log.error("detected invalid signature token");
         }
 
         return tokenUser;
-    }
-
-    String getSerializedTokenUser(String token) {
-        return Jwts.parser().setSigningKey(tokenHash).parseClaimsJws(token).getBody().getSubject();
     }
 
     @SneakyThrows
