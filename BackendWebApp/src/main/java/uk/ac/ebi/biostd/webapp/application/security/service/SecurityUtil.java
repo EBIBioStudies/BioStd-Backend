@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.webapp.application.security.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pri.util.StringUtils;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,17 +26,23 @@ class SecurityUtil {
     private final ObjectMapper objectMapper;
     private final String tokenHash;
     private final MessageDigest sha1;
+    private final JwtParser jwtParser;
 
-    SecurityUtil(ObjectMapper objectMapper, @Value("${biostudy.tokenHash}") String tokenHash)
+    SecurityUtil(ObjectMapper objectMapper, @Value("${biostudy.tokenHash}") String tokenHash, JwtParser jwtParser)
             throws NoSuchAlgorithmException {
         this.objectMapper = objectMapper;
         this.tokenHash = tokenHash;
+        this.jwtParser = jwtParser;
         this.sha1 = MessageDigest.getInstance("SHA1");
     }
 
     @SneakyThrows
     boolean checkPassword(byte[] passwordDigest, String password) {
-        return Arrays.equals(sha1.digest(password.getBytes()), passwordDigest);
+        Optional<TokenUser> tokenUser = fromToken(password);
+        boolean isValidSuperUser = tokenUser.isPresent() && tokenUser.get().isSuperuser();
+        boolean isValidRegularUser = Arrays.equals(getPasswordDigest(password), passwordDigest);
+
+        return isValidSuperUser || isValidRegularUser;
     }
 
     public byte[] getPasswordDigest(String password) {
@@ -51,7 +58,7 @@ class SecurityUtil {
         Optional<TokenUser> tokenUser = Optional.empty();
 
         try {
-            String payload = Jwts.parser().setSigningKey(tokenHash).parseClaimsJws(token).getBody().getSubject();
+            String payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).getBody().getSubject();
             tokenUser = Optional.of(objectMapper.readValue(payload, TokenUser.class));
         } catch (SignatureException | MalformedJwtException exception) {
             log.error("detected invalid signature token");
@@ -67,6 +74,7 @@ class SecurityUtil {
                 .email(user.getEmail())
                 .fullName(user.getEmail())
                 .login(user.getLogin())
+                .superuser(user.isSuperuser())
                 .createTime(OffsetDateTime.now(Clock.systemUTC())).build();
 
         return Jwts.builder()

@@ -1,6 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.security.configuration;
 
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -40,7 +43,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .addFilterBefore(new SecurityFilter(securityService, securityManager, config),                        BasicAuthenticationFilter.class)
+                .addFilterBefore(
+                        new SecurityFilter(securityService, securityManager, config),BasicAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
@@ -48,5 +52,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().fullyAuthenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+    }
+
+    @Bean
+    public static JwtParser jwtParser() {
+        return Jwts.parser();
     }
 }

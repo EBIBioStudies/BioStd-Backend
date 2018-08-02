@@ -29,7 +29,6 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ProjectsDto;
 @DirtiesContext
 @Sql(scripts = "/sql/projects.sql")
 public class ProjectsSubmissionApiTest {
-
     @ClassRule
     public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
 
