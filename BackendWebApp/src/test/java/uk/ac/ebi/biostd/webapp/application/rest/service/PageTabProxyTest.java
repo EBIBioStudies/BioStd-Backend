@@ -19,9 +19,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmissionMappingDto;
 @RunWith(SpringRunner.class)
 @Import(WebConfiguration.class)
 public class PageTabProxyTest {
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     @Test
     public void testEmptyProxy() throws IOException {

@@ -17,28 +17,17 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityUtilTest {
-
     private static final String TEST_PASSWORD = "123456";
     private static final String TEST_TOKEN_HASH = "biostd";
     private static final byte[] TEST_PASSWORD_DIGEST = TEST_PASSWORD.getBytes();
     private static final String TEST_SUPER_USER_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ7XG4gIFwiaWRcIiA6IDMsXG4gIFwi";
     private static final String TEST_SUPER_USER_PAYLOAD = "ZVwiIDogXCJhZG1pbl91c2VyQGViaS5hYy51a1wiLFxuICBcImxvZ2luXCd";
 
-    @Mock
-    private JwtParser mockJwtParser;
-
-    @Mock
-    private TokenUser testTokenUser;
-
-    @Mock
-    private ObjectMapper mockObjectMapper;
-
-    @Mock
-    private Jws<Claims> testJwsClaims;
-
-    @Mock
-    private Claims testClaims;
-
+    @Mock private JwtParser mockJwtParser;
+    @Mock private TokenUser testTokenUser;
+    @Mock private ObjectMapper mockObjectMapper;
+    @Mock private Jws<Claims> testJwsClaims;
+    @Mock private Claims testClaims;
     private SecurityUtil testInstance;
 
     @Before
