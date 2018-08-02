@@ -57,14 +57,9 @@ public class SecurityApiTest {
     private static final Pattern SIGNUP_PATTERN = Pattern.compile("\"http://submission-tool/signup/(.*)\"");
     private static final Pattern RESET_PATTERN = Pattern.compile("\"http://submission-tool/reset-password/(.*)\"");
 
-    @ClassRule
-    public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
-
-    @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP);
-
-    @Autowired
-    private TestRestTemplate restTemplate;
+    @Autowired private TestRestTemplate restTemplate;
+    @ClassRule public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
+    @Rule public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP);
 
     @BeforeClass
     public static void beforeAll() throws IOException {

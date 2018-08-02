@@ -40,9 +40,7 @@ public class PendingSubmissionUtilTest {
     private static final Map<String, String> PAGETAB_JSON_PARAMS = ImmutableMap.of("ACCNO", ACCNO, "TITLE",
             TITLE, "RELEASE_DATE", RELEASE_DATE.format(DATE_FORMATTER));
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
+    @Autowired private ObjectMapper objectMapper;
     private PendingSubmissionUtil util;
 
     @Before

@@ -37,14 +37,9 @@ public class BasicSubmissionApiTest {
     private static final String SUBMISSION_JSON_FILE = "input/S-ACC-TEST.json";
     private static final String UNIFIED_SUBMISSION_JSON_FILE = "input/S-ACC-TEST.json";
 
-    @ClassRule
-    public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
-
+    @ClassRule public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
+    @Autowired private TestRestTemplate restTemplate;
     private static String NFS_PATH;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-
     private RemoteOperations operationsService;
 
     @BeforeClass

@@ -41,17 +41,11 @@ import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionUtil;
 @WebMvcTest(PendingSubmissionResource.class)
 @AutoConfigureMockMvc(secure = false, addFilters = false)
 public class PendingSubmissionResourceTest {
-
     public static final String EMPTY_JSON_OBJECT = "{}";
-    @Autowired
-    private MockMvc mvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private PendingSubmissionService pendingSubmissionService;
-
+    @Autowired private MockMvc mvc;
+    @Autowired private ObjectMapper objectMapper;
+    @MockBean private PendingSubmissionService pendingSubmissionService;
     private User user = new User();
     private PendingSubmissionUtil util = new PendingSubmissionUtil(objectMapper);
 
