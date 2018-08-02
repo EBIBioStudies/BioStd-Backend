@@ -29,9 +29,15 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.*;
 public class PendingSubmissionServiceTest {
     private static final String TOPIC = "submission";
 
-    @Autowired private ObjectMapper objectMapper;
-    @MockBean private UserDataService userDataService;
-    @MockBean private SubmitService submitService;
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private UserDataService userDataService;
+
+    @MockBean
+    private SubmitService submitService;
+
     private PendingSubmissionService pendingSubmissionService;
 
     @Before

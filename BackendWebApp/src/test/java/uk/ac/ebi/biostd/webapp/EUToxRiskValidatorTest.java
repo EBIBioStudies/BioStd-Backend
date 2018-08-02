@@ -26,7 +26,6 @@ import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.services.EUToxRi
 @RunWith(SpringRunner.class)
 @Import(EUToxRiskFileValidatorConfig.class)
 public class EUToxRiskValidatorTest {
-
     private static final String VALID_FILE = "/input/eutoxrisk_datafile_valid.xls";
     private static final String INVALID_FILE = "/input/eutoxrisk_datafile_invalid.xls";
 

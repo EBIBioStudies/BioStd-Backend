@@ -49,9 +49,12 @@ import uk.ac.ebi.biostd.webapp.server.mng.impl.JPASubmissionManager;
 @RunWith(SpringRunner.class)
 @Import(WebConfiguration.class)
 public class SubmitServiceTest {
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Autowired private ObjectMapper objectMapper;
-    @MockBean private JPASubmissionManager submissionManager;
+    @MockBean
+    private JPASubmissionManager submissionManager;
+
     private SubmitService submitService;
     private User user = new User();
 

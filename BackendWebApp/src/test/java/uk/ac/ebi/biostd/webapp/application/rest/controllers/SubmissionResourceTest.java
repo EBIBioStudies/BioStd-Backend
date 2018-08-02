@@ -34,7 +34,6 @@ import uk.ac.ebi.biostd.webapp.application.rest.service.SubmitService;
 @WebMvcTest(SubmissionResource.class)
 @AutoConfigureMockMvc(secure = false, addFilters = false)
 public class SubmissionResourceTest {
-
     @Autowired
     private MockMvc mvc;
 

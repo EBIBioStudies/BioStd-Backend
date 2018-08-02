@@ -47,7 +47,6 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignoutRequestDto;
 @Import(TestConfiguration.class)
 @DirtiesContext
 public class SecurityApiTest {
-
     private static final String SIGN_OUT_URL = "/auth/signout?sessid=";
     private static final String PASS_REST_URL = "/auth/passreset";
     private static final String RESET_PASSWORD = "/auth/passrstreq";
@@ -57,9 +56,14 @@ public class SecurityApiTest {
     private static final Pattern SIGNUP_PATTERN = Pattern.compile("\"http://submission-tool/signup/(.*)\"");
     private static final Pattern RESET_PATTERN = Pattern.compile("\"http://submission-tool/reset-password/(.*)\"");
 
-    @Autowired private TestRestTemplate restTemplate;
-    @ClassRule public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
-    @Rule public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP);
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @ClassRule
+    public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
+
+    @Rule
+    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP);
 
     @BeforeClass
     public static void beforeAll() throws IOException {

@@ -32,13 +32,16 @@ import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
 @Import(TestConfiguration.class)
 @DirtiesContext
 public class BasicSubmissionApiTest {
-
     private static final String SUBMISSION_XLSX_FILE = "input/S-BSST56.pagetab_for_test.xlsx";
     private static final String SUBMISSION_JSON_FILE = "input/S-ACC-TEST.json";
     private static final String UNIFIED_SUBMISSION_JSON_FILE = "input/S-ACC-TEST.json";
 
-    @ClassRule public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
-    @Autowired private TestRestTemplate restTemplate;
+    @ClassRule
+    public static TemporaryFolder TEST_FOLDER = new TemporaryFolder();
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
     private static String NFS_PATH;
     private RemoteOperations operationsService;
 
