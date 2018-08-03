@@ -19,10 +19,10 @@ public class GroupServiceTest {
     private static final long GROUP_ID = 50L;
 
     @Mock
-    private UserGroupRepository userGroupRepository;
+    private UserGroupRepository mockUserGroupRepository;
 
     @Mock
-    private MagicFolderUtil magicFolderUtil;
+    private MagicFolderUtil mockMagicFolderUtil;
 
     @InjectMocks
     private GroupService testInstance;
@@ -38,7 +38,7 @@ public class GroupServiceTest {
     public void createGroup() {
         testInstance.createGroup(userGroup);
 
-        verify(userGroupRepository).save(userGroup);
-        verify(magicFolderUtil).createGroupMagicFolder(eq(GROUP_ID), anyString());
+        verify(mockUserGroupRepository).save(userGroup);
+        verify(mockMagicFolderUtil).createGroupMagicFolder(eq(GROUP_ID), anyString());
     }
 }

@@ -22,7 +22,7 @@ public class GroupsMapperTest {
     private static final long OWNER_ID = 10L;
 
     @Mock
-    private UserRepository userRepository;
+    private UserRepository mockUserRepository;
 
     @InjectMocks
     private GroupsMapper testInstance;
@@ -31,7 +31,7 @@ public class GroupsMapperTest {
 
     @Before
     public void setup() {
-        when(userRepository.getOne(OWNER_ID)).thenReturn(owner);
+        when(mockUserRepository.getOne(OWNER_ID)).thenReturn(owner);
         owner.setId(OWNER_ID);
     }
 
