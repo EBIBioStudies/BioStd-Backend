@@ -3,6 +3,11 @@ context:
     classes: uk.ac.ebi.biostd.exporter.configuration.QueryLoader
 server:
   port: 8181
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'scheduledtasks'
 spring:
   profiles:
     active: local
@@ -28,11 +33,13 @@ spring:
 jobs:
   backend-url: http://localhost:8586/biostd
   stats:
+    enabled: false
     basePath: # ${SUBMISSIONS_PATH}/submission
     outFilePath: # ${OUTPUT_PATH}/stats.csv
     workers: 4
+    cron: 0/10 * * * * ? # each 10 seconds
   dummy:
-    enabled: true
+    enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
 
   partial:
@@ -143,10 +150,10 @@ jobs:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
   stats:
+    enabled: true
     basePath: /nfs/biostudies/.adm/databases/prod/submission
     outFilePath: /nfs/biostudies/.adm/databases/prod/updates/stats.csv
     workers: 4
-    enabled: true
     cron: 0 0 22 4 * * ? # the fourth of each month at 10 p.m.
   partial:
     enabled: true

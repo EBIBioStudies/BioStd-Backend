@@ -24,7 +24,6 @@ import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsExport;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
-import uk.ac.ebi.biostd.exporter.schedulers.JobsScheduler;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,9 +42,6 @@ public class StatsExportTest extends BaseIntegrationTest {
 
     @MockBean
     private StatsProperties properties;
-
-    @MockBean
-    private JobsScheduler jobsScheduler;
 
     private ExportPipeline exportPipeline;
 
