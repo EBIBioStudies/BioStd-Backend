@@ -45,7 +45,7 @@ class SecurityUtil {
         return isValidSuperUser || isValidRegularUser;
     }
 
-    public byte[] getPasswordDigest(String password) {
+    byte[] getPasswordDigest(String password) {
         return sha1.digest(password.getBytes());
     }
 
