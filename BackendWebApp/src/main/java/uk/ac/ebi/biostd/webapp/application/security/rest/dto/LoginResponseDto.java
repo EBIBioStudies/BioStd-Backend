@@ -10,5 +10,6 @@ public class LoginResponseDto {
     private String username;
     private String email;
     private String superuser;
+    private String secret;
     private AuxInfoDto aux;
 }

@@ -4,12 +4,16 @@ import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.CascadeType.PERSIST;
 import static javax.persistence.GenerationType.IDENTITY;
 
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -59,4 +63,10 @@ public class User extends AbstractAggregateRoot {
         registerEvent(new PassResetEvent(this, activationLink));
         return this;
     }
+
+    @ManyToMany(cascade = {PERSIST, MERGE})
+    @JoinTable(name = "UserGroup_User",
+            joinColumns = @JoinColumn(name = "users_id"),
+            inverseJoinColumns = @JoinColumn(name = "groups_id"))
+    private Set<UserGroup> groups = new HashSet<>();
 }
