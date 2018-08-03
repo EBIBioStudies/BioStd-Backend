@@ -10,6 +10,16 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties;
 
+/**
+ * Helps to create secret folder for users and group wich make required create it parents folder too. Secret folder
+ * path is defined by:
+ *
+ * Parent folder is the two first letters of secret.
+ * Secret folder is the characters of the secrets from character 3 plus the entity type letter ('a' for users, 'b'
+ * for groups) and entity id.
+ *
+ * so for example for user with secret abc-123 and id=50, secret path will be /ab/c-123-a50
+ */
 @Component
 public class MagicFolderUtil {
 

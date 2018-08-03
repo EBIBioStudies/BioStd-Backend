@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.webapp.application.security.rest;
 
-
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserGroup;
@@ -18,7 +17,6 @@ class GroupsMapper {
         group.setOwner(userRepository.getOne(userGroupDto.getOwnerId()));
         group.setName(userGroupDto.getName());
         group.setDescription(userGroupDto.getDescription());
-
         return group;
     }
 
