@@ -1,3 +1,4 @@
+import java.awt.Desktop
 import java.text.SimpleDateFormat
 
 buildscript {
@@ -16,6 +17,7 @@ apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'jacoco'
 
 group = 'uk.ac.ebi.biostd'
 version = '0.0.1'
@@ -55,6 +57,20 @@ repositories {
     maven { url "http://repo1.maven.org/maven2" }
 }
 
+
+def jacocoReportPath = "reports/coverage"
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/${jacocoReportPath}"
+    }
+}
+
+task openCoverageReport {
+    Desktop.getDesktop().open(new File("${buildDir}/${jacocoReportPath}/index.html"))
+}
 
 dependencies {
     compile project(":Commons")

@@ -42,6 +42,19 @@ public class MagicFolderUtil {
         createMagicFolder(groupId, magicKey, "b");
     }
 
+    public String getUserMagicFolderPath(long userId, String secret) {
+        return getMagicFolderPath(userId, secret, "a");
+    }
+
+    public String getGroupMagicFolderPath(long groupId, String secret) {
+        return getMagicFolderPath(groupId, secret, "b");
+    }
+
+    private String getMagicFolderPath(long id, String secret, String separator) {
+        String parent = format("%s/%s", basePath, secret.substring(0, 2));
+        return format("%s/%s-%s%d", parent, secret.substring(2), separator, id);
+    }
+
     @SneakyThrows
     private void createMagicFolder(long id, String secret, String separator) {
         File parent = new File(format("%s/%s", basePath, secret.substring(0, 2)));
