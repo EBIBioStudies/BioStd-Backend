@@ -54,7 +54,6 @@ public class PmcImporterTest extends BaseIntegrationTest {
         properties.setSubmitterUserPath(USER_HOME_PATH);
         properties.setUser("jcamilorada@ebi.ac.uk");
         properties.setPassword("123456");
-        properties.setBackendUrl("http://localhost:8586/biostd");
 
         pmcImporter = new PmcImporter(
                 properties,

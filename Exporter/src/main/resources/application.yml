@@ -75,7 +75,7 @@ jobs:
 spring:
   profiles: dev
 jobs:
-  backend-url: http://biostudy-bia:8586/biostd
+  backend-url: http://biostudy-bia.ebi.ac.uk:8586/biostd
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
@@ -97,9 +97,8 @@ jobs:
   pmc:
     import:
       user: admin_user@ebi.ac.uk
-      importPath: /nfs/ma/home/biostudy/EPMC-export/test_dum
-      submitterUserPath: /ebi/teams/biostudies/backend/development/dropbox/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3
-      backendUrl: http://biostudy-bia:8586/biostd
+      importPath: /nfs/ma/home/biostudy/EPMC-export/dump-2018-01
+      submitterUserPath: /ebi/teams/biostudies/backend/development/usergroup/Users/a/admin_user@ebi.ac.uk
   ftp:
     baseFtpPath: /ebi/teams/biostudies/backend/development/ftp
     baseBioStudiesPath: /ebi/teams/biostudies/backend/development/submission
@@ -111,7 +110,7 @@ jobs:
 spring:
   profiles: beta
 jobs:
-  backend-url: http://localhost:8586/biostd
+  backend-url: http://biostudy-dev.ebi.ac.uk:10180/biostd-beta
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
@@ -145,7 +144,7 @@ jobs:
 spring:
   profiles: prod
 jobs:
-  backend-url: http://localhost:8586/biostd
+  backend-url: http://biostudy-prod.ebi.ac.uk:10080/biostd-prod
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
@@ -180,3 +179,5 @@ jobs:
       fileNameFormat: EPMCLinks.part%03d.xml
       ftpPort: 21
       cron: 0 0 08 * * ? # everyday at 08 a.m.
+    import:
+      user: manager

@@ -35,6 +35,11 @@ public class SubmissionDao {
                 queries.getUpdatedSubmissionsQuery(), singletonMap("sync_time", syncTime), submissionMapper);
     }
 
+    public Submission getSubmissionByAccNo(String accNo) {
+        return template.queryForObject(queries.getSubmissionsQueryByAccNo(), singletonMap("accno", accNo),
+                submissionMapper);
+    }
+
     public List<String> getDeletedSubmissions(long syncTime) {
         return template.queryForList(
                 queries.getDeletedSubmissionsQuery(), singletonMap("sync_time", syncTime), String.class);

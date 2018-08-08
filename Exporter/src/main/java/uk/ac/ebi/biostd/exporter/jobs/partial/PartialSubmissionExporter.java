@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -43,11 +44,23 @@ public class PartialSubmissionExporter {
     public void execute() {
         log.info("executing partial export file job at {}", Instant.now(Clock.systemUTC()));
 
-        processCreatedAndUpdatedSubmissions();
+        processCreatedAndUpdatedSubmissions(submissionService.getUpdatedSubmissions(lastSyncTime));
         processDeletedSubmissions();
 
         lastSyncTime = getNowEpoch();
         log.info("finish processing updated/deleting submissions");
+    }
+
+    /**
+     * Execute partial update for the given submission.
+     *
+     * @param accNo the submission acc number.
+     */
+    public void execute(String accNo) {
+        log.info("executing partial export of {}", accNo);
+
+        Submission submission = submissionService.getSubmission(accNo);
+        processCreatedAndUpdatedSubmissions(Collections.singletonList(submission));
     }
 
     private void processDeletedSubmissions() {
@@ -60,9 +73,7 @@ public class PartialSubmissionExporter {
         restTemplate.getForEntity(url, String.class);
     }
 
-    private void processCreatedAndUpdatedSubmissions() {
-        List<Submission> submissions = submissionService.getUpdatedSubmissions(lastSyncTime);
-
+    private void processCreatedAndUpdatedSubmissions(List<Submission> submissions) {
         if (submissions.size() > 0) {
             String fileName = writeFile(submissions);
             notifyFrontend(fileName);
