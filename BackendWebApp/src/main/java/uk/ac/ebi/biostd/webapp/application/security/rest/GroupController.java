@@ -1,6 +1,10 @@
 package uk.ac.ebi.biostd.webapp.application.security.rest;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,5 +25,11 @@ public class GroupController {
     public UserGroupDto createGroup(@RequestBody UserGroupDto userGroupDto) {
         UserGroup group = groupService.createGroup(groupsMapper.toGroup(userGroupDto));
         return groupsMapper.toDto(group);
+    }
+
+    @GetMapping
+    @PreAuthorize("isAuthenticated()")
+    public List<UserGroupDto> getGroups(@AuthenticationPrincipal uk.ac.ebi.biostd.authz.User user) {
+        return groupsMapper.toDtoList(groupService.getUsersGroups(user.getId()));
     }
 }
