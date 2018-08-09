@@ -73,7 +73,7 @@ public class FileManagerServiceTest {
         List<File> userFiles = testInstance.getUserFiles(mockUser, "");
         File userFolder = userFiles.get(0);
 
-        assertThat(userFiles.size()).isEqualTo(1);
+        assertThat(userFiles).hasSize(1);
         assertThat(userFolder.getName()).isEqualTo(USER_FOLDER);
         assertThat(userFolder.isDirectory()).isTrue();
     }
@@ -83,7 +83,7 @@ public class FileManagerServiceTest {
         List<File> userFiles = testInstance.getUserFiles(mockUser, USER_FOLDER);
         File userFile = userFiles.get(0);
 
-        assertThat(userFiles.size()).isEqualTo(1);
+        assertThat(userFiles).hasSize(1);
         assertThat(userFile.getName()).isEqualTo(USER_FILE_NAME);
         assertThat(userFile.isFile()).isTrue();
    }
@@ -98,7 +98,7 @@ public class FileManagerServiceTest {
         List<File> groupsFiles = testInstance.getGroupsFiles(mockUser, GROUP_FOLDER);
         File groupFile = groupsFiles.get(0);
 
-        assertThat(groupsFiles.size()).isEqualTo(1);
+        assertThat(groupsFiles).hasSize(1);
         assertThat(groupFile.getName()).isEqualTo(GROUP_FILE_NAME);
         assertThat(groupFile.isFile()).isTrue();
     }
