@@ -69,7 +69,9 @@ jacocoTestReport {
 }
 
 task openCoverageReport {
-    Desktop.getDesktop().open(new File("${buildDir}/${jacocoReportPath}/index.html"))
+    doLast {
+        Desktop.getDesktop().open(new File("${buildDir}/${jacocoReportPath}/index.html"))
+    }
 }
 
 dependencies {
