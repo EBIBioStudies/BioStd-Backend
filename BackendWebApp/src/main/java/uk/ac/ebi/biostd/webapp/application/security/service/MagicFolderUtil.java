@@ -6,6 +6,8 @@ import static java.nio.file.attribute.PosixFilePermissions.fromString;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties;
@@ -27,6 +29,8 @@ public class MagicFolderUtil {
     private static final String MAGIC_FOLDER_PERM = "rwxrwx---";
 
     static final String USER_GROUP_DIR_PROP_NAME = "biostd.userGroupDir";
+    static final String USER_FOLDER_PREFIX = "a";
+    static final String GROUP_FOLDER_PREFIX = "b";
 
     private final String basePath;
 
@@ -35,24 +39,24 @@ public class MagicFolderUtil {
     }
 
     void createUserMagicFolder(long userId, String magicKey) {
-        createMagicFolder(userId, magicKey, "a");
+        createMagicFolder(userId, magicKey, USER_FOLDER_PREFIX);
     }
 
     void createGroupMagicFolder(long groupId, String magicKey) {
-        createMagicFolder(groupId, magicKey, "b");
+        createMagicFolder(groupId, magicKey, GROUP_FOLDER_PREFIX);
     }
 
-    public String getUserMagicFolderPath(long userId, String secret) {
-        return getMagicFolderPath(userId, secret, "a");
+    public Path getUserMagicFolderPath(long userId, String secret) {
+        return getMagicFolderPath(userId, secret, USER_FOLDER_PREFIX);
     }
 
-    public String getGroupMagicFolderPath(long groupId, String secret) {
-        return getMagicFolderPath(groupId, secret, "b");
+    public Path getGroupMagicFolderPath(long groupId, String secret) {
+        return getMagicFolderPath(groupId, secret, GROUP_FOLDER_PREFIX);
     }
 
-    private String getMagicFolderPath(long id, String secret, String separator) {
+    private Path getMagicFolderPath(long id, String secret, String separator) {
         String parent = format("%s/%s", basePath, secret.substring(0, 2));
-        return format("%s/%s-%s%d", parent, secret.substring(2), separator, id);
+        return Paths.get(format("%s/%s-%s%d", parent, secret.substring(2), separator, id));
     }
 
     @SneakyThrows

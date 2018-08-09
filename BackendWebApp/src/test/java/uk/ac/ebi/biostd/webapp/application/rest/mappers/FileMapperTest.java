@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -19,7 +21,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.FileType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileMapperTest {
-    public static final String SLASH = "/";
+    private static final String SLASH = "/";
     private final static long FILE_SIZE = 1234L;
     private final static long FOLDER_SIZE = 5678L;
     private final static String BASE_PATH = "User";
@@ -64,58 +66,54 @@ public class FileMapperTest {
     @Test
     public void map() {
         FileDto fileDto = testInstance.map(mockFile1, BASE_PATH, FOLDER_NAME);
-
-        assertThat(fileDto.getName()).isEqualTo(FILE_NAME);
-        assertThat(fileDto.getSize()).isEqualTo(FILE_SIZE);
-        assertThat(fileDto.getType()).isEqualTo(FileType.FILE);
-        assertThat(fileDto.getPath()).isEqualTo(SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH + FILE_NAME);
+        assertFileDto(
+                fileDto,
+                FILE_NAME,
+                FILE_SIZE,
+                FileType.FILE,
+                SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH + FILE_NAME);
     }
 
     @Test
     public void mapArchive() {
         FileDto fileDto = testInstance.map(mockFile3, BASE_PATH, "");
-
-        assertThat(fileDto.getName()).isEqualTo(ARCHIVE_NAME);
-        assertThat(fileDto.getSize()).isEqualTo(FOLDER_SIZE);
-        assertThat(fileDto.getType()).isEqualTo(FileType.ARCHIVE);
-        assertThat(fileDto.getPath()).isEqualTo(SLASH + BASE_PATH + SLASH + ARCHIVE_NAME);
+        assertFileDto(fileDto, ARCHIVE_NAME, FOLDER_SIZE, FileType.ARCHIVE, SLASH + BASE_PATH + SLASH + ARCHIVE_NAME);
     }
 
     @Test
     public void mapList() {
         List<FileDto> files = testInstance.map(Arrays.asList(mockFile1, mockFile2), BASE_PATH, "");
+        assertThat(files).hasSize(2);
+
         FileDto fileDto1 = files.get(0);
         FileDto fileDto2 = files.get(1);
-
-        assertThat(files.size()).isEqualTo(2);
-
-        assertThat(fileDto1.getName()).isEqualTo(FILE_NAME);
-        assertThat(fileDto1.getSize()).isEqualTo(FILE_SIZE);
-        assertThat(fileDto1.getType()).isEqualTo(FileType.FILE);
-        assertThat(fileDto1.getPath()).isEqualTo(SLASH + BASE_PATH + SLASH + FILE_NAME);
-
-        assertThat(fileDto2.getName()).isEqualTo(FOLDER_NAME);
-        assertThat(fileDto2.getSize()).isEqualTo(FOLDER_SIZE);
-        assertThat(fileDto2.getType()).isEqualTo(FileType.DIR);
-        assertThat(fileDto2.getPath()).isEqualTo(SLASH + BASE_PATH + SLASH + FOLDER_NAME);
+        assertFileDto(fileDto1, FILE_NAME, FILE_SIZE, FileType.FILE, SLASH + BASE_PATH + SLASH + FILE_NAME);
+        assertFileDto(fileDto2, FOLDER_NAME, FOLDER_SIZE, FileType.DIR, SLASH + BASE_PATH + SLASH + FOLDER_NAME);
     }
 
     @Test
     public void getCurrentFolder() {
-        FileDto fileDto = testInstance.getCurrentFolderDto(BASE_PATH, "", mockFileSystem.getRoot().toString());
-
-        assertThat(fileDto.getName()).isEqualTo(BASE_PATH);
-        assertThat(fileDto.getType()).isEqualTo(FileType.DIR);
-        assertThat(fileDto.getPath()).isEqualTo(SLASH + BASE_PATH + SLASH);
+        Path path = Paths.get(mockFileSystem.getRoot().toString());
+        FileDto fileDto = testInstance.getCurrentFolderDto(BASE_PATH, "", path);
+        assertFileDto(fileDto, BASE_PATH, FileType.DIR, SLASH + BASE_PATH + SLASH);
     }
 
     @Test
     public void getInnerFolderDto() {
-        FileDto fileDto = testInstance.getCurrentFolderDto(
-                BASE_PATH, FOLDER_NAME, mockFileSystem.getRoot() + SLASH + FOLDER_NAME);
+        Path path = Paths.get(mockFileSystem.getRoot() + SLASH + FOLDER_NAME);
+        FileDto fileDto = testInstance.getCurrentFolderDto(BASE_PATH, FOLDER_NAME, path);
 
-        assertThat(fileDto.getName()).isEqualTo(FOLDER_NAME);
-        assertThat(fileDto.getType()).isEqualTo(FileType.DIR);
-        assertThat(fileDto.getPath()).isEqualTo(SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH);
+        assertFileDto(fileDto, FOLDER_NAME, FileType.DIR, SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH);
+    }
+
+    private void assertFileDto(FileDto fileDto, String name, FileType fileType, String path) {
+        assertThat(fileDto.getName()).isEqualTo(name);
+        assertThat(fileDto.getType()).isEqualTo(fileType);
+        assertThat(fileDto.getPath()).isEqualTo(path);
+    }
+
+    private void assertFileDto(FileDto fileDto, String name, long size, FileType fileType, String path) {
+        assertThat(fileDto.getSize()).isEqualTo(size);
+        assertFileDto(fileDto, name, fileType, path);
     }
 }

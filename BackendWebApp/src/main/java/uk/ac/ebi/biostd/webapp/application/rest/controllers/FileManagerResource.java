@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
+import java.nio.file.Path;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,8 +38,8 @@ public class FileManagerResource {
     public FileDto getUserFiles(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false, defaultValue = "") String path) {
-        String magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
-        String fullPath = magicFolderPath + "/" +  path;
+        Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
+        Path fullPath = magicFolderPath.resolve(path);
         FileDto userFolderDto = fileMapper.getCurrentFolderDto(USER_FOLDER_NAME, path, fullPath);
         userFolderDto.setFiles(fileMapper.map(fileManagerService.getUserFiles(user, path), USER_FOLDER_NAME, path));
 
