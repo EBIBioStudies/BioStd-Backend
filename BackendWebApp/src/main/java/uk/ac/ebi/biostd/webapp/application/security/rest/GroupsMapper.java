@@ -15,7 +15,7 @@ class GroupsMapper {
 
     private final UserRepository userRepository;
 
-    UserGroup toGroup(UserGroupDto userGroupDto) {
+    UserGroup mapToEntity(UserGroupDto userGroupDto) {
         UserGroup group = new UserGroup();
         group.setOwner(userRepository.getOne(userGroupDto.getOwnerId()));
         group.setName(userGroupDto.getName());
@@ -24,7 +24,7 @@ class GroupsMapper {
         return group;
     }
 
-    UserGroupDto toDto(UserGroup group) {
+    UserGroupDto mapToDto(UserGroup group) {
         UserGroupDto groupDto = new UserGroupDto();
         groupDto.setGroupId(group.getId());
         groupDto.setName(group.getName());
@@ -33,7 +33,7 @@ class GroupsMapper {
         return groupDto;
     }
 
-    List<UserGroupDto> toDtoList(List<UserGroup> usersGroups) {
-        return usersGroups.stream().map(this::toDto).collect(toList());
+    List<UserGroupDto> mapToDtoList(List<UserGroup> usersGroups) {
+        return usersGroups.stream().map(this::mapToDto).collect(toList());
     }
 }
