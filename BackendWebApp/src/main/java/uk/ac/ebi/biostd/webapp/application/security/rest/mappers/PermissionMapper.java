@@ -56,6 +56,7 @@ public class PermissionMapper {
         loginResponse.setUsername(user.getFullName());
         loginResponse.setSessid(userData.getToken());
         loginResponse.setAux(getAuxInfo(user.getAuxProfileInfo()));
+        loginResponse.setSecret(user.getSecret());
 
         return loginResponse;
     }

@@ -26,6 +26,7 @@ public class Queries {
     private String singleSubmissionQuery;
     private String userEmailQuery;
     private String updatedSubmissionsQuery;
+    private String submissionsQueryByAccNo;
     private String deletedSubmissionsQuery;
     private String submissionPublicationQuery;
     private String publicSubmissions;

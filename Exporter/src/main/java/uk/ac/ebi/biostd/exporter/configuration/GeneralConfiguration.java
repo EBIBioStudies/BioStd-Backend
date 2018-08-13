@@ -3,14 +3,18 @@ package uk.ac.ebi.biostd.exporter.configuration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.biostd.remote.service.RemoteService;
 
 /**
  * Contains Beans declarations required as dependencies al around the project.
  */
 @Configuration
+@Slf4j
 public class GeneralConfiguration {
 
     @Bean
@@ -25,5 +29,11 @@ public class GeneralConfiguration {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    @Bean
+    public RemoteService remoteService(@Value("${jobs.backend-url}") String backendUrl) {
+        log.info("creating remote service with url {}", backendUrl);
+        return new RemoteService(backendUrl);
     }
 }

@@ -26,7 +26,6 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.PendingSubmissionListItemDto
 @RunWith(SpringRunner.class)
 @Import(WebConfiguration.class)
 public class PendingSubmissionUtilTest {
-
     private static DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private static final long MILLISECONDS = 1000L;
@@ -42,7 +41,6 @@ public class PendingSubmissionUtilTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
     private PendingSubmissionUtil util;
 
     @Before

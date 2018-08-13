@@ -13,6 +13,7 @@
         AND sa.accessTags_id = a.id
         AND a.name = 'Public'
         AND s.version > 0
+        AND s.released = true
         AND s.rootSection_id = se.id
         AND se.type = 'Study'
     ]]>
@@ -20,13 +21,18 @@
 
   <entry key="userDropboxes">
     <![CDATA[
-    SELECT email, secret from User where secret is not null and active = true
+    SELECT id, email, secret from User where secret is not null and active = true
     ]]>
   </entry>
 
   <entry key="updatedSubmissionsQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
+  </entry>
+
+  <entry key="submissionsQueryByAccNo">
+    SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    WHERE version > 0 and accno = :accno
   </entry>
 
   <entry key="deletedSubmissionsQuery">
@@ -38,7 +44,7 @@
 
   <entry key="submissionsQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
-    WHERE version > 0
+    WHERE version > 0 and released=true
   </entry>
 
   <entry key="submissionsPmcQuery">
@@ -95,4 +101,5 @@
   <entry key="submissionPublicationQuery">
     select accNo from Section sec where sec.type = 'Publication' and sec.submission_id = :submissionId
   </entry>
+
 </properties>

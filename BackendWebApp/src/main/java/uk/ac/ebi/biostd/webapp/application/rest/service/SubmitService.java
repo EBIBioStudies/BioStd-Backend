@@ -1,7 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import static java.lang.String.format;
-import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.*;
+import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.fromErrorMessage;
+import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.fromLogNode;
+import static uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto.fromSubmissionReport;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,16 +32,17 @@ import uk.ac.ebi.biostd.treelog.SubmissionReport;
 import uk.ac.ebi.biostd.util.DataFormat;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitOperation;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.SubmitReportDto;
-import uk.ac.ebi.biostd.webapp.server.mng.impl.JPASubmissionManager;
+import uk.ac.ebi.biostd.webapp.server.mng.SubmissionManager;
 import uk.ac.ebi.biostd.webapp.server.mng.impl.PTDocumentParser;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class SubmitService {
-    public static final String DEFAULT_ACCNO_TEMPLATE = "!{S-BSST}";
+    
+    static final String DEFAULT_ACCNO_TEMPLATE = "!{S-BSST}";
 
-    private final JPASubmissionManager submissionManager;
+    private final SubmissionManager submissionManager;
     private final ObjectMapper objectMapper;
 
     @SneakyThrows
@@ -122,7 +125,7 @@ public class SubmitService {
                 return Result.error(fromLogNode(logNode));
             }
 
-            final StringWriter stringWriter = new StringWriter();
+            StringWriter stringWriter = new StringWriter();
             new JSONFormatter(stringWriter, true).format(doc);
 
             return Result.success(objectMapper.readTree(stringWriter.toString()));

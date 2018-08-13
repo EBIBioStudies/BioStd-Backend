@@ -27,7 +27,6 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.*;
 @RunWith(SpringRunner.class)
 @Import(WebConfiguration.class)
 public class PendingSubmissionServiceTest {
-
     private static final String TOPIC = "submission";
 
     @Autowired

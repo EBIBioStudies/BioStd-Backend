@@ -41,8 +41,8 @@ import uk.ac.ebi.biostd.webapp.application.rest.service.PendingSubmissionUtil;
 @WebMvcTest(PendingSubmissionResource.class)
 @AutoConfigureMockMvc(secure = false, addFilters = false)
 public class PendingSubmissionResourceTest {
-
     public static final String EMPTY_JSON_OBJECT = "{}";
+
     @Autowired
     private MockMvc mvc;
 

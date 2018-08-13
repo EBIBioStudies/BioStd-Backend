@@ -27,7 +27,6 @@ import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -35,7 +34,6 @@ import uk.ac.ebi.biostd.TestConfiguration;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcExport;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcJobsFactory;
-import uk.ac.ebi.biostd.exporter.schedulers.JobsScheduler;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,9 +51,6 @@ public class PmcExportTest {
 
     @Autowired
     private PmcJobsFactory pmcJobsFactory;
-
-    @MockBean
-    private JobsScheduler jobsScheduler;
 
     private FakeFtpServer fakeFtpServer;
 

@@ -44,6 +44,7 @@ public class SecurityService implements ISecurityService {
     private final AccessTagsRepository tagsRepository;
 
     private final SecurityUtil securityUtil;
+    private final MagicFolderUtil magicFolderUtil;
 
     @Override
     public User getPermissions(LoginRequest loginInfo) {
@@ -111,6 +112,7 @@ public class SecurityService implements ISecurityService {
         user.setSecret(UUID.randomUUID().toString());
 
         userRepository.save(user.withPendingActivation(signUpRequest.getActivationURL()));
+        magicFolderUtil.createUserMagicFolder(user.getId(), user.getSecret());
     }
 
     @Override
@@ -121,7 +123,10 @@ public class SecurityService implements ISecurityService {
             user.setFullName(name);
             user.setAuxProfileInfo(new AuxInfo());
             user.setSecret(UUID.randomUUID().toString());
-            return userRepository.save(user);
+            userRepository.save(user);
+            magicFolderUtil.createUserMagicFolder(user.getId(), user.getSecret());
+
+            return user;
         });
     }
 
