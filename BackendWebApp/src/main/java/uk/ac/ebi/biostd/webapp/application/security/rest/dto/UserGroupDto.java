@@ -8,4 +8,5 @@ public class UserGroupDto {
     private String description;
     private String name;
     private long ownerId;
+    private long groupId;
 }
