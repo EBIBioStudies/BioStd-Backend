@@ -83,4 +83,10 @@ public class SubmissionService {
 
         return section;
     }
+
+    public Submission getSubmission(String accNo) {
+        Submission submission = submissionDao.getSubmissionByAccNo(accNo);
+        processSubmission(submission);
+        return submission;
+    }
 }

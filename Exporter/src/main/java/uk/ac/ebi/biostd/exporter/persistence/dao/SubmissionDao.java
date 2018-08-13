@@ -35,21 +35,24 @@ public class SubmissionDao {
                 queries.getUpdatedSubmissionsQuery(), singletonMap("sync_time", syncTime), submissionMapper);
     }
 
+    public Submission getSubmissionByAccNo(String accNo) {
+        return template.queryForObject(
+                queries.getSubmissionsQueryByAccNo(), singletonMap("accno", accNo), submissionMapper);
+    }
+
     public List<String> getDeletedSubmissions(long syncTime) {
         return template.queryForList(
                 queries.getDeletedSubmissionsQuery(), singletonMap("sync_time", syncTime), String.class);
     }
 
     public List<String> getAccessTags(long submissionId) {
-        return template.queryForList(queries.getSubmissionAccessTagQuery(), singletonMap("submissionId", submissionId),
-                String.class);
+        return template.queryForList(
+                queries.getSubmissionAccessTagQuery(), singletonMap("submissionId", submissionId), String.class);
     }
 
     public List<Attribute> getAttributes(long submissionId) {
         return template.query(
-                queries.getSubmissionAttributesQuery(),
-                singletonMap("submissionId", submissionId),
-                attributeMapper);
+                queries.getSubmissionAttributesQuery(), singletonMap("submissionId", submissionId), attributeMapper);
     }
 
     public String getUserEmail(long userId) {
@@ -66,7 +69,7 @@ public class SubmissionDao {
     }
 
     public String getPublicationId(long submissionId) {
-        return template.queryForObject(queries.getSubmissionPublicationQuery(),
-                singletonMap("submissionId", submissionId), String.class);
+        return template.queryForObject(
+                queries.getSubmissionPublicationQuery(), singletonMap("submissionId", submissionId), String.class);
     }
 }
