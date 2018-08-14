@@ -1,10 +1,12 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
 import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
@@ -43,6 +46,9 @@ public class FileManagerServiceTest {
     private MagicFolderUtil mockMagicFolderUtil;
 
     @Mock
+    private MultipartFile mockMultipartFile;
+
+    @Mock
     private User mockUser;
 
     @Mock
@@ -51,6 +57,8 @@ public class FileManagerServiceTest {
     private Path userFolderPath;
 
     private Path groupFolderPath;
+
+    private MultipartFile[] multipartFiles;
 
     @InjectMocks
     private FileManagerService testInstance;
@@ -64,6 +72,7 @@ public class FileManagerServiceTest {
         mockFileSystem.newFile(USER_SECRET + "/" + USER_FILE_PATH);
         userFolderPath = Paths.get(mockFileSystem.getRoot() + "/" +  USER_SECRET);
         groupFolderPath = Paths.get(mockFileSystem.getRoot() + "/" +  GROUP_SECRET);
+        multipartFiles = new MultipartFile[]{ mockMultipartFile };
 
         when(mockUser.getId()).thenReturn(USER_ID);
         when(mockUser.getSecret()).thenReturn(USER_SECRET);
@@ -94,9 +103,10 @@ public class FileManagerServiceTest {
         assertThat(userFile.isFile()).isTrue();
    }
 
-    @Test(expected = NoSuchFileException.class)
+    @Test
     public void getUserFilesNonExistingPath() {
-        testInstance.getUserFiles(mockUser, NON_EXISTING_FOLDER);
+        assertThatExceptionOfType(NoSuchFileException.class).isThrownBy(
+                () -> testInstance.getUserFiles(mockUser, NON_EXISTING_FOLDER));
     }
 
     @Test
@@ -107,5 +117,24 @@ public class FileManagerServiceTest {
         File groupFile = groupsFiles.get(0);
         assertThat(groupFile.getName()).isEqualTo(GROUP_FILE_NAME);
         assertThat(groupFile.isFile()).isTrue();
+    }
+
+    @Test
+    public void uploadFiles() throws Exception {
+        when(mockMultipartFile.getOriginalFilename()).thenReturn(USER_FILE_NAME);
+        when(mockMultipartFile.getBytes()).thenReturn(new byte[]{ });
+
+        List<File> uploadFiles = testInstance.uploadFiles(multipartFiles, userFolderPath);
+        assertThat(uploadFiles).hasSize(1);
+
+        File uploadFile = uploadFiles.get(0);
+        assertThat(Files.exists(uploadFile.toPath())).isTrue();
+        assertThat(uploadFile.getName()).isEqualTo(USER_FILE_NAME);
+    }
+
+    @Test
+    public void testUploadBrokenFile() {
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(
+                () -> testInstance.uploadFiles(multipartFiles, userFolderPath));
     }
 }

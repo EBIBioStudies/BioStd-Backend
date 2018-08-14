@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper;
@@ -49,6 +51,34 @@ public class FileManagerResource {
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
 
         return mapFiles(GROUP_FOLDER_NAME, magicFolderPath, path, groupFiles);
+    }
+
+    @PostMapping("/user")
+    @ResponseBody
+    public FileDto uploadUserFiles(
+            @AuthenticationPrincipal User user,
+            @RequestParam MultipartFile[] files,
+            @RequestParam(required = false, defaultValue = "") String path) {
+        Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
+        return uploadFiles(USER_FOLDER_NAME, magicFolderPath, path, files);
+    }
+
+    @PostMapping("/groups")
+    @ResponseBody
+    public FileDto uploadGroupFiles(
+            @AuthenticationPrincipal User user,
+            @RequestParam MultipartFile[] files,
+            @RequestParam(required = false, defaultValue = "") String path) {
+        Path magicFolderPath = magicFolderUtil.getGroupMagicFolderPath(user.getId(), user.getSecret());
+        return uploadFiles(GROUP_FOLDER_NAME, magicFolderPath, path, files);
+    }
+
+    private FileDto uploadFiles(
+            String basePath, Path magicFolderPath, String requestPath, MultipartFile[] files) {
+        Path currentPath = magicFolderPath.resolve(requestPath);
+        List<File> uploadedFiles = fileManagerService.uploadFiles(files, currentPath);
+
+        return mapFiles(basePath, magicFolderPath, requestPath, uploadedFiles);
     }
 
     private FileDto mapFiles(String basePath, Path magicFolderPath, String requestPath, List<File> files) {

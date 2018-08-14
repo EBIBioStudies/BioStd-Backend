@@ -17,6 +17,10 @@ spring:
     suffix: .html
     mode: LEGACYHTML5
     enabled: false
+  servlet:
+    multipart:
+      max-file-size: 10240MB
+      max-request-size: 10240MB
 
 eutoxrisk-file-validator:
   enabled: false

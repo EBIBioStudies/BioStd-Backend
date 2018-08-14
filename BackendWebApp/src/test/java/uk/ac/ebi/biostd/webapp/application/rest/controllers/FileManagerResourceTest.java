@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,11 +24,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileType;
@@ -42,6 +46,9 @@ public class FileManagerResourceTest {
     private static final long FILE_SIZE = 123456L;
     private static final String TEST_PATH = "/folder1";
     private static final String FILE_NAME = "file1.txt";
+    private static final String PATH_PARAM = "path";
+    private static final String USER_FILES_ENDPOINT = "/files/user";
+    private static final String GROUP_FILES_ENDPOINT = "/files/groups";
     private static final String CURRENT_USER_FOLDER_PATH = "/User/folder1";
     private static final String CURRENT_GROUP_FOLDER_PATH = "/Groups/folder1";
 
@@ -67,18 +74,36 @@ public class FileManagerResourceTest {
 
     @Test
     public void getUserFiles() throws Exception {
-        performGetFilesRequest("/files/user", CURRENT_USER_FOLDER_PATH);
+        performGetFilesRequest(USER_FILES_ENDPOINT, CURRENT_USER_FOLDER_PATH);
     }
 
     @Test
     public void getGroupFiles() throws Exception {
-        performGetFilesRequest("/files/groups", CURRENT_GROUP_FOLDER_PATH);
+        performGetFilesRequest(GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
+    }
+
+    @Test
+    public void uploadUserFiles() throws Exception {
+        performMultipartFilesRequest(USER_FILES_ENDPOINT, CURRENT_USER_FOLDER_PATH);
+    }
+
+    @Test
+    public void uploadGroupFiles() throws Exception {
+        performMultipartFilesRequest(GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
     }
 
     private void performGetFilesRequest(String endpoint, String currentFolderPath) throws Exception {
+        performRequest(get(endpoint).param(PATH_PARAM, TEST_PATH), currentFolderPath);
+    }
+
+    private void performMultipartFilesRequest(String endpoint, String currentFolderPath) throws Exception {
+        MockMultipartFile mockFile = new MockMultipartFile(FILE_NAME, FILE_NAME, "text/plain", "".getBytes());
+        performRequest(multipart(endpoint).file(mockFile).param(PATH_PARAM, TEST_PATH), currentFolderPath);
+    }
+
+    private void performRequest(RequestBuilder request, String currentFolderPath) throws Exception {
         setUpMockFiles(currentFolderPath);
-        mvc.perform(get(endpoint)
-                .param("path", TEST_PATH))
+        mvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(TEST_PATH))
                 .andExpect(jsonPath("$.path").value(currentFolderPath))
@@ -120,6 +145,7 @@ public class FileManagerResourceTest {
         when(magicFolderUtil.getGroupMagicFolderPath(anyLong(), isNull())).thenReturn(mockPath);
         when(fileManagerService.getUserFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockUserFiles);
         when(fileManagerService.getGroupsFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockUserFiles);
+        when(fileManagerService.uploadFiles(any(MultipartFile[].class), any(Path.class))).thenReturn(mockUserFiles);
         when(fileMapper.map(eq(mockUserFiles), anyString(), eq(TEST_PATH))).thenReturn(createMockDtos());
         when(fileMapper.getCurrentFolderDto(anyString(), eq(TEST_PATH), eq(mockFullPath))).thenReturn(currentFolder);
     }
