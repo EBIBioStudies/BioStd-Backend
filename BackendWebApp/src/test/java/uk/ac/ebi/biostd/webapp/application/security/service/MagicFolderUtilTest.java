@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.webapp.application.security.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
 import static uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil.USER_GROUP_DIR_PROP_NAME;
 
@@ -74,12 +75,13 @@ public class MagicFolderUtilTest {
         assertThat(userMagicFolderPath).isEqualTo(getExpectedPath(MagicFolderUtil.GROUP_FOLDER_PREFIX));
     }
 
-    @Test(expected = NoSuchFileException.class)
+    @Test
     public void createMagicFolderException() {
         when(mockProperties.get(USER_GROUP_DIR_PROP_NAME)).thenReturn("/folder");
         MagicFolderUtil faultyTestInstance = new MagicFolderUtil(mockProperties);
 
-        faultyTestInstance.createUserMagicFolder(TEST_ID, TEST_SECRET);
+        assertThatExceptionOfType(NoSuchFileException.class).isThrownBy(
+                () -> faultyTestInstance.createUserMagicFolder(TEST_ID, TEST_SECRET));
     }
 
     private Path getExpectedPath(String prefix) {
