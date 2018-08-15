@@ -9,22 +9,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
+import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserGroup;
+import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
 import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
 @Service
+@AllArgsConstructor
 public class FileManagerService {
+    private final GroupService groupService;
     private final MagicFolderUtil magicFolderUtil;
-
-    public FileManagerService(MagicFolderUtil magicFolderUtil) {
-        this.magicFolderUtil = magicFolderUtil;
-    }
 
     public List<File> getUserFiles(User user, String path) {
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
+        return getMagicFolderFiles(magicFolderPath, path);
+    }
+
+    public List<File> getGroupFiles(User user, String groupName, String path) {
+        UserGroup group = groupService.getGroupFromUser(user.getId(), groupName);
+        Path magicFolderPath = magicFolderUtil.getGroupMagicFolderPath(group.getId(), group.getSecret());
+
         return getMagicFolderFiles(magicFolderPath, path);
     }
 
