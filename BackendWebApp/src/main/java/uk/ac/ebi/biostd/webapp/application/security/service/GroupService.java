@@ -6,12 +6,11 @@ import java.util.List;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserGroup;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserGroupRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserRepository;
-import uk.ac.ebi.biostd.webapp.application.rest.exceptions.ApiErrorException;
+import uk.ac.ebi.biostd.webapp.application.rest.exceptions.EntityNotFoundException;
 
 @Service
 @AllArgsConstructor
@@ -37,8 +36,8 @@ public class GroupService {
 
     public UserGroup getGroupFromUser(long userId, String groupName) {
         return userGroupRepository.findByNameAndUsersContains(groupName, userRepository.getOne(userId))
-                .orElseThrow(() -> new ApiErrorException(String.format(
-                        "The user is not associated to ghe group %s", groupName), HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new EntityNotFoundException(String.format(
+                        "The user is not associated to ghe group %s", groupName), UserGroup.class));
     }
 
     public Path getGroupMagicFolderPath(long userId, String groupName) {
