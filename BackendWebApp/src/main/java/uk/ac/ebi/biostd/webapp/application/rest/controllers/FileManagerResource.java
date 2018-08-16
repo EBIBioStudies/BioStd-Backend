@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
@@ -35,7 +34,6 @@ public class FileManagerResource {
     private final FileManagerService fileManagerService;
 
     @GetMapping("/user")
-    @ResponseBody
     public FileDto getUserFiles(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false, defaultValue = "") String path) {
@@ -46,7 +44,6 @@ public class FileManagerResource {
     }
 
     @GetMapping("/groups")
-    @ResponseBody
     public FileDto getGroupsFiles(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false, defaultValue = "") String path) {
@@ -57,7 +54,6 @@ public class FileManagerResource {
     }
 
     @GetMapping("/groups/{groupName}")
-    @ResponseBody
     public FileDto getGroupsFiles(
             @AuthenticationPrincipal User user,
             @PathVariable String groupName,
@@ -69,7 +65,6 @@ public class FileManagerResource {
     }
 
     @PostMapping("/user")
-    @ResponseBody
     public FileDto uploadUserFiles(
             @AuthenticationPrincipal User user,
             @RequestParam MultipartFile[] files,
@@ -79,7 +74,6 @@ public class FileManagerResource {
     }
 
     @PostMapping("/groups/{groupName}")
-    @ResponseBody
     public FileDto uploadGroupFiles(
             @AuthenticationPrincipal User user,
             @PathVariable String groupName,
