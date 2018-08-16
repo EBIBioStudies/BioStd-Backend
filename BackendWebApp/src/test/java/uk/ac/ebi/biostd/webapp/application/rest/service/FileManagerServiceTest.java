@@ -23,12 +23,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
+import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
 import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileManagerServiceTest {
     private static final long GROUP_ID = 123L;
     private static final long USER_ID = 456L;
+    private static final String GROUP_NAME = "Group1";
     private static final String GROUP_SECRET = "abc";
     private static final String GROUP_FOLDER = "def";
     private static final String USER_SECRET = "ghi";
@@ -54,6 +56,12 @@ public class FileManagerServiceTest {
     @Mock
     private UserGroup mockUserGroup;
 
+    @Mock
+    private uk.ac.ebi.biostd.webapp.application.persitence.entities.UserGroup mockUserGroupEntity;
+
+    @Mock
+    private GroupService mockGroupService;
+
     private Path userFolderPath;
 
     private Path groupFolderPath;
@@ -78,7 +86,10 @@ public class FileManagerServiceTest {
         when(mockUser.getSecret()).thenReturn(USER_SECRET);
         when(mockUserGroup.getId()).thenReturn(GROUP_ID);
         when(mockUserGroup.getSecret()).thenReturn(GROUP_SECRET);
+        when(mockUserGroupEntity.getId()).thenReturn(GROUP_ID);
+        when(mockUserGroupEntity.getSecret()).thenReturn(GROUP_SECRET);
         when(mockUser.getGroups()).thenReturn(Sets.newHashSet(mockUserGroup));
+        when(mockGroupService.getGroupFromUser(USER_ID, GROUP_NAME)).thenReturn(mockUserGroupEntity);
         when(mockMagicFolderUtil.getUserMagicFolderPath(USER_ID, USER_SECRET)).thenReturn(userFolderPath);
         when(mockMagicFolderUtil.getGroupMagicFolderPath(GROUP_ID, GROUP_SECRET)).thenReturn(groupFolderPath);
     }
@@ -111,6 +122,16 @@ public class FileManagerServiceTest {
 
     @Test
     public void getGroupFiles() {
+        List<File> groupsFiles = testInstance.getGroupFiles(mockUser, GROUP_NAME, GROUP_FOLDER);
+        assertThat(groupsFiles).hasSize(1);
+
+        File groupFile = groupsFiles.get(0);
+        assertThat(groupFile.getName()).isEqualTo(GROUP_FILE_NAME);
+        assertThat(groupFile.isFile()).isTrue();
+    }
+
+    @Test
+    public void getGroupsFiles() {
         List<File> groupsFiles = testInstance.getGroupsFiles(mockUser, GROUP_FOLDER);
         assertThat(groupsFiles).hasSize(1);
 
@@ -133,7 +154,7 @@ public class FileManagerServiceTest {
     }
 
     @Test
-    public void testUploadBrokenFile() {
+    public void uploadBrokenFile() {
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(
                 () -> testInstance.uploadFiles(multipartFiles, userFolderPath));
     }

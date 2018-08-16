@@ -37,6 +37,7 @@ import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileType;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper;
 import uk.ac.ebi.biostd.webapp.application.rest.service.FileManagerService;
+import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
 import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
 @RunWith(SpringRunner.class)
@@ -49,6 +50,7 @@ public class FileManagerResourceTest {
     private static final String PATH_PARAM = "path";
     private static final String USER_FILES_ENDPOINT = "/files/user";
     private static final String GROUP_FILES_ENDPOINT = "/files/groups";
+    private static final String NAMED_GROUP_FILES_ENDPOINT = "/files/groups/Group1";
     private static final String CURRENT_USER_FOLDER_PATH = "/User/folder1";
     private static final String CURRENT_GROUP_FOLDER_PATH = "/Groups/folder1";
 
@@ -57,6 +59,9 @@ public class FileManagerResourceTest {
 
     @MockBean
     private FileMapper fileMapper;
+
+    @MockBean
+    private GroupService groupService;
 
     @MockBean
     private MagicFolderUtil magicFolderUtil;
@@ -78,8 +83,13 @@ public class FileManagerResourceTest {
     }
 
     @Test
-    public void getGroupFiles() throws Exception {
+    public void getGroupsFiles() throws Exception {
         performGetFilesRequest(GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
+    }
+
+    @Test
+    public void getGroupFiles() throws Exception {
+        performGetFilesRequest(NAMED_GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
     }
 
     @Test
@@ -89,7 +99,7 @@ public class FileManagerResourceTest {
 
     @Test
     public void uploadGroupFiles() throws Exception {
-        performMultipartFilesRequest(GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
+        performMultipartFilesRequest(NAMED_GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
     }
 
     private void performGetFilesRequest(String endpoint, String currentFolderPath) throws Exception {
@@ -143,8 +153,10 @@ public class FileManagerResourceTest {
         when(mockPath.resolve(TEST_PATH)).thenReturn(mockFullPath);
         when(magicFolderUtil.getUserMagicFolderPath(anyLong(), isNull())).thenReturn(mockPath);
         when(magicFolderUtil.getGroupMagicFolderPath(anyLong(), isNull())).thenReturn(mockPath);
+        when(groupService.getGroupMagicFolderPath(anyLong(), anyString())).thenReturn(mockPath);
         when(fileManagerService.getUserFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockUserFiles);
         when(fileManagerService.getGroupsFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockUserFiles);
+        when(fileManagerService.getGroupFiles(any(User.class), anyString(), eq(TEST_PATH))).thenReturn(mockUserFiles);
         when(fileManagerService.uploadFiles(any(MultipartFile[].class), any(Path.class))).thenReturn(mockUserFiles);
         when(fileMapper.map(eq(mockUserFiles), anyString(), eq(TEST_PATH))).thenReturn(createMockDtos());
         when(fileMapper.getCurrentFolderDto(anyString(), eq(TEST_PATH), eq(mockFullPath))).thenReturn(currentFolder);
