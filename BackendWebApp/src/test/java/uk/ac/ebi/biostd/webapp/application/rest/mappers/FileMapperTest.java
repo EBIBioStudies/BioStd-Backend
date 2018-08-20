@@ -49,7 +49,6 @@ public class FileMapperTest {
         testInstance = new FileMapper();
         mockFileSystem.newFolder(FOLDER_NAME);
 
-        when(mockFile1.isFile()).thenReturn(true);
         when(mockFile1.length()).thenReturn(FILE_SIZE);
         when(mockFile1.getName()).thenReturn(FILE_NAME);
 
@@ -57,7 +56,6 @@ public class FileMapperTest {
         when(mockFile2.length()).thenReturn(FOLDER_SIZE);
         when(mockFile2.getName()).thenReturn(FOLDER_NAME);
 
-        when(mockFile3.isFile()).thenReturn(false);
         when(mockFile3.isDirectory()).thenReturn(false);
         when(mockFile3.length()).thenReturn(FOLDER_SIZE);
         when(mockFile3.getName()).thenReturn(ARCHIVE_NAME);
@@ -72,6 +70,17 @@ public class FileMapperTest {
                 FILE_SIZE,
                 FileType.FILE,
                 SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH + FILE_NAME);
+    }
+
+    @Test
+    public void mapWithPath() {
+        FileDto fileDto = testInstance.map(mockFile1, BASE_PATH + SLASH + FOLDER_NAME + SLASH + FILE_NAME);
+        assertFileDto(
+                fileDto,
+                FILE_NAME,
+                FILE_SIZE,
+                FileType.FILE,
+                BASE_PATH + SLASH + FOLDER_NAME + SLASH + FILE_NAME);
     }
 
     @Test
@@ -95,7 +104,7 @@ public class FileMapperTest {
     public void getCurrentFolder() {
         Path path = Paths.get(mockFileSystem.getRoot().toString());
         FileDto fileDto = testInstance.getCurrentFolderDto(BASE_PATH, "", path);
-        assertFileDto(fileDto, BASE_PATH, FileType.DIR, SLASH + BASE_PATH + SLASH);
+        assertFileDto(fileDto, BASE_PATH, FileType.DIR, SLASH + BASE_PATH);
     }
 
     @Test
@@ -103,7 +112,7 @@ public class FileMapperTest {
         Path path = Paths.get(mockFileSystem.getRoot() + SLASH + FOLDER_NAME);
         FileDto fileDto = testInstance.getCurrentFolderDto(BASE_PATH, FOLDER_NAME, path);
 
-        assertFileDto(fileDto, FOLDER_NAME, FileType.DIR, SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH);
+        assertFileDto(fileDto, FOLDER_NAME, FileType.DIR, SLASH + BASE_PATH + SLASH + FOLDER_NAME);
     }
 
     private void assertFileDto(FileDto fileDto, String name, FileType fileType, String path) {

@@ -1,6 +1,9 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
+import static uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper.PATH_SEPARATOR;
+
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -93,9 +96,15 @@ public class FileManagerResource {
 
     private FileDto mapFiles(String basePath, Path magicFolderPath, String requestPath, List<File> files) {
         Path fullPath = magicFolderPath.resolve(requestPath);
-        FileDto currentFolderDto = fileMapper.getCurrentFolderDto(basePath, requestPath, fullPath);
-        currentFolderDto.setFiles(fileMapper.map(files, basePath, requestPath));
+        FileDto mappedFileDto;
 
-        return currentFolderDto;
+        if (Files.isDirectory(fullPath)) {
+            mappedFileDto = fileMapper.getCurrentFolderDto(basePath, requestPath, fullPath);
+            mappedFileDto.setFiles(fileMapper.map(files, basePath, requestPath));
+        } else {
+            mappedFileDto = fileMapper.map(files.get(0), basePath + PATH_SEPARATOR + requestPath);
+        }
+
+        return mappedFileDto;
     }
 }

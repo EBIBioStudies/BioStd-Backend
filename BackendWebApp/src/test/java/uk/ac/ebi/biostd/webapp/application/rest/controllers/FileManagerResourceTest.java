@@ -15,10 +15,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,6 +49,9 @@ import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 public class FileManagerResourceTest {
     private static final long FILE_SIZE = 123456L;
     private static final String TEST_PATH = "/folder1";
+    private static final String TEST_FILE_PATH = "folder1/file1.txt";
+    private static final String FILE_FULL_PATH = "User/folder1/file1.txt";
+    private static final String FOLDER_NAME = "folder1";
     private static final String FILE_NAME = "file1.txt";
     private static final String PATH_PARAM = "path";
     private static final String USER_FILES_ENDPOINT = "/files/user";
@@ -53,6 +59,9 @@ public class FileManagerResourceTest {
     private static final String NAMED_GROUP_FILES_ENDPOINT = "/files/groups/Group1";
     private static final String CURRENT_USER_FOLDER_PATH = "/User/folder1";
     private static final String CURRENT_GROUP_FOLDER_PATH = "/Groups/folder1";
+
+    @Rule
+    public TemporaryFolder mockFileSystem = new TemporaryFolder();
 
     @Autowired
     private MockMvc mvc;
@@ -72,7 +81,10 @@ public class FileManagerResourceTest {
     private User user = new User();
 
     @Before
-    public void onSetUp() {
+    public void onSetUp() throws Exception {
+        mockFileSystem.newFolder(FOLDER_NAME);
+        mockFileSystem.newFile(TEST_FILE_PATH);
+
         Authentication auth = new UsernamePasswordAuthenticationToken(user, null);
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
@@ -80,6 +92,30 @@ public class FileManagerResourceTest {
     @Test
     public void getUserFiles() throws Exception {
         performGetFilesRequest(USER_FILES_ENDPOINT, CURRENT_USER_FOLDER_PATH);
+    }
+
+    @Test
+    public void getUserSpecificFile() throws Exception {
+        Path mockPath = mock(Path.class);
+        Path mockFullPath = Paths.get(mockFileSystem.getRoot() + TEST_FILE_PATH);
+        List<File> mockUserFiles = createMockFiles();
+        FileDto mappedUserFile = new FileDto();
+
+        mappedUserFile.setName(FILE_NAME);
+        mappedUserFile.setSize(FILE_SIZE);
+        mappedUserFile.setPath(FILE_FULL_PATH);
+        mappedUserFile.setType(FileType.FILE);
+        when(mockPath.resolve(TEST_FILE_PATH)).thenReturn(mockFullPath);
+        when(magicFolderUtil.getUserMagicFolderPath(anyLong(), isNull())).thenReturn(mockPath);
+        when(fileManagerService.getUserFiles(any(User.class), eq(TEST_FILE_PATH))).thenReturn(mockUserFiles);
+        when(fileMapper.map(eq(mockUserFiles.get(0)), eq(FILE_FULL_PATH))).thenReturn(mappedUserFile);
+
+        mvc.perform(get(USER_FILES_ENDPOINT).param(PATH_PARAM, TEST_FILE_PATH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(FILE_NAME))
+                .andExpect(jsonPath("$.path").value(FILE_FULL_PATH))
+                .andExpect(jsonPath("$.size").value(FILE_SIZE))
+                .andExpect(jsonPath("$.type").value(FileType.FILE.toString()));
     }
 
     @Test
@@ -144,7 +180,7 @@ public class FileManagerResourceTest {
 
     private void setUpMockFiles(String currentFolderPath) {
         Path mockPath = mock(Path.class);
-        Path mockFullPath = mock(Path.class);
+        Path mockFullPath = Paths.get(mockFileSystem.getRoot() + TEST_PATH);
         List<File> mockUserFiles = createMockFiles();
         FileDto currentFolder = new FileDto();
 

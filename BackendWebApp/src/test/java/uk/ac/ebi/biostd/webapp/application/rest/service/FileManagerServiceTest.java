@@ -97,27 +97,31 @@ public class FileManagerServiceTest {
     @Test
     public void getUserFiles() {
         List<File> userFiles = testInstance.getUserFiles(mockUser, "");
-        assertThat(userFiles).hasSize(1);
-
-        File userFolder = userFiles.get(0);
-        assertThat(userFolder.getName()).isEqualTo(USER_FOLDER);
-        assertThat(userFolder.isDirectory()).isTrue();
+        assertUserFiles(userFiles, USER_FOLDER, true);
     }
 
     @Test
     public void getUserInnerFolderFiles() {
         List<File> userFiles = testInstance.getUserFiles(mockUser, USER_FOLDER);
-        assertThat(userFiles).hasSize(1);
+        assertUserFiles(userFiles, USER_FILE_NAME, false);
+   }
 
-        File userFile = userFiles.get(0);
-        assertThat(userFile.getName()).isEqualTo(USER_FILE_NAME);
-        assertThat(userFile.isFile()).isTrue();
+   @Test
+   public void getUserSpecificFile() {
+       List<File> userFiles = testInstance.getUserFiles(mockUser, USER_FILE_PATH);
+       assertUserFiles(userFiles, USER_FILE_NAME, false);
    }
 
     @Test
     public void getUserFilesNonExistingPath() {
         assertThatExceptionOfType(NoSuchFileException.class).isThrownBy(
                 () -> testInstance.getUserFiles(mockUser, NON_EXISTING_FOLDER));
+    }
+
+    @Test
+    public void getNonExistingMagicFolderPath() {
+        assertThatExceptionOfType(NoSuchFileException.class).isThrownBy(
+                () -> testInstance.getMagicFolderFiles(Paths.get(NON_EXISTING_FOLDER)));
     }
 
     @Test
@@ -157,5 +161,13 @@ public class FileManagerServiceTest {
     public void uploadBrokenFile() {
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(
                 () -> testInstance.uploadFiles(multipartFiles, userFolderPath));
+    }
+
+    private void assertUserFiles(List<File> userFiles, String fileName, boolean isDirectory) {
+        assertThat(userFiles).hasSize(1);
+
+        File userFolder = userFiles.get(0);
+        assertThat(userFolder.getName()).isEqualTo(fileName);
+        assertThat(userFolder.isDirectory()).isEqualTo(isDirectory);
     }
 }
