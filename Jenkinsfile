@@ -13,9 +13,12 @@ pipeline {
 
     stage('Generate Artifact') {
       steps {
-        //def workspace = pwd()
         sh 'gradle bootJar --stacktrace'
-        echo "${workspace}"
+      }
+    }
+
+    stage('Deploy') {
+      steps {
         sh "cp ${workspace}/BackendWebApp/build/libs/biostudy-\$(date +'%Y%m%d').jar /home/jhoan/EBI/deployments/BackendWebApp"
       }
     }
