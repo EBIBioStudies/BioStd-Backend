@@ -48,14 +48,12 @@ import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 @AutoConfigureMockMvc(secure = false, addFilters = false)
 public class FileManagerResourceTest {
     private static final long FILE_SIZE = 123456L;
-    private static final String TEST_PATH = "/folder1";
+    private static final String TEST_PATH = "folder1";
     private static final String TEST_FILE_PATH = "folder1/file1.txt";
     private static final String FILE_FULL_PATH = "User/folder1/file1.txt";
     private static final String FOLDER_NAME = "folder1";
     private static final String FILE_NAME = "file1.txt";
-    private static final String PATH_PARAM = "path";
     private static final String USER_FILES_ENDPOINT = "/files/user";
-    private static final String GROUP_FILES_ENDPOINT = "/files/groups";
     private static final String NAMED_GROUP_FILES_ENDPOINT = "/files/groups/Group1";
     private static final String CURRENT_USER_FOLDER_PATH = "/User/folder1";
     private static final String CURRENT_GROUP_FOLDER_PATH = "/Groups/folder1";
@@ -110,17 +108,12 @@ public class FileManagerResourceTest {
         when(fileManagerService.getUserFiles(any(User.class), eq(TEST_FILE_PATH))).thenReturn(mockUserFiles);
         when(fileMapper.map(eq(mockUserFiles.get(0)), eq(FILE_FULL_PATH))).thenReturn(mappedUserFile);
 
-        mvc.perform(get(USER_FILES_ENDPOINT).param(PATH_PARAM, TEST_FILE_PATH))
+        mvc.perform(get(USER_FILES_ENDPOINT + "/" + TEST_FILE_PATH))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(FILE_NAME))
                 .andExpect(jsonPath("$.path").value(FILE_FULL_PATH))
                 .andExpect(jsonPath("$.size").value(FILE_SIZE))
                 .andExpect(jsonPath("$.type").value(FileType.FILE.toString()));
-    }
-
-    @Test
-    public void getGroupsFiles() throws Exception {
-        performGetFilesRequest(GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
     }
 
     @Test
@@ -139,12 +132,12 @@ public class FileManagerResourceTest {
     }
 
     private void performGetFilesRequest(String endpoint, String currentFolderPath) throws Exception {
-        performRequest(get(endpoint).param(PATH_PARAM, TEST_PATH), currentFolderPath);
+        performRequest(get(endpoint + "/" + TEST_PATH), currentFolderPath);
     }
 
     private void performMultipartFilesRequest(String endpoint, String currentFolderPath) throws Exception {
         MockMultipartFile mockFile = new MockMultipartFile(FILE_NAME, FILE_NAME, "text/plain", "".getBytes());
-        performRequest(multipart(endpoint).file(mockFile).param(PATH_PARAM, TEST_PATH), currentFolderPath);
+        performRequest(multipart(endpoint + "/" + TEST_PATH).file(mockFile), currentFolderPath);
     }
 
     private void performRequest(RequestBuilder request, String currentFolderPath) throws Exception {
@@ -180,7 +173,7 @@ public class FileManagerResourceTest {
 
     private void setUpMockFiles(String currentFolderPath) {
         Path mockPath = mock(Path.class);
-        Path mockFullPath = Paths.get(mockFileSystem.getRoot() + TEST_PATH);
+        Path mockFullPath = Paths.get(mockFileSystem.getRoot() + "/" + TEST_PATH);
         List<File> mockUserFiles = createMockFiles();
         FileDto currentFolder = new FileDto();
 

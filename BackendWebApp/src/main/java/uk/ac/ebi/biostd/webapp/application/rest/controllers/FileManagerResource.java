@@ -3,10 +3,13 @@ package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 import static uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper.PATH_SEPARATOR;
 
 import java.io.File;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,60 +33,62 @@ import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 public class FileManagerResource {
     public static final String GROUP_FOLDER_NAME = "Groups";
     public static final String USER_FOLDER_NAME = "User";
+    public static final String USER_RESOURCE_ID = "user";
 
     private final FileMapper fileMapper;
     private final GroupService groupService;
     private final MagicFolderUtil magicFolderUtil;
     private final FileManagerService fileManagerService;
 
-    @GetMapping("/user")
-    public FileDto getUserFiles(
-            @AuthenticationPrincipal User user,
-            @RequestParam(required = false, defaultValue = "") String path) {
+    @GetMapping("/user/**")
+    public FileDto getUserFiles(HttpServletRequest request, @AuthenticationPrincipal User user) {
+        String path = getPath(request.getRequestURL().toString(), USER_RESOURCE_ID);
         List<File> userFiles = fileManagerService.getUserFiles(user, path);
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
 
         return mapFiles(USER_FOLDER_NAME, magicFolderPath, path, userFiles);
     }
 
-    @GetMapping("/groups")
+    @GetMapping("/groups/{groupName}/**")
     public FileDto getGroupsFiles(
+            HttpServletRequest request,
             @AuthenticationPrincipal User user,
-            @RequestParam(required = false, defaultValue = "") String path) {
-        List<File> groupFiles = fileManagerService.getGroupsFiles(user, path);
-        Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
-
-        return mapFiles(GROUP_FOLDER_NAME, magicFolderPath, path, groupFiles);
-    }
-
-    @GetMapping("/groups/{groupName}")
-    public FileDto getGroupsFiles(
-            @AuthenticationPrincipal User user,
-            @PathVariable String groupName,
-            @RequestParam(required = false, defaultValue = "") String path) {
+            @PathVariable String groupName) {
+        String path = getPath(request.getRequestURL().toString(), groupName);
         Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
         List<File> groupFiles = fileManagerService.getGroupFiles(user, groupName, path);
 
-        return mapFiles(GROUP_FOLDER_NAME, magicFolderPath, path, groupFiles);
+        return mapFiles(GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName, magicFolderPath, path, groupFiles);
     }
 
-    @PostMapping("/user")
+    @PostMapping("/user/**")
     public FileDto uploadUserFiles(
+            HttpServletRequest request,
             @AuthenticationPrincipal User user,
-            @RequestParam MultipartFile[] files,
-            @RequestParam(required = false, defaultValue = "") String path) {
+            @RequestParam MultipartFile[] files) {
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
-        return uploadFiles(USER_FOLDER_NAME, magicFolderPath, path, files);
+        return uploadFiles(
+                USER_FOLDER_NAME, magicFolderPath, getPath(request.getRequestURL().toString(), USER_RESOURCE_ID), files);
     }
 
-    @PostMapping("/groups/{groupName}")
+    @PostMapping("/groups/{groupName}/**")
     public FileDto uploadGroupFiles(
+            HttpServletRequest request,
             @AuthenticationPrincipal User user,
             @PathVariable String groupName,
-            @RequestParam MultipartFile[] files,
-            @RequestParam(required = false, defaultValue = "") String path) {
+            @RequestParam MultipartFile[] files) {
         Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
-        return uploadFiles(GROUP_FOLDER_NAME, magicFolderPath, path, files);
+        return uploadFiles(
+                GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName,
+                magicFolderPath,
+                getPath(request.getRequestURL().toString(), groupName), files);
+    }
+
+    private String getPath(String requestUrl, String separator) {
+        StringBuilder pathSeparator = new StringBuilder();
+        pathSeparator.append(PATH_SEPARATOR).append(separator).append(PATH_SEPARATOR);
+
+        return StringUtils.substringAfter(URLDecoder.decode(requestUrl), pathSeparator.toString());
     }
 
     private FileDto uploadFiles(
