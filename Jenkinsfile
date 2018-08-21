@@ -1,7 +1,6 @@
 pipeline {
   agent any
   tools {
-    java "Java 8"
     gradle "Gradle 4.7"
   }
 
