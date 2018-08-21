@@ -7,14 +7,13 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'gradle --version'
-        sh 'gradle clean build'
+        sh 'gradle clean build --stacktrace'
       }
     }
 
     stage('Generate Artifact') {
       steps {
-        sh 'gradle bootJar'
+        sh 'gradle bootJar --stacktrace'
       }
     }
   }
