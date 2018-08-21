@@ -21,7 +21,7 @@ pipeline {
     stage('Run') {
       steps {
         // sh 'pkill -f biostudy'
-        sh "nohup java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8001,suspend=n -jar biostudy-\$(date +'%Y%m%d').jar --biostudy.baseDir=\"/ebi/teams/biostudies/backend/development\" --biostudy.environment=DEV --eutoxrisk-file-validator.enabled=true --spring.mail.host=\"smtp.ebi.ac.uk\" >> logs.txt &"
+        sh "nohup ${env.JAVA_HOME}/bin/java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8001,suspend=n -jar biostudy-\$(date +'%Y%m%d').jar --biostudy.baseDir=\"/ebi/teams/biostudies/backend/development\" --biostudy.environment=DEV --eutoxrisk-file-validator.enabled=true --spring.mail.host=\"smtp.ebi.ac.uk\" >> logs.txt &"
       }
     }
   }
