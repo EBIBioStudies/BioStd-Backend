@@ -2,10 +2,12 @@ package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,21 +28,21 @@ public class FileManagerService {
 
     public List<File> getUserFiles(User user, String path) {
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
-        return getMagicFolderFiles(magicFolderPath, path);
+        return getFiles(magicFolderPath, path);
     }
 
     public List<File> getGroupFiles(User user, String groupName, String path) {
         UserGroup group = groupService.getGroupFromUser(user.getId(), groupName);
         Path magicFolderPath = magicFolderUtil.getGroupMagicFolderPath(group.getId(), group.getSecret());
 
-        return getMagicFolderFiles(magicFolderPath, path);
+        return getFiles(magicFolderPath, path);
     }
 
     public List<File> getGroupsFiles(User user, String path) {
         List<File> groupFiles = new ArrayList<>();
         user.getGroups().stream().forEach(group -> {
             Path magicFolderPath = magicFolderUtil.getGroupMagicFolderPath(group.getId(), group.getSecret());
-            groupFiles.addAll(getMagicFolderFiles(magicFolderPath, path));
+            groupFiles.addAll(getFiles(magicFolderPath, path));
         });
 
         return groupFiles;
@@ -48,6 +50,11 @@ public class FileManagerService {
 
     public List<File> uploadFiles(MultipartFile[] files, Path path) {
         return Stream.of(files).map(file -> uploadFile(file, path)).collect(Collectors.toList());
+    }
+
+    @SneakyThrows
+    List<File> getMagicFolderFiles(Path filesPath) {
+        return Files.list(filesPath).map(path -> new File(path.toUri())).collect(Collectors.toList());
     }
 
     @SneakyThrows
@@ -59,8 +66,19 @@ public class FileManagerService {
     }
 
     @SneakyThrows
-    private List<File> getMagicFolderFiles(Path magicFolderPath, String requestPath) {
+    private List<File> getFiles(Path magicFolderPath, String requestPath) {
         Path fullPath = magicFolderPath.resolve(requestPath);
-        return Files.list(fullPath).map(path -> new File(path.toUri())).collect(Collectors.toList());
+        List<File> files;
+        if (!Files.exists(fullPath)) {
+            throw new NoSuchFileException(fullPath.toString());
+        }
+
+        if (Files.isDirectory(fullPath)) {
+            files = getMagicFolderFiles(fullPath);
+        } else {
+            files = Arrays.asList(new File(fullPath.toUri()));
+        }
+
+        return files;
     }
 }
