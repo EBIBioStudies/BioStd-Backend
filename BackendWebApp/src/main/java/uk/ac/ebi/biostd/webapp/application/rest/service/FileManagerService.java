@@ -23,6 +23,8 @@ import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 @Service
 @AllArgsConstructor
 public class FileManagerService {
+    static final String DIRECTORY_DELETE_ERROR_MSG = "Directories can't be deleted";
+
     private final GroupService groupService;
     private final MagicFolderUtil magicFolderUtil;
 
@@ -48,6 +50,18 @@ public class FileManagerService {
         return groupFiles;
     }
 
+    public File deleteUserFile(User user, String path) {
+        Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
+        return deleteFile(magicFolderPath, path);
+    }
+
+    public File deleteGroupFile(User user, String groupName, String path) {
+        UserGroup group = groupService.getGroupFromUser(user.getId(), groupName);
+        Path magicFolderPath = magicFolderUtil.getGroupMagicFolderPath(group.getId(), group.getSecret());
+
+        return deleteFile(magicFolderPath, path);
+    }
+
     public List<File> uploadFiles(MultipartFile[] files, Path path) {
         return Stream.of(files).map(file -> uploadFile(file, path)).collect(Collectors.toList());
     }
@@ -67,11 +81,8 @@ public class FileManagerService {
 
     @SneakyThrows
     private List<File> getFiles(Path magicFolderPath, String requestPath) {
-        Path fullPath = magicFolderPath.resolve(requestPath);
+        Path fullPath = getFullPath(magicFolderPath, requestPath);
         List<File> files;
-        if (!Files.exists(fullPath)) {
-            throw new NoSuchFileException(fullPath.toString());
-        }
 
         if (Files.isDirectory(fullPath)) {
             files = getMagicFolderFiles(fullPath);
@@ -80,5 +91,28 @@ public class FileManagerService {
         }
 
         return files;
+    }
+
+    @SneakyThrows
+    private File deleteFile(Path magicFolderPath, String requestPath) {
+        Path fullPath = getFullPath(magicFolderPath, requestPath);
+        File file = new File(fullPath.toUri());
+        if (Files.isDirectory(fullPath)) {
+            throw new UnsupportedOperationException(DIRECTORY_DELETE_ERROR_MSG);
+        }
+
+        file.delete();
+
+        return file;
+    }
+
+    @SneakyThrows
+    private Path getFullPath(Path magicFolderPath, String requestPath) {
+        Path fullPath = magicFolderPath.resolve(requestPath);
+        if (!Files.exists(fullPath)) {
+            throw new NoSuchFileException("File not found: " + requestPath);
+        }
+
+        return fullPath;
     }
 }

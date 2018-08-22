@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.webapp.application.rest.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.when;
+import static uk.ac.ebi.biostd.webapp.application.rest.service.FileManagerService.DIRECTORY_DELETE_ERROR_MSG;
 
 import com.google.common.collect.Sets;
 import java.io.File;
@@ -145,6 +146,24 @@ public class FileManagerServiceTest {
     }
 
     @Test
+    public void deleteUserFile() {
+        File deletedFile = testInstance.deleteUserFile(mockUser, USER_FILE_PATH);
+        assertDeletedFile(deletedFile, USER_FILE_NAME);
+    }
+
+    @Test
+    public void deleteGroupFile() {
+        File deletedFile = testInstance.deleteGroupFile(mockUser, GROUP_NAME, GROUP_FILE_PATH);
+        assertDeletedFile(deletedFile, GROUP_FILE_NAME);
+    }
+
+    @Test
+    public void deleteFolder() {
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(
+                () -> testInstance.deleteUserFile(mockUser, USER_FOLDER)).withMessage(DIRECTORY_DELETE_ERROR_MSG);
+    }
+
+    @Test
     public void uploadFiles() throws Exception {
         when(mockMultipartFile.getOriginalFilename()).thenReturn(USER_FILE_NAME);
         when(mockMultipartFile.getBytes()).thenReturn(new byte[]{ });
@@ -161,6 +180,11 @@ public class FileManagerServiceTest {
     public void uploadBrokenFile() {
         assertThatExceptionOfType(NullPointerException.class).isThrownBy(
                 () -> testInstance.uploadFiles(multipartFiles, userFolderPath));
+    }
+
+    private void assertDeletedFile(File file, String fileName) {
+        assertThat(file.getName()).isEqualTo(fileName);
+        assertThat(file.exists()).isFalse();
     }
 
     private void assertUserFiles(List<File> userFiles, String fileName, boolean isDirectory) {

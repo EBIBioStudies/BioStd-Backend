@@ -10,8 +10,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
+import uk.ac.ebi.biostd.webapp.application.rest.exceptions.ApiErrorException;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper;
 import uk.ac.ebi.biostd.webapp.application.rest.service.FileManagerService;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
@@ -34,6 +37,7 @@ public class FileManagerResource {
     public static final String GROUP_FOLDER_NAME = "Groups";
     public static final String USER_FOLDER_NAME = "User";
     public static final String USER_RESOURCE_ID = "user";
+    public static final String PATH_REQUIRED_ERROR_MSG = "A file path must be specified for this operation";
 
     private final FileMapper fileMapper;
     private final GroupService groupService;
@@ -50,10 +54,8 @@ public class FileManagerResource {
     }
 
     @GetMapping("/groups/{groupName}/**")
-    public FileDto getGroupsFiles(
-            HttpServletRequest request,
-            @AuthenticationPrincipal User user,
-            @PathVariable String groupName) {
+    public FileDto getGroupFiles(
+            HttpServletRequest request, @AuthenticationPrincipal User user, @PathVariable String groupName) {
         String path = getPath(request.getRequestURL().toString(), groupName);
         Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
         List<File> groupFiles = fileManagerService.getGroupFiles(user, groupName, path);
@@ -63,9 +65,7 @@ public class FileManagerResource {
 
     @PostMapping("/user/**")
     public FileDto uploadUserFiles(
-            HttpServletRequest request,
-            @AuthenticationPrincipal User user,
-            @RequestParam MultipartFile[] files) {
+            HttpServletRequest request, @AuthenticationPrincipal User user, @RequestParam MultipartFile[] files) {
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
         return uploadFiles(
                 USER_FOLDER_NAME, magicFolderPath, getPath(request.getRequestURL().toString(), USER_RESOURCE_ID), files);
@@ -84,11 +84,38 @@ public class FileManagerResource {
                 getPath(request.getRequestURL().toString(), groupName), files);
     }
 
+    @DeleteMapping("/user/**")
+    public FileDto deleteUserFile(HttpServletRequest request, @AuthenticationPrincipal User user) {
+        String path = getRequiredPath(request.getRequestURL().toString(), USER_RESOURCE_ID);
+        File deletedFile = fileManagerService.deleteUserFile(user, path);
+
+        return fileMapper.map(deletedFile, USER_FOLDER_NAME + PATH_SEPARATOR + path);
+    }
+
+    @DeleteMapping("/groups/{groupName}/**")
+    public FileDto deleteGroupFile(
+            HttpServletRequest request, @AuthenticationPrincipal User user, @PathVariable String groupName) {
+        String path = getRequiredPath(request.getRequestURL().toString(), groupName);
+        File deletedFile = fileManagerService.deleteGroupFile(user, groupName, path);
+
+        return fileMapper.map(deletedFile, GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName + PATH_SEPARATOR + path);
+    }
+
     private String getPath(String requestUrl, String separator) {
         StringBuilder pathSeparator = new StringBuilder();
         pathSeparator.append(PATH_SEPARATOR).append(separator).append(PATH_SEPARATOR);
 
         return StringUtils.substringAfter(URLDecoder.decode(requestUrl), pathSeparator.toString());
+    }
+
+    private String getRequiredPath(String requestUrl, String separator) {
+        String path = getPath(requestUrl, separator);
+
+        if (StringUtils.isEmpty(path)) {
+            throw new ApiErrorException(PATH_REQUIRED_ERROR_MSG, HttpStatus.METHOD_NOT_ALLOWED);
+        }
+
+        return path;
     }
 
     private FileDto uploadFiles(
