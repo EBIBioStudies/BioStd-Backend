@@ -9,9 +9,15 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.fileUpload;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.ac.ebi.biostd.webapp.application.rest.controllers.FileManagerResource.PATH_REQUIRED_ERROR_MSG;
@@ -27,17 +33,21 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.restdocs.request.PathParametersSnippet;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
@@ -50,6 +60,7 @@ import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 @RunWith(SpringRunner.class)
 @WebMvcTest(FileManagerResource.class)
 @AutoConfigureMockMvc(secure = false, addFilters = false)
+@AutoConfigureRestDocs(outputDir = "build/docs/snippets/files", uriHost = "biostudy-bia.ebi.ac.uk", uriPort = 8586)
 public class FileManagerResourceTest {
     private static final long FILE_SIZE = 123456L;
     private static final String TEST_PATH = "folder1";
@@ -59,10 +70,26 @@ public class FileManagerResourceTest {
     private static final String GROUP_FILE_FULL_PATH = "Groups/Group 1/folder1/file1.txt";
     private static final String FOLDER_NAME = "folder1";
     private static final String FILE_NAME = "file1.txt";
-    private static final String USER_FILES_ENDPOINT = "/files/user";
-    private static final String NAMED_GROUP_FILES_ENDPOINT = "/files/groups/Group 1";
+    private static final String USER_FILES_ENDPOINT = "/files/user/{path}";
+    private static final String GROUP_FILES_ENDPOINT = "/files/groups/{groupName}/{path}";
     private static final String CURRENT_USER_FOLDER_PATH = "/User/folder1";
     private static final String CURRENT_GROUP_FOLDER_PATH = "/Groups/folder1";
+
+    private static final String PATH_PARAM = "path";
+    private static final String GROUP_NAME_PARAM = "groupName";
+    private static final String GET_SPECIFIC_FILE_DOC_ID = "get-specific-file";
+    private static final String GET_USER_FILES_DOC_ID = "get-user-files";
+    private static final String GET_GROUP_FILES_DOC_ID = "get-group-files";
+    private static final String UPLOAD_USER_FILES_DOC_ID = "upload-user-files";
+    private static final String UPLOAD_GROUP_FILES_DOC_ID = "upload-group-files";
+    private static final String DELETE_USER_FILES_DOC_ID = "delete-user-files";
+    private static final String DELETE_GROUP_FILES_DOC_ID = "delete-group-files";
+    private static final String GROUP_NAME_PARAM_DESC = "The group name";
+    private static final String PATH_PARAM_SPECIFIC_FILE_DESC = "The path to the specific file";
+    private static final String PATH_PARAM_DESC =
+            "Path to a folder or specific file. If not provided, root folder files will be listed";
+    private static final String PATH_PARAM_UPLOAD_DESC =
+            "Path to a folder or specific file. If not provided, the files will be uploaded to root folder";
 
     @Rule
     public TemporaryFolder mockFileSystem = new TemporaryFolder();
@@ -85,7 +112,7 @@ public class FileManagerResourceTest {
     private User user = new User();
 
     @Before
-    public void onSetUp() throws Exception {
+    public void setUp() throws Exception {
         mockFileSystem.newFolder(FOLDER_NAME);
         mockFileSystem.newFile(TEST_FILE_PATH);
 
@@ -95,76 +122,117 @@ public class FileManagerResourceTest {
 
     @Test
     public void getUserFiles() throws Exception {
-        performGetFilesRequest(USER_FILES_ENDPOINT, CURRENT_USER_FOLDER_PATH);
+        ResultActions testRequest = performRequest(get(USER_FILES_ENDPOINT, TEST_PATH), CURRENT_USER_FOLDER_PATH);
+        generateDocs(
+                testRequest,
+                GET_USER_FILES_DOC_ID,
+                pathParameters(parameterWithName(PATH_PARAM).description(PATH_PARAM_DESC).optional()));
+
     }
 
     @Test
     public void getUserSpecificFile() throws Exception {
-        setUpMockFiles(CURRENT_USER_FOLDER_PATH, USER_FILE_FULL_PATH);
-        mvc.perform(get(USER_FILES_ENDPOINT + "/" + TEST_FILE_PATH))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(FILE_NAME))
-                .andExpect(jsonPath("$.path").value(USER_FILE_FULL_PATH))
-                .andExpect(jsonPath("$.size").value(FILE_SIZE))
-                .andExpect(jsonPath("$.type").value(FileType.FILE.toString()));
+        ResultActions testRequest =
+                performSpecificFileRequest(
+                        get(USER_FILES_ENDPOINT, TEST_FILE_PATH), CURRENT_USER_FOLDER_PATH, USER_FILE_FULL_PATH);
+        generateDocs(
+                testRequest,
+                GET_SPECIFIC_FILE_DOC_ID,
+                pathParameters(parameterWithName(PATH_PARAM).description(PATH_PARAM_SPECIFIC_FILE_DESC)));
     }
 
     @Test
     public void getGroupFiles() throws Exception {
-        performGetFilesRequest(NAMED_GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
+        ResultActions testRequest =
+                performRequest(get(GROUP_FILES_ENDPOINT, TEST_GROUP, TEST_PATH), CURRENT_GROUP_FOLDER_PATH);
+
+        generateDocs(
+                testRequest,
+                GET_GROUP_FILES_DOC_ID,
+                pathParameters(
+                    parameterWithName(GROUP_NAME_PARAM).description(GROUP_NAME_PARAM_DESC),
+                    parameterWithName(PATH_PARAM).description(PATH_PARAM_DESC).optional()));
     }
 
     @Test
     public void uploadUserFiles() throws Exception {
-        performMultipartFilesRequest(USER_FILES_ENDPOINT, CURRENT_USER_FOLDER_PATH);
+        ResultActions testRequest =
+                performFileUploadRequest(fileUpload(USER_FILES_ENDPOINT, TEST_PATH), CURRENT_USER_FOLDER_PATH);
+
+        generateDocs(
+                testRequest,
+                UPLOAD_USER_FILES_DOC_ID,
+                pathParameters(parameterWithName(PATH_PARAM).description(PATH_PARAM_UPLOAD_DESC).optional()));
     }
 
     @Test
     public void uploadGroupFiles() throws Exception {
-        performMultipartFilesRequest(NAMED_GROUP_FILES_ENDPOINT, CURRENT_GROUP_FOLDER_PATH);
+        ResultActions testRequest =
+                performFileUploadRequest(
+                        fileUpload(GROUP_FILES_ENDPOINT, TEST_GROUP, TEST_PATH), CURRENT_GROUP_FOLDER_PATH);
+
+        generateDocs(
+                testRequest,
+                UPLOAD_GROUP_FILES_DOC_ID,
+                pathParameters(
+                parameterWithName(GROUP_NAME_PARAM).description(GROUP_NAME_PARAM_DESC),
+                parameterWithName(PATH_PARAM).description(PATH_PARAM_UPLOAD_DESC).optional()));
     }
 
     @Test
     public void deleteUserFile() throws Exception {
-        performDeleteFilesRequest(USER_FILES_ENDPOINT, USER_FILE_FULL_PATH);
+        ResultActions testRequest =
+                performSpecificFileRequest(delete(USER_FILES_ENDPOINT, TEST_FILE_PATH), "", USER_FILE_FULL_PATH);
+
         verify(fileManagerService).deleteUserFile(any(User.class), eq(TEST_FILE_PATH));
+        generateDocs(
+                testRequest,
+                DELETE_USER_FILES_DOC_ID,
+                pathParameters(parameterWithName(PATH_PARAM).description(PATH_PARAM_SPECIFIC_FILE_DESC)));
     }
 
     @Test
     public void deleteGroupFile() throws Exception {
-        performDeleteFilesRequest(NAMED_GROUP_FILES_ENDPOINT, GROUP_FILE_FULL_PATH);
+        ResultActions testRequest =
+                performSpecificFileRequest(
+                        delete(GROUP_FILES_ENDPOINT, TEST_GROUP, TEST_FILE_PATH), "", GROUP_FILE_FULL_PATH);
+
         verify(fileManagerService).deleteGroupFile(any(User.class), eq(TEST_GROUP), eq(TEST_FILE_PATH));
+        generateDocs(
+                testRequest,
+                DELETE_GROUP_FILES_DOC_ID,
+                pathParameters(
+                    parameterWithName(GROUP_NAME_PARAM).description(GROUP_NAME_PARAM_DESC),
+                    parameterWithName(PATH_PARAM).description(PATH_PARAM_SPECIFIC_FILE_DESC)));
     }
 
     @Test
     public void deleteWithNoPath() throws Exception {
-        mvc.perform(delete(USER_FILES_ENDPOINT))
+        mvc.perform(delete(USER_FILES_ENDPOINT, ""))
                 .andExpect(status().is(HttpStatus.METHOD_NOT_ALLOWED.value()))
                 .andExpect(jsonPath("$.message").value(PATH_REQUIRED_ERROR_MSG));
     }
 
-    private void performDeleteFilesRequest(String endpoint, String path) throws Exception {
-        setUpMockFiles("", path);
-        mvc.perform(delete(endpoint + "/" + TEST_FILE_PATH))
+    private ResultActions performFileUploadRequest(
+            MockMultipartHttpServletRequestBuilder fileUploadRequest, String currentFolderPath) throws Exception {
+        MockMultipartFile mockFile = new MockMultipartFile(FILE_NAME, FILE_NAME, "text/plain", "".getBytes());
+        return performRequest(fileUploadRequest.file(mockFile), currentFolderPath);
+    }
+
+    private ResultActions performSpecificFileRequest(
+            RequestBuilder request, String currentFolderPath, String specificFilePath) throws Exception {
+        setUpMockFiles(currentFolderPath, specificFilePath);
+        return mvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(FILE_NAME))
-                .andExpect(jsonPath("$.path").value(path))
+                .andExpect(jsonPath("$.path").value(specificFilePath))
                 .andExpect(jsonPath("$.size").value(FILE_SIZE))
                 .andExpect(jsonPath("$.type").value(FileType.FILE.toString()));
     }
 
-    private void performGetFilesRequest(String endpoint, String currentFolderPath) throws Exception {
-        performRequest(get(endpoint + "/" + TEST_PATH), currentFolderPath);
-    }
-
-    private void performMultipartFilesRequest(String endpoint, String currentFolderPath) throws Exception {
-        MockMultipartFile mockFile = new MockMultipartFile(FILE_NAME, FILE_NAME, "text/plain", "".getBytes());
-        performRequest(multipart(endpoint + "/" + TEST_PATH).file(mockFile), currentFolderPath);
-    }
-
-    private void performRequest(RequestBuilder request, String currentFolderPath) throws Exception {
+    private ResultActions performRequest(RequestBuilder request, String currentFolderPath) throws Exception {
         setUpMockFiles(currentFolderPath, "");
-        mvc.perform(request)
+       return mvc.perform(request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(TEST_PATH))
                 .andExpect(jsonPath("$.path").value(currentFolderPath))
@@ -173,6 +241,12 @@ public class FileManagerResourceTest {
                 .andExpect(jsonPath("$.files[0].name").value(FILE_NAME))
                 .andExpect(jsonPath("$.files[0].size").value(FILE_SIZE))
                 .andExpect(jsonPath("$.files[0].type").value(FileType.FILE.toString()));
+    }
+
+    private void generateDocs(
+            ResultActions testRequest, String docId, PathParametersSnippet pathParameters) throws Exception {
+        testRequest.andDo(document(docId, pathParameters));
+        testRequest.andDo(document(docId, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
     }
 
     private List<FileDto> createMockDtos() {
