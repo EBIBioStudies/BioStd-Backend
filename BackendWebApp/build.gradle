@@ -7,9 +7,11 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.3")
     }
 }
 
@@ -18,6 +20,7 @@ apply plugin: 'war'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'jacoco'
+apply plugin: 'org.asciidoctor.convert'
 
 group = 'uk.ac.ebi.biostd'
 version = '0.0.1'
@@ -41,6 +44,11 @@ task getAuthToken(type: Exec) {
     commandLine './getAuthToken.sh'
 }
 
+task copyDocIndex(type: Copy) {
+    from 'src/test/resources/docs/api'
+    into 'build/docs/snippets'
+}
+
 bootWar {
     enabled = true
     archiveName = "biostudy-${buildTime()}.war"
@@ -50,7 +58,11 @@ bootWar {
 bootJar {
     enabled = true
     archiveName = "biostudy-${buildTime()}.jar"
+    from('build/asciidoc/html5') {
+        into 'static/docs/api'
+    }
 }
+bootJar.dependsOn asciidoctor
 
 repositories {
     maven { url "http://repo.maven.apache.org/maven2" }
@@ -67,6 +79,14 @@ jacocoTestReport {
         html.destination "${buildDir}/${jacocoReportPath}"
     }
 }
+
+asciidoctor {
+    attributes 'snippets': file('build/docs/snippets')
+    sourceDir 'build/docs/snippets'
+    outputDir 'build/asciidoc'
+    inputs.dir file('build/docs/snippets')
+}
+asciidoctor.dependsOn copyDocIndex
 
 task openCoverageReport {
     doLast {
@@ -120,6 +140,7 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.9.1'
     testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
     testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.7'
