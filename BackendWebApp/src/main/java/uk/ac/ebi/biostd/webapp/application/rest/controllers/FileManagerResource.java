@@ -6,6 +6,7 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -45,7 +46,7 @@ public class FileManagerResource {
     private final FileManagerService fileManagerService;
 
     @GetMapping("/user/**")
-    public FileDto getUserFiles(HttpServletRequest request, @AuthenticationPrincipal User user) {
+    public List<FileDto> getUserFiles(HttpServletRequest request, @AuthenticationPrincipal User user) {
         String path = getPath(request.getRequestURL().toString(), USER_RESOURCE_ID);
         List<File> userFiles = fileManagerService.getUserFiles(user, path);
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
@@ -54,7 +55,7 @@ public class FileManagerResource {
     }
 
     @GetMapping("/groups/{groupName}/**")
-    public FileDto getGroupFiles(
+    public List<FileDto> getGroupFiles(
             HttpServletRequest request, @AuthenticationPrincipal User user, @PathVariable String groupName) {
         String path = getPath(request.getRequestURL().toString(), groupName);
         Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
@@ -64,7 +65,7 @@ public class FileManagerResource {
     }
 
     @PostMapping("/user/**")
-    public FileDto uploadUserFiles(
+    public List<FileDto> uploadUserFiles(
             HttpServletRequest request, @AuthenticationPrincipal User user, @RequestParam MultipartFile[] files) {
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
         return uploadFiles(
@@ -72,7 +73,7 @@ public class FileManagerResource {
     }
 
     @PostMapping("/groups/{groupName}/**")
-    public FileDto uploadGroupFiles(
+    public List<FileDto> uploadGroupFiles(
             HttpServletRequest request,
             @AuthenticationPrincipal User user,
             @PathVariable String groupName,
@@ -103,9 +104,11 @@ public class FileManagerResource {
 
     private String getPath(String requestUrl, String separator) {
         StringBuilder pathSeparator = new StringBuilder();
+        String decodedUrl = URLDecoder.decode(requestUrl);
         pathSeparator.append(PATH_SEPARATOR).append(separator).append(PATH_SEPARATOR);
+        int pathSeparatorIdx = StringUtils.indexOf(decodedUrl.toLowerCase(), pathSeparator.toString().toLowerCase());
 
-        return StringUtils.substringAfter(URLDecoder.decode(requestUrl), pathSeparator.toString());
+        return pathSeparatorIdx > -1 ? StringUtils.substring(decodedUrl, pathSeparatorIdx + pathSeparator.length()) : "";
     }
 
     private String getRequiredPath(String requestUrl, String separator) {
@@ -118,7 +121,7 @@ public class FileManagerResource {
         return path;
     }
 
-    private FileDto uploadFiles(
+    private List<FileDto> uploadFiles(
             String basePath, Path magicFolderPath, String requestPath, MultipartFile[] files) {
         Path currentPath = magicFolderPath.resolve(requestPath);
         List<File> uploadedFiles = fileManagerService.uploadFiles(files, currentPath);
@@ -126,17 +129,16 @@ public class FileManagerResource {
         return mapFiles(basePath, magicFolderPath, requestPath, uploadedFiles);
     }
 
-    private FileDto mapFiles(String basePath, Path magicFolderPath, String requestPath, List<File> files) {
+    private List<FileDto> mapFiles(String basePath, Path magicFolderPath, String requestPath, List<File> files) {
         Path fullPath = magicFolderPath.resolve(requestPath);
-        FileDto mappedFileDto;
+        List<FileDto> mappedFiles;
 
         if (Files.isDirectory(fullPath)) {
-            mappedFileDto = fileMapper.getCurrentFolderDto(basePath, requestPath, fullPath);
-            mappedFileDto.setFiles(fileMapper.map(files, basePath, requestPath));
+            mappedFiles = fileMapper.map(files, basePath, requestPath);
         } else {
-            mappedFileDto = fileMapper.map(files.get(0), basePath + PATH_SEPARATOR + requestPath);
+            mappedFiles = Arrays.asList(fileMapper.map(files.get(0), basePath + PATH_SEPARATOR + requestPath));
         }
 
-        return mappedFileDto;
+        return mappedFiles;
     }
 }
