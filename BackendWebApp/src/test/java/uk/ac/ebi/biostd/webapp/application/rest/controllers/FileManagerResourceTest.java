@@ -71,6 +71,7 @@ public class FileManagerResourceTest {
     private static final String FOLDER_NAME = "folder1";
     private static final String FILE_NAME = "file1.txt";
     private static final String USER_FILES_ENDPOINT = "/files/user/{path}";
+    private static final String USER_FILES_ENDPOINT_UPPERCASE = "/files/User";
     private static final String GROUP_FILES_ENDPOINT = "/files/groups/{groupName}/{path}";
     private static final String CURRENT_USER_FOLDER_PATH = "/User/folder1";
     private static final String CURRENT_GROUP_FOLDER_PATH = "/Groups/folder1";
@@ -131,9 +132,14 @@ public class FileManagerResourceTest {
     }
 
     @Test
+    public void getUserFilesUppercaseWithNoPath() throws Exception {
+        performRequest(get(USER_FILES_ENDPOINT_UPPERCASE), CURRENT_USER_FOLDER_PATH);
+    }
+
+    @Test
     public void getUserSpecificFile() throws Exception {
         ResultActions testRequest =
-                performSpecificFileRequest(
+                performRequest(
                         get(USER_FILES_ENDPOINT, TEST_FILE_PATH), CURRENT_USER_FOLDER_PATH, USER_FILE_FULL_PATH);
         generateDocs(
                 testRequest,
@@ -231,16 +237,18 @@ public class FileManagerResourceTest {
     }
 
     private ResultActions performRequest(RequestBuilder request, String currentFolderPath) throws Exception {
-        setUpMockFiles(currentFolderPath, "");
+        return performRequest(request, currentFolderPath, "");
+    }
+
+    private ResultActions performRequest(
+            RequestBuilder request, String currentFolderPath, String specificFilePath) throws Exception {
+        setUpMockFiles(currentFolderPath, specificFilePath);
        return mvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(TEST_PATH))
-                .andExpect(jsonPath("$.path").value(currentFolderPath))
-                .andExpect(jsonPath("$.files").exists())
-                .andExpect(jsonPath("$.files", hasSize(1)))
-                .andExpect(jsonPath("$.files[0].name").value(FILE_NAME))
-                .andExpect(jsonPath("$.files[0].size").value(FILE_SIZE))
-                .andExpect(jsonPath("$.files[0].type").value(FileType.FILE.toString()));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].name").value(FILE_NAME))
+                .andExpect(jsonPath("$.[0].size").value(FILE_SIZE))
+                .andExpect(jsonPath("$.[0].type").value(FileType.FILE.toString()));
     }
 
     private void generateDocs(
@@ -283,6 +291,7 @@ public class FileManagerResourceTest {
         currentFolder.setName(TEST_PATH);
         currentFolder.setPath(currentFolderPath);
 
+        when(mockPath.resolve("")).thenReturn(mockFullPath);
         when(mockPath.resolve(TEST_PATH)).thenReturn(mockFullPath);
         when(mockPath.resolve(TEST_FILE_PATH)).thenReturn(mockSpecificFileFullPath);
 
@@ -291,6 +300,7 @@ public class FileManagerResourceTest {
 
         when(groupService.getGroupMagicFolderPath(anyLong(), anyString())).thenReturn(mockPath);
 
+        when(fileManagerService.getUserFiles(any(User.class), eq(""))).thenReturn(mockUserFiles);
         when(fileManagerService.getUserFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockUserFiles);
         when(fileManagerService.getGroupsFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockUserFiles);
         when(fileManagerService.getUserFiles(any(User.class), eq(TEST_FILE_PATH))).thenReturn(mockUserFiles);
@@ -302,8 +312,8 @@ public class FileManagerResourceTest {
         when(fileManagerService.deleteGroupFile(
                 any(User.class), eq(TEST_GROUP), eq(TEST_FILE_PATH))).thenReturn(mockUserFiles.get(0));
 
+        when(fileMapper.map(eq(mockUserFiles), anyString(), eq(""))).thenReturn(createMockDtos());
         when(fileMapper.map(eq(mockUserFiles), anyString(), eq(TEST_PATH))).thenReturn(createMockDtos());
         when(fileMapper.map(eq(mockUserFiles.get(0)), eq(specificFilePath))).thenReturn(mappedUserFile);
-        when(fileMapper.getCurrentFolderDto(anyString(), eq(TEST_PATH), eq(mockFullPath))).thenReturn(currentFolder);
     }
 }

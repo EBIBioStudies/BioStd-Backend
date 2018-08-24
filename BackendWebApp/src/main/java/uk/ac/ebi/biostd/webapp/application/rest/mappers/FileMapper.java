@@ -1,7 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.rest.mappers;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -30,16 +29,6 @@ public class FileMapper {
 
     public List<FileDto> map(List<File> files, String basePath, String requestPath) {
         return files.stream().map(file -> map(file, basePath, requestPath)).collect(Collectors.toList());
-    }
-
-    public FileDto getCurrentFolderDto(String basePath, String requestPath, Path fullPath) {
-        File currentFolder = new File(fullPath.toUri());
-        FileDto currentFolderDto = new FileDto();
-        currentFolderDto.setType(FileType.DIR);
-        currentFolderDto.setPath(getFolderPath(basePath, requestPath));
-        currentFolderDto.setName(StringUtils.isEmpty(requestPath) ? basePath : currentFolder.getName());
-
-        return currentFolderDto;
     }
 
     private String getFolderPath(String basePath, String paramPath) {

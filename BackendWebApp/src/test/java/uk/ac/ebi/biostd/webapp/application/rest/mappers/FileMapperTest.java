@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -98,21 +96,6 @@ public class FileMapperTest {
         FileDto fileDto2 = files.get(1);
         assertFileDto(fileDto1, FILE_NAME, FILE_SIZE, FileType.FILE, SLASH + BASE_PATH + SLASH + FILE_NAME);
         assertFileDto(fileDto2, FOLDER_NAME, FOLDER_SIZE, FileType.DIR, SLASH + BASE_PATH + SLASH + FOLDER_NAME);
-    }
-
-    @Test
-    public void getCurrentFolder() {
-        Path path = Paths.get(mockFileSystem.getRoot().toString());
-        FileDto fileDto = testInstance.getCurrentFolderDto(BASE_PATH, "", path);
-        assertFileDto(fileDto, BASE_PATH, FileType.DIR, SLASH + BASE_PATH);
-    }
-
-    @Test
-    public void getInnerFolderDto() {
-        Path path = Paths.get(mockFileSystem.getRoot() + SLASH + FOLDER_NAME);
-        FileDto fileDto = testInstance.getCurrentFolderDto(BASE_PATH, FOLDER_NAME, path);
-
-        assertFileDto(fileDto, FOLDER_NAME, FileType.DIR, SLASH + BASE_PATH + SLASH + FOLDER_NAME);
     }
 
     private void assertFileDto(FileDto fileDto, String name, FileType fileType, String path) {
