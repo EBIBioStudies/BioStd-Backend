@@ -1,12 +1,16 @@
 package uk.ac.ebi.biostd.webapp.application.rest.mappers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
-import lombok.SneakyThrows;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,7 +29,10 @@ public class FileMapperTest {
     private final static String BASE_PATH = "User";
     private final static String FOLDER_NAME = "folder";
     private final static String FILE_NAME = "file1.txt";
+    private final static String FILE_CONTENT = "test content";
+    private final static String FILE_PATH = "/folder/file1.txt";
     private final static String ARCHIVE_NAME = "archive1.zip";
+    private final static String SINGLE_FILE_ARCHIVE = "archive2.zip";
 
     @Rule
     public TemporaryFolder mockFileSystem = new TemporaryFolder();
@@ -39,13 +46,22 @@ public class FileMapperTest {
     @Mock
     private File mockFile3;
 
+    private File zipFile;
+
+    private File singleFileZip;
+
     private FileMapper testInstance;
 
     @Before
-    @SneakyThrows
-    public void setUp() {
+    public void setUp() throws Exception {
         testInstance = new FileMapper();
         mockFileSystem.newFolder(FOLDER_NAME);
+
+        zipFile = mockFileSystem.newFile(ARCHIVE_NAME);
+        createTestZipFile(zipFile, FILE_PATH);
+
+        singleFileZip = mockFileSystem.newFile(SINGLE_FILE_ARCHIVE);
+        createTestZipFile(singleFileZip, FILE_NAME);
 
         when(mockFile1.length()).thenReturn(FILE_SIZE);
         when(mockFile1.getName()).thenReturn(FILE_NAME);
@@ -61,7 +77,7 @@ public class FileMapperTest {
 
     @Test
     public void map() {
-        FileDto fileDto = testInstance.map(mockFile1, BASE_PATH, FOLDER_NAME);
+        FileDto fileDto = testInstance.map(mockFile1, BASE_PATH, FOLDER_NAME, true, "");
         assertFileDto(
                 fileDto,
                 FILE_NAME,
@@ -88,6 +104,74 @@ public class FileMapperTest {
     }
 
     @Test
+    public void mapArchiveInnerFiles() {
+        FileDto fileDto = testInstance.map(zipFile, BASE_PATH, ARCHIVE_NAME, true, FOLDER_NAME);
+
+        assertFileDto(fileDto, ARCHIVE_NAME, FileType.ARCHIVE, SLASH + BASE_PATH + SLASH + ARCHIVE_NAME);
+        assertThat(fileDto.getFiles()).hasSize(1);
+        assertFileDto(
+                fileDto.getFiles().get(0),
+                FILE_NAME,
+                FileType.FILE,
+                SLASH + BASE_PATH + SLASH + ARCHIVE_NAME + FILE_PATH);
+    }
+
+    @Test
+    public void mapArchiveInnerSingleFile() {
+        FileDto fileDto = testInstance.map(singleFileZip, BASE_PATH, FOLDER_NAME + SINGLE_FILE_ARCHIVE, true, FILE_NAME);
+
+        assertFileDto(
+                fileDto,
+                SINGLE_FILE_ARCHIVE,
+                FileType.ARCHIVE,
+                SLASH + BASE_PATH + SLASH + FOLDER_NAME + SINGLE_FILE_ARCHIVE);
+        assertThat(fileDto.getFiles()).hasSize(1);
+        assertFileDto(
+                fileDto.getFiles().get(0),
+                FILE_NAME,
+                FileType.FILE,
+                SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH + SINGLE_FILE_ARCHIVE + SLASH + FILE_NAME);
+    }
+
+    @Test
+    public void mapArchiveInnerSingleFileNoZipPath() {
+        FileDto fileDto = testInstance.map(singleFileZip, BASE_PATH, FOLDER_NAME + SLASH + SINGLE_FILE_ARCHIVE, true, "");
+
+        assertFileDto(
+                fileDto,
+                SINGLE_FILE_ARCHIVE,
+                FileType.ARCHIVE,
+                SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH + SINGLE_FILE_ARCHIVE);
+        assertThat(fileDto.getFiles()).hasSize(1);
+        assertFileDto(
+                fileDto.getFiles().get(0),
+                FILE_NAME,
+                FileType.FILE,
+                SLASH + BASE_PATH + SLASH + FOLDER_NAME + SLASH + SINGLE_FILE_ARCHIVE + SLASH + FILE_NAME);
+    }
+
+    @Test
+    public void mapArchiveInnerSingleFileNoShowArchive() {
+        FileDto fileDto = testInstance.map(singleFileZip, BASE_PATH, FOLDER_NAME + SINGLE_FILE_ARCHIVE, false, FILE_NAME);
+
+        assertFileDto(
+                fileDto,
+                SINGLE_FILE_ARCHIVE,
+                FileType.ARCHIVE,
+                SLASH + BASE_PATH + SLASH + FOLDER_NAME + SINGLE_FILE_ARCHIVE);
+        assertThat(fileDto.getFiles()).isNull();
+    }
+
+    @Test
+    public void mapBrokenArchive() {
+        File brokenArchive = mock(File.class);
+        when(brokenArchive.getName()).thenReturn(ARCHIVE_NAME);
+
+        assertThatExceptionOfType(NullPointerException.class).isThrownBy(
+                () -> testInstance.map(brokenArchive, BASE_PATH, FOLDER_NAME + SINGLE_FILE_ARCHIVE, true, FILE_NAME));
+    }
+
+    @Test
     public void mapList() {
         List<FileDto> files = testInstance.map(Arrays.asList(mockFile1, mockFile2), BASE_PATH, "");
         assertThat(files).hasSize(2);
@@ -96,6 +180,13 @@ public class FileMapperTest {
         FileDto fileDto2 = files.get(1);
         assertFileDto(fileDto1, FILE_NAME, FILE_SIZE, FileType.FILE, SLASH + BASE_PATH + SLASH + FILE_NAME);
         assertFileDto(fileDto2, FOLDER_NAME, FOLDER_SIZE, FileType.DIR, SLASH + BASE_PATH + SLASH + FOLDER_NAME);
+    }
+
+    private void createTestZipFile(File zipFile, String path) throws Exception {
+        ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile));
+        zipOutputStream.putNextEntry(new ZipEntry(path));
+        zipOutputStream.write(FILE_CONTENT.getBytes());
+        zipOutputStream.close();
     }
 
     private void assertFileDto(FileDto fileDto, String name, FileType fileType, String path) {

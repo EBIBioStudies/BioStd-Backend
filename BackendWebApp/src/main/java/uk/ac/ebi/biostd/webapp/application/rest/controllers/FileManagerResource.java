@@ -7,7 +7,9 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +37,8 @@ import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 @RequestMapping("/files")
 @PreAuthorize("isAuthenticated()")
 public class FileManagerResource {
+    static final String PATH_KEY = "path";
+    static final String ZIP_PATH_KEY = "zipPath";
     public static final String GROUP_FOLDER_NAME = "Groups";
     public static final String USER_FOLDER_NAME = "User";
     public static final String USER_RESOURCE_ID = "user";
@@ -46,22 +50,42 @@ public class FileManagerResource {
     private final FileManagerService fileManagerService;
 
     @GetMapping("/user/**")
-    public List<FileDto> getUserFiles(HttpServletRequest request, @AuthenticationPrincipal User user) {
-        String path = getPath(request.getRequestURL().toString(), USER_RESOURCE_ID);
+    public List<FileDto> getUserFiles(
+            HttpServletRequest request,
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false, defaultValue = "false") String showArchive) {
+        Map<String, String> paths = getPaths(request, USER_RESOURCE_ID);
+        String path = paths.get(PATH_KEY);
         List<File> userFiles = fileManagerService.getUserFiles(user, path);
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
 
-        return mapFiles(USER_FOLDER_NAME, magicFolderPath, path, userFiles);
+        return mapFiles(
+                USER_FOLDER_NAME,
+                magicFolderPath,
+                path,
+                userFiles,
+                Boolean.valueOf(showArchive),
+                paths.get(ZIP_PATH_KEY));
     }
 
     @GetMapping("/groups/{groupName}/**")
     public List<FileDto> getGroupFiles(
-            HttpServletRequest request, @AuthenticationPrincipal User user, @PathVariable String groupName) {
-        String path = getPath(request.getRequestURL().toString(), groupName);
+            HttpServletRequest request,
+            @AuthenticationPrincipal User user,
+            @PathVariable String groupName,
+            @RequestParam(required = false, defaultValue = "false") String showArchive) {
+        Map<String, String> paths = getPaths(request, groupName);
+        String path = paths.get(PATH_KEY);
         Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
         List<File> groupFiles = fileManagerService.getGroupFiles(user, groupName, path);
 
-        return mapFiles(GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName, magicFolderPath, path, groupFiles);
+        return mapFiles(
+                GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName,
+                magicFolderPath,
+                path,
+                groupFiles,
+                Boolean.valueOf(showArchive),
+                paths.get(ZIP_PATH_KEY));
     }
 
     @PostMapping("/user/**")
@@ -121,6 +145,23 @@ public class FileManagerResource {
         return path;
     }
 
+    private Map<String, String> getPaths(HttpServletRequest request, String resource) {
+        Map<String, String> paths = new HashMap<>();
+        String zipPath = "";
+        String path = getPath(request.getRequestURL().toString(), resource);
+        String zipPathSeparator = FileMapper.ARCHIVE_EXTENSION + FileMapper.PATH_SEPARATOR;
+
+        if (path.contains(zipPathSeparator)) {
+            zipPath = StringUtils.substringAfter(path, zipPathSeparator);
+            path = StringUtils.remove(path, zipPath);
+        }
+
+        paths.put(PATH_KEY, path);
+        paths.put(ZIP_PATH_KEY, zipPath);
+
+        return paths;
+    }
+
     private List<FileDto> uploadFiles(
             String basePath, Path magicFolderPath, String requestPath, MultipartFile[] files) {
         Path currentPath = magicFolderPath.resolve(requestPath);
@@ -130,13 +171,23 @@ public class FileManagerResource {
     }
 
     private List<FileDto> mapFiles(String basePath, Path magicFolderPath, String requestPath, List<File> files) {
+        return mapFiles(basePath, magicFolderPath, requestPath, files, false, "");
+    }
+
+    private List<FileDto> mapFiles(
+            String basePath,
+            Path magicFolderPath,
+            String requestPath,
+            List<File> files,
+            boolean showArchive,
+            String zipPath) {
         Path fullPath = magicFolderPath.resolve(requestPath);
         List<FileDto> mappedFiles;
 
         if (Files.isDirectory(fullPath)) {
-            mappedFiles = fileMapper.map(files, basePath, requestPath);
+            mappedFiles = fileMapper.map(files, basePath, requestPath, showArchive, zipPath);
         } else {
-            mappedFiles = Arrays.asList(fileMapper.map(files.get(0), basePath + PATH_SEPARATOR + requestPath));
+            mappedFiles = Arrays.asList(fileMapper.map(files.get(0), basePath, requestPath, showArchive, zipPath));
         }
 
         return mappedFiles;
