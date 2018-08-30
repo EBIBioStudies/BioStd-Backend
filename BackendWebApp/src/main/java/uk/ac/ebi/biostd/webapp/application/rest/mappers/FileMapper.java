@@ -1,26 +1,53 @@
 package uk.ac.ebi.biostd.webapp.application.rest.mappers;
 
+import static uk.ac.ebi.biostd.webapp.application.rest.util.FileUtil.PATH_SEPARATOR;
+import static uk.ac.ebi.biostd.webapp.application.rest.util.FileUtil.getFileType;
+
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.SneakyThrows;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.zeroturnaround.zip.ZipUtil;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.FileType;
+import uk.ac.ebi.biostd.webapp.application.rest.types.FileType;
+import uk.ac.ebi.biostd.webapp.application.rest.util.FileUtil;
 
 @Component
 public class FileMapper {
-    public static final String ARCHIVE_EXTENSION = ".zip";
-    public static final String PATH_SEPARATOR = "/";
-    public static final String TMP_DIR = "temp-extract";
+    public FileDto mapFile(File file, String pathPrefix, String path) {
+        return map(file, pathPrefix, path, false, "");
+    }
 
-    public FileDto map(File file, String path) {
+    public List<FileDto> mapFiles(List<File> files, String pathPrefix, String path) {
+        return mapList(files, pathPrefix, path, false, "");
+    }
+
+    public List<FileDto> mapFilesShowingArchive(
+            List<File> files, String pathPrefix, String path, String archivePath) {
+        return mapList(files, pathPrefix, path, true, archivePath);
+    }
+
+    private FileDto map(File file, String pathPrefix, String path, boolean showArchive, String archivePath) {
+        String fullPath = getFolderPath(pathPrefix, path);
+        fullPath = fullPath.contains(file.getName()) ? fullPath : fullPath + PATH_SEPARATOR + file.getName();
+
+        FileDto mappedFile = mapToDto(file, fullPath);
+        if (showArchive && mappedFile.getType() == FileType.ARCHIVE) {
+            List<File> archiveInnerFiles = FileUtil.getArchiveInnerFiles(file, archivePath);
+            String archiveFolderPath = getArchiveFolderPath(path, file.getName(), archivePath);
+            mappedFile.setFiles(mapList(archiveInnerFiles, pathPrefix, archiveFolderPath, false, ""));
+        }
+
+        return mappedFile;
+    }
+
+    private List<FileDto> mapList(
+            List<File> files, String pathPrefix, String path, boolean showArchive, String archivePath) {
+        return files.stream().map(
+                file -> map(file, pathPrefix, path, showArchive, archivePath)).collect(Collectors.toList());
+    }
+
+    private FileDto mapToDto(File file, String path) {
         FileDto fileDto = new FileDto();
         fileDto.setName(file.getName());
         fileDto.setPath(path);
@@ -30,59 +57,9 @@ public class FileMapper {
         return fileDto;
     }
 
-    public FileDto map(File file, String basePath, String requestPath) {
-        return map(file, basePath, requestPath, false, "");
-    }
-
-    public FileDto map(File file, String basePath, String requestPath, boolean showArchive, String zipPath) {
-        String path = getFolderPath(basePath, requestPath);
-        path = path.contains(file.getName()) ? path : path + PATH_SEPARATOR + file.getName();
-
-        FileDto mappedFile = map(file, path);
-        if (showArchive && mappedFile.getType() == FileType.ARCHIVE) {
-            mappedFile.setFiles(mapZipInnerFiles(file, basePath, requestPath, zipPath));
-        }
-
-        return mappedFile;
-    }
-
-    public List<FileDto> map(List<File> files, String basePath, String requestPath) {
-        return map(files, basePath, requestPath, false, "");
-    }
-
-    public List<FileDto> map(List<File> files, String basePath, String requestPath, boolean showArchive, String zipPath) {
-        return files.stream().map(
-                file -> map(file, basePath, requestPath, showArchive, zipPath)).collect(Collectors.toList());
-    }
-
-    @SneakyThrows
-    private List<FileDto> mapZipInnerFiles(File zipFile, String basePath, String requestPath, String zipPath) {
-        File tmpDir = new File(FileUtils.getTempDirectory().getAbsolutePath() + PATH_SEPARATOR + TMP_DIR);
-        ZipUtil.unpack(zipFile, tmpDir);
-        Path filesPath = tmpDir.toPath().resolve(zipPath);
-        List<File> zipFiles =
-                Files.isDirectory(filesPath) ?
-                Files.list(filesPath).map(entry -> new File(entry.toUri())).collect(Collectors.toList()) :
-                Arrays.asList(new File(filesPath.toUri()));
-        FileUtils.deleteDirectory(tmpDir);
-
-        return map(zipFiles, basePath, getZipFolderPath(requestPath, zipFile.getName(), zipPath));
-    }
-
-    private String getFolderPath(String basePath, String paramPath) {
-        StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append(PATH_SEPARATOR).append(basePath);
-
-        if (StringUtils.isNotEmpty(paramPath)) {
-            pathBuilder.append(PATH_SEPARATOR).append(paramPath);
-        }
-
-        return pathBuilder.toString();
-    }
-
-    private String getZipFolderPath(String requestPath, String zipName, String zipPath) {
+    private String getArchiveFolderPath(String path, String archiveName, String archivePath) {
         StringBuilder zipPathBuilder = new StringBuilder();
-        String noZipRequestPath = StringUtils.substringBefore(requestPath, zipName);
+        String noZipRequestPath = StringUtils.substringBefore(path, archiveName);
 
         if (StringUtils.isNotEmpty(noZipRequestPath)) {
             zipPathBuilder.append(noZipRequestPath);
@@ -92,24 +69,23 @@ public class FileMapper {
             }
         }
 
-        zipPathBuilder.append(zipName);
+        zipPathBuilder.append(archiveName);
 
-        if (StringUtils.isNotEmpty(zipPath)) {
-            zipPathBuilder.append(PATH_SEPARATOR).append(zipPath);
+        if (StringUtils.isNotEmpty(archivePath)) {
+            zipPathBuilder.append(PATH_SEPARATOR).append(archivePath);
         }
 
         return zipPathBuilder.toString();
     }
 
-    private FileType getFileType(File file) {
-        if (file.isDirectory()) {
-            return FileType.DIR;
+    private String getFolderPath(String pathPrefix, String path) {
+        StringBuilder pathBuilder = new StringBuilder();
+        pathBuilder.append(PATH_SEPARATOR).append(pathPrefix);
+
+        if (StringUtils.isNotEmpty(path)) {
+            pathBuilder.append(PATH_SEPARATOR).append(path);
         }
 
-        if (file.getName().endsWith(ARCHIVE_EXTENSION)) {
-            return FileType.ARCHIVE;
-        }
-
-        return FileType.FILE;
+        return pathBuilder.toString();
     }
 }

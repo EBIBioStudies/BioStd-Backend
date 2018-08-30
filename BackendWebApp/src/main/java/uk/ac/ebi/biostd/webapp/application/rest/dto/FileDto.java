@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.util.List;
 import lombok.Data;
+import uk.ac.ebi.biostd.webapp.application.rest.types.FileType;
 
 @Data
 @JsonInclude(Include.NON_NULL)

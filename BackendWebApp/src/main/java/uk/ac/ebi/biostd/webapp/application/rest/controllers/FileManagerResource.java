@@ -1,19 +1,11 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
-import static uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper.PATH_SEPARATOR;
+import static uk.ac.ebi.biostd.webapp.application.rest.util.FileUtil.PATH_SEPARATOR;
 
 import java.io.File;
-import java.net.URLDecoder;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
-import uk.ac.ebi.biostd.webapp.application.rest.exceptions.ApiErrorException;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper;
 import uk.ac.ebi.biostd.webapp.application.rest.service.FileManagerService;
+import uk.ac.ebi.biostd.webapp.application.rest.types.PathDescriptor;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
 import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
@@ -37,12 +29,9 @@ import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 @RequestMapping("/files")
 @PreAuthorize("isAuthenticated()")
 public class FileManagerResource {
-    static final String PATH_KEY = "path";
-    static final String ZIP_PATH_KEY = "zipPath";
     public static final String GROUP_FOLDER_NAME = "Groups";
     public static final String USER_FOLDER_NAME = "User";
-    public static final String USER_RESOURCE_ID = "user";
-    public static final String PATH_REQUIRED_ERROR_MSG = "A file path must be specified for this operation";
+
 
     private final FileMapper fileMapper;
     private final GroupService groupService;
@@ -51,115 +40,66 @@ public class FileManagerResource {
 
     @GetMapping("/user/**")
     public List<FileDto> getUserFiles(
-            HttpServletRequest request,
+            PathDescriptor pathDescriptor,
             @AuthenticationPrincipal User user,
             @RequestParam(required = false, defaultValue = "false") String showArchive) {
-        Map<String, String> paths = getPaths(request, USER_RESOURCE_ID);
-        String path = paths.get(PATH_KEY);
+        String path = pathDescriptor.getPath();
         List<File> userFiles = fileManagerService.getUserFiles(user, path);
-        Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
 
-        return mapFiles(
-                USER_FOLDER_NAME,
-                magicFolderPath,
-                path,
-                userFiles,
-                Boolean.valueOf(showArchive),
-                paths.get(ZIP_PATH_KEY));
+        return Boolean.valueOf(showArchive) ?
+                fileMapper.mapFilesShowingArchive(userFiles, USER_FOLDER_NAME, path, pathDescriptor.getArchivePath()) :
+                fileMapper.mapFiles(userFiles, USER_FOLDER_NAME, path);
     }
 
     @GetMapping("/groups/{groupName}/**")
     public List<FileDto> getGroupFiles(
-            HttpServletRequest request,
+            PathDescriptor pathDescriptor,
             @AuthenticationPrincipal User user,
             @PathVariable String groupName,
             @RequestParam(required = false, defaultValue = "false") String showArchive) {
-        Map<String, String> paths = getPaths(request, groupName);
-        String path = paths.get(PATH_KEY);
-        Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
+        String path = pathDescriptor.getPath();
+        String pathPrefix = GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName;
         List<File> groupFiles = fileManagerService.getGroupFiles(user, groupName, path);
 
-        return mapFiles(
-                GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName,
-                magicFolderPath,
-                path,
-                groupFiles,
-                Boolean.valueOf(showArchive),
-                paths.get(ZIP_PATH_KEY));
+        return Boolean.valueOf(showArchive) ?
+                fileMapper.mapFilesShowingArchive(groupFiles, pathPrefix, path, pathDescriptor.getArchivePath()) :
+                fileMapper.mapFiles(groupFiles, pathPrefix, path);
     }
 
     @PostMapping("/user/**")
     public List<FileDto> uploadUserFiles(
-            HttpServletRequest request, @AuthenticationPrincipal User user, @RequestParam MultipartFile[] files) {
+            PathDescriptor pathDescriptor, @AuthenticationPrincipal User user, @RequestParam MultipartFile[] files) {
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
         return uploadFiles(
-                USER_FOLDER_NAME, magicFolderPath, getPath(request.getRequestURL().toString(), USER_RESOURCE_ID), files);
+                USER_FOLDER_NAME, magicFolderPath, pathDescriptor.getPath(), files);
     }
 
     @PostMapping("/groups/{groupName}/**")
     public List<FileDto> uploadGroupFiles(
-            HttpServletRequest request,
+            PathDescriptor pathDescriptor,
             @AuthenticationPrincipal User user,
             @PathVariable String groupName,
             @RequestParam MultipartFile[] files) {
         Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
         return uploadFiles(
-                GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName,
-                magicFolderPath,
-                getPath(request.getRequestURL().toString(), groupName), files);
+                GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName, magicFolderPath, pathDescriptor.getPath(), files);
     }
 
     @DeleteMapping("/user/**")
-    public FileDto deleteUserFile(HttpServletRequest request, @AuthenticationPrincipal User user) {
-        String path = getRequiredPath(request.getRequestURL().toString(), USER_RESOURCE_ID);
+    public FileDto deleteUserFile(PathDescriptor pathDescriptor, @AuthenticationPrincipal User user) {
+        String path = pathDescriptor.getRequiredPath();
         File deletedFile = fileManagerService.deleteUserFile(user, path);
 
-        return fileMapper.map(deletedFile, USER_FOLDER_NAME + PATH_SEPARATOR + path);
+        return fileMapper.mapFile(deletedFile, USER_FOLDER_NAME, path);
     }
 
     @DeleteMapping("/groups/{groupName}/**")
     public FileDto deleteGroupFile(
-            HttpServletRequest request, @AuthenticationPrincipal User user, @PathVariable String groupName) {
-        String path = getRequiredPath(request.getRequestURL().toString(), groupName);
+            PathDescriptor pathDescriptor, @AuthenticationPrincipal User user, @PathVariable String groupName) {
+        String path = pathDescriptor.getRequiredPath();
         File deletedFile = fileManagerService.deleteGroupFile(user, groupName, path);
 
-        return fileMapper.map(deletedFile, GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName + PATH_SEPARATOR + path);
-    }
-
-    private String getPath(String requestUrl, String separator) {
-        StringBuilder pathSeparator = new StringBuilder();
-        String decodedUrl = URLDecoder.decode(requestUrl);
-        pathSeparator.append(PATH_SEPARATOR).append(separator).append(PATH_SEPARATOR);
-        int pathSeparatorIdx = StringUtils.indexOf(decodedUrl.toLowerCase(), pathSeparator.toString().toLowerCase());
-
-        return pathSeparatorIdx > -1 ? StringUtils.substring(decodedUrl, pathSeparatorIdx + pathSeparator.length()) : "";
-    }
-
-    private String getRequiredPath(String requestUrl, String separator) {
-        String path = getPath(requestUrl, separator);
-
-        if (StringUtils.isEmpty(path)) {
-            throw new ApiErrorException(PATH_REQUIRED_ERROR_MSG, HttpStatus.METHOD_NOT_ALLOWED);
-        }
-
-        return path;
-    }
-
-    private Map<String, String> getPaths(HttpServletRequest request, String resource) {
-        Map<String, String> paths = new HashMap<>();
-        String zipPath = "";
-        String path = getPath(request.getRequestURL().toString(), resource);
-        String zipPathSeparator = FileMapper.ARCHIVE_EXTENSION + FileMapper.PATH_SEPARATOR;
-
-        if (path.contains(zipPathSeparator)) {
-            zipPath = StringUtils.substringAfter(path, zipPathSeparator);
-            path = StringUtils.remove(path, zipPath);
-        }
-
-        paths.put(PATH_KEY, path);
-        paths.put(ZIP_PATH_KEY, zipPath);
-
-        return paths;
+        return fileMapper.mapFile(deletedFile, GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName, path);
     }
 
     private List<FileDto> uploadFiles(
@@ -167,29 +107,6 @@ public class FileManagerResource {
         Path currentPath = magicFolderPath.resolve(requestPath);
         List<File> uploadedFiles = fileManagerService.uploadFiles(files, currentPath);
 
-        return mapFiles(basePath, magicFolderPath, requestPath, uploadedFiles);
-    }
-
-    private List<FileDto> mapFiles(String basePath, Path magicFolderPath, String requestPath, List<File> files) {
-        return mapFiles(basePath, magicFolderPath, requestPath, files, false, "");
-    }
-
-    private List<FileDto> mapFiles(
-            String basePath,
-            Path magicFolderPath,
-            String requestPath,
-            List<File> files,
-            boolean showArchive,
-            String zipPath) {
-        Path fullPath = magicFolderPath.resolve(requestPath);
-        List<FileDto> mappedFiles;
-
-        if (Files.isDirectory(fullPath)) {
-            mappedFiles = fileMapper.map(files, basePath, requestPath, showArchive, zipPath);
-        } else {
-            mappedFiles = Arrays.asList(fileMapper.map(files.get(0), basePath, requestPath, showArchive, zipPath));
-        }
-
-        return mappedFiles;
+        return fileMapper.mapFiles(uploadedFiles, basePath, requestPath);
     }
 }
