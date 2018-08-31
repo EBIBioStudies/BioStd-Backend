@@ -91,7 +91,12 @@ include::{snippets}/files/delete-group-files/http-response.adoc[]
 Gets information for a specific file. It can be used for both, users and groups, following the same conventions above.
 
 ==== Parameters
+===== Path Parameters
 include::{snippets}/files/get-specific-file/path-parameters.adoc[]
+
+===== Query Parameters
+include::{snippets}/files/get-specific-file/request-parameters.adoc[]
+The show archive parameter can also be used for both, users and groups, with the same effect.
 
 ==== Example Request
 include::{snippets}/files/get-specific-file/curl-request.adoc[]

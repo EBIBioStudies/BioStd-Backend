@@ -138,6 +138,7 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '23.4-jre'
     compile group: 'net.sourceforge.nekohtml', name: 'nekohtml', version: '1.9.22'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.5'
+    compile group: 'org.zeroturnaround', name: 'zt-zip', version: '1.13'
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
