@@ -2,7 +2,6 @@ package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,28 +21,20 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.ac.ebi.biostd.webapp.application.rest.controllers.FileManagerResource.PATH_REQUIRED_ERROR_MSG;
 import static uk.ac.ebi.biostd.webapp.application.rest.controllers.FileManagerResource.USER_FOLDER_NAME;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.request.AbstractParametersSnippet;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -57,9 +48,9 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
-import uk.ac.ebi.biostd.webapp.application.rest.dto.FileType;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper;
 import uk.ac.ebi.biostd.webapp.application.rest.service.FileManagerService;
+import uk.ac.ebi.biostd.webapp.application.rest.types.FileType;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
 import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
@@ -71,12 +62,9 @@ public class FileManagerResourceTest {
     private static final long FILE_SIZE = 123456L;
     private static final String TEST_PATH = "folder1";
     private static final String TEST_GROUP = "Group 1";
+    private static final String TEST_GROUP_PATH = "Groups/Group 1";
     private static final String TEST_FILE_PATH = "folder1/file1.txt";
     private static final String TEST_ARCHIVE_PATH = "folder1/archive1.zip";
-    private static final String TEST_ARCHIVE_FOLDER_PATH = "folder1/archive1.zip/";
-    private static final String USER_FILE_FULL_PATH = "User/folder1/file1.txt";
-    private static final String GROUP_FILE_FULL_PATH = "Groups/Group 1/folder1/file1.txt";
-    private static final String FOLDER_NAME = "folder1";
     private static final String FILE_NAME = "file1.txt";
     private static final String ARCHIVE_NAME = "archive1.txt";
     private static final String USER_FILES_ENDPOINT = "/files/user/{path}";
@@ -104,9 +92,6 @@ public class FileManagerResourceTest {
     private static final String PATH_PARAM_UPLOAD_DESC =
             "Path to a folder or specific file. If not provided, the files will be uploaded to root folder";
 
-    @Rule
-    public TemporaryFolder mockFileSystem = new TemporaryFolder();
-
     @Autowired
     private MockMvc mvc;
 
@@ -122,14 +107,10 @@ public class FileManagerResourceTest {
     @MockBean
     private FileManagerService fileManagerService;
 
-    private File archive;
-
     private User user = new User();
 
     @Before
-    public void setUp() throws Exception {
-        createTestFiles();
-
+    public void setUp() {
         Authentication auth = new UsernamePasswordAuthenticationToken(user, null);
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
@@ -141,7 +122,6 @@ public class FileManagerResourceTest {
                 testRequest,
                 GET_USER_FILES_DOC_ID,
                 pathParameters(parameterWithName(PATH_PARAM).description(PATH_PARAM_DESC).optional()));
-
     }
 
     @Test
@@ -157,11 +137,6 @@ public class FileManagerResourceTest {
                 GET_SPECIFIC_FILE_DOC_ID,
                 pathParameters(parameterWithName(PATH_PARAM).description(PATH_PARAM_SPECIFIC_FILE_DESC)),
                 requestParameters(parameterWithName(SHOW_ARCHIVE_PARAM).description(SHOW_ARCHIVE_PARAM_DESC)));
-    }
-
-    @Test
-    public void getUserZipSpecificFile() throws Exception {
-        performArchiveRequest(TEST_ARCHIVE_FOLDER_PATH);
     }
 
     @Test
@@ -205,7 +180,7 @@ public class FileManagerResourceTest {
     @Test
     public void deleteUserFile() throws Exception {
         ResultActions testRequest =
-                performSpecificFileRequest(delete(USER_FILES_ENDPOINT, TEST_FILE_PATH), "", USER_FILE_FULL_PATH);
+                performSpecificFileRequest(delete(USER_FILES_ENDPOINT, TEST_FILE_PATH), USER_FOLDER_NAME, TEST_FILE_PATH);
 
         verify(fileManagerService).deleteUserFile(any(User.class), eq(TEST_FILE_PATH));
         generateDocs(
@@ -218,7 +193,7 @@ public class FileManagerResourceTest {
     public void deleteGroupFile() throws Exception {
         ResultActions testRequest =
                 performSpecificFileRequest(
-                        delete(GROUP_FILES_ENDPOINT, TEST_GROUP, TEST_FILE_PATH), "", GROUP_FILE_FULL_PATH);
+                        delete(GROUP_FILES_ENDPOINT, TEST_GROUP, TEST_FILE_PATH), TEST_GROUP_PATH, TEST_FILE_PATH);
 
         verify(fileManagerService).deleteGroupFile(any(User.class), eq(TEST_GROUP), eq(TEST_FILE_PATH));
         generateDocs(
@@ -227,13 +202,6 @@ public class FileManagerResourceTest {
                 pathParameters(
                     parameterWithName(GROUP_NAME_PARAM).description(GROUP_NAME_PARAM_DESC),
                     parameterWithName(PATH_PARAM).description(PATH_PARAM_SPECIFIC_FILE_DESC)));
-    }
-
-    @Test
-    public void deleteWithNoPath() throws Exception {
-        mvc.perform(delete(USER_FILES_ENDPOINT, ""))
-                .andExpect(status().is(HttpStatus.METHOD_NOT_ALLOWED.value()))
-                .andExpect(jsonPath("$.message").value(PATH_REQUIRED_ERROR_MSG));
     }
 
     private ResultActions performFileUploadRequest(
@@ -299,91 +267,54 @@ public class FileManagerResourceTest {
         return Arrays.asList(fileDto);
     }
 
-    private List<File> createMockFiles() {
+    private File createMockFile() {
         File mockFile = mock(File.class);
         when(mockFile.isFile()).thenReturn(true);
         when(mockFile.length()).thenReturn(FILE_SIZE);
         when(mockFile.getName()).thenReturn(FILE_NAME);
 
-        return Arrays.asList(mockFile);
-    }
-
-    private void createTestFiles() throws Exception {
-        mockFileSystem.newFolder(FOLDER_NAME);
-        mockFileSystem.newFile(TEST_FILE_PATH);
-        archive = mockFileSystem.newFile(TEST_ARCHIVE_PATH);
-
-        ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(archive));
-        zipOutputStream.putNextEntry(new ZipEntry(FILE_NAME));
-        zipOutputStream.write(PATH_PARAM_DESC.getBytes());
-        zipOutputStream.close();
+        return mockFile;
     }
 
     private void setUpMockFiles(String currentFolderPath, String specificFilePath) {
         Path mockPath = mock(Path.class);
-        Path mockFullPath = Paths.get(mockFileSystem.getRoot() + "/" + TEST_PATH);
-        Path mockSpecificFileFullPath = Paths.get(mockFileSystem.getRoot() + "/" + TEST_FILE_PATH);
-        Path mockArchiveFullPath = Paths.get(mockFileSystem.getRoot() + "/" + TEST_ARCHIVE_PATH);
-        List<File> mockUserFiles = createMockFiles();
-        FileDto currentFolder = new FileDto();
-        FileDto mappedUserFile = new FileDto();
+        Path mockFullPath = mock(Path.class);
+        File mockArchive = mock(File.class);
+        File mockFile = createMockFile();
+        List<File> mockFiles = Arrays.asList(mockFile);
+        List<File> mockArchives = Arrays.asList(mockArchive);
+        FileDto mappedFile = new FileDto();
         FileDto mappedArchive = new FileDto();
 
-        mappedUserFile.setName(FILE_NAME);
-        mappedUserFile.setSize(FILE_SIZE);
-        mappedUserFile.setPath(specificFilePath);
-        mappedUserFile.setType(FileType.FILE);
-
-        currentFolder.setName(TEST_PATH);
-        currentFolder.setPath(currentFolderPath);
+        mappedFile.setName(FILE_NAME);
+        mappedFile.setSize(FILE_SIZE);
+        mappedFile.setPath(specificFilePath);
+        mappedFile.setType(FileType.FILE);
 
         mappedArchive.setName(ARCHIVE_NAME);
         mappedArchive.setSize(FILE_SIZE);
         mappedArchive.setType(FileType.ARCHIVE);
-        mappedArchive.setFiles(Arrays.asList(mappedUserFile));
+        mappedArchive.setFiles(Arrays.asList(mappedFile));
 
-        when(mockPath.resolve("")).thenReturn(mockFullPath);
         when(mockPath.resolve(TEST_PATH)).thenReturn(mockFullPath);
-        when(mockPath.resolve(TEST_FILE_PATH)).thenReturn(mockSpecificFileFullPath);
-        when(mockPath.resolve(TEST_ARCHIVE_PATH)).thenReturn(mockArchiveFullPath);
-        when(mockPath.resolve(TEST_ARCHIVE_FOLDER_PATH)).thenReturn(mockArchiveFullPath);
 
         when(magicFolderUtil.getUserMagicFolderPath(anyLong(), isNull())).thenReturn(mockPath);
-        when(magicFolderUtil.getGroupMagicFolderPath(anyLong(), isNull())).thenReturn(mockPath);
 
         when(groupService.getGroupMagicFolderPath(anyLong(), anyString())).thenReturn(mockPath);
 
-        when(fileManagerService.getUserFiles(any(User.class), eq(""))).thenReturn(mockUserFiles);
-        when(fileManagerService.getUserFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockUserFiles);
-        when(fileManagerService.getGroupsFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockUserFiles);
-        when(fileManagerService.getUserFiles(any(User.class), eq(TEST_FILE_PATH))).thenReturn(mockUserFiles);
-        when(fileManagerService.getUserFiles(any(User.class), eq(TEST_ARCHIVE_PATH))).thenReturn(Arrays.asList(archive));
-        when(fileManagerService.uploadFiles(any(MultipartFile[].class), any(Path.class))).thenReturn(mockUserFiles);
-        when(fileManagerService.getGroupFiles(any(User.class), anyString(), eq(TEST_PATH))).thenReturn(mockUserFiles);
-        when(fileManagerService.deleteUserFile(any(User.class), eq(TEST_FILE_PATH))).thenReturn(mockUserFiles.get(0));
-        when(fileManagerService.getUserFiles(
-                any(User.class), eq(TEST_ARCHIVE_FOLDER_PATH))).thenReturn(Arrays.asList(archive));
-        when(fileManagerService.getGroupFiles(
-                any(User.class), eq(TEST_GROUP), eq(TEST_FILE_PATH))).thenReturn(mockUserFiles);
-        when(fileManagerService.deleteGroupFile(
-                any(User.class), eq(TEST_GROUP), eq(TEST_FILE_PATH))).thenReturn(mockUserFiles.get(0));
+        when(fileManagerService.getUserFiles(any(User.class), eq(""))).thenReturn(mockFiles);
+        when(fileManagerService.getUserFiles(any(User.class), eq(TEST_PATH))).thenReturn(mockFiles);
+        when(fileManagerService.getUserFiles(any(User.class), eq(TEST_ARCHIVE_PATH))).thenReturn(mockArchives);
+        when(fileManagerService.uploadFiles(any(MultipartFile[].class), eq(mockFullPath))).thenReturn(mockFiles);
+        when(fileManagerService.getGroupFiles(any(User.class), anyString(), eq(TEST_PATH))).thenReturn(mockFiles);
+        when(fileManagerService.deleteUserFile(any(User.class), eq(TEST_FILE_PATH))).thenReturn(mockFile);
+        when(fileManagerService.deleteGroupFile(any(User.class), eq(TEST_GROUP), eq(TEST_FILE_PATH))).thenReturn(mockFile);
 
-        when(fileMapper.map(eq(mockUserFiles.get(0)), eq(specificFilePath))).thenReturn(mappedUserFile);
-        when(fileMapper.map(
-                eq(mockUserFiles), anyString(), eq(""), anyBoolean(), anyString())).thenReturn(createMockDtos());
-        when(fileMapper.map(
-                eq(mockUserFiles), anyString(), eq(TEST_PATH), anyBoolean(), anyString())).thenReturn(createMockDtos());
-        when(fileMapper.map(
-                eq(archive),
-                eq(currentFolderPath),
-                eq(specificFilePath),
-                eq(true),
-                anyString())).thenReturn(mappedArchive);
-        when(fileMapper.map(
-                eq(mockUserFiles.get(0)),
-                eq(currentFolderPath),
-                eq(specificFilePath),
-                anyBoolean(),
-                anyString())).thenReturn(mappedUserFile);
+        when(fileMapper.mapFile(mockFile, currentFolderPath, specificFilePath)).thenReturn(mappedFile);
+        when(fileMapper.mapFiles(eq(mockFiles), anyString(), eq(""))).thenReturn(createMockDtos());
+        when(fileMapper.mapFiles(eq(mockFiles), anyString(), eq(TEST_PATH))).thenReturn(createMockDtos());
+        when(fileMapper
+                .mapFilesShowingArchive(eq(mockArchives), eq(currentFolderPath), eq(specificFilePath), anyString()))
+                .thenReturn(Arrays.asList(mappedArchive));
     }
 }

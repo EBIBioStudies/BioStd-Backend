@@ -32,7 +32,6 @@ public class FileManagerResource {
     public static final String GROUP_FOLDER_NAME = "Groups";
     public static final String USER_FOLDER_NAME = "User";
 
-
     private final FileMapper fileMapper;
     private final GroupService groupService;
     private final MagicFolderUtil magicFolderUtil;
@@ -46,9 +45,7 @@ public class FileManagerResource {
         String path = pathDescriptor.getPath();
         List<File> userFiles = fileManagerService.getUserFiles(user, path);
 
-        return Boolean.valueOf(showArchive) ?
-                fileMapper.mapFilesShowingArchive(userFiles, USER_FOLDER_NAME, path, pathDescriptor.getArchivePath()) :
-                fileMapper.mapFiles(userFiles, USER_FOLDER_NAME, path);
+        return mapFiles(userFiles, USER_FOLDER_NAME, path, pathDescriptor.getArchivePath(), showArchive);
     }
 
     @GetMapping("/groups/{groupName}/**")
@@ -61,9 +58,7 @@ public class FileManagerResource {
         String pathPrefix = GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName;
         List<File> groupFiles = fileManagerService.getGroupFiles(user, groupName, path);
 
-        return Boolean.valueOf(showArchive) ?
-                fileMapper.mapFilesShowingArchive(groupFiles, pathPrefix, path, pathDescriptor.getArchivePath()) :
-                fileMapper.mapFiles(groupFiles, pathPrefix, path);
+        return mapFiles(groupFiles, pathPrefix, path, pathDescriptor.getArchivePath(), showArchive);
     }
 
     @PostMapping("/user/**")
@@ -100,6 +95,13 @@ public class FileManagerResource {
         File deletedFile = fileManagerService.deleteGroupFile(user, groupName, path);
 
         return fileMapper.mapFile(deletedFile, GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName, path);
+    }
+
+    private List<FileDto> mapFiles(
+            List<File> files, String pathPrefix, String path, String archivePath, String showArchive) {
+        return Boolean.valueOf(showArchive) ?
+                fileMapper.mapFilesShowingArchive(files, pathPrefix, path, archivePath) :
+                fileMapper.mapFiles(files, pathPrefix, path);
     }
 
     private List<FileDto> uploadFiles(

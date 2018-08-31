@@ -44,22 +44,24 @@ public class PathDescriptorResolver implements HandlerMethodArgumentResolver {
     }
 
     private String getPath(String requestUrl) {
-        String separator;
         StringBuilder pathSeparator = new StringBuilder();
         String decodedUrl = URLDecoder.decode(requestUrl);
         String lowerCaseDecodedUrl = decodedUrl.toLowerCase();
-        if(StringUtils.containsIgnoreCase(decodedUrl, USER_RESOURCE_ID)) {
-            separator = USER_RESOURCE_ID;
-        } else if (StringUtils.containsIgnoreCase(decodedUrl, GROUPS_RESOURCE_ID)) {
-            separator = StringUtils.substringBetween(
-                    lowerCaseDecodedUrl, GROUPS_RESOURCE_ID + PATH_SEPARATOR, PATH_SEPARATOR);
-        } else {
-            throw new ApiErrorException(MALFORMED_PATH_ERROR_MSG, HttpStatus.BAD_REQUEST);
-        }
+        String separator = getPathSeparator(lowerCaseDecodedUrl);
 
         pathSeparator.append(separator).append(PATH_SEPARATOR);
         int pathSeparatorIdx = StringUtils.indexOf(lowerCaseDecodedUrl, pathSeparator.toString().toLowerCase());
 
         return pathSeparatorIdx > -1 ? StringUtils.substring(decodedUrl, pathSeparatorIdx + pathSeparator.length()) : "";
+    }
+
+    private String getPathSeparator(String requestUrl) {
+        if(StringUtils.contains(requestUrl, USER_RESOURCE_ID)) {
+            return USER_RESOURCE_ID;
+        } else if (StringUtils.contains(requestUrl, GROUPS_RESOURCE_ID)) {
+            return StringUtils.substringBetween(requestUrl, GROUPS_RESOURCE_ID + PATH_SEPARATOR, PATH_SEPARATOR);
+        } else {
+            throw new ApiErrorException(MALFORMED_PATH_ERROR_MSG, HttpStatus.BAD_REQUEST);
+        }
     }
 }

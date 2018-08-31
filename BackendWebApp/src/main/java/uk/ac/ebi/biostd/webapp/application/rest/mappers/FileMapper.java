@@ -1,11 +1,11 @@
 package uk.ac.ebi.biostd.webapp.application.rest.mappers;
 
 import static uk.ac.ebi.biostd.webapp.application.rest.util.FileUtil.PATH_SEPARATOR;
-import static uk.ac.ebi.biostd.webapp.application.rest.util.FileUtil.getFileType;
 
 import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
@@ -13,7 +13,10 @@ import uk.ac.ebi.biostd.webapp.application.rest.types.FileType;
 import uk.ac.ebi.biostd.webapp.application.rest.util.FileUtil;
 
 @Component
+@AllArgsConstructor
 public class FileMapper {
+    private final FileUtil fileUtil;
+
     public FileDto mapFile(File file, String pathPrefix, String path) {
         return map(file, pathPrefix, path, false, "");
     }
@@ -33,7 +36,7 @@ public class FileMapper {
 
         FileDto mappedFile = mapToDto(file, fullPath);
         if (showArchive && mappedFile.getType() == FileType.ARCHIVE) {
-            List<File> archiveInnerFiles = FileUtil.getArchiveInnerFiles(file, archivePath);
+            List<File> archiveInnerFiles = fileUtil.getArchiveInnerFiles(file, archivePath);
             String archiveFolderPath = getArchiveFolderPath(path, file.getName(), archivePath);
             mappedFile.setFiles(mapList(archiveInnerFiles, pathPrefix, archiveFolderPath, false, ""));
         }
@@ -52,7 +55,7 @@ public class FileMapper {
         fileDto.setName(file.getName());
         fileDto.setPath(path);
         fileDto.setSize(file.length());
-        fileDto.setType(getFileType(file));
+        fileDto.setType(fileUtil.getFileType(file));
 
         return fileDto;
     }

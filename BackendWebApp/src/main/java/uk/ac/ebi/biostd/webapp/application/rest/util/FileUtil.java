@@ -7,13 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Component;
 import org.zeroturnaround.zip.ZipUtil;
 import uk.ac.ebi.biostd.webapp.application.rest.exceptions.EntityNotFoundException;
 import uk.ac.ebi.biostd.webapp.application.rest.types.FileType;
 
-@UtilityClass
+@Component
 public class FileUtil {
     public static final String PATH_SEPARATOR = "/";
     public static final String TMP_DIR = "temp-extract";
@@ -21,7 +21,7 @@ public class FileUtil {
     public static final String ARCHIVE_INNER_FILE_NOT_FOUND_ERROR_MSG = "File not found inside zip: %s/%s";
 
     @SneakyThrows
-    public static List<File> getArchiveInnerFiles(File archive, String archiveInnerPath) {
+    public List<File> getArchiveInnerFiles(File archive, String archiveInnerPath) {
         File tmpDir = new File(FileUtils.getTempDirectory().getAbsolutePath() + PATH_SEPARATOR + TMP_DIR);
         ZipUtil.unpack(archive, tmpDir);
         Path filesPath = tmpDir.toPath().resolve(archiveInnerPath);
@@ -41,7 +41,7 @@ public class FileUtil {
         return zipFiles;
     }
 
-    public static FileType getFileType(File file) {
+    public FileType getFileType(File file) {
         if (file.isDirectory()) {
             return FileType.DIR;
         }

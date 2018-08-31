@@ -11,8 +11,8 @@ import uk.ac.ebi.biostd.webapp.application.rest.exceptions.ApiErrorException;
 public class PathDescriptor {
     public static final String PATH_REQUIRED_ERROR_MSG = "A file path must be specified for this operation";
 
-    private String path;
-    private String archivePath;
+    private final String path;
+    private final String archivePath;
 
     public String getRequiredPath() {
         if (StringUtils.isEmpty(path)) {
