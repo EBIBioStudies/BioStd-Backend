@@ -17,6 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,8 +30,9 @@ import org.xmlunit.diff.Diff;
 import uk.ac.ebi.biostd.TestConfiguration;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullExport;
-import uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullJobJobsFactory;
+import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportAllSubmissionsProperties;
+import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.utils.FileUtil;
 import uk.ac.ebi.biostd.test.util.JsonComparator;
 import uk.ac.ebi.biostd.test.util.XmlAttributeFilter;
@@ -52,6 +54,9 @@ public class FullExportTest extends BaseIntegrationTest {
     @MockBean
     private FullExportJobProperties exportProperties;
 
+    @Mock
+    private FullExportAllSubmissionsProperties allSubmissionsProperties;
+
     @Autowired
     private FullExport fullExport;
 
@@ -62,8 +67,9 @@ public class FullExportTest extends BaseIntegrationTest {
     public void setup() {
         exportPipeline = new ExportPipeline(1, ImmutableList.of(fullExport), fullJobsFactory);
 
-        when(exportProperties.getFilePath()).thenReturn(folder.getRoot().getAbsolutePath() + "/");
-        when(exportProperties.getFileName()).thenReturn("studies");
+        when(allSubmissionsProperties.getFilePath()).thenReturn(folder.getRoot().getAbsolutePath() + "/");
+        when(allSubmissionsProperties.getFileName()).thenReturn("studies");
+        when(exportProperties.getAllSubmissions()).thenReturn(allSubmissionsProperties);
         when(exportProperties.getWorkers()).thenReturn(1);
         when(exportProperties.getQueryModified()).thenReturn(EMPTY);
         when(exportProperties.getNotificationUrl()).thenReturn("http://localhost:8181/api/update/full");

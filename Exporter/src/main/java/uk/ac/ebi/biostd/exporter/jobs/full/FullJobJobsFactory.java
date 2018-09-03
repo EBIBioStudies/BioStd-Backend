@@ -1,9 +1,9 @@
 package uk.ac.ebi.biostd.exporter.jobs.full;
 
 import static java.lang.String.format;
-import static uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties.FORK_BATCH_SIZE;
-import static uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties.FORK_JOB;
-import static uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties.WORKER_BATCH_SIZE;
+import static uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties.FORK_BATCH_SIZE;
+import static uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties.FORK_JOB;
+import static uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties.WORKER_BATCH_SIZE;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;

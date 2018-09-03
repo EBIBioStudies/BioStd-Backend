@@ -18,7 +18,7 @@ import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
 import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
-import uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties;
+import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 import uk.ac.ebi.biostd.exporter.persistence.dao.MetricsDao;
@@ -74,7 +74,9 @@ public final class JsonSubmissionExporter implements FullExportJob {
     }
 
     private String getFileName() {
-        return jobProperties.getFilePath() + jobProperties.getFileName() + EXTENSION;
+        return jobProperties.getAllSubmissions().getFilePath() +
+                jobProperties.getAllSubmissions().getFileName() +
+                EXTENSION;
     }
 }
 
