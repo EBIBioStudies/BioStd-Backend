@@ -118,14 +118,5 @@
         ]
       }
     }
-  ],
-  "@startTimeTS":1516015310613,
-  "@endTimeTS":1516015310867,
-  "@submissions":2,
-  "@ioErrors":0,
-  "@threads":1,
-  "@startTime":"2018-01-15 11:21:50",
-  "@endTime":"2018-01-15 11:21:50",
-  "@elapsedTime":"00-00-00",
-  "@totalFileSize": 9170139
+  ]
 }

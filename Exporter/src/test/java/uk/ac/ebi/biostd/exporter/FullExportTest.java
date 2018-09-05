@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static org.skyscreamer.jsonassert.JSONCompareMode.NON_EXTENSIBLE;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -41,7 +40,11 @@ import uk.ac.ebi.biostd.test.util.XmlAttributeFilter;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = TestConfiguration.class)
-@Sql(scripts = {"classpath:create_schema.sql", "classpath:init-full-export.sql"}, executionPhase = BEFORE_TEST_METHOD)
+@Sql(scripts = {
+        "classpath:scripts/sql/create_schema.sql",
+        "classpath:scripts/sql/init-full-export.sql",
+        "classpath:scripts/sql/private_submission.sql",
+        "classpath:scripts/sql/public_submission.sql"})
 public class FullExportTest extends BaseIntegrationTest {
     private static final String FULL_EXPORT_NAME = "studies";
     private static final String PUBLIC_ONLY_EXPORT_NAME = "publicOnlyStudies";

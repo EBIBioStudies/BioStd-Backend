@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.exporter.jobs.full.json;
 
-import static java.util.Collections.singletonMap;
 import static org.easybatch.core.job.JobBuilder.aNewJob;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,13 +21,12 @@ import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.PublicSubmissionFilter;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 import uk.ac.ebi.biostd.exporter.persistence.dao.MetricsDao;
-import uk.ac.ebi.biostd.exporter.utils.JsonUtil;
 
 @Component
 @AllArgsConstructor
 public final class JsonPublicOnlySubmissionExporter implements FullExportJob {
     private static final String EXTENSION = ".json";
-    private static final String JOB_NAME = "join-job-public-only-json";
+    private static final String JOB_NAME = "join-job-public-only";
 
     private final SubmissionJsonProcessor submissionJsonProcessor;
     private final MetricsDao metricsDao;
@@ -56,13 +54,7 @@ public final class JsonPublicOnlySubmissionExporter implements FullExportJob {
     @Override
     @SneakyThrows
     public void writeJobStats(ExecutionStats stats) {
-        stats = stats.toBuilder()
-                .metrics(singletonMap("@totalFileSize", metricsDao.getPublicOnlyTotalFileSize()))
-                .build();
-
         try (FileWriter writer = new FileWriter(getFileName(), true)) {
-            writer.append(",");
-            writer.append(JsonUtil.unWrapJsonObject(objectMapper.writeValueAsString(stats)));
             writer.append("\n}");
         }
     }
