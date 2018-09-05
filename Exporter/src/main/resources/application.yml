@@ -52,8 +52,12 @@ jobs:
 
   full:
     enabled: false
-    filePath: ./generated/
-    fileName: studies
+    allSubmissions:
+      filePath: ./generated/
+      fileName: studies
+    publicOnlySubmissions:
+      filePath: ./generated/
+      fileName: studies
     workers: 1
     notificationUrl: http://localhost:8586/api/update/full
     query-modified: limit 100
@@ -88,8 +92,12 @@ jobs:
     cron: 0 0/5 5-19 * * ? # each five minutes between 5 am and 7 pm.
   full:
     enabled: true
-    filePath: /ebi/teams/biostudies/backend/development/updates/
-    fileName: studies
+    allSubmissions:
+      filePath: /ebi/teams/biostudies/backend/development/updates/
+      fileName: studies
+    publicOnlySubmissions:
+      filePath: /ebi/teams/biostudies/backend/development/updates/
+      fileName: publicOnlyStudies
     workers: 4
     queryModified:
     notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/default
@@ -127,8 +135,12 @@ jobs:
     cron: 0 0/5 5-19 * * ? # each five minutes between 5 am and 7 pm.
   full:
     enabled: true
-    filePath: /nfs/biostudies/.adm/databases/beta/updates/
-    fileName: studies
+    allSubmissions:
+      filePath: /nfs/biostudies/.adm/databases/beta/updates/
+      fileName: studies
+    publicOnlySubmissions:
+      filePath: /nfs/biostudies/.adm/databases/beta/updates/
+      fileName: publicOnlyStudies
     workers: 4
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
@@ -162,8 +174,12 @@ jobs:
     cron: 0 0/5 5-19 * * ? # each five minutes between 5 am and 7 pm.
   full:
     enabled: true
-    filePath: /nfs/biostudies/.adm/databases/prod/updates/
-    fileName: studies
+    allSubmissions:
+      filePath: /nfs/biostudies/.adm/databases/prod/updates/
+      fileName: studies
+    publicOnlySubmissions:
+      filePath: /nfs/biostudies/.adm/databases/prod/updates/
+      fileName: publicOnlyStudies
     workers: 4
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default

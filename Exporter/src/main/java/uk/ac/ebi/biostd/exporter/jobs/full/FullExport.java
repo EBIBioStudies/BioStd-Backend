@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportJob;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
+import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 
