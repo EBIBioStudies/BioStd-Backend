@@ -1,6 +1,3 @@
--- User
-INSERT INTO User (activationKey, active, auxProfileInfo, email, fullName, keyTime, login, passwordDigest, secret, superuser, ssoSubject) VALUES (null, true, null, 'biostudies-dev@ebi.ac.uk', 'Biostudy manager', 0, 'manager', 0x9C22709B6EFF014C8D11A52E4EBA161CFC2D2DFC, '3bd53494-e672-41d4-b491-27f77bdb59b8', true, null);
-
 -- Submission
 INSERT INTO Submission (CTime, MTime, RTime, accNo, relPath, released, rootPath, title, version, owner_id, secretKey) VALUES (1460402396, 1460402396, 1460402396, 'S-EPMC2873748', 'S-EPMC/S-EPMCxxx748/S-EPMC2873748', true, 'S-EPMC/S-EPMCxxx748/S-EPMC2873748', 'Cost-effectiveness of a potential vaccine for human papillomavirus.', 1, 1, null);
 

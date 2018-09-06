@@ -30,4 +30,7 @@ public class FullExportJobProperties {
 
     @NestedConfigurationProperty
     private FullExportAllSubmissionsProperties allSubmissions;
+
+    @NestedConfigurationProperty
+    private FullExportPublicOnlySubmissionsProperties publicOnlySubmissions;
 }

@@ -38,7 +38,7 @@ import uk.ac.ebi.biostd.exporter.jobs.pmc.export.PmcJobsFactory;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = TestConfiguration.class)
-@Sql(scripts = {"classpath:create_schema.sql", "classpath:init-pmc.sql"}, executionPhase = BEFORE_TEST_METHOD)
+@Sql(scripts = {"classpath:scripts/sql/create_schema.sql", "classpath:scripts/sql/init-pmc.sql"})
 public class PmcExportTest {
 
     private static final String FTP_PATH = "/data";
