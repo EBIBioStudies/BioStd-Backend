@@ -82,7 +82,7 @@ public class XLSpreadsheetReader implements SpreadsheetReader {
         }
 
         if (accum == null) {
-            accum = new ArrayList<String>();
+            accum = new ArrayList<>();
         } else {
             accum.clear();
         }
@@ -96,7 +96,7 @@ public class XLSpreadsheetReader implements SpreadsheetReader {
         int lcn = row.getLastCellNum();
 
         for (int j = 0; j <= lcn; j++) {
-            Cell c = row.getCell(j, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            Cell c = row.getCell(j, Row.RETURN_BLANK_AS_NULL);
 
             if (c != null) {
 
