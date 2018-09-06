@@ -44,7 +44,7 @@
 
   <entry key="submissionsQuery">
     SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
-    WHERE version > 0 and released=true
+    WHERE version > 0
   </entry>
 
   <entry key="submissionsPmcQuery">
