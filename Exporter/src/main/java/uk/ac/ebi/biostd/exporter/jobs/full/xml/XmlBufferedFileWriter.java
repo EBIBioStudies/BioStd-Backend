@@ -15,7 +15,7 @@ import org.easybatch.core.record.Record;
 import org.easybatch.core.writer.RecordWriter;
 
 @Slf4j
-public class BufferedXmlFileWriter implements RecordWriter {
+public class XmlBufferedFileWriter implements RecordWriter {
 
     private static final String DATA_SEPARATOR = "\n";
     private final String fileName;
@@ -24,7 +24,7 @@ public class BufferedXmlFileWriter implements RecordWriter {
     private BufferedWriter bw;
 
     @SneakyThrows
-    public BufferedXmlFileWriter(String fileName) {
+    public XmlBufferedFileWriter(String fileName) {
         this.fileName = fileName;
         this.tempFileName = fileName + "_tmp";
     }
