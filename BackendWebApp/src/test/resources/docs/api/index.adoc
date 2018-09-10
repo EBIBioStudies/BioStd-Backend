@@ -1,0 +1,105 @@
+[[resources-files]]
+= Files
+
+The file resource is used to interact with the application file system
+
+
+[[resources-files-list]]
+== User
+Resource used to interact with the current user files
+
+=== Get User Files
+Lists the user files for the specified path. If no path is specified, the files in the user root folder will be listed
+
+==== Parameters
+include::{snippets}/files/get-user-files/path-parameters.adoc[]
+
+==== Example Request
+include::{snippets}/files/get-user-files/curl-request.adoc[]
+
+==== Example Response
+include::{snippets}/files/get-user-files/http-response.adoc[]
+
+=== Upload User Files
+Uploads the given files to the specified path. If no path is specified, the files will be uploaded to the user's root folder
+
+==== Parameters
+include::{snippets}/files/upload-user-files/path-parameters.adoc[]
+
+==== Example Request
+include::{snippets}/files/upload-user-files/curl-request.adoc[]
+
+==== Example Response
+include::{snippets}/files/upload-user-files/http-response.adoc[]
+
+=== Delete User Files
+Deletes the file specified in the path. A path for a specific file must be specified. If no path is specified or the given path points to a directory, an exception will be thrown.
+
+==== Parameters
+include::{snippets}/files/delete-user-files/path-parameters.adoc[]
+
+==== Example Request
+include::{snippets}/files/delete-user-files/curl-request.adoc[]
+
+==== Example Response
+include::{snippets}/files/delete-user-files/http-response.adoc[]
+
+
+== Groups
+Resource used to interact with the groups files. Group name parameter is required for all the request in this resource.
+
+=== Get Group Files
+Lists the files for the group with the given name in the specified path. If no path is specified, the files in the group root folder will be listed
+
+==== Parameters
+include::{snippets}/files/get-group-files/path-parameters.adoc[]
+
+==== Example Request
+include::{snippets}/files/get-group-files/curl-request.adoc[]
+
+==== Example Response
+include::{snippets}/files/get-group-files/http-response.adoc[]
+
+=== Upload Group Files
+Uploads the given files to the specified path. If no path is specified, the files will be uploaded to the group's root folder
+
+==== Parameters
+include::{snippets}/files/upload-group-files/path-parameters.adoc[]
+
+==== Example Request
+include::{snippets}/files/upload-group-files/curl-request.adoc[]
+
+==== Example Response
+include::{snippets}/files/upload-group-files/http-response.adoc[]
+
+=== Delete Group Files
+Deletes the file specified in the path. A path for a specific file must be specified. If no path is specified or the given path points to a directory, an exception will be thrown.
+
+==== Parameters
+include::{snippets}/files/delete-group-files/path-parameters.adoc[]
+
+==== Example Request
+include::{snippets}/files/delete-group-files/curl-request.adoc[]
+
+==== Example Response
+include::{snippets}/files/delete-group-files/http-response.adoc[]
+
+
+== Special Cases
+
+=== Get Specific File
+Gets information for a specific file. It can be used for both, users and groups, following the same conventions above.
+
+==== Parameters
+===== Path Parameters
+include::{snippets}/files/get-specific-file/path-parameters.adoc[]
+
+===== Query Parameters
+include::{snippets}/files/get-specific-file/request-parameters.adoc[]
+The show archive parameter can also be used for both, users and groups, with the same effect.
+
+==== Example Request
+include::{snippets}/files/get-specific-file/curl-request.adoc[]
+
+==== Example Response
+include::{snippets}/files/get-specific-file/http-response.adoc[]

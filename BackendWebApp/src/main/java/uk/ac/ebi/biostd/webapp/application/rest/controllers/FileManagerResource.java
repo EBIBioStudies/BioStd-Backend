@@ -1,11 +1,14 @@
 package uk.ac.ebi.biostd.webapp.application.rest.controllers;
 
+import static uk.ac.ebi.biostd.webapp.application.rest.util.FileUtil.PATH_SEPARATOR;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +20,7 @@ import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper;
 import uk.ac.ebi.biostd.webapp.application.rest.service.FileManagerService;
+import uk.ac.ebi.biostd.webapp.application.rest.types.PathDescriptor;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
 import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
@@ -33,69 +37,78 @@ public class FileManagerResource {
     private final MagicFolderUtil magicFolderUtil;
     private final FileManagerService fileManagerService;
 
-    @GetMapping("/user")
-    public FileDto getUserFiles(
+    @GetMapping("/user/**")
+    public List<FileDto> getUserFiles(
+            PathDescriptor pathDescriptor,
             @AuthenticationPrincipal User user,
-            @RequestParam(required = false, defaultValue = "") String path) {
+            @RequestParam(required = false, defaultValue = "false") String showArchive) {
+        String path = pathDescriptor.getPath();
         List<File> userFiles = fileManagerService.getUserFiles(user, path);
-        Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
 
-        return mapFiles(USER_FOLDER_NAME, magicFolderPath, path, userFiles);
+        return mapFiles(userFiles, USER_FOLDER_NAME, path, pathDescriptor.getArchivePath(), showArchive);
     }
 
-    @GetMapping("/groups")
-    public FileDto getGroupsFiles(
-            @AuthenticationPrincipal User user,
-            @RequestParam(required = false, defaultValue = "") String path) {
-        List<File> groupFiles = fileManagerService.getGroupsFiles(user, path);
-        Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
-
-        return mapFiles(GROUP_FOLDER_NAME, magicFolderPath, path, groupFiles);
-    }
-
-    @GetMapping("/groups/{groupName}")
-    public FileDto getGroupsFiles(
+    @GetMapping("/groups/{groupName}/**")
+    public List<FileDto> getGroupFiles(
+            PathDescriptor pathDescriptor,
             @AuthenticationPrincipal User user,
             @PathVariable String groupName,
-            @RequestParam(required = false, defaultValue = "") String path) {
-        Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
+            @RequestParam(required = false, defaultValue = "false") String showArchive) {
+        String path = pathDescriptor.getPath();
+        String pathPrefix = GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName;
         List<File> groupFiles = fileManagerService.getGroupFiles(user, groupName, path);
 
-        return mapFiles(GROUP_FOLDER_NAME, magicFolderPath, path, groupFiles);
+        return mapFiles(groupFiles, pathPrefix, path, pathDescriptor.getArchivePath(), showArchive);
     }
 
-    @PostMapping("/user")
-    public FileDto uploadUserFiles(
-            @AuthenticationPrincipal User user,
-            @RequestParam MultipartFile[] files,
-            @RequestParam(required = false, defaultValue = "") String path) {
+    @PostMapping("/user/**")
+    public List<FileDto> uploadUserFiles(
+            PathDescriptor pathDescriptor, @AuthenticationPrincipal User user, @RequestParam MultipartFile[] files) {
         Path magicFolderPath = magicFolderUtil.getUserMagicFolderPath(user.getId(), user.getSecret());
-        return uploadFiles(USER_FOLDER_NAME, magicFolderPath, path, files);
+        return uploadFiles(
+                USER_FOLDER_NAME, magicFolderPath, pathDescriptor.getPath(), files);
     }
 
-    @PostMapping("/groups/{groupName}")
-    public FileDto uploadGroupFiles(
+    @PostMapping("/groups/{groupName}/**")
+    public List<FileDto> uploadGroupFiles(
+            PathDescriptor pathDescriptor,
             @AuthenticationPrincipal User user,
             @PathVariable String groupName,
-            @RequestParam MultipartFile[] files,
-            @RequestParam(required = false, defaultValue = "") String path) {
+            @RequestParam MultipartFile[] files) {
         Path magicFolderPath = groupService.getGroupMagicFolderPath(user.getId(), groupName);
-        return uploadFiles(GROUP_FOLDER_NAME, magicFolderPath, path, files);
+        return uploadFiles(
+                GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName, magicFolderPath, pathDescriptor.getPath(), files);
     }
 
-    private FileDto uploadFiles(
+    @DeleteMapping("/user/**")
+    public FileDto deleteUserFile(PathDescriptor pathDescriptor, @AuthenticationPrincipal User user) {
+        String path = pathDescriptor.getRequiredPath();
+        File deletedFile = fileManagerService.deleteUserFile(user, path);
+
+        return fileMapper.mapFile(deletedFile, USER_FOLDER_NAME, path);
+    }
+
+    @DeleteMapping("/groups/{groupName}/**")
+    public FileDto deleteGroupFile(
+            PathDescriptor pathDescriptor, @AuthenticationPrincipal User user, @PathVariable String groupName) {
+        String path = pathDescriptor.getRequiredPath();
+        File deletedFile = fileManagerService.deleteGroupFile(user, groupName, path);
+
+        return fileMapper.mapFile(deletedFile, GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName, path);
+    }
+
+    private List<FileDto> mapFiles(
+            List<File> files, String pathPrefix, String path, String archivePath, String showArchive) {
+        return Boolean.valueOf(showArchive) ?
+                fileMapper.mapFilesShowingArchive(files, pathPrefix, path, archivePath) :
+                fileMapper.mapFiles(files, pathPrefix, path);
+    }
+
+    private List<FileDto> uploadFiles(
             String basePath, Path magicFolderPath, String requestPath, MultipartFile[] files) {
         Path currentPath = magicFolderPath.resolve(requestPath);
         List<File> uploadedFiles = fileManagerService.uploadFiles(files, currentPath);
 
-        return mapFiles(basePath, magicFolderPath, requestPath, uploadedFiles);
-    }
-
-    private FileDto mapFiles(String basePath, Path magicFolderPath, String requestPath, List<File> files) {
-        Path fullPath = magicFolderPath.resolve(requestPath);
-        FileDto currentFolderDto = fileMapper.getCurrentFolderDto(basePath, requestPath, fullPath);
-        currentFolderDto.setFiles(fileMapper.map(files, basePath, requestPath));
-
-        return currentFolderDto;
+        return fileMapper.mapFiles(uploadedFiles, basePath, requestPath);
     }
 }

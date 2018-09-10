@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.exporter.jobs.full.FullExportJobProperties;
+import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;

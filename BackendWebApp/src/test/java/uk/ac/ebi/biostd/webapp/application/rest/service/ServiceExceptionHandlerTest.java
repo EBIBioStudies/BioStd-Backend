@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.webapp.application.rest.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.file.NoSuchFileException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -21,13 +22,34 @@ public class ServiceExceptionHandlerTest {
     }
 
     @Test
-    public void handleEntityNotFoundExceptio() {
+    public void handleEntityNotFoundException() {
         EntityNotFoundException exception = new EntityNotFoundException(MESSAGE, UserGroup.class);
         ResponseEntity<ServiceErrorDto> response = testInstance.handleEntityNotFoundException(exception);
+
+        assertResponse(response, UserGroup.class.getName(), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void handleNoSuchFileException() {
+        NoSuchFileException exception = new NoSuchFileException(MESSAGE);
+        ResponseEntity<ServiceErrorDto> response = testInstance.handleNoSuchFileException(exception);
+
+        assertResponse(response, NoSuchFileException.class.getName(), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void handleUnsupportedOperationException() {
+        UnsupportedOperationException exception = new UnsupportedOperationException(MESSAGE);
+        ResponseEntity<ServiceErrorDto> response = testInstance.handleUnsupportedOperationException(exception);
+
+        assertResponse(response, UnsupportedOperationException.class.getName(), HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    private void assertResponse(ResponseEntity<ServiceErrorDto> response, String entity, HttpStatus status) {
         ServiceErrorDto errorDto = response.getBody();
 
         assertThat(errorDto.getMessage()).isEqualTo(MESSAGE);
-        assertThat(errorDto.getEntity()).isEqualTo(UserGroup.class.getName());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(errorDto.getEntity()).isEqualTo(entity);
+        assertThat(response.getStatusCode()).isEqualTo(status);
     }
 }

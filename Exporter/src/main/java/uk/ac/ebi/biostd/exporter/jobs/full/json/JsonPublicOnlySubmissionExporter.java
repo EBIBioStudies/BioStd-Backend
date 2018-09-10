@@ -1,13 +1,14 @@
-package uk.ac.ebi.biostd.exporter.jobs.full.xml;
+package uk.ac.ebi.biostd.exporter.jobs.full.json;
 
 import static org.easybatch.core.job.JobBuilder.aNewJob;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.FileWriter;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.easybatch.core.filter.PoisonRecordFilter;
+import lombok.SneakyThrows;
 import org.easybatch.core.job.Job;
 import org.easybatch.core.reader.BlockingQueueRecordReader;
 import org.easybatch.core.record.Record;
@@ -17,20 +18,19 @@ import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
 import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportFileProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.job.FullExportJob;
+import uk.ac.ebi.biostd.exporter.jobs.full.job.PublicSubmissionFilter;
 import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
+import uk.ac.ebi.biostd.exporter.persistence.dao.MetricsDao;
 
-/**
- * Main execution class, execute pipeline , write stats into submissions output file.
- */
-@Slf4j
 @Component
 @AllArgsConstructor
-public final class XmlSubmissionExporter implements FullExportJob {
+public final class JsonPublicOnlySubmissionExporter implements FullExportJob {
+    private static final String EXTENSION = ".json";
+    private static final String JOB_NAME = "join-job-public-only";
 
-    private static final String EXTENSION = ".xml";
-    private static final String JOB_NAME = "join-job-xml";
-
-    private final SubmissionXmlProcessor submissionXmlProcessor;
+    private final SubmissionJsonProcessor submissionJsonProcessor;
+    private final MetricsDao metricsDao;
+    private final ObjectMapper objectMapper;
     private final FullExportJobProperties jobProperties;
 
     @Getter
@@ -42,9 +42,9 @@ public final class XmlSubmissionExporter implements FullExportJob {
                 .named(JOB_NAME)
                 .batchSize(BATCH_SIZE)
                 .reader(new BlockingQueueRecordReader(processQueue, workers))
-                .filter(new PoisonRecordFilter())
-                .processor(submissionXmlProcessor)
-                .writer(new BufferedXmlFileWriter(getFileName()))
+                .filter(new PublicSubmissionFilter())
+                .processor(submissionJsonProcessor)
+                .writer(new JsonBufferedFileWriter(getFileName()))
                 .batchListener(new LogBatchListener(JOB_NAME))
                 .build();
 
@@ -52,14 +52,16 @@ public final class XmlSubmissionExporter implements FullExportJob {
     }
 
     @Override
+    @SneakyThrows
     public void writeJobStats(ExecutionStats stats) {
+        try (FileWriter writer = new FileWriter(getFileName(), true)) {
+            writer.append("\n}");
+        }
     }
 
     private String getFileName() {
-        FullExportFileProperties config = jobProperties.getAllSubmissions();
+        FullExportFileProperties config = jobProperties.getPublicOnlySubmissions();
 
         return config.getFilePath() + config.getFileName() + EXTENSION;
     }
-
 }
-

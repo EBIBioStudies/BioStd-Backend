@@ -1,7 +1,8 @@
-package uk.ac.ebi.biostd.exporter.jobs.full;
+package uk.ac.ebi.biostd.exporter.jobs.full.configuration;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,9 +24,13 @@ public class FullExportJobProperties {
     public static final String WORK_JOB_NAME_FORMAT = "full-worker-%d";
     public static final String JOIN_JOB = "full-join-job";
 
-    private String fileName;
-    private String filePath;
     private int workers;
     private String queryModified;
     private String notificationUrl;
+
+    @NestedConfigurationProperty
+    private FullExportAllSubmissionsProperties allSubmissions;
+
+    @NestedConfigurationProperty
+    private FullExportPublicOnlySubmissionsProperties publicOnlySubmissions;
 }

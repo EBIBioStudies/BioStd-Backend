@@ -19,8 +19,12 @@ jobs:
       fileNameFormat: EPMCLinks.part%d.xml
   full:
     workers: 1
-    filePath: ./generated/
-    fileName: studies
+    allSubmissions:
+      filePath: ./generated/
+      fileName: studies
+    publicOnlySubmissions:
+      filePath: ./publicOnly/
+      fileName: studies
     queryModified:
     notificationUrl: http://localhost:8181/api/update/full
   stats:
