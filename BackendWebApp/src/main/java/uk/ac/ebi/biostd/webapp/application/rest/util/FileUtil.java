@@ -46,10 +46,6 @@ public class FileUtil {
             return FileType.DIR;
         }
 
-        if (file.getName().endsWith(ARCHIVE_EXTENSION)) {
-            return FileType.ARCHIVE;
-        }
-
         return FileType.FILE;
     }
 }

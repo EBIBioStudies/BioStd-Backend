@@ -18,7 +18,6 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.ac.ebi.biostd.webapp.application.rest.controllers.FileManagerResource.USER_FOLDER_NAME;
@@ -70,14 +69,11 @@ public class FileManagerResourceTest {
     private static final String USER_FILES_ENDPOINT = "/files/user/{path}";
     private static final String USER_FILES_ENDPOINT_UPPERCASE = "/files/User";
     private static final String GROUP_FILES_ENDPOINT = "/files/groups/{groupName}/{path}";
-    private static final String SHOW_ARCHIVE_QUERY_PARAM = "?showArchive=true";
     private static final String CURRENT_USER_FOLDER_PATH = "/User/folder1";
     private static final String CURRENT_GROUP_FOLDER_PATH = "/Groups/folder1";
 
     private static final String PATH_PARAM = "path";
-    private static final String SHOW_ARCHIVE_PARAM = "showArchive";
     private static final String GROUP_NAME_PARAM = "groupName";
-    private static final String GET_SPECIFIC_FILE_DOC_ID = "get-specific-file";
     private static final String GET_USER_FILES_DOC_ID = "get-user-files";
     private static final String GET_GROUP_FILES_DOC_ID = "get-group-files";
     private static final String UPLOAD_USER_FILES_DOC_ID = "upload-user-files";
@@ -85,7 +81,6 @@ public class FileManagerResourceTest {
     private static final String DELETE_USER_FILES_DOC_ID = "delete-user-files";
     private static final String DELETE_GROUP_FILES_DOC_ID = "delete-group-files";
     private static final String GROUP_NAME_PARAM_DESC = "The group name";
-    private static final String SHOW_ARCHIVE_PARAM_DESC = "If true, contents inside archive files is displayed";
     private static final String PATH_PARAM_SPECIFIC_FILE_DESC = "The path to the specific file";
     private static final String PATH_PARAM_DESC =
             "Path to a folder or specific file. If not provided, root folder files will be listed";
@@ -127,16 +122,6 @@ public class FileManagerResourceTest {
     @Test
     public void getUserFilesUppercaseWithNoPath() throws Exception {
         performRequest(get(USER_FILES_ENDPOINT_UPPERCASE), CURRENT_USER_FOLDER_PATH);
-    }
-
-    @Test
-    public void getUserSpecificFile() throws Exception {
-        ResultActions testRequest = performArchiveRequest(TEST_ARCHIVE_PATH);
-        generateDocs(
-                testRequest,
-                GET_SPECIFIC_FILE_DOC_ID,
-                pathParameters(parameterWithName(PATH_PARAM).description(PATH_PARAM_SPECIFIC_FILE_DESC)),
-                requestParameters(parameterWithName(SHOW_ARCHIVE_PARAM).description(SHOW_ARCHIVE_PARAM_DESC)));
     }
 
     @Test
@@ -219,20 +204,6 @@ public class FileManagerResourceTest {
                 .andExpect(jsonPath("$.path").value(specificFilePath))
                 .andExpect(jsonPath("$.size").value(FILE_SIZE))
                 .andExpect(jsonPath("$.type").value(FileType.FILE.toString()));
-    }
-
-    private ResultActions performArchiveRequest(String archivePath) throws Exception {
-        setUpMockFiles(USER_FOLDER_NAME, archivePath);
-        return mvc.perform(get(USER_FILES_ENDPOINT + SHOW_ARCHIVE_QUERY_PARAM, archivePath))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$.[0].name").value(ARCHIVE_NAME))
-                .andExpect(jsonPath("$.[0].size").value(FILE_SIZE))
-                .andExpect(jsonPath("$.[0].type").value(FileType.ARCHIVE.toString()))
-                .andExpect(jsonPath("$.[0].files", hasSize(1)))
-                .andExpect(jsonPath("$.[0].files[0].name").value(FILE_NAME))
-                .andExpect(jsonPath("$.[0].files[0].size").value(FILE_SIZE))
-                .andExpect(jsonPath("$.[0].files[0].type").value(FileType.FILE.toString()));
     }
 
     private ResultActions performRequest(RequestBuilder request, String currentFolderPath) throws Exception {

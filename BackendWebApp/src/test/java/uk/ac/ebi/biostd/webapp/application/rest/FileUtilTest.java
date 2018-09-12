@@ -53,7 +53,7 @@ public class FileUtilTest {
     public void getArchiveFileType() {
         assertThat(testInstance.getFileType(mockFile)).isEqualTo(FileType.FILE);
         assertThat(testInstance.getFileType(mockFolder)).isEqualTo(FileType.DIR);
-        assertThat(testInstance.getFileType(archive)).isEqualTo(FileType.ARCHIVE);
+        assertThat(testInstance.getFileType(archive)).isEqualTo(FileType.FILE);
     }
 
     @Test
@@ -89,8 +89,6 @@ public class FileUtilTest {
 
     private void setUpMockFiles() {
         when(mockFile.isDirectory()).thenReturn(false);
-        when(mockFile.getName()).thenReturn(INNER_FILE_NAME);
-
         when(mockFolder.isDirectory()).thenReturn(true);
     }
 }
