@@ -8,11 +8,11 @@ import uk.ac.ebi.biostd.exporter.jobs.full.model.StringContentRecord;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 
 @Component
-public class SubmissionJsonProcessor implements RecordProcessor<Record<Submission>, Record<String>> {
+public class JsonSubmissionProcessor implements RecordProcessor<Record<Submission>, Record<String>> {
 
     private final ObjectMapper objectMapper;
 
-    public SubmissionJsonProcessor(ObjectMapper objectMapper) {
+    public JsonSubmissionProcessor(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
