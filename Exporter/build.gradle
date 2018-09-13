@@ -33,6 +33,7 @@ dependencies {
     compile project(":SpreadsheetReaders")
     compile project(":BioStdCoreModel")
     compile project(":Remote-Library")
+    compile project(":BioCommons")
 
     compile('org.easybatch:easybatch-core:5.2.0')
     compile('org.easybatch:easybatch-jdbc:5.2.0')

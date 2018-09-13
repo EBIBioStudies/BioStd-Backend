@@ -14,7 +14,6 @@ public class TestConfiguration {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-
         return restTemplate;
     }
 }

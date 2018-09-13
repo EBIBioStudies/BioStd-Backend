@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @ConfigurationProperties(prefix = "jobs.users")
-class UsersFoldersProperties {
+public class UsersFoldersProperties {
 
     private String baseDropboxPath;
     private String symLinksPath;

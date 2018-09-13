@@ -98,6 +98,7 @@ dependencies {
     compile project(":Commons")
     compile project(":SpreadsheetReaders")
     compile project(":BioStdCoreModel")
+    compile project(":BioCommons")
 
     compile("org.springframework.boot:spring-boot-starter-web")
     compile('org.springframework.boot:spring-boot-configuration-processor')

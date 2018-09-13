@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserDropboxInfo {
 
+    private long id;
     private String secret;
     private String email;
 }

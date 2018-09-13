@@ -25,8 +25,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
+import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
-import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileManagerServiceTest {
