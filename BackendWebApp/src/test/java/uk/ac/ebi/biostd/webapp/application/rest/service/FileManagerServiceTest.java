@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -166,7 +167,7 @@ public class FileManagerServiceTest {
     @Test
     public void uploadFiles() throws Exception {
         when(mockMultipartFile.getOriginalFilename()).thenReturn(USER_FILE_NAME);
-        when(mockMultipartFile.getBytes()).thenReturn(new byte[]{ });
+        when(mockMultipartFile.getInputStream()).thenReturn(IOUtils.toInputStream(""));
 
         List<File> uploadFiles = testInstance.uploadFiles(multipartFiles, userFolderPath);
         assertThat(uploadFiles).hasSize(1);
