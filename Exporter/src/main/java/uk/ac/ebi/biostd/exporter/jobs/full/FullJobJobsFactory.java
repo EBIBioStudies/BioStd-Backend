@@ -38,9 +38,7 @@ public class FullJobJobsFactory extends BaseJobsFactory implements JobsFactory {
     }
 
     @Override
-    public QueueJob newWorkerJob(int index, BlockingQueue<Record> workQueue,
-            List<BlockingQueue<Record>> joinQueues) {
-
+    public QueueJob newWorkerJob(int index, BlockingQueue<Record> workQueue, List<BlockingQueue<Record>> joinQueues) {
         String name = format("worker-%d", index);
 
         return workerJob(

@@ -38,7 +38,7 @@ public final class XmlSubmissionExporter implements FullExportJob {
                 processQueue,
                 xmlSubmissionProcessor,
                 new PoisonRecordFilter(),
-                jobProperties.getAllSubmissions(),
+                jobProperties, jobProperties.getAllSubmissions(),
                 SubmissionExporter.XML_EXTENSION);
     }
 

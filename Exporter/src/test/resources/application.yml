@@ -19,14 +19,15 @@ jobs:
       fileNameFormat: EPMCLinks.part%d.xml
   full:
     workers: 1
+    queryModified:
+    notificationUrl: http://localhost:8181/api/update/full
+    recordsThreshold: 1
     allSubmissions:
       filePath: ./generated/
       fileName: studies
     publicOnlySubmissions:
       filePath: ./publicOnly/
       fileName: studies
-    queryModified:
-    notificationUrl: http://localhost:8181/api/update/full
   stats:
     basePath: /nfs/biostudies/.adm/databases/beta/submission
     outFilePath: /nfs/biostudies/.adm/databases/beta/updates/stats.csv

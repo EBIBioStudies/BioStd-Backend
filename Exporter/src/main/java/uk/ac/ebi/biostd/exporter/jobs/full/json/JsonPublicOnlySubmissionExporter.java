@@ -37,6 +37,7 @@ public final class JsonPublicOnlySubmissionExporter implements FullExportJob {
                 processQueue,
                 jsonSubmissionProcessor,
                 new PublicSubmissionFilter(),
+                jobProperties,
                 jobProperties.getPublicOnlySubmissions(),
                 JSON_EXTENSION);
     }
