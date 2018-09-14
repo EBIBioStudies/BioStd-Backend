@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import uk.ac.ebi.biostd.exporter.configuration.GeneralConfiguration;
@@ -10,6 +11,7 @@ import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.rest.NotificationController;
 import uk.ac.ebi.biostd.exporter.rest.TasksController;
 import uk.ac.ebi.biostd.exporter.service.SubmissionService;
+import uk.ac.ebi.biostd.exporter.test.IgnoreDuringScan;
 import uk.ac.ebi.biostd.remote.service.RemoteService;
 
 @Configuration
@@ -20,7 +22,8 @@ import uk.ac.ebi.biostd.remote.service.RemoteService;
         NotificationController.class,
         TasksController.class,
         RemoteService.class,
-        SubmissionService.class})
+        SubmissionService.class},
+        excludeFilters = @Filter(IgnoreDuringScan.class))
 @EnableAutoConfiguration
 public class TestConfiguration {
 

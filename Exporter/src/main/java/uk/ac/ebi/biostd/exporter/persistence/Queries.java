@@ -31,4 +31,7 @@ public class Queries {
     private String submissionPublicationQuery;
     private String publicSubmissions;
     private String userDropboxes;
+    private String pendingRelease;
+    private String releaseSubmission;
+    private String addPublicAccessTag;
 }
