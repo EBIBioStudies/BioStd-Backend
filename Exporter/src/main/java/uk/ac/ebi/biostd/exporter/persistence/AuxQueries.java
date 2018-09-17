@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class AuxQueries {
 
     private String submissionsTotalFileSize;
+    private String publicOnlySubmissionsTotalFileSize;
     private String submissionFiles;
     private String submissionFilesSize;
 }

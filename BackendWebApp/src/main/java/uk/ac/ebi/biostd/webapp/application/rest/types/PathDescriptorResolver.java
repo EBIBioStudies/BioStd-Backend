@@ -36,8 +36,9 @@ public class PathDescriptorResolver implements HandlerMethodArgumentResolver {
         String archivePath = "";
 
         if (path.contains(archivePathSeparator)) {
-            archivePath = StringUtils.substringAfter(path, archivePathSeparator);
-            path = StringUtils.remove(path, archivePath);
+            String[] paths = path.split(archivePathSeparator);
+            archivePath = paths[1];
+            path = paths[0] + archivePathSeparator;
         }
 
         return new PathDescriptor(path, archivePath);

@@ -21,11 +21,13 @@ public class PathDescriptorResolverTest {
     private static final String FILE_PATH = "folder/file.txt";
     private static final String ARCHIVE_PATH = "folder/archive.zip/";
     private static final String ARCHIVE_INNER_PATH = "archiveFolder/archiveFile.txt";
+    private static final String ARCHIVE_SAME_NAME_INNER_PATH = "archive/archiveFile.txt";
     private static final String HOST = "http://server:8888/biostd/files";
     private static final String MALFORMED_REQUEST = HOST + "/group/" + FILE_PATH;
     private static final String SIMPLE_USER_REQUEST = HOST + "/user/" + FILE_PATH;
     private static final String SIMPLE_GROUP_REQUEST = HOST + "/groups/group1/" + FILE_PATH;
     private static final String ARCHIVE_USER_REQUEST = HOST + "/user/" + ARCHIVE_PATH + ARCHIVE_INNER_PATH;
+    private static final String ARCHIVE_USER_REQUEST_SAME_NAME = HOST + "/user/" + ARCHIVE_PATH + ARCHIVE_SAME_NAME_INNER_PATH;
 
     @Mock
     private MethodParameter mockMethodParameter;
@@ -63,6 +65,11 @@ public class PathDescriptorResolverTest {
     @Test
     public void resolveArchiveRequest() {
         resolve(ARCHIVE_USER_REQUEST, ARCHIVE_PATH, ARCHIVE_INNER_PATH);
+    }
+
+    @Test
+    public void resolveArchiveRequestWithSameInnerFolderName() {
+        resolve(ARCHIVE_USER_REQUEST_SAME_NAME, ARCHIVE_PATH, ARCHIVE_SAME_NAME_INNER_PATH);
     }
 
     @Test

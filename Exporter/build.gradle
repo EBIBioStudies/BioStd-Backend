@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.1.RELEASE'
+        springBootVersion = '2.0.4.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -50,7 +50,7 @@ dependencies {
     compile('mysql:mysql-connector-java')
     runtime('com.h2database:h2:1.4.196')
 
-    compileOnly('org.projectlombok:lombok')
+    compileOnly('org.projectlombok:lombok:1.18.2')
 
     testCompile ('org.springframework.boot:spring-boot-starter-test')
     testCompile ('com.jamesmurty.utils:java-xmlbuilder:1.2')

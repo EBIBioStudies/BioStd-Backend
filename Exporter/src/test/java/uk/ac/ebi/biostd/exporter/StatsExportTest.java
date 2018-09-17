@@ -28,7 +28,7 @@ import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = TestConfiguration.class)
-@Sql(scripts = {"classpath:create_schema.sql", "classpath:init-pmc.sql"}, executionPhase = BEFORE_TEST_METHOD)
+@Sql(scripts = {"classpath:scripts/sql/create_schema.sql", "classpath:scripts/sql/init-pmc.sql"})
 public class StatsExportTest extends BaseIntegrationTest {
 
     @Rule

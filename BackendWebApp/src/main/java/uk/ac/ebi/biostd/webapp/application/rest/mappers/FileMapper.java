@@ -31,14 +31,17 @@ public class FileMapper {
     }
 
     private FileDto map(File file, String pathPrefix, String path, boolean showArchive, String archivePath) {
-        String fullPath = getFolderPath(pathPrefix, path);
-        fullPath = fullPath.contains(file.getName()) ? fullPath : fullPath + PATH_SEPARATOR + file.getName();
+        String fullPath = getFileFullPath(file, getFolderPath(pathPrefix, path));
 
         FileDto mappedFile = mapToDto(file, fullPath);
         if (showArchive && mappedFile.getType() == FileType.ARCHIVE) {
             List<File> archiveInnerFiles = fileUtil.getArchiveInnerFiles(file, archivePath);
-            String archiveFolderPath = getArchiveFolderPath(path, file.getName(), archivePath);
-            mappedFile.setFiles(mapList(archiveInnerFiles, pathPrefix, archiveFolderPath, false, ""));
+            String innerFilePath = getFolderPath(pathPrefix, getArchiveFolderPath(path, file.getName(), archivePath));
+            mappedFile.setFiles(archiveInnerFiles
+                    .stream()
+                    .map(innerFile -> mapToDto(innerFile, getFileFullPath(innerFile, innerFilePath)))
+                    .collect(Collectors.toList()));
+
         }
 
         return mappedFile;
@@ -58,6 +61,10 @@ public class FileMapper {
         fileDto.setType(fileUtil.getFileType(file));
 
         return fileDto;
+    }
+
+    private String getFileFullPath(File file, String fullPath) {
+        return fullPath.contains(file.getName()) ? fullPath : fullPath + PATH_SEPARATOR + file.getName();
     }
 
     private String getArchiveFolderPath(String path, String archiveName, String archivePath) {
