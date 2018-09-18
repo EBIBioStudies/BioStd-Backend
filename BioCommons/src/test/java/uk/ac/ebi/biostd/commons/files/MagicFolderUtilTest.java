@@ -19,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class MagicFolderUtilTest {
 
+    private static final String USER_EMAIL = "user_email";
+
     private static final long TEST_ID = 123L;
     private static final String TEST_SECRET = "abc-123";
 
@@ -40,7 +42,7 @@ class MagicFolderUtilTest {
 
     @Test
     void createUserMagicFolder() {
-        testInstance.createUserMagicFolder(50L, "abc-123");
+        testInstance.createUserMagicFolder(50L, TEST_SECRET);
 
         File parentFolder = new File(testFolderPath, "ab");
         assertThat(parentFolder).exists();
@@ -51,7 +53,7 @@ class MagicFolderUtilTest {
 
     @Test
     void createGroupMagicFolder() {
-        testInstance.createGroupMagicFolder(40L, "abc-123");
+        testInstance.createGroupMagicFolder(40L, TEST_SECRET);
 
         File parentFolder = new File(testFolderPath, "ab");
         assertThat(parentFolder).exists();
@@ -85,8 +87,8 @@ class MagicFolderUtilTest {
         Path source = Paths.get(testFolderPath + "/directory");
         source.toFile().mkdir();
 
-        testInstance.createUserSymlink(source, "user_email");
-        assertThat(Paths.get(symlinksPath + "/u/user_email").toRealPath()).isEqualTo(source);
+        testInstance.createUserSymlink(source, USER_EMAIL);
+        assertThat(Paths.get(symlinksPath + "/u/" + USER_EMAIL).toRealPath()).isEqualTo(source);
     }
 
     private Path getExpectedPath(String prefix) {
