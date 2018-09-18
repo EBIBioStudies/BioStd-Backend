@@ -30,7 +30,7 @@ public class UserService {
     }
 
     private void createSymLink(UserDropboxInfo userDropbox) {
-        File sourceFile = new File(getDropboxPath(userDropbox.getSecret()));
+        File sourceFile = new File(getDropboxPath(userDropbox.getSecret(), userDropbox.getId()));
         sourceFile.mkdirs();
 
         try {
@@ -47,11 +47,11 @@ public class UserService {
         }
     }
 
-    private String getDropboxPath(String magicKey) {
+    private String getDropboxPath(String magicKey, long userId) {
         String prefixFolder = magicKey.substring(0, 2);
         String folder = magicKey.substring(2);
 
-        return format("%s/%s/%s", properties.getBaseDropboxPath(), prefixFolder, folder);
+        return format("%s/%s/%s-a%d", properties.getBaseDropboxPath(), prefixFolder, folder, userId);
     }
 
     private String getSymLinkPath(String userEmail) {
