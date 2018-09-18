@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserGroup;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserGroupRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserRepository;

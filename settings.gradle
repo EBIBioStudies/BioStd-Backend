@@ -9,4 +9,5 @@ include 'SubmitTool'
 include 'Exporter'
 include 'Remote-Library'
 include 'FtpServer'
+include 'BioCommons'
 

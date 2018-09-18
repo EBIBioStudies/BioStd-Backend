@@ -59,24 +59,24 @@ public class ScheduledTasksConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = "jobs.full", name="enabled", havingValue="true")
     public CronTask fullScheduler() {
-        return new CronTask(() -> fullExporter.execute(), fullCron);
+        return new CronTask(fullExporter::execute, fullCron);
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "jobs.partial", name="enabled", havingValue="true")
     public CronTask partialScheduler() {
-        return new CronTask(() -> partialExporter.execute(), partialCron);
+        return new CronTask(partialExporter::execute, partialCron);
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "jobs.pmc", name="enabled", havingValue="true")
     public CronTask pmcScheduler() {
-        return new CronTask(() -> pmcExporter.execute(), pmcCron);
+        return new CronTask(pmcExporter::execute, pmcCron);
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "jobs.stats", name="enabled", havingValue="true")
     public CronTask statsScheduler() {
-        return new CronTask(() -> statsExporter.execute(), statsCron);
+        return new CronTask(statsExporter::execute, statsCron);
     }
 }

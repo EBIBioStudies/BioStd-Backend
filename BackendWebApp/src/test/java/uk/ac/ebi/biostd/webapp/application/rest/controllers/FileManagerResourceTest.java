@@ -46,12 +46,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
+import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper;
 import uk.ac.ebi.biostd.webapp.application.rest.service.FileManagerService;
 import uk.ac.ebi.biostd.webapp.application.rest.types.FileType;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
-import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(FileManagerResource.class)
