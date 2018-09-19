@@ -24,7 +24,6 @@ public class PersistenceTest {
         @Bean
         public DataSource dataSource() {
             return new EmbeddedDatabaseBuilder()
-                    //  .setName("biostd_test;DATABASE_TO_UPPER=false;MODE=MYSQL")
                     .setType(EmbeddedDatabaseType.H2)
                     .addScript("classpath:scripts/sql/create_schema.sql")
                     .addScript("classpath:scripts/sql/init-full-export.sql")

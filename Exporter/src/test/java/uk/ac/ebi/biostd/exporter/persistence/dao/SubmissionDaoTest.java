@@ -3,8 +3,6 @@ package uk.ac.ebi.biostd.exporter.persistence.dao;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +19,12 @@ import uk.ac.ebi.biostd.exporter.utils.DateUtils;
 public class SubmissionDaoTest extends PersistenceTest {
 
     private static final String SUB_ID = "Test-Submission-01/01/2018";
+    private static final String ADMIN_EMAIL = "biostudies-dev@ebi.ac.uk";
+    private static final String ADMIN_NAME = "Biostudy manager";
+    private static final String PUBLIC_TAG = "Public";
 
     @Autowired
     private SubmissionDao submissionDao;
-
-    @Before
-    public void setup() {
-    }
-
-    @After
-    public void teardown() {
-    }
 
     @Test
     public void getPendingToReleaseSub() {
@@ -41,8 +34,8 @@ public class SubmissionDaoTest extends PersistenceTest {
     }
 
     private void assertResultInfo(SubAndUserInfo subAndUserInfo) {
-        assertThat(subAndUserInfo.getAuthorEmail()).isEqualTo("biostudies-dev@ebi.ac.uk");
-        assertThat(subAndUserInfo.getAuthorFullName()).isEqualTo("Biostudy manager");
+        assertThat(subAndUserInfo.getAuthorEmail()).isEqualTo(ADMIN_EMAIL);
+        assertThat(subAndUserInfo.getAuthorFullName()).isEqualTo(ADMIN_NAME);
     }
 
     @Test
@@ -51,6 +44,6 @@ public class SubmissionDaoTest extends PersistenceTest {
         Submission submission = submissionDao.getSubmissionByAccNo(SUB_ID);
 
         assertThat(submission.isReleased()).isTrue();
-        assertThat(submissionDao.getAccessTags(1)).containsOnly("Public");
+        assertThat(submissionDao.getAccessTags(1)).containsOnly(PUBLIC_TAG);
     }
 }
