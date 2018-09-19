@@ -49,6 +49,7 @@ public final class JsonSubmissionExporter implements FullExportJob {
                 processQueue,
                 jsonSubmissionProcessor,
                 new PoisonRecordFilter(),
+                jobProperties,
                 jobProperties.getAllSubmissions(),
                 JSON_EXTENSION);
     }

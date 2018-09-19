@@ -1,9 +1,7 @@
 package uk.ac.ebi.biostd.exporter.jobs.full.json;
 
-import static java.nio.file.Files.copy;
-import static java.nio.file.Files.delete;
+import static java.lang.String.format;
 import static java.nio.file.Files.deleteIfExists;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -14,19 +12,23 @@ import org.easybatch.core.record.Batch;
 import org.easybatch.core.record.Record;
 import org.easybatch.core.writer.RecordWriter;
 
+
+/**
+ * Writes submission representation into export file.
+ */
 @Slf4j
 public class JsonBufferedFileWriter implements RecordWriter {
 
+    public static final String TEMP_FILE_FORMAT = "%s_tmp";
+
     private static final String DATA_SEPARATOR = ",";
-    private final String fileName;
     private final String tempFileName;
 
     private BufferedWriter bw;
     private AtomicBoolean writeSeparator;
 
     public JsonBufferedFileWriter(String fileName) {
-        this.fileName = fileName;
-        this.tempFileName = fileName + "_tmp";
+        this.tempFileName = format(TEMP_FILE_FORMAT, fileName);
     }
 
     @Override
@@ -55,8 +57,5 @@ public class JsonBufferedFileWriter implements RecordWriter {
     public void close() throws Exception {
         bw.write("]");
         bw.close();
-
-        copy(Paths.get(tempFileName), Paths.get(fileName), REPLACE_EXISTING);
-        delete(Paths.get(tempFileName));
     }
 }
