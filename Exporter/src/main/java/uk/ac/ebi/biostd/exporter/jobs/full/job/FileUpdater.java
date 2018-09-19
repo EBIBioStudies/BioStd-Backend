@@ -5,15 +5,14 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static uk.ac.ebi.biostd.exporter.jobs.full.json.JsonBufferedFileWriter.TEMP_FILE_FORMAT;
 
 import java.nio.file.Paths;
-import lombok.SneakyThrows;
 import org.easybatch.core.job.JobParameters;
 import org.easybatch.core.job.JobReport;
 import org.easybatch.core.listener.JobListener;
 import uk.ac.ebi.biostd.exporter.commons.FileUtils;
 
 /**
- * Class in charge of replace export file. Validate number of records are more than configured threshold so in case
- * of error, export file is not replaced.
+ * Class in charge of replace export file. It Validates if the number of records are more than the configured
+ * threshold so, in case of error, export file is not replaced.
  */
 public class FileUpdater implements JobListener {
 
@@ -22,7 +21,7 @@ public class FileUpdater implements JobListener {
     private final String tempFileName;
     private final long recordsThreshold;
 
-    public FileUpdater(FileUtils fileUtils, String fileName, long recordsThreshold) {
+    FileUpdater(FileUtils fileUtils, String fileName, long recordsThreshold) {
         this.fileUtils = fileUtils;
         this.fileName = fileName;
         this.tempFileName = format(TEMP_FILE_FORMAT, fileName);
@@ -34,7 +33,6 @@ public class FileUpdater implements JobListener {
     }
 
     @Override
-    @SneakyThrows
     public void afterJobEnd(JobReport jobReport) {
         long records = jobReport.getMetrics().getWriteCount();
         if (records >= recordsThreshold) {

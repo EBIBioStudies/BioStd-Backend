@@ -7,7 +7,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
 /**
- * Wrappers class that encapsulate file operation to facilitate unit testing.
+ * Wrappers class that encapsulate file operations to facilitate unit testing.
  */
 @Component
 public class FileUtils {
