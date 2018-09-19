@@ -205,3 +205,6 @@ jobs:
       cron: 0 0 08 * * ? # everyday at 08 a.m.
     import:
       user: manager
+  users:
+    baseDropboxPath: /nfs/biostudies/ftp/pub/.dropbox
+    symLinksPath: /nfs/biostudies/.adm/databases/prod/usergroup/Users
