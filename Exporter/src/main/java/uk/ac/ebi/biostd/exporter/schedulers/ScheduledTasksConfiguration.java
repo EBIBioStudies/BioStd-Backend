@@ -9,6 +9,7 @@ import org.springframework.scheduling.config.CronTask;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.partial.PartialSubmissionExporter;
+import uk.ac.ebi.biostd.exporter.jobs.releaser.ReleaserJob;
 
 /**
  * Creates bean for the scheduled tasks of the system. The cron expression defined in the config file must
@@ -23,6 +24,7 @@ public class ScheduledTasksConfiguration {
     private final ExportPipeline pmcExporter;
     private final ExportPipeline statsExporter;
     private final PartialSubmissionExporter partialExporter;
+    private final ReleaserJob releaserJob;
 
     @Value("${jobs.dummy.cron}")
     private String dummyCron;
@@ -43,11 +45,13 @@ public class ScheduledTasksConfiguration {
             @Qualifier("full") ExportPipeline fullExporter,
             @Qualifier("pmc") ExportPipeline pmcExporter,
             @Qualifier("stats") ExportPipeline statsExporter,
-            PartialSubmissionExporter partialExporter) {
+            PartialSubmissionExporter partialExporter,
+            ReleaserJob releaserJob) {
         this.fullExporter = fullExporter;
         this.partialExporter = partialExporter;
         this.pmcExporter = pmcExporter;
         this.statsExporter = statsExporter;
+        this.releaserJob = releaserJob;
     }
 
     @Bean
@@ -78,5 +82,10 @@ public class ScheduledTasksConfiguration {
     @ConditionalOnProperty(prefix = "jobs.stats", name="enabled", havingValue="true")
     public CronTask statsScheduler() {
         return new CronTask(statsExporter::execute, statsCron);
+    }
+
+    @Bean
+    public CronTask releaser() {
+        return new CronTask(releaserJob::execute, statsCron);
     }
 }

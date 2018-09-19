@@ -30,7 +30,6 @@ public class FullExportJobProperties {
     public static final String JOIN_JOB = "full-join-job";
 
     private int workers;
-    private String queryModified;
     private String notificationUrl;
     private long recordsThreshold;
 

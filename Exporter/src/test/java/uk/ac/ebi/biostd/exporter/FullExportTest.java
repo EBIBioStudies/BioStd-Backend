@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.exporter;
 
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
@@ -87,7 +86,7 @@ public class FullExportTest extends BaseIntegrationTest {
         when(exportProperties.getAllSubmissions()).thenReturn(allSubmissionsProperties);
         when(exportProperties.getPublicOnlySubmissions()).thenReturn(publicOnlySubmissionsProperties);
         when(exportProperties.getWorkers()).thenReturn(1);
-        when(exportProperties.getQueryModified()).thenReturn(EMPTY);
+        when(exportProperties.getNotificationUrl()).thenReturn("http://localhost:8181/api/update/full");
         when(exportProperties.getNotificationUrl()).thenReturn(NOTIFICATION_URL);
     }
 
@@ -103,7 +102,6 @@ public class FullExportTest extends BaseIntegrationTest {
         assertThatJsonFile(files[1], EXPECTED_FULL_JSON_PATH);
         assertXmlFile(files[2]);
     }
-
 
     private void assertXmlFile(File file) {
         Source control = Input.fromFile(getResource(EXPECTED_FULL_XML_PATH).getAbsolutePath()).build();

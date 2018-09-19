@@ -3,28 +3,41 @@ package uk.ac.ebi.biostd.exporter.persistence.dao;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
 
 @Component
 @AllArgsConstructor
 @Slf4j
 public class SubmissionDao {
 
-    private final FullExportJobProperties configProperties;
     private final Queries queries;
     private final NamedParameterJdbcTemplate template;
     private final AttributeMapper attributeMapper;
     private final SubmissionMapper submissionMapper;
+
+    public void releaseSubmission(long submissionId) {
+        template.update(queries.getReleaseSubmission(), ImmutableMap.of("subId", submissionId));
+        template.update(queries.getAddPublicAccessTag(), ImmutableMap.of("subId", submissionId));
+    }
+
+    public List<SubAndUserInfo> getPendingToReleaseSub(long epochSecondsFrom, long epochSecondsTo) {
+        return template.query(
+                queries.getPendingRelease(),
+                ImmutableMap.of("from", epochSecondsFrom, "to", epochSecondsTo),
+                new BeanPropertyRowMapper<>(SubAndUserInfo.class));
+    }
 
     public List<String> getPublicSubmissionsPaths() {
         return template.queryForList(queries.getPublicSubmissions(), emptyMap(), String.class);
@@ -52,7 +65,9 @@ public class SubmissionDao {
 
     public List<Attribute> getAttributes(long submissionId) {
         return template.query(
-                queries.getSubmissionAttributesQuery(), singletonMap("submissionId", submissionId), attributeMapper);
+                queries.getSubmissionAttributesQuery(),
+                singletonMap("submissionId", submissionId),
+                attributeMapper);
     }
 
     public String getUserEmail(long userId) {
@@ -60,16 +75,10 @@ public class SubmissionDao {
     }
 
     public List<Submission> getSubmissions() {
-        String query = queries.getSubmissionsQuery() + configProperties.getQueryModified();
-        return template.query(query, emptyMap(), submissionMapper);
+        return template.query(queries.getSubmissionsQuery(), emptyMap(), submissionMapper);
     }
 
     public List<Submission> getPmcSubmissions() {
         return template.query(queries.getSubmissionsPmcQuery(), emptyMap(), submissionMapper);
-    }
-
-    public String getPublicationId(long submissionId) {
-        return template.queryForObject(
-                queries.getSubmissionPublicationQuery(), singletonMap("submissionId", submissionId), String.class);
     }
 }
