@@ -147,7 +147,7 @@ public class FileMapperTest {
     @Test
     public void mapList() {
         List<FileDto> files = testInstance.mapFiles(Arrays.asList(mockFile, mockDirectory), BASE_PATH, "");
-        assertThat(files).hasSize(1);
+        assertThat(files).hasSize(2);
 
         FileDto fileDto1 = files.get(0);
         FileDto fileDto2 = files.get(1);
