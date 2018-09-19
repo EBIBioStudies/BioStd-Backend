@@ -1,5 +1,3 @@
---INSERT INTO User (email, fullName) VALUES ('biostudies-dev@ebi.ac.uk', 'Biostudy manager');
-
 INSERT INTO Submission (CTime, MTime, RTime, accNo, relPath, released, rootPath, title, VERSION, secretKey, owner_id)
 VALUES (
   1514764800,
