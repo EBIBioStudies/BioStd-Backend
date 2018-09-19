@@ -5,6 +5,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import uk.ac.ebi.biostd.exporter.commons.FileUtils;
 import uk.ac.ebi.biostd.exporter.configuration.GeneralConfiguration;
 import uk.ac.ebi.biostd.exporter.jobs.JobsPipelinesConfiguration;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
@@ -22,7 +23,8 @@ import uk.ac.ebi.biostd.remote.service.RemoteService;
         NotificationController.class,
         TasksController.class,
         RemoteService.class,
-        SubmissionService.class},
+        SubmissionService.class,
+        FileUtils.class},
         excludeFilters = @Filter(IgnoreDuringScan.class))
 @EnableAutoConfiguration
 public class TestConfiguration {
