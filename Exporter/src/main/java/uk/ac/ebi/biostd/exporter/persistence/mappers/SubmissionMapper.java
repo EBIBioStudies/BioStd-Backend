@@ -22,7 +22,7 @@ public class SubmissionMapper implements RowMapper<Submission> {
         submission.setMTime(resultSet.getString("mTime"));
         submission.setRootSection_id(resultSet.getLong("rootSection_id"));
         submission.setOwner_id(resultSet.getLong("owner_id"));
-
+        submission.setReleased(resultSet.getBoolean("released"));
         return submission;
     }
 }

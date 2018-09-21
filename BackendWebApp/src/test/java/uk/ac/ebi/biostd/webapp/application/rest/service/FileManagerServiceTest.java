@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,8 +25,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
 import uk.ac.ebi.biostd.authz.UserGroup;
+import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
-import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileManagerServiceTest {
@@ -166,7 +167,7 @@ public class FileManagerServiceTest {
     @Test
     public void uploadFiles() throws Exception {
         when(mockMultipartFile.getOriginalFilename()).thenReturn(USER_FILE_NAME);
-        when(mockMultipartFile.getBytes()).thenReturn(new byte[]{ });
+        when(mockMultipartFile.getInputStream()).thenReturn(IOUtils.toInputStream(""));
 
         List<File> uploadFiles = testInstance.uploadFiles(multipartFiles, userFolderPath);
         assertThat(uploadFiles).hasSize(1);

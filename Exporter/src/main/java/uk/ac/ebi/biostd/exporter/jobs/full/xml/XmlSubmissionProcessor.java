@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 
 @Component
-public class SubmissionXmlProcessor implements RecordProcessor<Record<Submission>, Record<String>> {
+public class XmlSubmissionProcessor implements RecordProcessor<Record<Submission>, Record<String>> {
 
     private final Marshaller marshaller;
 
     @SneakyThrows
-    SubmissionXmlProcessor() {
+    XmlSubmissionProcessor() {
         JAXBContext jaxbContext = JAXBContext.newInstance(Submission.class);
         marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
+import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
 import uk.ac.ebi.biostd.webapp.application.rest.dto.FileDto;
 import uk.ac.ebi.biostd.webapp.application.rest.mappers.FileMapper;
 import uk.ac.ebi.biostd.webapp.application.rest.service.FileManagerService;
 import uk.ac.ebi.biostd.webapp.application.rest.types.PathDescriptor;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
-import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
 @RestController
 @AllArgsConstructor
@@ -40,25 +40,23 @@ public class FileManagerResource {
     @GetMapping("/user/**")
     public List<FileDto> getUserFiles(
             PathDescriptor pathDescriptor,
-            @AuthenticationPrincipal User user,
-            @RequestParam(required = false, defaultValue = "false") String showArchive) {
+            @AuthenticationPrincipal User user) {
         String path = pathDescriptor.getPath();
         List<File> userFiles = fileManagerService.getUserFiles(user, path);
 
-        return mapFiles(userFiles, USER_FOLDER_NAME, path, pathDescriptor.getArchivePath(), showArchive);
+        return mapFiles(userFiles, USER_FOLDER_NAME, path);
     }
 
     @GetMapping("/groups/{groupName}/**")
     public List<FileDto> getGroupFiles(
             PathDescriptor pathDescriptor,
             @AuthenticationPrincipal User user,
-            @PathVariable String groupName,
-            @RequestParam(required = false, defaultValue = "false") String showArchive) {
+            @PathVariable String groupName) {
         String path = pathDescriptor.getPath();
         String pathPrefix = GROUP_FOLDER_NAME + PATH_SEPARATOR + groupName;
         List<File> groupFiles = fileManagerService.getGroupFiles(user, groupName, path);
 
-        return mapFiles(groupFiles, pathPrefix, path, pathDescriptor.getArchivePath(), showArchive);
+        return mapFiles(groupFiles, pathPrefix, path);
     }
 
     @PostMapping("/user/**")
@@ -98,10 +96,8 @@ public class FileManagerResource {
     }
 
     private List<FileDto> mapFiles(
-            List<File> files, String pathPrefix, String path, String archivePath, String showArchive) {
-        return Boolean.valueOf(showArchive) ?
-                fileMapper.mapFilesShowingArchive(files, pathPrefix, path, archivePath) :
-                fileMapper.mapFiles(files, pathPrefix, path);
+            List<File> files, String pathPrefix, String path) {
+        return fileMapper.mapFiles(files, pathPrefix, path);
     }
 
     private List<FileDto> uploadFiles(

@@ -19,6 +19,30 @@
     ]]>
   </entry>
 
+  <entry key="pendingRelease">
+    <![CDATA[
+    SELECT s.id subId, s.title subTitle, s.accNo subAccNo, s.RTime subReleaseTime,
+           u.fullName authorFullName, u.email authorEmail
+      FROM Submission s, User u
+      WHERE s.owner_id = u.id
+        AND s.released = false
+        AND s.RTime BETWEEN :from AND :to
+        AND s.version > 0
+     ]]>
+  </entry>
+
+  <entry key="releaseSubmission">
+    <![CDATA[
+      UPDATE Submission SET released=true where id = :subId
+    ]]>
+  </entry>
+
+  <entry key="addPublicAccessTag">
+    <![CDATA[
+     INSERT INTO Submission_AccessTag values (:subId, 1)
+    ]]>
+  </entry>
+
   <entry key="userDropboxes">
     <![CDATA[
     SELECT id, email, secret from User where secret is not null and active = true
@@ -26,12 +50,12 @@
   </entry>
 
   <entry key="updatedSubmissionsQuery">
-    SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
   </entry>
 
   <entry key="submissionsQueryByAccNo">
-    SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 and accno = :accno
   </entry>
 
@@ -43,17 +67,17 @@
   </entry>
 
   <entry key="submissionsQuery">
-    SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    SELECT id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0
   </entry>
 
   <entry key="submissionsPmcQuery">
-    SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 AND accNo LIKE 'S-EPMC%'
   </entry>
 
   <entry key="singleSubmissionQuery">
-    SELECT id, accno, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 and id = :submissionId
   </entry>
 

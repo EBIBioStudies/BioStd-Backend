@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.webapp.application.security.service;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
 import uk.ac.ebi.biostd.webapp.application.persitence.common.AuxInfo;
 import uk.ac.ebi.biostd.webapp.application.persitence.common.Parameter;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
@@ -112,7 +114,8 @@ public class SecurityService implements ISecurityService {
         user.setSecret(UUID.randomUUID().toString());
 
         userRepository.save(user.withPendingActivation(signUpRequest.getActivationURL()));
-        magicFolderUtil.createUserMagicFolder(user.getId(), user.getSecret());
+        Path magicPath = magicFolderUtil.createUserMagicFolder(user.getId(), user.getSecret());
+        magicFolderUtil.createUserSymlink(magicPath, user.getEmail());
     }
 
     @Override
@@ -124,7 +127,8 @@ public class SecurityService implements ISecurityService {
             user.setAuxProfileInfo(new AuxInfo());
             user.setSecret(UUID.randomUUID().toString());
             userRepository.save(user);
-            magicFolderUtil.createUserMagicFolder(user.getId(), user.getSecret());
+            Path magicPath = magicFolderUtil.createUserMagicFolder(user.getId(), user.getSecret());
+            magicFolderUtil.createUserSymlink(magicPath, user.getEmail());
 
             return user;
         });

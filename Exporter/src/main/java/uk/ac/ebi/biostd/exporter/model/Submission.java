@@ -80,4 +80,7 @@ public class Submission {
     @JsonProperty("section")
     @XmlElement(name = "section")
     private Section section;
+
+    @JsonIgnore
+    private boolean released;
 }

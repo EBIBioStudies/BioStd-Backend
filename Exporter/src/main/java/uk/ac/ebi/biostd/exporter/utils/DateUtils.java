@@ -6,11 +6,17 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DateUtils {
+
+    public static ZonedDateTime now() {
+        return ZonedDateTime.now(ZoneId.of("Europe/London"));
+    }
 
     public String getFromEpochSeconds(long seconds) {
         OffsetDateTime dateTime = Instant.ofEpochSecond(seconds).atOffset(ZoneOffset.UTC);

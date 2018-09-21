@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,9 +16,9 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.ac.ebi.biostd.authz.User;
+import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.UserGroup;
 import uk.ac.ebi.biostd.webapp.application.security.service.GroupService;
-import uk.ac.ebi.biostd.webapp.application.security.service.MagicFolderUtil;
 
 @Service
 @AllArgsConstructor
@@ -74,7 +74,7 @@ public class FileManagerService {
     @SneakyThrows
     private File uploadFile(MultipartFile file, Path path) {
         Path filePath = Paths.get(path.toString(), file.getOriginalFilename());
-        Files.write(filePath, file.getBytes(), StandardOpenOption.CREATE);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         return new File(filePath.toUri());
     }
