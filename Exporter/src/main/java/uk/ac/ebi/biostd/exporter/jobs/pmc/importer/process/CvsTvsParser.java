@@ -28,7 +28,7 @@ public class CvsTvsParser {
     }
 
     @SneakyThrows
-    public PMDoc parse(File file, char sep, SimpleLogNode topLn) {
+    PMDoc parseZipFile(File file, char sep, SimpleLogNode topLn) {
         String text = file.getName().endsWith(COMPRESS_FILE_EXTENSION) ?
                 FileUtil.readGzFile(file, UTF_8) :
                 FileUtil.readFile(file, UTF_8);

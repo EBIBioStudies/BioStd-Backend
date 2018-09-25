@@ -410,7 +410,6 @@ public class JPASubmissionManager implements SubmissionManager {
                 op.name() + " submission(s) from " + type.name() + " source", ec);
 
         SubmissionReport res = new SubmissionReport();
-
         res.setLog(logNode);
 
         if (op == Operation.CREATE && !securityManager.mayUserCreateSubmission(usr)) {
@@ -555,8 +554,6 @@ public class JPASubmissionManager implements SubmissionManager {
                     if (!pub) {
                         submission.addAccessTag(getPublicTag(em));
                     }
-
-                    submission.setRTime(System.currentTimeMillis() / 1000);
                 }
 
                 String rootPathAttr = submission.getRootPath();
@@ -577,7 +574,11 @@ public class JPASubmissionManager implements SubmissionManager {
                 if (submission.getAccessTags() != null) {
                     for (AccessTag t : submission.getAccessTags()) {
                         if (t.getName().equals(BackendConfig.PublicTag)) {
-                            submission.setRTime(System.currentTimeMillis() / 1000);
+
+                            if (submission.isRTimeSet() && submission.getRTime() * 1000 > System.currentTimeMillis()) {
+                                submission.setRTime(System.currentTimeMillis() / 1000);
+                            }
+
                             submission.setReleased(true);
                             break;
                         }

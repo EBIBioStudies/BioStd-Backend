@@ -8,7 +8,7 @@
     </attribute>
     <attribute>
      <name>ReleaseDate</name>
-     <value>${TODAY}</value>
+     <value>2017-11-21</value>
     </attribute>
    </attributes>
 
