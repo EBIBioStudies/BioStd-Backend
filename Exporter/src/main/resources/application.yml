@@ -118,6 +118,8 @@ jobs:
   users:
     baseDropboxPath: /ebi/teams/biostudies/backend/development/dropbox
     symLinksPath: /ebi/teams/biostudies/backend/development/usergroup/Users
+  releaser:
+    enabled: false
 
 ---
 spring:
@@ -157,6 +159,8 @@ jobs:
   users:
     baseDropboxPath: /nfs/biostudies/ftp/pub/.dropbox
     symLinksPath: /nfs/biostudies/.adm/databases/beta/usergroup/Users
+  releaser:
+    enabled: false
 
 ---
 spring:
@@ -208,3 +212,5 @@ jobs:
   users:
     baseDropboxPath: /nfs/biostudies/ftp/pub/.dropbox
     symLinksPath: /nfs/biostudies/.adm/databases/prod/usergroup/Users
+  releaser:
+    enabled: false
