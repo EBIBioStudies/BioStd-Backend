@@ -30,8 +30,9 @@ import uk.ac.ebi.biostd.treelog.SimpleLogNode;
 @Component
 public class SubmissionsParser {
 
-    public static final String PUB_DATE_PARSING_ERROR = "Did not find year for submission '%s' in publication date "
-            + "'%s'";
+    private static final String PUB_DATE_PARSE_ERROR = "Did not find year for submission '%s' in publication date '%s'";
+    private static final String PUBLICATION_SECTION_TYPE = "Publication";
+    private static final String PUBLICATION_DATE_SECTION_ATTR = "Publication date";
 
     private final CvsTvsParser cvsTvsParser;
 
@@ -45,12 +46,12 @@ public class SubmissionsParser {
         Set<String> submissionSet = new HashSet<>();
         List<SubmissionInfo> uniqueSubmissions = new ArrayList<>();
 
-        for (SubmissionInfo info : Lists.reverse(submissions)) {
-            if (isNew(submissionSet, info.getAccNoOriginal())) {
-                uniqueSubmissions.add(info);
-                submissionSet.add(info.getAccNoOriginal());
-            }
-        }
+        Lists.reverse(submissions).stream()
+                .filter(info -> isNew(submissionSet, info.getAccNoOriginal()))
+                .forEach(info -> {
+                    uniqueSubmissions.add(info);
+                    submissionSet.add(info.getAccNoOriginal());
+                });
 
         return setReleaseDate(uniqueSubmissions);
     }
@@ -61,12 +62,12 @@ public class SubmissionsParser {
             Submission sub = submissionInfo.getSubmission();
 
             for (Section section : sub.getRootSection().getSections()) {
-                if (!section.getType().equalsIgnoreCase("Publication")) {
+                if (!section.getType().equalsIgnoreCase(PUBLICATION_SECTION_TYPE)) {
                     continue;
                 }
 
                 for (SectionAttribute attr : section.getAttributes()) {
-                    if (attr.getName().equalsIgnoreCase("Publication date")) {
+                    if (attr.getName().equalsIgnoreCase(PUBLICATION_DATE_SECTION_ATTR)) {
                         sub.addAttribute(canonicReleaseDateAttribute, tryToParse(attr.getValue(), sub.getAccNo()));
                     }
                 }
@@ -85,7 +86,7 @@ public class SubmissionsParser {
             return LocalDateTime.from(LocalDate.ofYearDay(year, 1).atTime(0, 0)).toString();
         }
 
-        throw new RuntimeException(format(PUB_DATE_PARSING_ERROR, date, accNo));
+        throw new RuntimeException(format(PUB_DATE_PARSE_ERROR, date, accNo));
     }
 
     private boolean isNew(Set<String> submissionSet, String accNo) {
