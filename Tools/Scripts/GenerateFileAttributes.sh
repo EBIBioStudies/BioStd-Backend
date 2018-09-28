@@ -32,9 +32,8 @@ do
                     AND se.submission_id = su.id
                     AND su.accNo = '$3'
                     AND fr.name LIKE '%$name%'";
-    # TODO change the credentials to args before commiting
-    fileId=$(mysql --user="biostd" --password="biostd" --host="mysql-fg-biostudy.ebi.ac.uk" --port="4469" --execute="$fileIdQuery" --skip-column-names --silent $4)
-    fileAttr=$(mysql --user="biostd" --password="biostd" --host="mysql-fg-biostudy.ebi.ac.uk" --port="4469" --execute="$attrQuery" --skip-column-names --raw --silent biostd_dev_stats)
+    fileId=$(mysql --user="" --password="" --host="" --port="" --execute="$fileIdQuery" --skip-column-names --silent $4)
+    fileAttr=$(mysql --user="" --password="" --host="" --port="" --execute="$attrQuery" --skip-column-names --raw --silent biostd_dev_stats)
 
     while IFS="|" read -r plate well replicate channel spot cellLineName mutation compoundId compoundName;
     do
