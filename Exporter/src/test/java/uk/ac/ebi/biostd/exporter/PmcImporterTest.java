@@ -26,6 +26,7 @@ import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.PmcImporter;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.CvsTvsParser;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.PmcFileManager;
 import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.SubmissionJsonSerializer;
+import uk.ac.ebi.biostd.exporter.jobs.pmc.importer.process.SubmissionsParser;
 import uk.ac.ebi.biostd.remote.service.RemoteService;
 import uk.ac.ebi.biostd.util.FileUtil;
 
@@ -42,14 +43,13 @@ public class PmcImporterTest extends BaseIntegrationTest {
     public TemporaryFolder folder = new TemporaryFolder();
 
     private PmcImporter pmcImporter;
-    private PmcImportProperties properties;
 
     @Before
     public void setup() throws IOException {
         String importPath = folder.getRoot().getAbsolutePath();
         FileUtil.copyDirectory(getResource("/pmc"), new File(importPath));
 
-        properties = new PmcImportProperties();
+        PmcImportProperties properties = new PmcImportProperties();
         properties.setImportPath(importPath);
         properties.setSubmitterUserPath(USER_HOME_PATH);
         properties.setUser("jcamilorada@ebi.ac.uk");
@@ -57,10 +57,10 @@ public class PmcImporterTest extends BaseIntegrationTest {
 
         pmcImporter = new PmcImporter(
                 properties,
-                new CvsTvsParser(),
                 new PmcFileManager(properties),
+                new SubmissionJsonSerializer(),
                 new RemoteService(restTemplate),
-                new SubmissionJsonSerializer());
+                new SubmissionsParser(new CvsTvsParser()));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class PmcImporterTest extends BaseIntegrationTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(submissionResponse(), MediaType.APPLICATION_JSON));
 
-        pmcImporter.execute();
+        pmcImporter.importConfiguredPath();
     }
 
     private String securityLoginResponseJson() {

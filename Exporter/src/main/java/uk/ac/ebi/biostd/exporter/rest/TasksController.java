@@ -1,7 +1,10 @@
 package uk.ac.ebi.biostd.exporter.rest;
 
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.ftp.FtpService;
@@ -49,6 +52,12 @@ public class TasksController {
         return "ok";
     }
 
+    @GetMapping("/api/force/partial/{accNo}")
+    public String forcePartial(@PathVariable String accNo) {
+        partialExporter.execute(accNo);
+        return "ok";
+    }
+
     @GetMapping("/api/force/pmc")
     public String pmcExport() {
         pmcExporter.execute();
@@ -56,8 +65,20 @@ public class TasksController {
     }
 
     @GetMapping("/api/force/pmc-import")
-    public String pmcImporter() {
-        pmcImporter.execute();
+    public String pmcImportConfigured() {
+        pmcImporter.importConfiguredPath();
+        return "ok";
+    }
+
+    @GetMapping("/api/force/pmc-import-file")
+    public String pmcImportSingleFile(@RequestHeader("path") String path) {
+        pmcImporter.importSingleFile(path);
+        return "ok";
+    }
+
+    @GetMapping("/api/force/pmc-import-pattern")
+    public String pmcImportByPathAndPattern(@RequestHeader("path") String path, @RequestHeader("regex") String regex) {
+        pmcImporter.importFilesInPathByRegex(path, regex);
         return "ok";
     }
 
@@ -68,7 +89,7 @@ public class TasksController {
     }
 
     @GetMapping("/api/force/ftp")
-    public String executeFtp() {
+    public String executeFtp() throws IOException {
         ftpService.execute();
         return "ok";
     }

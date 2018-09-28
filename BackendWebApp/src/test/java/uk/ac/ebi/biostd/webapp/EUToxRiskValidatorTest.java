@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,7 @@ public class EUToxRiskValidatorTest {
     }
 
     @Test
+    @Ignore("End point not available")
     public void testValidFile() {
         Collection<EUToxRiskFileValidationError> errors = validator.validate(
                 ResourceHandler.getResourceFile(VALID_FILE));
@@ -56,6 +58,7 @@ public class EUToxRiskValidatorTest {
     }
 
     @Test
+    @Ignore("End point not available")
     public void testInvalidFile() {
         Collection<EUToxRiskFileValidationError> errors = validator.validate(
                 ResourceHandler.getResourceFile(INVALID_FILE));
@@ -64,6 +67,7 @@ public class EUToxRiskValidatorTest {
     }
 
     @Test
+    @Ignore("End point not available")
     public void testWithThreadPool() {
         EUToxRiskFileValidatorService service = new EUToxRiskFileValidatorService(properties, restTemplate, taskExecutor);
         Collection<EUToxRiskFileValidationError> errors = service.validateFirst(
