@@ -188,7 +188,7 @@ jobs:
       filePath: /nfs/biostudies/.adm/databases/prod/updates/
       fileName: studies
     publicOnlySubmissions:
-      filePath: /nfs/biostudies/.adm/databases/prod/updates/
+      filePath: /nfs/biostudies/prod/external
       fileName: publicOnlyStudies
     workers: 4
     queryModified:
