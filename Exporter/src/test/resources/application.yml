@@ -8,6 +8,8 @@ spring:
     generate-unique-name: true
 jobs:
   backend-url: http://localhost:8181/biostd
+  libFileProjects:
+  - BioImages
   pmc:
     export:
       workers: 1

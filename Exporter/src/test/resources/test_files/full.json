@@ -25,6 +25,10 @@
         {
           "name":"Title",
           "value":"Cost-effectiveness of a potential vaccine for human papillomavirus."
+        },
+        {
+          "name": "AttachTo",
+          "value": "BioImages"
         }
       ],
       "section":{
@@ -39,20 +43,7 @@
             "value":"Human papillomavirus (HPV) "
           }
         ],
-        "files":[
-          {
-            "path":null,
-            "name":"02-0168_appT-s1.pdf",
-            "size":34984,
-            "attributes":[
-              {
-                "name":"Type",
-                "value":"application(pdf)"
-              }
-            ],
-            "type":"file"
-          }
-        ],
+        "libraryFile":"S-EPMC2873748.1.files.json",
         "subsections":[
           {
             "accno":"PMC2873748",

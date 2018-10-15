@@ -33,6 +33,11 @@ public class SectionDao {
         return template.query(queries.getSectionFilesQuery(), singletonMap("section_id", sectionId), fileMapper);
     }
 
+    public Long getSectionFilesCount(long sectionId) {
+        return template.queryForObject(
+                queries.getSectionFilesCountQuery(), singletonMap("section_id", sectionId), Long.class);
+    }
+
     public Section getSection(long sectionId) {
         return template.queryForObject(
                 queries.getSectionByIdQuery(), singletonMap("section_id", sectionId), sectionMapper);

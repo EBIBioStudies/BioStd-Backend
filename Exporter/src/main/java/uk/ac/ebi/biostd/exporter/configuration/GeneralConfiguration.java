@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.exporter.configuration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,8 @@ import uk.ac.ebi.biostd.remote.service.RemoteService;
 @Configuration
 @Slf4j
 public class GeneralConfiguration {
+    @Value("{jobs.libFileProjects}")
+    private List<String> libFileProjects;
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -42,5 +45,10 @@ public class GeneralConfiguration {
     @Bean
     public MagicFolderUtil magicFolderUtil(UsersFoldersProperties properties) {
         return new MagicFolderUtil(properties.getBaseDropboxPath(), properties.getSymLinksPath());
+    }
+
+    @Bean
+    public List<String> libFileProjects() {
+        return libFileProjects;
     }
 }

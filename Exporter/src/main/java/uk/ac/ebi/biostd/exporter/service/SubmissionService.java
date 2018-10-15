@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostd.exporter.configuration.GeneralConfiguration;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.File;
 import uk.ac.ebi.biostd.exporter.model.Link;
@@ -21,11 +22,14 @@ import uk.ac.ebi.biostd.exporter.utils.DateUtils;
 @Service
 @AllArgsConstructor
 public class SubmissionService {
+    private static final String SEPARATOR = ".";
+    private static final String LIB_FILE_SUFFIX = ".files.json";
 
     private final SubmissionDao submissionDao;
     private final SectionDao sectionDao;
     private final FilesDao filesDao;
     private final LinksDao linksDao;
+    private final GeneralConfiguration config;
 
     public List<Submission> getUpdatedSubmissions(long syncTime) {
         List<Submission> submissions = submissionDao.getUpdatedSubmissions(syncTime);
@@ -39,10 +43,13 @@ public class SubmissionService {
 
     public Submission processSubmission(Submission submission) {
         log.debug("processing submissions with accno: '{}' and id '{}'", submission.getAccno(), submission.getId());
+        List<Attribute> attributes = getAttributes(submission);
+
         submission.setAccessTags(getAccessTags(submission));
-        submission.setAttributes(getAttributes(submission));
+        submission.setAttributes(attributes);
+
         if (submission.getRootSection_id() != 0) {
-            submission.setSection(processSection(sectionDao.getSection(submission.getRootSection_id())));
+            submission.setSection(processSection(sectionDao.getSection(submission.getRootSection_id()), submission));
         }
 
         return submission;
@@ -66,27 +73,49 @@ public class SubmissionService {
         return subAttributes;
     }
 
-    private Section processSection(Section section) {
+    private Section processSection(Section section, Submission parentSubmission) {
         section.setAttributes(sectionDao.getSectionAttributes(section.getId()));
 
-        List<File> files = sectionDao.getSectionFiles(section.getId());
-        files.forEach(file -> file.setAttributes(filesDao.getFilesAttributes(file.getId())));
-        section.setFiles(files);
+        if (isLibFileSubmission(parentSubmission.getAttributes(), config.libFileProjects()) &&
+            sectionDao.getSectionFilesCount(section.getId()) > 0) {
+            section.setLibraryFile(getLibFileName(parentSubmission, section));
+        } else {
+            List<File> files = sectionDao.getSectionFiles(section.getId());
+            files.forEach(file -> file.setAttributes(filesDao.getFilesAttributes(file.getId())));
+            section.setFiles(files);
+        }
 
         List<Link> links = linksDao.getLinks(section.getId());
         links.forEach(link -> link.setAttributes(linksDao.getLinkAttributes(link.getId())));
         section.setLinks(links);
 
         List<Section> subSections = sectionDao.getSectionSections(section.getId());
-        subSections.forEach(this::processSection);
+        subSections.forEach(subSection -> processSection(subSection, parentSubmission));
         section.setSubsections(subSections);
 
         return section;
+    }
+
+    private String getLibFileName(Submission parentSubmission, Section section) {
+        StringBuilder libFile = new StringBuilder();
+        libFile.append(parentSubmission.getAccno())
+                .append(SEPARATOR)
+                .append(section.getId())
+                .append(LIB_FILE_SUFFIX);
+
+        return libFile.toString();
     }
 
     public Submission getSubmission(String accNo) {
         Submission submission = submissionDao.getSubmissionByAccNo(accNo);
         processSubmission(submission);
         return submission;
+    }
+
+    private boolean isLibFileSubmission(List<Attribute> attributes, List<String> libFileProjects) {
+        return attributes.stream()
+                .filter(attr -> attr.getName().equals("AttachTo"))
+                .filter(attr -> !libFileProjects.contains(attr.getValue()))
+                .count() > 0;
     }
 }

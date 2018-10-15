@@ -36,6 +36,8 @@ spring:
 
 jobs:
   backend-url: http://localhost:8586/biostd
+  libFileProjects:
+  - BioImages
   stats:
     enabled: false
     basePath: # ${SUBMISSIONS_PATH}/submission
@@ -84,6 +86,8 @@ spring:
   profiles: dev
 jobs:
   backend-url: http://biostudy-bia.ebi.ac.uk:8586/biostd
+  libFileProjects:
+  - BioImages
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
@@ -126,6 +130,8 @@ spring:
   profiles: beta
 jobs:
   backend-url: http://biostudy-dev.ebi.ac.uk:10180/biostd-beta
+  libFileProjects:
+  - BioImages
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
@@ -167,6 +173,8 @@ spring:
   profiles: prod
 jobs:
   backend-url: http://biostudy-prod.ebi.ac.uk:10080/biostd-prod
+  libFileProjects:
+  - BioImages
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds

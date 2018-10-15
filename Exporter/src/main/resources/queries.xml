@@ -101,6 +101,10 @@
     select id, name, size, path from FileRef where sectionId = :section_id
   </entry>
 
+  <entry key="sectionFilesCountQuery">
+    select count(id) from FileRef where sectionId = :section_id
+  </entry>
+
   <entry key="sectionSectionsQuery">
     select id, accno, type from Section where parent_id = :section_id
   </entry>
