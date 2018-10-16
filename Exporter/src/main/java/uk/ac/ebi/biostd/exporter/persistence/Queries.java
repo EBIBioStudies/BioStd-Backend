@@ -19,6 +19,7 @@ public class Queries {
     private String linksBySectionQuery;
     private String sectionAttributesQuery;
     private String sectionFilesQuery;
+    private String sectionFilesCountQuery;
     private String sectionSectionsQuery;
     private String sectionByIdQuery;
     private String submissionAccessTagQuery;

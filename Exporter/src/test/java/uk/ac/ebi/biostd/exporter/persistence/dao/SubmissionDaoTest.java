@@ -8,7 +8,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.biostd.TestConfiguration;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
 import uk.ac.ebi.biostd.exporter.utils.DateUtils;
@@ -16,6 +18,7 @@ import uk.ac.ebi.biostd.exporter.utils.DateUtils;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @DirtiesContext
+@ContextConfiguration(classes = TestConfiguration.class)
 public class SubmissionDaoTest extends PersistenceTest {
 
     private static final String SUB_ID = "Test-Submission-01/01/2018";

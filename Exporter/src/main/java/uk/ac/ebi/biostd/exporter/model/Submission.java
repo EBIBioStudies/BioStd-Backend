@@ -83,4 +83,7 @@ public class Submission {
 
     @JsonIgnore
     private boolean released;
+
+    @JsonIgnore
+    private boolean libFileSubmission;
 }

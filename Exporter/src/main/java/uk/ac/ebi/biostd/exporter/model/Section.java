@@ -48,6 +48,11 @@ public class Section {
     @XmlElement(name = "file")
     private List<File> files;
 
+    @JsonProperty("libraryFile")
+    @JsonInclude(Include.NON_NULL)
+    @XmlAttribute(name = "libraryFile")
+    private String libraryFile;
+
     @JsonProperty("links")
     @JsonInclude(Include.NON_EMPTY)
     private List<Link> links;
