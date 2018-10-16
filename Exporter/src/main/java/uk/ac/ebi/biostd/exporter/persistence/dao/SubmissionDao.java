@@ -5,9 +5,6 @@ import static java.util.Collections.singletonMap;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -28,11 +25,11 @@ import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
 public class SubmissionDao {
 
     private final Queries queries;
-    private final NamedParameterJdbcTemplate template;
     private final AttributeMapper attributeMapper;
     private final SubmissionMapper submissionMapper;
-    private final LibFileSubmissionMapper libFileSubmissionMapper;
+    private final NamedParameterJdbcTemplate template;
     private final ExporterGeneralProperties properties;
+    private final LibFileSubmissionMapper libFileSubmissionMapper;
 
     public void releaseSubmission(long submissionId) {
         template.update(queries.getReleaseSubmission(), ImmutableMap.of("subId", submissionId));
@@ -82,19 +79,10 @@ public class SubmissionDao {
     }
 
     public List<Submission> getSubmissions() {
-        return template.query(queries.getSubmissionsQuery(), emptyMap(), submissionMapper);
-    }
-
-    public List<Submission> getLibFileSubmissions() {
-        Map<String, List<String>> projects = singletonMap("projects", properties.getLibFileProjects());
-
-        List<Submission> regularSubmissions =
-                template.query(queries.getRegularSubmissionsQuery(), projects, submissionMapper);
-
-        List<Submission> libFileSubmissions =
-                template.query(queries.getLibFileSubmissionsQuery(), projects, libFileSubmissionMapper);
-
-        return Stream.concat(libFileSubmissions.stream(), regularSubmissions.stream()).collect(Collectors.toList());
+        return template.query(
+                queries.getSubmissionsQuery(),
+                singletonMap("libFileProjects", properties.getLibFileProjects()),
+                libFileSubmissionMapper);
     }
 
     public List<Submission> getPmcSubmissions() {

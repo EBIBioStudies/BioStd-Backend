@@ -10,7 +10,7 @@ public class LibFileSubmissionMapper extends SubmissionMapper {
     @Override
     public Submission mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Submission submission = super.mapRow(resultSet, rowNum);
-        submission.setLibFileSubmission(true);
+        submission.setLibFileSubmission(resultSet.getBoolean("isLibFile"));
 
         return submission;
     }

@@ -33,7 +33,7 @@ public class FullJobJobsFactory extends BaseJobsFactory implements JobsFactory {
         return newForkJob(
                 FORK_BATCH_SIZE,
                 FORK_JOB,
-                new DbRecordReader<>(submissionDao::getLibFileSubmissions, dataSource),
+                new DbRecordReader<>(submissionDao::getSubmissions, dataSource),
                 workQueues);
     }
 
