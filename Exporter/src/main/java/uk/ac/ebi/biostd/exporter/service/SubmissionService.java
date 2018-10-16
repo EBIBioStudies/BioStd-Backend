@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostd.exporter.configuration.GeneralConfiguration;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.File;
 import uk.ac.ebi.biostd.exporter.model.Link;
@@ -29,7 +28,6 @@ public class SubmissionService {
     private final SectionDao sectionDao;
     private final FilesDao filesDao;
     private final LinksDao linksDao;
-    private final GeneralConfiguration config;
 
     public List<Submission> getUpdatedSubmissions(long syncTime) {
         List<Submission> submissions = submissionDao.getUpdatedSubmissions(syncTime);
@@ -76,8 +74,7 @@ public class SubmissionService {
     private Section processSection(Section section, Submission parentSubmission) {
         section.setAttributes(sectionDao.getSectionAttributes(section.getId()));
 
-        if (isLibFileSubmission(parentSubmission.getAttributes(), config.libFileProjects()) &&
-            sectionDao.getSectionFilesCount(section.getId()) > 0) {
+        if (parentSubmission.isLibFileSubmission() && sectionDao.getSectionFilesCount(section.getId()) > 0) {
             section.setLibraryFile(getLibFileName(parentSubmission, section));
         } else {
             List<File> files = sectionDao.getSectionFiles(section.getId());
@@ -110,12 +107,5 @@ public class SubmissionService {
         Submission submission = submissionDao.getSubmissionByAccNo(accNo);
         processSubmission(submission);
         return submission;
-    }
-
-    private boolean isLibFileSubmission(List<Attribute> attributes, List<String> libFileProjects) {
-        return attributes.stream()
-                .filter(attr -> attr.getName().equals("AttachTo"))
-                .filter(attr -> !libFileProjects.contains(attr.getValue()))
-                .count() > 0;
     }
 }

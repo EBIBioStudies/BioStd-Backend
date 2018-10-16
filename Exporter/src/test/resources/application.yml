@@ -10,6 +10,7 @@ jobs:
   backend-url: http://localhost:8181/biostd
   libFileProjects:
   - BioImages
+  - BioVideos
   pmc:
     export:
       workers: 1

@@ -71,6 +71,26 @@
     WHERE version > 0
   </entry>
 
+  <entry key="regularSubmissionsQuery">
+    SELECT id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    WHERE version > 0 AND
+      id NOT IN (SELECT su.id
+                  FROM Submission su, SubmissionAttribute sua
+                  WHERE su.id = sua.submission_id AND
+                  sua.name = 'AttachTo' AND
+                  sua.value IN (:projects) AND
+                  su.version > 0)
+  </entry>
+
+  <entry key="libFileSubmissionsQuery">
+    SELECT su.id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id
+    FROM Submission su, SubmissionAttribute sua
+    WHERE su.id = sua.submission_id AND
+      sua.name = 'AttachTo' AND
+      sua.value IN (:projects) AND
+      su.version > 0
+  </entry>
+
   <entry key="submissionsPmcQuery">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 AND accNo LIKE 'S-EPMC%'
