@@ -16,16 +16,9 @@ spring:
     active: local
   datasource:
     hikari:
-      connection-timeout: 60000
-      maximum-pool-size: 20
-      data-source-properties:
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        cachePrepStmts: true
-        useServerPrepStmts: true
-        cacheServerConfiguration: true
-        useLocalSessionState: true
-        maintainTimeStats: false
+      connection-timeout: 5000
+      maximum-pool-size: 30
+      connection-test-query: SELECT 1 FROM DUAL
       jdbc-url: # to be set in deployment script
       username: # to be set in deployment script
       password:
