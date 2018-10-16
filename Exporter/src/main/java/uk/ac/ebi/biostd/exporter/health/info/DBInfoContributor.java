@@ -18,13 +18,13 @@ public class DBInfoContributor implements InfoContributor {
 
     @Override
     public void contribute(Builder builder) {
-        Map<String, Object> userDetails = new HashMap<>();
-        userDetails.put("active", poolMetadata.getActive());
-        userDetails.put("max", poolMetadata.getMax());
-        userDetails.put("min", poolMetadata.getMin());
-        userDetails.put("url", dataSource.getJdbcUrl());
-        userDetails.put("idleTimeOut", dataSource.getIdleTimeout());
-        userDetails.put("connectionTimeOut", dataSource.getConnectionTimeout());
-        builder.withDetail("dbPool", userDetails);
+        Map<String, Object> dbDetails = new HashMap<>();
+        dbDetails.put("active", poolMetadata.getActive());
+        dbDetails.put("max", poolMetadata.getMax());
+        dbDetails.put("min", poolMetadata.getMin());
+        dbDetails.put("url", dataSource.getJdbcUrl());
+        dbDetails.put("idleTimeOut", dataSource.getIdleTimeout());
+        dbDetails.put("connectionTimeOut", dataSource.getConnectionTimeout());
+        builder.withDetail("dbPool", dbDetails);
     }
 }
