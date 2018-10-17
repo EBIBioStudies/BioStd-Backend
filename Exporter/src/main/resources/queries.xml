@@ -68,11 +68,15 @@
 
   <entry key="submissionsQuery">
     SELECT su.id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-          (SELECT count(id)
+          (SELECT count(sua.id)
             FROM SubmissionAttribute sua
             WHERE su.id = sua.submission_id AND
               sua.name = 'AttachTo' AND
-              sua.value IN (:libFileProjects)) isLibFile
+              sua.value IN (:libFileProjects)) isLibFile,
+          (SELECT COUNT(fr.id)
+            FROM FileRef fr, Section se
+            WHERE fr.sectionId = se.id AND
+            se.submission_id = su.id) filesCount
     FROM Submission su
     WHERE su.version > 0
   </entry>

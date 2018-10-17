@@ -64,6 +64,10 @@ public class Submission {
         return SUBMISSION_TYPE;
     }
 
+    @JsonProperty("filesCount")
+    @XmlAttribute(name = "filesCount")
+    private long filesCount;
+
     @JsonIgnore
     private long rootSection_id;
 
