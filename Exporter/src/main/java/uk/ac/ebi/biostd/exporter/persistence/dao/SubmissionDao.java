@@ -15,7 +15,7 @@ import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
-import uk.ac.ebi.biostd.exporter.persistence.mappers.LibFileSubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
 
@@ -29,7 +29,7 @@ public class SubmissionDao {
     private final SubmissionMapper submissionMapper;
     private final NamedParameterJdbcTemplate template;
     private final ExporterGeneralProperties properties;
-    private final LibFileSubmissionMapper libFileSubmissionMapper;
+    private final DetailedSubmissionMapper detailedSubmissionMapper;
 
     public void releaseSubmission(long submissionId) {
         template.update(queries.getReleaseSubmission(), ImmutableMap.of("subId", submissionId));
@@ -82,7 +82,7 @@ public class SubmissionDao {
         return template.query(
                 queries.getSubmissionsQuery(),
                 singletonMap("libFileProjects", properties.getLibFileProjects()),
-                libFileSubmissionMapper);
+                detailedSubmissionMapper);
     }
 
     public List<Submission> getPmcSubmissions() {

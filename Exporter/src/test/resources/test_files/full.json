@@ -9,6 +9,7 @@
       "ctime":"1460402396",
       "mtime":"1460402396",
       "type":"submission",
+      "filesCount": 1,
       "accessTags":[
         "biostudies-dev@ebi.ac.uk",
         "#1"
@@ -116,6 +117,7 @@
       "ctime":"1460389106",
       "mtime":"1460389106",
       "type":"submission",
+      "filesCount": 1,
       "accessTags":[
         "biostudies-dev@ebi.ac.uk",
         "Public",
