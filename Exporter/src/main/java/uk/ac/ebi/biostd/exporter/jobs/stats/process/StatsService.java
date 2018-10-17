@@ -20,6 +20,7 @@ public class StatsService {
 
         return SubStats.builder()
                 .accNo(accNo)
+                .imaging(submission.isLibFileSubmission())
                 .files(metricsDao.getSubFilesCount(accNo))
                 .filesSize(metricsDao.getSubFilesSize(accNo))
                 .subFileSize(getFileSize(accNo, submission.getRelPath()))

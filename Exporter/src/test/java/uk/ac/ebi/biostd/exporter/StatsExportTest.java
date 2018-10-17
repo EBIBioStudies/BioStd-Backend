@@ -2,7 +2,6 @@ package uk.ac.ebi.biostd.exporter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
@@ -28,7 +27,12 @@ import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = TestConfiguration.class)
-@Sql(scripts = {"classpath:scripts/sql/create_schema.sql", "classpath:scripts/sql/init-pmc.sql"})
+@Sql(scripts = {
+        "classpath:scripts/sql/create_schema.sql",
+        "classpath:scripts/sql/init-pmc.sql",
+        "classpath:scripts/sql/init-full-export.sql",
+        "classpath:scripts/sql/private_submission.sql",
+        "classpath:scripts/sql/public_submission.sql"})
 public class StatsExportTest extends BaseIntegrationTest {
 
     @Rule
@@ -62,7 +66,7 @@ public class StatsExportTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testStatsExport() throws Exception {
+    public void testStatsExport() {
         exportPipeline.execute();
         File statsFile = new File(folder.getRoot().getAbsolutePath() + "/updates/stats.csv");
         assertThat(statsFile).exists();
