@@ -6,6 +6,10 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
+
+import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,11 +33,12 @@ import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 @ContextConfiguration(classes = TestConfiguration.class)
 @Sql(scripts = {
         "classpath:scripts/sql/create_schema.sql",
-        "classpath:scripts/sql/init-pmc.sql",
         "classpath:scripts/sql/init-full-export.sql",
         "classpath:scripts/sql/private_submission.sql",
         "classpath:scripts/sql/public_submission.sql"})
 public class StatsExportTest extends BaseIntegrationTest {
+    private static final String EXPECTED_STATS_1 = "\"S-EPMC2873748\",\"0\",\"1\",\"34984\",\"true\"";
+    private static final String EXPECTED_STATS_2 = "\"S-EPMC3343633\",\"0\",\"1\",\"9170139\",\"false\"";
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -50,7 +55,7 @@ public class StatsExportTest extends BaseIntegrationTest {
     private ExportPipeline exportPipeline;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         exportPipeline = new ExportPipeline(1, ImmutableList.of(statsExport), jobsFactory);
 
         String basePath = folder.getRoot().getAbsolutePath();
@@ -60,17 +65,22 @@ public class StatsExportTest extends BaseIntegrationTest {
 
         new File(basePath + "/updates").mkdir();
         when(properties.getOutFilePath()).thenReturn(basePath + "/updates/stats.csv");
-
-        String pageTabFile = basePath + "/submissions/S-EPMC/S-EPMCxxx986/S-EPMC4273986/S-EPMC4273986.pagetab.tsv";
-        FileUtils.copyFile(getResource("/test_files/S-EPMC4273986.tsv"), new File(pageTabFile));
     }
 
     @Test
-    public void testStatsExport() {
+    public void testStatsExport() throws Exception {
         exportPipeline.execute();
         File statsFile = new File(folder.getRoot().getAbsolutePath() + "/updates/stats.csv");
         assertThat(statsFile).exists();
+        assertStats(statsFile, EXPECTED_STATS_1, EXPECTED_STATS_2);
     }
 
-}
+    private void assertStats(File statsFile, String... expectedStats) throws Exception {
+        List<String> stats = Files.readLines(statsFile, Charset.defaultCharset());
 
+        assertThat(stats.size()).isEqualTo(expectedStats.length);
+        for (int index = 0; index < stats.size(); index++) {
+            assertThat(stats.get(index)).isEqualTo(expectedStats[index]);
+        }
+    }
+}
