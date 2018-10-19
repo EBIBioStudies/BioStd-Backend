@@ -84,6 +84,10 @@ jobs:
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
+  stats:
+    basePath: /ebi/teams/biostudies/backend/development/submission
+    outFilePath: /ebi/teams/biostudies/backend/development/updates/stats.csv
+    workers: 4
   partial:
     enabled: true
     filePath: /ebi/teams/biostudies/backend/development/updates/
