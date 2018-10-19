@@ -4,13 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.Files;
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-
-import com.google.common.io.Files;
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,13 +69,12 @@ public class StatsExportTest extends BaseIntegrationTest {
         exportPipeline.execute();
         File statsFile = new File(folder.getRoot().getAbsolutePath() + "/updates/stats.csv");
         assertThat(statsFile).exists();
-        assertStats(statsFile, EXPECTED_STATS_1, EXPECTED_STATS_2);
+        assertStats(Files.readLines(statsFile, Charset.defaultCharset()), EXPECTED_STATS_1, EXPECTED_STATS_2);
     }
 
-    private void assertStats(File statsFile, String... expectedStats) throws Exception {
-        List<String> stats = Files.readLines(statsFile, Charset.defaultCharset());
-
+    private void assertStats(List<String> stats, String... expectedStats) {
         assertThat(stats.size()).isEqualTo(expectedStats.length);
+
         for (int index = 0; index < stats.size(); index++) {
             assertThat(stats.get(index)).isEqualTo(expectedStats[index]);
         }
