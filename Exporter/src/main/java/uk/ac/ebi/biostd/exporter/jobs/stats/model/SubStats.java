@@ -13,4 +13,5 @@ public class SubStats {
     private final long subFileSize;
     private final int files;
     private final long filesSize;
+    private final boolean imaging;
 }

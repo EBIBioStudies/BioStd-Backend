@@ -10,16 +10,6 @@
     WHERE sub.version > 0
   </entry>
 
-  <entry key="publicOnlySubmissionsTotalFileSize">
-    SELECT sum(SIZE)
-    FROM FileRef fr
-      INNER JOIN Section sec ON sec.id = fr.sectionId
-      INNER JOIN Submission sub ON sub.id = sec.submission_id
-      INNER JOIN Submission_AccessTag sub_tag on sub.id = sub_tag.Submission_id
-      INNER JOIN AccessTag tag on sub_tag.accessTags_id = tag.id AND tag.name = 'Public'
-    WHERE sub.version > 0
-  </entry>
-
   <entry key="submissionFiles">
     SELECT count(fr.id)
     FROM FileRef fr, Submission su, Section se
