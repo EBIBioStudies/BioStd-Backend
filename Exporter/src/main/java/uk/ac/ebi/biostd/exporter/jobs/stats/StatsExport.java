@@ -30,7 +30,7 @@ import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 @AllArgsConstructor
 public class StatsExport implements ExportJob {
 
-    private static final String[] FIELDS = {"accNo", "subFileSize", "files", "filesSize"};
+    private static final String[] FIELDS = {"accNo", "subFileSize", "files", "filesSize", "imaging"};
 
     private final StatsProperties properties;
 

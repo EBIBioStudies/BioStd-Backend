@@ -15,10 +15,9 @@ import uk.ac.ebi.biostd.remote.service.RemoteService;
 /**
  * Contains Beans declarations required as dependencies al around the project.
  */
-@Configuration
 @Slf4j
+@Configuration
 public class GeneralConfiguration {
-
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();

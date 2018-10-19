@@ -10,23 +10,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
-import uk.ac.ebi.biostd.exporter.persistence.common.PaginatedResult;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
 
+@Slf4j
 @Component
 @AllArgsConstructor
-@Slf4j
 public class SubmissionDao {
 
     private final Queries queries;
-    private final NamedParameterJdbcTemplate template;
     private final AttributeMapper attributeMapper;
     private final SubmissionMapper submissionMapper;
+    private final NamedParameterJdbcTemplate template;
+    private final ExporterGeneralProperties properties;
+    private final DetailedSubmissionMapper detailedSubmissionMapper;
 
     public void releaseSubmission(long submissionId) {
         template.update(queries.getReleaseSubmission(), ImmutableMap.of("subId", submissionId));
@@ -76,7 +79,10 @@ public class SubmissionDao {
     }
 
     public List<Submission> getSubmissions() {
-        return template.query(queries.getSubmissionsQuery(), emptyMap(), submissionMapper);
+        return template.query(
+                queries.getSubmissionsQuery(),
+                singletonMap("libFileProjects", properties.getLibFileProjects()),
+                detailedSubmissionMapper);
     }
 
     public List<Submission> getPmcSubmissions() {

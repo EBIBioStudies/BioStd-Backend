@@ -19,10 +19,6 @@ public class MetricsDao {
         return template.queryForObject(auxQueries.getSubmissionsTotalFileSize(), emptyMap(), Long.class);
     }
 
-    public long getPublicOnlyTotalFileSize() {
-        return template.queryForObject(auxQueries.getPublicOnlySubmissionsTotalFileSize(), emptyMap(), Long.class);
-    }
-
     public int getSubFilesCount(String accNo) {
         return template.queryForObject(auxQueries.getSubmissionFiles(), singletonMap("accNo", accNo), Integer.class);
     }

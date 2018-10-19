@@ -1,5 +1,6 @@
 -- Submission
 INSERT INTO Submission (CTime, MTime, RTime, accNo, relPath, released, rootPath, title, version, owner_id, secretKey) VALUES (1460402396, 1460402396, 1460402396, 'S-EPMC2873748', 'S-EPMC/S-EPMCxxx748/S-EPMC2873748', true, 'S-EPMC/S-EPMCxxx748/S-EPMC2873748', 'Cost-effectiveness of a potential vaccine for human papillomavirus.', 1, 1, null);
+INSERT INTO SubmissionAttribute(name, numValue, reference, value, submission_id, ord) VALUES('AttachTo', 0, 0, 'BioImages', 1, 0);
 
 -- Sections
 INSERT INTO Section (accNo, global, parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES (null, false, null, -1, 'Study', null, 1, null);

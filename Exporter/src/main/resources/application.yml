@@ -16,16 +16,9 @@ spring:
     active: local
   datasource:
     hikari:
-      connection-timeout: 60000
-      maximum-pool-size: 20
-      data-source-properties:
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        cachePrepStmts: true
-        useServerPrepStmts: true
-        cacheServerConfiguration: true
-        useLocalSessionState: true
-        maintainTimeStats: false
+      connection-timeout: 5000
+      maximum-pool-size: 30
+      connection-test-query: SELECT 1 FROM DUAL
       jdbc-url: # to be set in deployment script
       username: # to be set in deployment script
       password:
@@ -36,6 +29,8 @@ spring:
 
 jobs:
   backend-url: http://localhost:8586/biostd
+  libFileProjects:
+  - BioImages
   stats:
     enabled: false
     basePath: # ${SUBMISSIONS_PATH}/submission
@@ -84,9 +79,15 @@ spring:
   profiles: dev
 jobs:
   backend-url: http://biostudy-bia.ebi.ac.uk:8586/biostd
+  libFileProjects:
+  - BioImages
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
+  stats:
+    basePath: /ebi/teams/biostudies/backend/development/submission
+    outFilePath: /ebi/teams/biostudies/backend/development/updates/stats.csv
+    workers: 4
   partial:
     enabled: true
     filePath: /ebi/teams/biostudies/backend/development/updates/
@@ -118,12 +119,16 @@ jobs:
   users:
     baseDropboxPath: /ebi/teams/biostudies/backend/development/dropbox
     symLinksPath: /ebi/teams/biostudies/backend/development/usergroup/Users
+  releaser:
+    enabled: false
 
 ---
 spring:
   profiles: beta
 jobs:
   backend-url: http://biostudy-dev.ebi.ac.uk:10180/biostd-beta
+  libFileProjects:
+  - BioImages
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
@@ -157,12 +162,16 @@ jobs:
   users:
     baseDropboxPath: /nfs/biostudies/ftp/pub/.dropbox
     symLinksPath: /nfs/biostudies/.adm/databases/beta/usergroup/Users
+  releaser:
+    enabled: false
 
 ---
 spring:
   profiles: prod
 jobs:
   backend-url: http://biostudy-prod.ebi.ac.uk:10080/biostd-prod
+  libFileProjects:
+  - BioImages
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
@@ -184,7 +193,7 @@ jobs:
       filePath: /nfs/biostudies/.adm/databases/prod/updates/
       fileName: studies
     publicOnlySubmissions:
-      filePath: /nfs/biostudies/.adm/databases/prod/updates/
+      filePath: /nfs/biostudies/prod/external
       fileName: publicOnlyStudies
     workers: 4
     queryModified:
@@ -208,3 +217,5 @@ jobs:
   users:
     baseDropboxPath: /nfs/biostudies/ftp/pub/.dropbox
     symLinksPath: /nfs/biostudies/.adm/databases/prod/usergroup/Users
+  releaser:
+    enabled: false

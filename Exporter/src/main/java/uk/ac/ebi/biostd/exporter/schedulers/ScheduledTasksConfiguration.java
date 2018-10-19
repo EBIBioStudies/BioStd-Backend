@@ -41,6 +41,9 @@ public class ScheduledTasksConfiguration {
     @Value("${jobs.stats.cron:''}")
     private String statsCron;
 
+    @Value("${jobs.releaser.cron:''}")
+    private String releaserCron;
+
     public ScheduledTasksConfiguration(
             @Qualifier("full") ExportPipeline fullExporter,
             @Qualifier("pmc") ExportPipeline pmcExporter,
@@ -85,7 +88,8 @@ public class ScheduledTasksConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(prefix = "jobs.releaser", name = "enabled", havingValue = "true")
     public CronTask releaser() {
-        return new CronTask(releaserJob::execute, statsCron);
+        return new CronTask(releaserJob::execute, releaserCron);
     }
 }
