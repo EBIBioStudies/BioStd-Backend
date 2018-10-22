@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Generates the attributes and SQL commands to insert the files for a submission
-# $1 -> Folder containing the imaging files
+# Generates the JSON attributes and SQL commands to insert the files for a submission
+# $1 -> Folder containing the submission files
 # $2 -> Study root section id
-# $3 -> Base path for files
+# $3 -> Base path for submission files
 find $1 -printf '%P,%f,%y,%s\n' >> files.list;
 filesOutput="output.json";
 sqlOutput="output.sql";
