@@ -40,8 +40,8 @@ regularReportFile="$2/${currentMonth}_BioStudies.txt";
 scp "$3:$2/${previousMonth}_BIA.txt" ${imagingReportFile};
 scp "$3:$2/${previousMonth}_BioStudies.txt" ${regularReportFile};
 
-echo "$currentMonth $imagingTotal" >> "${imagingReportFile}";
-echo "$currentMonth $regularTotal" >> "${regularReportFile}";
+echo "$currentMonth\t$imagingTotal" >> "${imagingReportFile}";
+echo "$currentMonth\t$regularTotal" >> "${regularReportFile}";
 
 scp "$imagingReportFile $3:$2"
 scp "$regularReportFile $3:$2"
