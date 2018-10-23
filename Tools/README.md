@@ -14,6 +14,7 @@ month (which is expected to be located in the given output path) will be used as
 #### Parameters
 * $1 -> The path of the stats file to process
 * $2 -> The path to place the new generated file with the current month size
+* $3 -> The user with permissions to access the path that contains the previous months reports
 
 #### Execution
 Assuming that the script is executed on 05/10/2018, the reports folder should contain the following files with the

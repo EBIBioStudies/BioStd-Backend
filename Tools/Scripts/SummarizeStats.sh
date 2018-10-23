@@ -6,6 +6,7 @@
 # Parameters:
 # $1 -> The path of the stats file to process
 # $2 -> The path to place the new generated file with the current month size
+# $3 -> The user with permissions to access the path that contains the previous months reports
 #
 # Output:
 # - A file called <YYYYmm>_BIA.txt containing the size of the files for the imaging studies
@@ -36,8 +37,13 @@ previousMonth=$(date --date='-2 month' +%Y%m);
 imagingReportFile="$2/${currentMonth}_BIA.txt";
 regularReportFile="$2/${currentMonth}_BioStudies.txt";
 
-cp "$2/${previousMonth}_BIA.txt" ${imagingReportFile};
-cp "$2/${previousMonth}_BioStudies.txt" ${regularReportFile};
+scp "$3:$2/${previousMonth}_BIA.txt" ${imagingReportFile};
+scp "$3:$2/${previousMonth}_BioStudies.txt" ${regularReportFile};
 
 echo "$currentMonth $imagingTotal" >> "${imagingReportFile}";
 echo "$currentMonth $regularTotal" >> "${regularReportFile}";
+
+scp "$imagingReportFile $3:$2"
+scp "$regularReportFile $3:$2"
+
+rm -rf ${regularReportFile} ${imagingReportFile}
