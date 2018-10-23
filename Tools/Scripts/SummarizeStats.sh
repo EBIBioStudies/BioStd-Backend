@@ -15,6 +15,7 @@
 
 imagingTotal=0;
 regularTotal=0;
+echo "Summarizing"
 while IFS=',' read -r accNo subFileSize filesCount filesSize imaging
 do
   files=${subFileSize#*\"};
@@ -34,16 +35,20 @@ done < "$1"
 
 currentMonth=$(date --date='-1 month' +%Y%m);
 previousMonth=$(date --date='-2 month' +%Y%m);
-imagingReportFile="$2/${currentMonth}_BIA.txt";
-regularReportFile="$2/${currentMonth}_BioStudies.txt";
+imagingReportFile="${currentMonth}_BIA.txt";
+regularReportFile="${currentMonth}_BioStudies.txt";
+
+echo "Publishing reports"
 
 scp "$3:$2/${previousMonth}_BIA.txt" ${imagingReportFile};
 scp "$3:$2/${previousMonth}_BioStudies.txt" ${regularReportFile};
 
-echo "$currentMonth\t$imagingTotal" >> "${imagingReportFile}";
-echo "$currentMonth\t$regularTotal" >> "${regularReportFile}";
+echo -e "$currentMonth\t$imagingTotal" >> "${imagingReportFile}";
+echo -e "$currentMonth\t$regularTotal" >> "${regularReportFile}";
 
-scp "$imagingReportFile $3:$2"
-scp "$regularReportFile $3:$2"
+scp ${imagingReportFile} "$3:$2/$imagingReportFile"
+scp ${regularReportFile} "$3:$2/$regularReportFile"
 
 rm -rf ${regularReportFile} ${imagingReportFile}
+
+echo "Done"
