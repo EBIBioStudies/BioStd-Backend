@@ -16,6 +16,7 @@
     WHERE fr.sectionId = se.id
     AND se.submission_id = su.id
     AND su.accNo = :accNo
+    AND su.version > 0
   </entry>
 
   <entry key="submissionFilesSize">
@@ -24,5 +25,6 @@
     WHERE fr.sectionId = se.id
     AND se.submission_id = su.id
     AND su.accNo = :accNo
+    AND su.version > 0
   </entry>
 </properties>
