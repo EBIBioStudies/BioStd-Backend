@@ -4,7 +4,10 @@ out/
 .gradle/
 build/
 target/
+
+# IDE
 /*.iml
+.DS*
 
 #Exporter module
 /Exporter/logs/
