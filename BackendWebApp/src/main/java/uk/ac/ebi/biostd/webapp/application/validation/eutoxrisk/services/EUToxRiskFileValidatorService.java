@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.biostd.model.SectionAttribute;
+import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorProperties;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
 
@@ -43,8 +45,14 @@ public class EUToxRiskFileValidatorService {
         this.properties = properties;
     }
 
-    public boolean appliesToProjectId(String accno) {
-        return properties.isEnabled() && properties.getProjectId().equals(accno);
+    public boolean isApplicableTo(Submission subm, String projectId) {
+        if (!properties.isEnabled() || !properties.getProjectId().equals(projectId)) {
+            return false;
+        }
+        String attrName = properties.getExemptAttrName();
+        Optional<SectionAttribute> exemptAttr = subm.getRootSection().getAttributes().stream()
+                .filter(at -> at.getName().equals(attrName)).findFirst();
+        return !exemptAttr.isPresent();
     }
 
     public Collection<EUToxRiskFileValidationError> validateFirst(List<File> files) {

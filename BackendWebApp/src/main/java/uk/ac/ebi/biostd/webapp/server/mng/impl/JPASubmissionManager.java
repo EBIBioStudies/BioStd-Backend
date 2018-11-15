@@ -960,7 +960,7 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private boolean isEUToxRiskFileValid(SubmissionInfo si, Submission parent) {
-        if (!eutoxriskFileValidator.appliesToProjectId(parent.getAccNo())) {
+        if (!eutoxriskFileValidator.isApplicableTo(si.getSubmission(), parent.getAccNo())) {
             return true;
         }
 
