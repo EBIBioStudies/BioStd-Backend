@@ -9,5 +9,6 @@ public class EUToxRiskFileValidatorProperties {
 
     private boolean enabled = true;
     private String projectId = "EU-ToxRisk";
+    private String exemptAttrName = "QMRF-ID";
     private String endpoint = "https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate";
 }

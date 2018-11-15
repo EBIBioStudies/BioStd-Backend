@@ -15,6 +15,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.biostd.backend.testing.ResourceHandler;
+import uk.ac.ebi.biostd.model.Section;
+import uk.ac.ebi.biostd.model.SectionAttribute;
+import uk.ac.ebi.biostd.model.Submission;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorConfig;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.configuration.EUToxRiskFileValidatorProperties;
 import uk.ac.ebi.biostd.webapp.application.validation.eutoxrisk.dto.EUToxRiskFileValidationError;
@@ -76,4 +79,14 @@ public class EUToxRiskValidatorTest {
         assertThat(errors).isEmpty();
     }
 
+    @Test
+    public void testApplicability() {
+        EUToxRiskFileValidatorService service = new EUToxRiskFileValidatorService(properties, restTemplate, taskExecutor);
+        Submission subm = new Submission();
+        subm.setRootSection(new Section());
+        assertThat(service.isApplicableTo(subm, properties.getProjectId())).isTrue();
+
+        subm.getRootSection().addAttribute(new SectionAttribute(properties.getExemptAttrName(), "does not matter"));
+        assertThat(service.isApplicableTo(subm, properties.getProjectId())).isFalse();
+    }
 }
