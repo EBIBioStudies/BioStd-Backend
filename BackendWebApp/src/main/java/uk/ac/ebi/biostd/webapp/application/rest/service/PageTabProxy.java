@@ -174,7 +174,7 @@ public class PageTabProxy {
     }
 
     public Optional<String> getReleaseDate() {
-        return innerProxy.getAttribute(RELEASE_DATE_ATTRIBUTE).stream().findFirst();
+        return innerProxy.getAttribute(RELEASE_DATE_ATTRIBUTE).stream().filter(v -> !v.trim().isEmpty()).findFirst();
     }
 
     public Set<String> getAttachToAttr() {
