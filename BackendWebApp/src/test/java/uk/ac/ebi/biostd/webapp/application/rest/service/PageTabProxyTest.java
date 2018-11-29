@@ -76,6 +76,15 @@ public class PageTabProxyTest {
     }
 
     @Test
+    public void testEmptyReleaseDate() throws IOException {
+        PageTabProxy proxy = new PageTabProxy(objectMapper.readTree("{}"));
+        assertThat(proxy.getReleaseDate().isPresent()).isFalse();
+
+        proxy = new PageTabProxy(objectMapper.readTree("{ attributes:[ {name:\"ReleaseDate\", value:\" \"} ] }"));
+        assertThat(proxy.getReleaseDate().isPresent()).isFalse();
+    }
+
+    @Test
     public void testSubmissionsWrap() throws IOException {
         JsonNode origNode = objectMapper.readTree("{ submissions:[ {} ] }");
 
@@ -95,10 +104,8 @@ public class PageTabProxyTest {
 
     @Test
     public void testBuilderDefaults() {
-        SubmissionMappingDto dto1 = SubmissionMappingDto.builder().build();
-        SubmissionMappingDto dto2 = SubmissionMappingDto.builder().original(null).build();
-        assertThat(dto2).isNotNull();
-
+        SubmissionMappingDto dto = SubmissionMappingDto.builder().original(null).build();
+        assertThat(dto).isNotNull();
     }
 
 }
