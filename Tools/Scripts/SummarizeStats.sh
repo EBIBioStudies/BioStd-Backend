@@ -25,7 +25,7 @@ do
   images=${imaging#*\"};
   images=${images%\"*};
 
-  if [ ${images} == "true" ]
+  if [[ ${images} == "true" ]]
   then
     imagingTotal=$((imagingTotal+=files+data));
   else
