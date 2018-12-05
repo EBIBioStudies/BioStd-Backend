@@ -81,7 +81,7 @@ public class SubmissionDao {
     public List<Submission> getSubmissions() {
         return template.query(
                 queries.getSubmissionsQuery(),
-                singletonMap("libFileProjects", properties.getLibFileProjects()),
+                singletonMap("libFileStudies", properties.getLibFileStudies()),
                 detailedSubmissionMapper);
     }
 
