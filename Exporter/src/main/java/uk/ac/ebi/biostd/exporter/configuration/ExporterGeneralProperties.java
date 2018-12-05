@@ -9,5 +9,5 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "jobs")
 public class ExporterGeneralProperties {
-    private List<String> libFileProjects;
+    private List<String> libFileStudies;
 }
