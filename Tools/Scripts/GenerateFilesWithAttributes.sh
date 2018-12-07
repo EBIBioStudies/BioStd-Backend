@@ -54,7 +54,7 @@ do
                 YTRatioPredRabitt
               FROM SERO
               WHERE file = '${name// /_}'";
-    fileAttr=$(mysql --user="root" --password="admin" --host="172.22.68.131" --port="3306" --execute="$attrQuery" --skip-column-names --raw --silent ImagingFiles)
+    fileAttr=$(mysql --user="" --password="" --host="" --port="" --execute="$attrQuery" --skip-column-names --raw --silent database)
 
     while IFS="|" read -r plate filePrefix row col well ch4 geneTT cellArea nucleusArea nucleusCellArea neighborFraction localCellDensity nuclearRoundness doughnutNuclei totalYT ratioYTMouse ratioYTRabitt cellNumber normCA normNA normNucA normNucR normNF normLCD normTotalYTMouse obsPredYTMouse YTRatioPredMouse obsPredYTRabitt YTRatioPredRabitt;
     do
