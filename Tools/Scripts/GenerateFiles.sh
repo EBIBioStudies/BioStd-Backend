@@ -14,7 +14,7 @@ ord=0;
 while IFS=',' read -r name file type size
 do
   record="";
-  if [ "$type" == "f" ];
+  if [[ "$type" == "f" ]];
   then
     echo "Processing $name"
     echo "INSERT INTO FileRef(directory, name, size, tableIndex, sectionId, ord, path) VALUES(0, '$3/$name', $size, $ord, $2, $ord, 'u/$3/$name');" >> ${sqlOutput}
