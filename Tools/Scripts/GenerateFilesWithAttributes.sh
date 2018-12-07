@@ -12,7 +12,7 @@ rm -rf ${filesOutput} ${sqlOutput} ${tsvOutput};
 
 echo 'SET FOREIGN_KEY_CHECKS=0;' >> ${sqlOutput};
 echo "[" >> ${filesOutput}
-echo -e "Files\tNaCl Concentration\tTime (minutes)" >> ${tsvOutput}
+echo -e "Plate\tRow\tCol\tWell Name\tCH4\tGene Target/Treatment\tCell Area\tNucleus Area\tNucleus/Cell Area\tNeighbor Fraction\tLocal Cell Density\tNuclear Roundness\tDoughnut Nuclei\tTotal YAP/TAZ\tYAP/TAZ ratio (mouse Santa Cruz)\tYAP/TAZ ratio (rabbit Novus)\tCell Number\tNormalized Cell Area\tNormalized Nuclear Area\tNormalized Nucleus Area/Cell Area\tNormalized Nuclear Roundness\tNormalized Neighbor Fraction\tNormalized Local Cell Density\tNormalized Total YAP/TAZ (mouse Santa Cruz)\tObserved-Predicted YAP/TAZ ratio (mouse Santa Cruz)\tYAP/TAZ ratio prediction error (mouse Santa Cruz)\tObserved-Predicted YAP/TAZ ratio (rabbit Novus)\tYAP/TAZ ratio prediction error (rabbit Novus)" >> ${tsvOutput}
 
 fileId=$(($3+1000));
 ord=0;
@@ -21,8 +21,12 @@ while IFS=',' read -r name file type size
 do
   record="";
   tsvRecord="";
+  currentPlate=${name%%\_*}
+  currentFile=${file%-*}
+
   if [[ "$type" == "f" ]];
   then
+    echo "processing --> plate: $currentPlate ------ filePrefix: $currentFile"
     attrQuery="SELECT
                 plate, '|',
                 row, '|',
@@ -53,7 +57,7 @@ do
                 obsPredYTRabitt, '|',
                 YTRatioPredRabitt
               FROM SERO
-              WHERE file = '${name// /_}'";
+              WHERE plate = '$currentPlate' AND filePrefix='$currentFile'";
     fileAttr=$(mysql --user="" --password="" --host="" --port="" --execute="$attrQuery" --skip-column-names --raw --silent database)
 
     while IFS="|" read -r plate filePrefix row col well ch4 geneTT cellArea nucleusArea nucleusCellArea neighborFraction localCellDensity nuclearRoundness doughnutNuclei totalYT ratioYTMouse ratioYTRabitt cellNumber normCA normNA normNucA normNucR normNF normLCD normTotalYTMouse obsPredYTMouse YTRatioPredMouse obsPredYTRabitt YTRatioPredRabitt;
