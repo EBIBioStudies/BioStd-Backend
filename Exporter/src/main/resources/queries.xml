@@ -77,6 +77,25 @@
     WHERE su.version > 0
   </entry>
 
+  <entry key="submissionsStatsQuery">
+    SELECT su.id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
+          (SELECT COUNT(fr.id)
+            FROM FileRef fr, Section se
+            WHERE fr.sectionId = se.id AND
+              se.submission_id = su.id) filesCount,
+          (SELECT sum(fr.size)
+            FROM FileRef fr, Section se
+            WHERE fr.sectionId = se.id AND
+              se.submission_id = su.id) submissionFilesSize,
+          (SELECT count(sua.id)
+            FROM SubmissionAttribute sua
+            WHERE su.id = sua.submission_id AND
+              sua.name = 'AttachTo' AND
+              sua.value IN (:imagingProjects)) isImagingSubmission
+    FROM Submission su
+    WHERE su.version > 0
+  </entry>
+
   <entry key="submissionsPmcQuery">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
     WHERE version > 0 AND accNo LIKE 'S-EPMC%'

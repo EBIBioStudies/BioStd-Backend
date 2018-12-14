@@ -30,10 +30,12 @@ spring:
 jobs:
   backend-url: http://localhost:8586/biostd
   libFileStudies:
-  - S-BSST637
-  - S-BSMS-PGPC3
+    - S-BSST637
+    - S-BSMS-PGPC3
   stats:
     enabled: false
+    imagingProjects:
+      - BioImages
     basePath: # ${SUBMISSIONS_PATH}/submission
     outFilePath: # ${OUTPUT_PATH}/stats.csv
     workers: 4
@@ -81,12 +83,16 @@ spring:
 jobs:
   backend-url: http://biostudy-bia.ebi.ac.uk:8586/biostd
   libFileStudies:
-  - S-BSST637
-  - S-BSMS-PGPC3
+    - S-BSMS6
+    - S-BSST637
+    - S-BSMS-PGPC3
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
   stats:
+    enabled: false
+    imagingProjects:
+      - BioImages
     basePath: /ebi/teams/biostudies/backend/development/submission
     outFilePath: /ebi/teams/biostudies/backend/development/updates/stats.csv
     workers: 4
@@ -130,12 +136,16 @@ spring:
 jobs:
   backend-url: http://biostudy-dev.ebi.ac.uk:10180/biostd-beta
   libFileStudies:
-  - S-BSST637
-  - S-BSMS-PGPC3
+    - S-BSMS6
+    - S-BSST637
+    - S-BSMS-PGPC3
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
   stats:
+    enabled: true
+    imagingProjects:
+      - BioImages
     basePath: /nfs/biostudies/.adm/databases/beta/submission
     outFilePath: /nfs/biostudies/.adm/databases/beta/updates/stats.csv
     workers: 4
@@ -179,6 +189,7 @@ jobs:
     cron: 0/10 * * * * ? # each 10 seconds
   stats:
     enabled: true
+    imagingProjects:
     basePath: /nfs/biostudies/.adm/databases/prod/submission
     outFilePath: /nfs/biostudies/.adm/databases/prod/updates/stats.csv
     workers: 4

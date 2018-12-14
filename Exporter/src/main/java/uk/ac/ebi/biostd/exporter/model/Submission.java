@@ -90,4 +90,10 @@ public class Submission {
 
     @JsonIgnore
     private boolean libFileSubmission;
+
+    @JsonIgnore
+    private boolean imagingSubmission;
+
+    @JsonIgnore
+    private long filesSize;
 }

@@ -31,6 +31,9 @@ jobs:
       filePath: ./publicOnly/
       fileName: studies
   stats:
+    libFileProjects:
+      - BioImages
+      - BioVideos
     basePath: /nfs/biostudies/.adm/databases/beta/submission
     outFilePath: /nfs/biostudies/.adm/databases/beta/updates/stats.csv
     workers: 4

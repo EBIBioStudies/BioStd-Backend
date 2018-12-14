@@ -4,18 +4,22 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
+import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.StatsSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
 
@@ -23,12 +27,13 @@ import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
 @Component
 @AllArgsConstructor
 public class SubmissionDao {
-
     private final Queries queries;
     private final AttributeMapper attributeMapper;
+    private final StatsProperties statsProperties;
     private final SubmissionMapper submissionMapper;
     private final NamedParameterJdbcTemplate template;
     private final ExporterGeneralProperties properties;
+    private final StatsSubmissionMapper statsSubmissionMapper;
     private final DetailedSubmissionMapper detailedSubmissionMapper;
 
     public void releaseSubmission(long submissionId) {
@@ -83,6 +88,13 @@ public class SubmissionDao {
                 queries.getSubmissionsQuery(),
                 singletonMap("libFileStudies", properties.getLibFileStudies()),
                 detailedSubmissionMapper);
+    }
+
+    public List<Submission> getStatsSubmissions() {
+        return template.query(
+                queries.getSubmissionsStatsQuery(),
+                singletonMap("imagingProjects", statsProperties.getImagingProjects()),
+                statsSubmissionMapper);
     }
 
     public List<Submission> getPmcSubmissions() {
