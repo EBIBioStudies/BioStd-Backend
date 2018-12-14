@@ -19,7 +19,7 @@ public class StatsService {
         return SubStats.builder()
                 .accNo(accNo)
                 .imaging(submission.isImagingSubmission())
-                .files((int) submission.getFilesCount())
+                .files(submission.getFilesCount())
                 .filesSize(submission.getFilesSize())
                 .subFileSize(getFileSize(accNo, submission.getRelPath()))
                 .build();

@@ -10,7 +10,7 @@ public class StatsSubmissionMapper extends SubmissionMapper {
     @Override
     public Submission mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Submission submission = super.mapRow(resultSet, rowNum);
-        submission.setFilesCount(resultSet.getLong("filesCount"));
+        submission.setFilesCount(resultSet.getInt("filesCount"));
         submission.setFilesSize(resultSet.getLong("submissionFilesSize"));
         submission.setImagingSubmission(resultSet.getBoolean("isImagingSubmission"));
 
