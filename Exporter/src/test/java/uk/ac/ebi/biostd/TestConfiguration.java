@@ -9,6 +9,7 @@ import uk.ac.ebi.biostd.exporter.commons.FileUtils;
 import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
 import uk.ac.ebi.biostd.exporter.configuration.GeneralConfiguration;
 import uk.ac.ebi.biostd.exporter.jobs.JobsPipelinesConfiguration;
+import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.rest.NotificationController;
 import uk.ac.ebi.biostd.exporter.rest.TasksController;

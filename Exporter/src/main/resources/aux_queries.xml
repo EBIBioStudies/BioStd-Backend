@@ -9,22 +9,4 @@
       INNER JOIN Submission sub ON sub.id = sec.submission_id
     WHERE sub.version > 0
   </entry>
-
-  <entry key="submissionFiles">
-    SELECT count(fr.id)
-    FROM FileRef fr, Submission su, Section se
-    WHERE fr.sectionId = se.id
-    AND se.submission_id = su.id
-    AND su.accNo = :accNo
-    AND su.version > 0
-  </entry>
-
-  <entry key="submissionFilesSize">
-    SELECT sum(fr.size)
-    FROM FileRef fr, Submission su, Section se
-    WHERE fr.sectionId = se.id
-    AND se.submission_id = su.id
-    AND su.accNo = :accNo
-    AND su.version > 0
-  </entry>
 </properties>

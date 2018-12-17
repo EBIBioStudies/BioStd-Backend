@@ -11,8 +11,5 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties
 public class AuxQueries {
-
     private String submissionsTotalFileSize;
-    private String submissionFiles;
-    private String submissionFilesSize;
 }

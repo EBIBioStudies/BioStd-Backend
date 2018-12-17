@@ -11,8 +11,6 @@ import uk.ac.ebi.biostd.exporter.persistence.dao.MetricsDao;
 @AllArgsConstructor
 @Service
 public class StatsService {
-
-    private final MetricsDao metricsDao;
     private final StatsProperties startProperties;
 
     SubStats processSubmission(Submission submission) {
@@ -20,9 +18,9 @@ public class StatsService {
 
         return SubStats.builder()
                 .accNo(accNo)
-                .imaging(submission.isLibFileSubmission())
-                .files(metricsDao.getSubFilesCount(accNo))
-                .filesSize(metricsDao.getSubFilesSize(accNo))
+                .imaging(submission.isImagingSubmission())
+                .files(submission.getFilesCount())
+                .filesSize(submission.getFilesSize())
                 .subFileSize(getFileSize(accNo, submission.getRelPath()))
                 .build();
     }

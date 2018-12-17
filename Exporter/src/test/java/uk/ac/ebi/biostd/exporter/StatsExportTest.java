@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,6 +63,7 @@ public class StatsExportTest extends BaseIntegrationTest {
 
         new File(basePath + "/updates").mkdir();
         when(properties.getOutFilePath()).thenReturn(basePath + "/updates/stats.csv");
+        when(properties.getImagingProjects()).thenReturn(Arrays.asList("BioImages", "BioVideos"));
     }
 
     @Test

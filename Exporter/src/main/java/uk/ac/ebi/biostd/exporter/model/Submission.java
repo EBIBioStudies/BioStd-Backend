@@ -66,7 +66,7 @@ public class Submission {
 
     @JsonProperty("filesCount")
     @XmlAttribute(name = "filesCount")
-    private long filesCount;
+    private int filesCount;
 
     @JsonIgnore
     private long rootSection_id;
@@ -90,4 +90,10 @@ public class Submission {
 
     @JsonIgnore
     private boolean libFileSubmission;
+
+    @JsonIgnore
+    private boolean imagingSubmission;
+
+    @JsonIgnore
+    private long filesSize;
 }
