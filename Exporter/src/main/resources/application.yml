@@ -191,6 +191,7 @@ jobs:
   stats:
     enabled: true
     imagingProjects:
+      - BioImages
     basePath: /nfs/biostudies/.adm/databases/prod/submission
     outFilePath: /nfs/biostudies/.adm/databases/prod/updates/stats.csv
     workers: 4
