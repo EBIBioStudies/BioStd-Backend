@@ -138,7 +138,7 @@ jobs:
   libFileStudies:
     - S-BSMS6
     - S-BSST637
-    - S-BSMS-PGPC3
+    - S-BSMS-PGPC1
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
