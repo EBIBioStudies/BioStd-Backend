@@ -149,6 +149,7 @@ jobs:
     basePath: /nfs/biostudies/.adm/databases/beta/submission
     outFilePath: /nfs/biostudies/.adm/databases/beta/updates/stats.csv
     workers: 4
+    cron: 0 0 22 4 * * # the fourth of each month at 10 p.m.
   partial:
     enabled: true
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
@@ -206,7 +207,7 @@ jobs:
       filePath: /nfs/biostudies/.adm/databases/prod/updates/
       fileName: studies
     publicOnlySubmissions:
-      filePath: /nfs/biostudies/prod/external
+      filePath: /nfs/biostudies/prod/external/
       fileName: publicOnlyStudies
     workers: 4
     queryModified:
