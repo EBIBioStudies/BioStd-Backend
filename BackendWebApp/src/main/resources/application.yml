@@ -4,8 +4,10 @@ server:
   servlet:
     contextPath: /biostd
 
-biostudy:
+biostd:
   baseDir: # main file system location, config.properties file is expected to be at root level.
+
+biostudy:
   tokenHash: biostd
   environment: DEV
 
