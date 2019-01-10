@@ -61,8 +61,7 @@ import uk.ac.ebi.biostd.webapp.server.util.ServletContextParamPool;
 public class ConfigurationManager {
 
     public static final String BaseDirParameter = "baseDir";
-    public static final String EmailInquiresParameter = "email.inquiries";
-    public static final String BIOSTUDY_BASE_DIR = "biostudy." + BaseDirParameter;
+    public static final String BIOSTUDY_BASE_DIR = "biostd." + BaseDirParameter;
 
     static final String HibernateSearchIndexDirParameter = "hibernate.search.default.indexBase";
     static final String HibernateDBConnectionURLParameter = "hibernate.connection.url";

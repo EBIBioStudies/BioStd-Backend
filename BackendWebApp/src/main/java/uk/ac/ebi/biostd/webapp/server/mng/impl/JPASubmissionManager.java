@@ -695,7 +695,7 @@ public class JPASubmissionManager implements SubmissionManager {
                                         break;
                                     }
                                 }
-                                if (!found) {
+                                if (!found && !pTag.getName().equals(BackendConfig.PublicTag)) {
                                     newSet.add(pTag);
                                 }
                             }

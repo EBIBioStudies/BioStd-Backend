@@ -44,10 +44,11 @@ public class PartialSubmissionExporter {
     public void execute() {
         log.info("executing partial export file job at {}", Instant.now(Clock.systemUTC()));
 
+        long beforeSyncDate = getNowEpoch();
         processCreatedAndUpdatedSubmissions(submissionService.getUpdatedSubmissions(lastSyncTime));
         processDeletedSubmissions();
 
-        lastSyncTime = getNowEpoch();
+        lastSyncTime = beforeSyncDate;
         log.info("finish processing updated/deleting submissions");
     }
 

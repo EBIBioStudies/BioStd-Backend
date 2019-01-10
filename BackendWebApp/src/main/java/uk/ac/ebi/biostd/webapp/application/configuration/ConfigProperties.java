@@ -5,12 +5,13 @@ import static uk.ac.ebi.biostd.webapp.server.config.ConfigurationManager.BIOSTUD
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Properties;
 import javax.servlet.ServletContext;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -37,9 +38,9 @@ public class ConfigProperties {
     }
 
     private void loadProperties(ServletContext context) throws IOException {
-        String config = getConfigFileLocation();
+        File config = Paths.get(getConfigFileLocation()).toFile();
 
-        if (StringUtils.isNotBlank(config)) {
+        if (config.exists()) {
             properties.load(new FileInputStream(config));
             return;
         }

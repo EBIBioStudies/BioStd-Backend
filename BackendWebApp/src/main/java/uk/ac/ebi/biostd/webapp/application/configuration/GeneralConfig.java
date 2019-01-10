@@ -14,7 +14,8 @@ public class GeneralConfig {
 
     @Bean
     public MagicFolderUtil magicFolderUtil(ConfigProperties configProperties) {
-        return new MagicFolderUtil(configProperties.get(USER_GROUP_DIR_PROP_NAME),
+        return new MagicFolderUtil(
+                configProperties.get(USER_GROUP_DIR_PROP_NAME),
                 configProperties.get(BIOSTUDY_BASE_DIR) + USER_SYMLINK_PATH);
     }
 }
