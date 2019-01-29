@@ -185,6 +185,7 @@ spring:
 jobs:
   backend-url: http://biostudy-prod.ebi.ac.uk:10080/biostd-prod
   libFileStudies:
+    - NON_EXISTING
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
@@ -234,3 +235,6 @@ jobs:
     symLinksPath: /nfs/biostudies/.adm/databases/prod/usergroup/Users
   releaser:
     enabled: false
+  ftp:
+    baseFtpPath: /nfs/biostudies/ftp/pub
+    baseBioStudiesPath: /nfs/biostudies/.adm/databases/prod/submission

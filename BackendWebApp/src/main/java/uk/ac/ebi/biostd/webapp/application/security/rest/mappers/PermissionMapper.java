@@ -16,6 +16,7 @@ import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessTag;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.AuxInfoDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.PermissionDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 @Component
@@ -33,6 +34,18 @@ public class PermissionMapper {
         accessInfo.put("Login", MoreObjects.firstNonNull(user.getLogin(), StringUtils.EMPTY));
         accessInfo.put("EMail", user.getEmail());
         return accessInfo;
+    }
+
+    public PermissionDto getPermissionDto(User user) {
+        return PermissionDto.builder()
+                .status(STATUS_OK)
+                .allow(getUserAllows(user))
+                .deny(StringUtils.EMPTY)
+                .superuser(user.isSuperuser())
+                .name(user.getFullName())
+                .login(user.getLogin())
+                .email(user.getEmail())
+                .build();
     }
 
     private String getUserAllows(User user) {

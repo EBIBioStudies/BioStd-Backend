@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.biostd.webapp.application.common.utils.PlainFileFormat;
 import uk.ac.ebi.biostd.webapp.application.common.utils.WebUtils;
 import uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties;
+import uk.ac.ebi.biostd.webapp.application.security.RetryActivationRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
@@ -29,6 +30,7 @@ import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ActivationResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.PassRequestResponseDto;
+import uk.ac.ebi.biostd.webapp.application.security.rest.dto.PermissionDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ProjectsDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ResetPassResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignInRequestDto;
@@ -66,12 +68,27 @@ public class SecurityController {
         return projectMapper.getProjectsDto(submissionService.getAllowedProjects(user.getId(), ATTACH));
     }
 
+    /**
+     * Deprecated in favor of {@link SecurityController#checkAccess(LoginRequest)}
+     */
     @PostMapping(value = "/checkAccess")
+    @Deprecated
     public ResponseEntity<String> getPermissions(@ModelAttribute LoginRequest loginInfo) {
-        Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getPermissions(loginInfo));
+        Map<String, String> permissions = permissionMapper.getPermissionMap(securityService.getUser(loginInfo));
         return ResponseEntity.ok()
                 .header("produces", MediaType.TEXT_PLAIN_VALUE)
                 .body(PlainFileFormat.asPlainFile(permissions));
+    }
+
+    @PostMapping(value = "/auth/check-access")
+    public PermissionDto checkAccess(@ModelAttribute LoginRequest loginInfo) {
+        return permissionMapper.getPermissionDto(securityService.getUser(loginInfo));
+    }
+
+    @PostMapping(value = "/auth/retryact")
+    public ResponseEntity<Void> retryActivation(@RequestBody RetryActivationRequest loginInfo) {
+        securityService.retryActivation(loginInfo.getEmail(), loginInfo.getActivationURL());
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/auth/check")
@@ -82,6 +99,11 @@ public class SecurityController {
         return permissionMapper.getLoginResponse(new UserData(token, securityService.getUser(user.getId())));
     }
 
+    /**
+     * Used only by terminal Submit application, deprecated in favor of
+     * {@link SecurityController#sign(SignInRequestDto, HttpServletResponse)}
+     */
+    @Deprecated
     @GetMapping(value = "/auth/signin")
     public ResponseEntity<String> signIn(@ModelAttribute SignInRequestDto signInRequest) {
         UserData userData = securityService.signIn(signInRequest.getLogin(), signInRequest.getPassword());

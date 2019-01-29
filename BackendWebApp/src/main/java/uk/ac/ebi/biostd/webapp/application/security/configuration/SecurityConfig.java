@@ -32,6 +32,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/activate/*",
             "/auth/passrstreq",
             "/auth/passreset",
+            "/auth/retryact",
+            "/auth/check-access",
             "/checkAccess",
             "/test/**"
     };
