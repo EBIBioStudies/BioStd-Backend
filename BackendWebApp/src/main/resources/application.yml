@@ -18,7 +18,7 @@ spring:
     prefix: classpath:/email/
     suffix: .html
     mode: LEGACYHTML5
-    enabled: false
+    enabled: true
   servlet:
     multipart:
       max-file-size: 10240MB

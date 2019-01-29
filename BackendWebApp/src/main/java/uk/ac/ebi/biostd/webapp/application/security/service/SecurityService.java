@@ -49,7 +49,7 @@ public class SecurityService implements ISecurityService {
     private final MagicFolderUtil magicFolderUtil;
 
     @Override
-    public User getPermissions(LoginRequest loginInfo) {
+    public User getUser(LoginRequest loginInfo) {
         String login = loginInfo.getLogin();
         String hash = loginInfo.getHash();
 
@@ -146,6 +146,18 @@ public class SecurityService implements ISecurityService {
         addPermissionIfNotExist(tag, userId, AccessType.READ);
         addPermissionIfNotExist(tag, userId, AccessType.UPDATE);
         addPermissionIfNotExist(tag, userId, AccessType.SUBMIT);
+    }
+
+    @Override
+    public void retryActivation(String email, String activationUrl) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        userOptional.filter(User::isActive).ifPresent(user -> retryActivate(user, activationUrl));
+    }
+
+    private void retryActivate(User user, String activationUrl) {
+        user.setKeyTime(OffsetDateTime.now().toInstant().toEpochMilli());
+        user.setActivationKey(UUID.randomUUID().toString());
+        userRepository.save(user.withPendingActivation(activationUrl));
     }
 
     private void addPermissionIfNotExist(AccessTag accessTag, long user, AccessType accessType) {

@@ -9,7 +9,7 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 public interface ISecurityService {
 
-    User getPermissions(LoginRequest loginInformation);
+    User getUser(LoginRequest loginInformation);
 
     User getUser(long userId);
 
@@ -34,4 +34,6 @@ public interface ISecurityService {
     User addInactiveUserIfNotExist(String email, String name);
 
     void addPermission(long id, String domain);
+
+    void retryActivation(String email, String path);
 }
