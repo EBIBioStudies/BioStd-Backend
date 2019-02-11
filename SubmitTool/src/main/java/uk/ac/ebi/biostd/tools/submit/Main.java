@@ -17,6 +17,8 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 import uk.ac.ebi.biostd.in.AccessionMapping;
 import uk.ac.ebi.biostd.in.SubmissionMapping;
 import uk.ac.ebi.biostd.treelog.ConvertException;
@@ -477,68 +479,44 @@ public class Main {
         }
 
         try {
-            loginURL = new URL(
-                    appUrl + authEndpoint + "?login=" + URLEncoder.encode(config.getUser(), "utf-8") + "&password="
-                            + URLEncoder.encode(password, "utf-8"));
+            loginURL = new URL(appUrl + authEndpoint);
         } catch (MalformedURLException e) {
             System.err.println("Invalid server URL: " + config.getServer());
             System.exit(1);
-        } catch (UnsupportedEncodingException e) {
         }
 
         try {
             HttpURLConnection conn = (HttpURLConnection) loginURL.openConnection();
+            String body = String.format("{ \"login\": \"%s\", \"password\": \"%s\" }", config.getUser(), password);
 
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-                System.err.println("Auth failed: invalid user/password");
-                System.exit(1);
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.getOutputStream().write(body.getBytes());
+            conn.getOutputStream().flush();
+            conn.getOutputStream().close();
+
+            switch (conn.getResponseCode()) {
+                case HttpURLConnection.HTTP_OK:
+                    JSONObject response = new JSONObject(IOUtils.toString(conn.getInputStream()));
+                    conn.disconnect();
+
+                    return response.getString("sessid");
+
+                case HttpURLConnection.HTTP_FORBIDDEN:
+                    System.err.println("Auth failed: invalid user/password");
+                    System.exit(1);
+
+                default:
+                    System.err.println("Login failed: " + conn.getResponseMessage());
+                    System.exit(1);
             }
-
-            String resp = StringUtils.readFully((InputStream) conn.getContent(), Charset.forName("utf-8"));
-
-            conn.disconnect();
-
-            if (!resp.startsWith("OK")) {
-                System.err.println("Login failed");
-                System.exit(1);
-            }
-
-            String sessId = getSessId(resp);
-
-            if (sessId == null) {
-                System.err.println("Invalid server response. Can't extract session ID");
-                System.exit(1);
-            }
-
-            return sessId;
         } catch (IOException e) {
             System.err.println("Connection to server '" + config.getServer() + "' failed: " + e.getMessage());
             System.exit(1);
         }
 
         return null;
-    }
-
-    private static String getSessId(String resp) {
-        int pos = resp.indexOf("sessid:");
-
-        if (pos == -1) {
-            return null;
-        }
-
-        pos += "sessid:".length();
-
-        while (Character.isWhitespace(resp.charAt(pos))) {
-            pos++;
-        }
-
-        int beg = pos;
-
-        while (resp.charAt(pos) != '\n' && resp.charAt(pos) != '\r' && !Character.isWhitespace(resp.charAt(pos))) {
-            pos++;
-        }
-
-        return resp.substring(beg, pos);
     }
 
     static void printLog(LogNode topLn, Config config) {

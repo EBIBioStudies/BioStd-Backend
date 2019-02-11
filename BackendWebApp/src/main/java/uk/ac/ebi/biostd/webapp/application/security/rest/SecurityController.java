@@ -101,7 +101,7 @@ public class SecurityController {
 
     /**
      * Used only by terminal Submit application, deprecated in favor of
-     * {@link SecurityController#sign(SignInRequestDto, HttpServletResponse)}
+     * {@link SecurityController#signIn(SignInRequestDto, HttpServletResponse)}
      */
     @Deprecated
     @GetMapping(value = "/auth/signin")
@@ -118,8 +118,8 @@ public class SecurityController {
     }
 
     @PostMapping(value = "/auth/signin")
-    public @ResponseBody LoginResponseDto sign(@RequestBody SignInRequestDto signInRequest,
-            HttpServletResponse response) {
+    public @ResponseBody LoginResponseDto signIn(
+            @RequestBody SignInRequestDto signInRequest, HttpServletResponse response) {
         UserData userData = securityService.signIn(signInRequest.getLogin(), signInRequest.getPassword());
         response.addCookie(new Cookie(cookieName, userData.getToken()));
         return permissionMapper.getLoginResponse(userData);
