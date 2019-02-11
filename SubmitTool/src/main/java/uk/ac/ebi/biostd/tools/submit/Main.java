@@ -8,8 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -19,6 +17,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import uk.ac.ebi.biostd.in.AccessionMapping;
 import uk.ac.ebi.biostd.in.SubmissionMapping;
@@ -488,19 +487,18 @@ public class Main {
 
         try {
             HttpURLConnection conn = (HttpURLConnection) loginURL.openConnection();
-            String body = String.format("{ \"login\": \"%s\", \"password\", \"%s\" }", config.getUser(), password);
+            String body = String.format("{ \"login\": \"%s\", \"password\": \"%s\" }", config.getUser(), password);
 
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.getOutputStream().write(body.getBytes());
-
-
-            System.out.println("Response" + conn.getResponseCode() + " " + conn.getResponseMessage());
+            conn.getOutputStream().flush();
+            conn.getOutputStream().close();
 
             switch (conn.getResponseCode()) {
                 case HttpURLConnection.HTTP_OK:
-                    JSONObject response = new JSONObject(conn.getInputStream());
+                    JSONObject response = new JSONObject(IOUtils.toString(conn.getInputStream()));
                     conn.disconnect();
 
                     return response.getString("sessid");
