@@ -139,6 +139,7 @@ jobs:
     - S-BSMS6
     - S-BSST637
     - S-BSMS-PGPC1
+    - S-BIAD2
   dummy:
     enabled: false
     cron: 0/10 * * * * ? # each 10 seconds
