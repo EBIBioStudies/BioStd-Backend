@@ -3,7 +3,6 @@ package uk.ac.ebi.biostd.exporter;
 import static com.jamesmurty.utils.XMLBuilder.create;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 import com.google.common.collect.ImmutableList;
 import com.jamesmurty.utils.XMLBuilder;

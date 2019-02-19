@@ -50,12 +50,16 @@
   </entry>
 
   <entry key="updatedSubmissionsQuery">
-    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
+           (CASE WHEN accno IN (:libFileStudies) THEN 1 ELSE 0 END) isLibFile
+    FROM Submission
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
   </entry>
 
   <entry key="submissionsQueryByAccNo">
-    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
+    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
+           (CASE WHEN accno IN (:libFileStudies) THEN 1 ELSE 0 END) isLibFile
+    FROM Submission
     WHERE version > 0 and accno = :accno
   </entry>
 

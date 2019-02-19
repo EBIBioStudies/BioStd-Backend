@@ -4,9 +4,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -19,6 +17,7 @@ import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.LibFileSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.StatsSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
@@ -34,6 +33,7 @@ public class SubmissionDao {
     private final NamedParameterJdbcTemplate template;
     private final ExporterGeneralProperties properties;
     private final StatsSubmissionMapper statsSubmissionMapper;
+    private final LibFileSubmissionMapper libFileSubmissionMapper;
     private final DetailedSubmissionMapper detailedSubmissionMapper;
 
     public void releaseSubmission(long submissionId) {
@@ -54,12 +54,16 @@ public class SubmissionDao {
 
     public List<Submission> getUpdatedSubmissions(long syncTime) {
         return template.query(
-                queries.getUpdatedSubmissionsQuery(), singletonMap("sync_time", syncTime), submissionMapper);
+                queries.getUpdatedSubmissionsQuery(),
+                ImmutableMap.of("sync_time", syncTime, "libFileStudies", properties.getLibFileStudies()),
+                libFileSubmissionMapper);
     }
 
     public Submission getSubmissionByAccNo(String accNo) {
         return template.queryForObject(
-                queries.getSubmissionsQueryByAccNo(), singletonMap("accno", accNo), submissionMapper);
+                queries.getSubmissionsQueryByAccNo(),
+                ImmutableMap.of("accno", accNo, "libFileStudies", properties.getLibFileStudies()),
+                libFileSubmissionMapper);
     }
 
     public List<String> getDeletedSubmissions(long syncTime) {
