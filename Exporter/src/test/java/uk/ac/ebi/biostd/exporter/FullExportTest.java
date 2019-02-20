@@ -8,7 +8,6 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -48,7 +47,7 @@ import uk.ac.ebi.biostd.test.util.XmlAttributeFilter;
         "classpath:scripts/sql/init-full-export.sql",
         "classpath:scripts/sql/private_submission.sql",
         "classpath:scripts/sql/public_submission.sql"})
-@Sql(executionPhase = AFTER_TEST_METHOD, scripts = { "classpath:scripts/sql/drop_schema.sql", })
+@Sql(executionPhase = AFTER_TEST_METHOD, scripts = { "classpath:scripts/sql/drop_schema.sql" })
 public class FullExportTest extends BaseIntegrationTest {
     private static final String FULL_EXPORT_NAME = "studies";
     private static final String PUBLIC_ONLY_EXPORT_NAME = "publicOnlyStudies";

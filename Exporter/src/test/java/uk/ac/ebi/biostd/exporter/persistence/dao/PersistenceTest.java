@@ -28,6 +28,7 @@ public class PersistenceTest {
                     .addScript("classpath:scripts/sql/create_schema.sql")
                     .addScript("classpath:scripts/sql/init-full-export.sql")
                     .addScript("classpath:persistence_dao/release_feature.sql")
+                    .addScript("classpath:persistence_dao/lib_file_submission.sql")
                     .build();
         }
     }
