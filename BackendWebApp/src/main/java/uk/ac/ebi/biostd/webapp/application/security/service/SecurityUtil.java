@@ -95,8 +95,14 @@ class SecurityUtil {
             // PROD
             case "01ecc118-dbec-4df8-8fe8-f5cd7364b2b7":
                 return "https://www.ebi.ac.uk/biostudies" + path;
+
             default:
-                return instanceKey + path;
+                if (instanceKey.startsWith("http://localhost:") ||
+                        instanceKey.startsWith("https://localhost:")) {
+                    return instanceKey + path;
+                }
+
+                throw new IllegalArgumentException(String.format("invalid instance key '%s'", instanceKey));
         }
     }
 }
