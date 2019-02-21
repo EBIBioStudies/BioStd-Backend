@@ -23,7 +23,7 @@ repositories {
 dependencies {
     compile project(":SpreadsheetReaders")
     compile project(":BioStdCoreModel")
-    compile group: 'com.lexicalscope.jewelcli', name: 'jewelcli', version: '[0.8.9,)'
+    compile ("com.lexicalscope.jewelcli:jewelcli:[0.8.9,)")
 }
 
 shadowJar {

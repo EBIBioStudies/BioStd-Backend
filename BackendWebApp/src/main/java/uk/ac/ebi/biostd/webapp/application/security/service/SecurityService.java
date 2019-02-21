@@ -28,6 +28,8 @@ import uk.ac.ebi.biostd.webapp.application.persitence.repositories.SubmissionRep
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.TokenRepository;
 import uk.ac.ebi.biostd.webapp.application.persitence.repositories.UserRepository;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.RetryActivationRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 import uk.ac.ebi.biostd.webapp.application.security.error.SecurityException;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
@@ -98,10 +100,9 @@ public class SecurityService implements ISecurityService {
     @Override
     public void addUser(SignUpRequest signUpRequest) {
         Optional<User> created = userRepository.findByEmail(signUpRequest.getEmail());
-        if (created.isPresent()) {
-            throw new SecurityException(
-                    format("There is already a user register with email %s", created.get().getEmail()));
-        }
+        created.ifPresent(user -> {
+            throw new SecurityException(format("There is already a user register with email %s", user.getEmail()));
+        });
 
         User user = new User();
         user.setEmail(signUpRequest.getEmail());
@@ -113,7 +114,8 @@ public class SecurityService implements ISecurityService {
         user.setPasswordDigest(securityUtil.getPasswordDigest(signUpRequest.getPassword()));
         user.setSecret(UUID.randomUUID().toString());
 
-        userRepository.save(user.withPendingActivation(signUpRequest.getActivationURL()));
+        userRepository.save(user.withPendingActivation(
+                securityUtil.getInstanceUrl(signUpRequest.getInstanceKey(), signUpRequest.getPath())));
         Path magicPath = magicFolderUtil.createUserMagicFolder(user.getId(), user.getSecret());
         magicFolderUtil.createUserSymlink(magicPath, user.getEmail());
     }
@@ -149,9 +151,12 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
-    public void retryActivation(String email, String activationUrl) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        userOptional.filter(User::isActive).ifPresent(user -> retryActivate(user, activationUrl));
+    public void retryActivation(RetryActivationRequest request) {
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        userOptional.filter(User::isActive).ifPresent(user -> {
+            String activationUrl = securityUtil.getInstanceUrl(request.getInstanceKey(), request.getPath());
+            retryActivate(user, activationUrl);
+        });
     }
 
     private void retryActivate(User user, String activationUrl) {
@@ -212,12 +217,14 @@ public class SecurityService implements ISecurityService {
     }
 
     @Override
-    public void resetPasswordRequest(String email, String activationUrl) {
+    public void resetPasswordRequest(ResetPasswordRequest request) {
+        String email = request.getEmail();
         Optional<User> optionalUser = userRepository.findByLoginOrEmail(email, email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setActivationKey(UUID.randomUUID().toString());
-            userRepository.save(user.withResetPasswordRequest(activationUrl));
+            userRepository.save(user.withResetPasswordRequest(
+                    securityUtil.getInstanceUrl(request.getInstanceKey(), request.getPath())));
         }
     }
 

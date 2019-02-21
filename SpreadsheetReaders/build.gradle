@@ -13,12 +13,12 @@ repositories {
      maven { url "http://www.ebi.ac.uk/~maven/m2repo_snapshots" }
 }
 dependencies {
-    compile project(':Commons')
-    compile group: 'org.apache.poi', name: 'poi', version:'3.11'
-    compile group: 'org.apache.poi', name: 'poi-ooxml', version:'3.11'
-    compile(group: 'org.apache.odftoolkit', name: 'simple-odf', version:'0.8.1-incubating') {
-        exclude(module: 'taglets')
-        exclude(module: 'slf4j-log4j12')
-        exclude(module: 'log4j')
+    compile project(":Commons")
+    compile ("org.apache.poi:poi:3.11")
+    compile ("org.apache.poi:poi-ooxml:3.11")
+    compile ("org.apache.odftoolkit:simple-odf:0.8.1-incubating") {
+        exclude(module: "taglets")
+        exclude(module: "slf4j-log4j12")
+        exclude(module: "log4j")
     }
 }

@@ -9,7 +9,9 @@ public class SignUpRequest {
 
     private String email;
     private String password;
-    private String activationURL;
     private String username;
     private List<String> aux = Collections.emptyList();
+
+    private String instanceKey;
+    private String path;
 }

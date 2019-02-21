@@ -15,8 +15,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly('org.projectlombok:lombok:1.16.18')
-    compile('org.slf4j:slf4j-api:1.7.25')
+    compileOnly("org.projectlombok:lombok:1.18.2")
+    annotationProcessor("org.projectlombok:lombok:1.18.2")
+
+    compile("org.slf4j:slf4j-api:1.7.25")
 
     // Junit dependencies
     runtime("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
@@ -25,8 +27,8 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testCompile("org.junit.jupiter:junit-jupiter-params:${junitVersion}")
 
-    testCompile('org.assertj:assertj-core:3.9.1')
-    testCompile('org.mockito:mockito-core:2.22.0')
-    testCompile('org.mockito:mockito-junit-jupiter:2.22.0')
-    testCompile('org.junit-pioneer:junit-pioneer:0.1.2')
+    testCompile("org.assertj:assertj-core:3.9.1")
+    testCompile("org.mockito:mockito-core:2.22.0")
+    testCompile("org.mockito:mockito-junit-jupiter:2.22.0")
+    testCompile("org.junit-pioneer:junit-pioneer:0.1.2")
 }

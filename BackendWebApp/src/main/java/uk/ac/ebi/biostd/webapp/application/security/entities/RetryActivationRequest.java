@@ -3,9 +3,10 @@ package uk.ac.ebi.biostd.webapp.application.security.entities;
 import lombok.Data;
 
 @Data
-public class ResetPasswordRequest {
+public class RetryActivationRequest {
 
     private String email;
+
     private String instanceKey;
     private String path;
 }

@@ -82,4 +82,21 @@ class SecurityUtil {
                 .signWith(SignatureAlgorithm.HS512, tokenHash)
                 .compact();
     }
+
+    // TODO: Extract instance in safe place and disable using custom url.
+    String getInstanceUrl(String instanceKey, String path) {
+        switch (instanceKey) {
+            // DEV
+            case "975dd2ca-58eb-407b-ba0f-858f15f7304d":
+                return "http://ves-hx-f2.ebi.ac.uk:8120" + path;
+            // BETA
+            case "9c584ae3-678a-4462-b685-54c37a1bc047":
+                return "https://wwwdev.ebi.ac.uk/biostudies" + path;
+            // PROD
+            case "01ecc118-dbec-4df8-8fe8-f5cd7364b2b7":
+                return "https://www.ebi.ac.uk/biostudies" + path;
+            default:
+                return instanceKey + path;
+        }
+    }
 }

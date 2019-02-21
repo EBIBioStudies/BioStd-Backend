@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class TokenUser {
+
     private long id;
     private String email;
     private String fullName;

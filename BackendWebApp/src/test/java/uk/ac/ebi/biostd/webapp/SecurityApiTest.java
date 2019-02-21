@@ -47,6 +47,7 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.dto.SignoutRequestDto;
 @Import(TestConfiguration.class)
 @DirtiesContext
 public class SecurityApiTest {
+
     private static final String SIGN_OUT_URL = "/auth/signout?sessid=";
     private static final String PASS_REST_URL = "/auth/passreset";
     private static final String RESET_PASSWORD = "/auth/passrstreq";
@@ -149,7 +150,8 @@ public class SecurityApiTest {
     private String requestResetPassword(String user) {
         ResetPasswordRequest passwordRequest = new ResetPasswordRequest();
         passwordRequest.setEmail(user);
-        passwordRequest.setResetURL("http://submission-tool/reset-password/{KEY}");
+        passwordRequest.setInstanceKey("http://submission-tool");
+        passwordRequest.setPath("/reset-password/{KEY}");
 
         restTemplate.postForObject(RESET_PASSWORD, passwordRequest, String.class);
         MimeMessage[] messages = greenMail.getReceivedMessages();
@@ -164,7 +166,8 @@ public class SecurityApiTest {
         signUpRequest.setUsername(name);
         signUpRequest.setPassword(password);
         signUpRequest.setAux(Collections.singletonList("orcid:5657"));
-        signUpRequest.setActivationURL("http://submission-tool/signup/{KEY}");
+        signUpRequest.setInstanceKey("http://submission-tool");
+        signUpRequest.setPath("/signup");
 
         restTemplate.postForObject("/auth/signup", signUpRequest, String.class);
         MimeMessage[] messages = greenMail.getReceivedMessages();

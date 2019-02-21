@@ -23,14 +23,14 @@ repositories {
 
 dependencies {
     compile project(":BioStdCoreModel")
-    compile group: 'com.lexicalscope.jewelcli', name: 'jewelcli', version: '[0.8.9,)'
-    compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
+    compile ("com.lexicalscope.jewelcli:jewelcli:[0.8.9,)")
+    compile ("org.apache.commons:commons-io:1.3.2")
 }
 
 jar {
     manifest {
         attributes(
-                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Class-Path': configurations.compile.collect { it.getName() }.join(" "),
                 'Main-Class': 'uk.ac.ebi.biostd.tools.submit.Main'
         )
     }
