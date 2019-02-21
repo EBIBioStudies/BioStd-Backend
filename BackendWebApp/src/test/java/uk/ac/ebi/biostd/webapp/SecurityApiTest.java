@@ -54,8 +54,8 @@ public class SecurityApiTest {
     private static final String ACTIVATE_URL = "/auth/activate/";
     private static final String SIGN_URL = "/auth/signin";
 
-    private static final Pattern SIGNUP_PATTERN = Pattern.compile("\"http://submission-tool/signup/(.*)\"");
-    private static final Pattern RESET_PATTERN = Pattern.compile("\"http://submission-tool/reset-password/(.*)\"");
+    private static final Pattern SIGNUP_PATTERN = Pattern.compile("\"http://localhost/signup/(.*)\"");
+    private static final Pattern RESET_PATTERN = Pattern.compile("\"http://localhost/reset-password/(.*)\"");
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -150,7 +150,7 @@ public class SecurityApiTest {
     private String requestResetPassword(String user) {
         ResetPasswordRequest passwordRequest = new ResetPasswordRequest();
         passwordRequest.setEmail(user);
-        passwordRequest.setInstanceKey("http://submission-tool");
+        passwordRequest.setInstanceKey("http://localhost");
         passwordRequest.setPath("/reset-password/{KEY}");
 
         restTemplate.postForObject(RESET_PASSWORD, passwordRequest, String.class);
@@ -166,7 +166,7 @@ public class SecurityApiTest {
         signUpRequest.setUsername(name);
         signUpRequest.setPassword(password);
         signUpRequest.setAux(Collections.singletonList("orcid:5657"));
-        signUpRequest.setInstanceKey("http://submission-tool");
+        signUpRequest.setInstanceKey("http://localhost");
         signUpRequest.setPath("/signup");
 
         restTemplate.postForObject("/auth/signup", signUpRequest, String.class);

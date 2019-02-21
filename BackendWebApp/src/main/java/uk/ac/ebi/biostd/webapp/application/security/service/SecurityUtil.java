@@ -97,8 +97,8 @@ class SecurityUtil {
                 return "https://www.ebi.ac.uk/biostudies" + path;
 
             default:
-                if (instanceKey.startsWith("http://localhost:") ||
-                        instanceKey.startsWith("https://localhost:")) {
+                if (instanceKey.startsWith("http://localhost") ||
+                        instanceKey.startsWith("https://localhost")) {
                     return instanceKey + path;
                 }
 
