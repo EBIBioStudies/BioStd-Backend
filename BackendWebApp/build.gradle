@@ -8,6 +8,9 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -52,13 +55,13 @@ task copyDocIndex(type: Copy) {
 bootWar {
     enabled = true
     archiveName = "biostudy-${buildTime()}.war"
-    rootSpec.exclude('**/tomcat-embed-*.jar', '**/mysql-connector-java-*.jar')
+    rootSpec.exclude("**/tomcat-embed-*.jar', '**/mysql-connector-java-*.jar")
 }
 
 bootJar {
     enabled = true
     archiveName = "biostudy-${buildTime()}.jar"
-    from('build/asciidoc/html5') {
+    from("build/asciidoc/html5") {
         into 'static/docs/api'
     }
 }
@@ -76,15 +79,15 @@ jacocoTestReport {
     reports {
         xml.enabled false
         csv.enabled false
-        html.destination "${buildDir}/${jacocoReportPath}"
+        html.setDestination(new File("${buildDir}/${jacocoReportPath}"))
     }
 }
 
 asciidoctor {
-    attributes 'snippets': file('build/docs/snippets')
+    attributes 'snippets': file("build/docs/snippets")
     sourceDir 'build/docs/snippets'
     outputDir 'build/asciidoc'
-    inputs.dir file('build/docs/snippets')
+    inputs.dir file("build/docs/snippets")
 }
 asciidoctor.dependsOn copyDocIndex
 
@@ -100,52 +103,57 @@ dependencies {
     compile project(":BioStdCoreModel")
     compile project(":BioCommons")
 
+    compileOnly("org.projectlombok:lombok:1.18.2")
+    annotationProcessor("org.projectlombok:lombok:1.18.2")
+
+    testCompileOnly("org.projectlombok:lombok:1.18.2")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.2")
+
     compile("org.springframework.boot:spring-boot-starter-web")
-    compile('org.springframework.boot:spring-boot-configuration-processor')
+    compile("org.springframework.boot:spring-boot-configuration-processor")
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-mail")
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 
-    compile('org.apache.tomcat:tomcat-jdbc:8.5.30')
-    compile('io.jsonwebtoken:jjwt:0.9.0')
-    compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.4')
-    compileOnly('org.projectlombok:lombok')
+    compile("org.apache.tomcat:tomcat-jdbc:8.5.30")
+    compile("io.jsonwebtoken:jjwt:0.9.0")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.4")
 
-    compile('mysql:mysql-connector-java:6.0.6')
-    compile('javax.transaction:jta:1.1')
-    compile('com.h2database:h2:[1.4.193,)')
-    compile('org.hibernate:hibernate-c3p0:5.2.8.Final')
-    compile('org.hibernate:hibernate-entitymanager:5.2.8.Final')
-    compile('org.hibernate:hibernate-search-orm:5.7.0.Final')
-    compile('org.hibernate:hibernate-core:5.2.12.Final')
+    compile("mysql:mysql-connector-java:6.0.6")
+    compile("javax.transaction:jta:1.1")
+    compile("com.h2database:h2:[1.4.193,)")
+    compile("org.hibernate:hibernate-c3p0:5.2.8.Final")
+    compile("org.hibernate:hibernate-entitymanager:5.2.8.Final")
+    compile("org.hibernate:hibernate-search-orm:5.7.0.Final")
+    compile("org.hibernate:hibernate-core:5.2.12.Final")
 
-    compile('org.apache.lucene:lucene-analyzers-common:5.5.4')
-    compile('org.apache.lucene:lucene-backward-codecs:5.5.4')
-    compile('org.apache.lucene:lucene-misc:5.5.4')
-    compile('org.apache.lucene:lucene-facet:5.5.4')
-    compile('org.apache.lucene:lucene-queryparser:5.5.4')
+    compile("org.apache.lucene:lucene-analyzers-common:5.5.4")
+    compile("org.apache.lucene:lucene-backward-codecs:5.5.4")
+    compile("org.apache.lucene:lucene-misc:5.5.4")
+    compile("org.apache.lucene:lucene-facet:5.5.4")
+    compile("org.apache.lucene:lucene-queryparser:5.5.4")
 
-    compile('net.tanesha.recaptcha4j:recaptcha4j:[0.0.7,)')
-    compile('commons-fileupload:commons-fileupload:[1.2,)')
-    compile('org.apache.commons:commons-lang3:3.7')
-    compile('org.apache.commons:commons-collections4:4.1')
-    compile('commons-io:commons-io:2.4')
-    compile('javax.mail:mail:1.4')
-    compile('commons-net:commons-net:3.5')
-    compile('javax.servlet:javax.servlet-api:3.1.0')
-    compile('org.projectlombok:lombok:1.16.18')
-    compile('com.auth0:java-jwt:3.0.1')
-    compile('com.google.guava:guava:23.4-jre')
-    compile('net.sourceforge.nekohtml:nekohtml:1.9.22')
-    compile('org.apache.httpcomponents:httpclient:4.5.5')
-    compile('org.zeroturnaround:zt-zip:1.13')
+    compile("net.tanesha.recaptcha4j:recaptcha4j:[0.0.7,)")
+    compile("commons-fileupload:commons-fileupload:[1.2,)")
+    compile("org.apache.commons:commons-lang3:3.7")
+    compile("org.apache.commons:commons-collections4:4.1")
+    compile("commons-io:commons-io:2.4")
+    compile("javax.mail:mail:1.4")
+    compile("commons-net:commons-net:3.5")
+    compile("javax.servlet:javax.servlet-api:3.1.0")
+    compile("org.projectlombok:lombok:1.16.18")
+    compile("com.auth0:java-jwt:3.0.1")
+    compile("com.google.guava:guava:23.4-jre")
+    compile("net.sourceforge.nekohtml:nekohtml:1.9.22")
+    compile("org.apache.httpcomponents:httpclient:4.5.5")
+    compile("org.zeroturnaround:zt-zip:1.13")
 
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testCompile('org.assertj:assertj-core:3.9.1')
-    testCompile('org.hamcrest:hamcrest-all:1.3')
-    testCompile('com.icegreen:greenmail:1.5.7')
-    testCompile('org.simplejavamail:simple-java-mail:5.0.0')
-    testCompile('com.jayway.jsonpath:json-path-assert:2.2.0')
+    testCompile("org.assertj:assertj-core:3.9.1")
+    testCompile("org.hamcrest:hamcrest-all:1.3")
+    testCompile("com.icegreen:greenmail:1.5.7")
+    testCompile("org.simplejavamail:simple-java-mail:5.0.0")
+    testCompile("com.jayway.jsonpath:json-path-assert:2.2.0")
 }

@@ -25,8 +25,10 @@ repositories {
 
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter')
-    compile group: 'org.apache.ftpserver', name: 'ftpserver-core', version: '1.1.1'
-    compile group: 'com.google.guava', name: 'guava', version: '25.1-jre'
-    compileOnly('org.projectlombok:lombok')
+    compile("org.springframework.boot:spring-boot-starter")
+    compile("org.apache.ftpserver:ftpserver-core:1.1.1")
+    compile("com.google.guava:guava:25.1-jre")
+
+    compileOnly("org.projectlombok:lombok:1.18.2")
+    annotationProcessor("org.projectlombok:lombok:1.18.2")
 }

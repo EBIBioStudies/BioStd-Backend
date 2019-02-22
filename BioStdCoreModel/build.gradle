@@ -16,10 +16,10 @@ repositories {
 }
 
 dependencies {
-    compile project(':SpreadsheetReaders')
+    compile project(":SpreadsheetReaders")
 
-    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
-    compile group: 'javax.validation', name: 'validation-api', version: '1.1.0.Final'
-    compile group: 'org.json', name: 'json', version: '20141113'
+    compile("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final")
+    compile("org.apache.commons:commons-lang3:3.7")
+    compile("javax.validation:validation-api:1.1.0.Final")
+    compile("org.json:json:20141113")
 }

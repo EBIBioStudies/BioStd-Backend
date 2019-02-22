@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.biostd.webapp.application.common.utils.PlainFileFormat;
 import uk.ac.ebi.biostd.webapp.application.common.utils.WebUtils;
 import uk.ac.ebi.biostd.webapp.application.configuration.ConfigProperties;
-import uk.ac.ebi.biostd.webapp.application.security.RetryActivationRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ChangePasswordRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.RetryActivationRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.ActivationResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
@@ -87,7 +87,7 @@ public class SecurityController {
 
     @PostMapping(value = "/auth/retryact")
     public ResponseEntity<Void> retryActivation(@RequestBody RetryActivationRequest loginInfo) {
-        securityService.retryActivation(loginInfo.getEmail(), loginInfo.getActivationURL());
+        securityService.retryActivation(loginInfo);
         return ResponseEntity.ok().build();
     }
 
@@ -135,7 +135,7 @@ public class SecurityController {
     }
 
     @PostMapping(value = "/auth/signup")
-    public @ResponseBody SignUpResponseDto signUp(@RequestBody SignUpRequest signUpRequest) {
+    public @ResponseBody SignUpResponseDto register(@RequestBody SignUpRequest signUpRequest) {
         securityService.addUser(signUpRequest);
         return new SignUpResponseDto(signUpRequest.getUsername(), "OK");
     }
@@ -154,7 +154,7 @@ public class SecurityController {
 
     @PostMapping(value = "/auth/passrstreq")
     public @ResponseBody PassRequestResponseDto resetPassword(@RequestBody ResetPasswordRequest request) {
-        securityService.resetPasswordRequest(request.getEmail(), request.getResetURL());
+        securityService.resetPasswordRequest(request);
         return new PassRequestResponseDto("OK");
     }
 }

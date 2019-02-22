@@ -4,6 +4,8 @@ import java.util.Optional;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.User;
 import uk.ac.ebi.biostd.webapp.application.security.entities.LoginRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.ResetPasswordRequest;
+import uk.ac.ebi.biostd.webapp.application.security.entities.RetryActivationRequest;
 import uk.ac.ebi.biostd.webapp.application.security.entities.SignUpRequest;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
@@ -25,7 +27,7 @@ public interface ISecurityService {
 
     void resetPassword(String key, String password);
 
-    void resetPasswordRequest(String email, String activationUrl);
+    void resetPasswordRequest(ResetPasswordRequest request);
 
     boolean hasPermission(long submissionId, long userId, AccessType accessType);
 
@@ -35,5 +37,5 @@ public interface ISecurityService {
 
     void addPermission(long id, String domain);
 
-    void retryActivation(String email, String path);
+    void retryActivation(RetryActivationRequest activationRequest);
 }
