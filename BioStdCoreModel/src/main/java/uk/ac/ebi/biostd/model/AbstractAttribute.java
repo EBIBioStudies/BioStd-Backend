@@ -39,7 +39,6 @@ abstract public class AbstractAttribute implements NameValuePair, Classified {
     private static final Pattern unescQV = Pattern.compile("\\\\" + QUALIFIER_VALUE_SEPARATOR);
     private static final Pattern escQS = Pattern.compile(QUALIFIERS_SEPARATOR);
     private static final Pattern escQV = Pattern.compile(QUALIFIER_VALUE_SEPARATOR);
-    double numValue;
     private boolean isReference = false;
     private List<Qualifier> nameQualifiers;
     private List<Qualifier> valueQualifiers;
@@ -157,14 +156,6 @@ abstract public class AbstractAttribute implements NameValuePair, Classified {
     @Override
     public void setValue(String value) {
         this.value = value;
-    }
-
-    public double getNumValue() {
-        return numValue;
-    }
-
-    public void setNumValue(double numValue) {
-        this.numValue = numValue;
     }
 
     private String addQualifierToStr(String str, Qualifier q) {

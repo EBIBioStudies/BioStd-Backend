@@ -107,8 +107,6 @@ public class SectionTableContext extends TableBlockContext {
             secOc.setOriginalAccNo(acc);
 
             if (genAccNoMtch.matches()) {
-                current.setGlobal(true);
-
                 String pfx = genAccNoMtch.group("pfx");
                 String sfx = genAccNoMtch.group("sfx");
 
@@ -133,7 +131,6 @@ public class SectionTableContext extends TableBlockContext {
 
                 getSubmissionInfo().addGlobalSection(secOc);
             } else {
-                current.setGlobal(false);
                 current.setAccNo(acc);
             }
 

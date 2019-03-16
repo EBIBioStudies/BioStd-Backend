@@ -2,11 +2,10 @@ package uk.ac.ebi.biostd.exporter.jobs.ftp;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 
@@ -22,6 +21,7 @@ public class FtpService {
     public void execute() {
         submissionDao.getPublicSubmissionsPaths().forEach(this::createSymlink);
         count.set(0);
+        log.info("Finish copying all files ");
     }
 
     private void createSymlink(String submissionRelPath) {
@@ -31,13 +31,13 @@ public class FtpService {
                 File ftpFile = new File(properties.getBaseFtpPath() + "/" + submissionRelPath);
                 ftpFile.getParentFile().mkdirs();
 
-                Path source = sourceFile.toPath();
-                Path ftp = ftpFile.toPath();
-
-                log.info("creating symbolic link {}, to {} in {}", count.getAndIncrement(), source, ftp);
-                Files.createSymbolicLink(ftp, source);
+                log.info("Copying files operation #{} from {} in {}",
+                        count.getAndIncrement(),
+                        sourceFile.getAbsolutePath(),
+                        ftpFile.getAbsolutePath());
+                FileUtils.copyDirectory(sourceFile, ftpFile);
             } catch (IOException e) {
-                log.error("Could not create symbolic link path", e);
+                log.error("Could not copy files ", e);
             }
         }
     }

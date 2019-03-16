@@ -266,12 +266,7 @@ public class PageMLFormatter implements AbstractFormatter {
             xmlEscaped(sec.getAccNo(), out);
 
             out.append("\" ").append(ACCNOGLOBAL.getAttrName()).append("=\"");
-
-            if (sec.isGlobal()) {
-                out.append("true");
-            } else {
-                out.append("false");
-            }
+            out.append("false");
         }
 
         String str = sec.getEntityClass();

@@ -377,7 +377,7 @@ public class CellFormatter implements DocumentFormatter {
         }
 
         if (acc != null) {
-            cstr.addCell((sec.isGlobal() ? "!" : "") + acc);
+            cstr.addCell(acc);
         } else {
             cstr.nextCell();
         }
@@ -456,7 +456,7 @@ public class CellFormatter implements DocumentFormatter {
                     if (s.getAccNo() == null) {
                         return "";
                     }
-                    return s.isGlobal() ? "!" + s.getAccNo() : s.getAccNo();
+                    return s.getAccNo();
                 });
     }
 

@@ -1455,10 +1455,6 @@ public class JPASubmissionManager implements SubmissionManager {
     }
 
     private void collectGlobalSecIds(Section sec, Set<String> globSecId) {
-        if (sec.isGlobal()) {
-            globSecId.add(sec.getAccNo());
-        }
-
         if (sec.getSections() != null) {
             for (Section sbs : sec.getSections()) {
                 collectGlobalSecIds(sbs, globSecId);

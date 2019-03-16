@@ -12,7 +12,7 @@
     </attribute>
    </attributes>
 
-   <section type="Study" acc="$$$1" accGlobal="false">
+   <section type="Study" acc="$$$1">
 
     <attributes>
      <attribute>
@@ -56,7 +56,7 @@
 
      </section>
 
-     <section type="Organization" acc="ref1" accGlobal="false">
+     <section type="Organization" acc="ref1">
 
       <attributes>
        <attribute>

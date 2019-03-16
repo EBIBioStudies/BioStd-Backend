@@ -54,6 +54,7 @@ public class JSONReader extends Parser {
     private final Matcher genAccNoMtch = GeneratedAccNo.matcher("");
     private final TagResolver tagResolver;
     private final ParserConfig conf;
+
     public JSONReader(TagResolver tgResl, ParserConfig pc) {
         tagResolver = tgResl;
         conf = pc;
@@ -819,8 +820,6 @@ public class JSONReader extends Parser {
 
         secOc.setPath(myPath);
 
-        sec.setGlobal(false);
-
         ln = ln.branch("Processing section '" + obj.opt(JSONFormatter.typeProperty) + "'");
 
         Iterator<String> kitr = obj.keys();
@@ -860,8 +859,6 @@ public class JSONReader extends Parser {
                         genAccNoMtch.reset((String) val);
 
                         if (genAccNoMtch.matches()) {
-                            sec.setGlobal(true);
-
                             String pfx = genAccNoMtch.group("pfx");
                             String sfx = genAccNoMtch.group("sfx");
 

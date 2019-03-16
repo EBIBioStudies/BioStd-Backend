@@ -10,9 +10,8 @@ VALUES (1502833815,
         2,
         'abf2b18b-86ed-49ba-b41d-77702a51e6da');
 
-INSERT INTO Section (accNo, GLOBAL, parentAccNo, tableIndex, TYPE, submission_id, ord)
+INSERT INTO Section (accNo, parentAccNo, tableIndex, TYPE, submission_id, ord)
 VALUES ('PMC4273986',
-        FALSE,
         NULL,
         -1,
         'Publication',
