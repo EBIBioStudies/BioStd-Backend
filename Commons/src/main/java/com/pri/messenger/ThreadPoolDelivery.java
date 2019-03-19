@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ThreadPoolDelivery extends Messenger implements Runnable {
 
     private MonitorAddressResolver resolver = new HashMonitorAddressResolver();
-    private List<Message> messageQueue = new LinkedList<Message>();
+    private List<Message> messageQueue = new LinkedList<>();
     private ExecutorService threadPool;
 
     public ThreadPoolDelivery() {
@@ -41,41 +41,31 @@ public class ThreadPoolDelivery extends Messenger implements Runnable {
         threadPool = threadSrv;
     }
 
-    /*
-    public int getThreadPoolLocksCount()
-    {
-     return threadPool.getNLocks();
-    }
-
-    public long getThreadPoolWaitTime()
-    {
-     return threadPool.getTotalWaitTime();
-    }
-
-    public int getThreadPoolNReqs()
-    {
-     return threadPool.getNReqs();
-    }
-   */
+    @Override
     public void syncSend(Message message) throws RecipientNotFoundException {
         syncSend(message, (ProgressListener) null);
     }
 
+    @Override
     public void syncSend(Message message, ProgressListener pLsnr) throws RecipientNotFoundException {
         message.setSync(true);
         generalSend(message, pLsnr, null);
     }
 
+    @Override
     public void syncSend(Message message, ADOBFactory af) throws RecipientNotFoundException {
         message.setSync(true);
         generalSend(message, null, af);
     }
 
-    public void syncSend(Message message, ADOBFactory af, ProgressListener pLsnr) throws RecipientNotFoundException {
+    @Override
+    public void syncSend(Message message, ADOBFactory af, ProgressListener pLsnr)
+            throws RecipientNotFoundException {
         message.setSync(true);
         generalSend(message, pLsnr, af);
     }
 
+    @Override
     public void asyncSend(Message message) {
         message.setSync(false);
         synchronized (messageQueue) {
@@ -84,6 +74,7 @@ public class ThreadPoolDelivery extends Messenger implements Runnable {
         threadPool.execute(this);
     }
 
+    @Override
     public Message syncReceive(Address address) {
         RecipientMonitor monitor = resolver.addSyncRecipient(address);
         synchronized (monitor) {
@@ -97,6 +88,7 @@ public class ThreadPoolDelivery extends Messenger implements Runnable {
         return monitor.message;
     }
 
+    @Override
     public Message syncReceive(Address address, long timeout) throws SyncReceiveTimeoutException {
         RecipientMonitor monitor = resolver.addSyncRecipient(address);
         synchronized (monitor) {
@@ -118,10 +110,12 @@ public class ThreadPoolDelivery extends Messenger implements Runnable {
         return monitor.message;
     }
 
+    @Override
     public void addRecipient(MessageRecipient recipient, Address address) {
         resolver.addRecipient(recipient, address);
     }
 
+    @Override
     public void run() {
         Message message = null;
         synchronized (messageQueue) {
@@ -172,10 +166,9 @@ public class ThreadPoolDelivery extends Messenger implements Runnable {
         } finally {
             monitors.readUnlock();
         }
-        // System.out.println("Send deleted " + deletedSynchs + " synch monitors.") ;
-
     }
 
+    @Override
     public void removeRecipient(MessageRecipient recipient, Address address) {
         resolver.removeRecipient(recipient, address);
     }
@@ -189,9 +182,10 @@ public class ThreadPoolDelivery extends Messenger implements Runnable {
 
 class MonitorsSet implements Iterable<RecipientMonitor> {
 
-    private Collection<RecipientMonitor> monits = new LinkedList<RecipientMonitor>();
+    private Collection<RecipientMonitor> monits = new LinkedList<>();
     ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
+    @Override
     public Iterator<RecipientMonitor> iterator() {
         return monits.iterator();
     }
@@ -240,7 +234,7 @@ interface MonitorAddressResolver {
 class HashMonitorAddressResolver implements MonitorAddressResolver {
 
     private Map<String, MonitorsSet> addressToRecipientMap = Collections
-            .synchronizedMap(new TreeMap<String, MonitorsSet>()); //new Hashtable();
+            .synchronizedMap(new TreeMap<>()); //new Hashtable();
 
     private void addMonitor(RecipientMonitor monitor) {
         String sAddress = monitor.address.getLocal();
@@ -254,6 +248,7 @@ class HashMonitorAddressResolver implements MonitorAddressResolver {
         }
     }
 
+    @Override
     public RecipientMonitor addRecipient(MessageRecipient recipient, Address address) {
         RecipientMonitor monitor = new AsyncRecipientMonitor(recipient);
         monitor.address = address;
@@ -261,6 +256,7 @@ class HashMonitorAddressResolver implements MonitorAddressResolver {
         return monitor;
     }
 
+    @Override
     public RecipientMonitor addSyncRecipient(Address address) {
         RecipientMonitor monitor = new SyncRecipientMonitor();
         monitor.address = address;
@@ -268,22 +264,18 @@ class HashMonitorAddressResolver implements MonitorAddressResolver {
         return monitor;
     }
 
+    @Override
     public void removeMonitor(RecipientMonitor monitor) {
         String sAddress = monitor.address.getLocal();
         addressToRecipientMap.remove(sAddress);
     }
 
+    @Override
     public MonitorsSet getMonitors(String sAddress) {
-//  System.out.println("Dest addr: "+sAddress);
-
-//  for( Object o:addressToRecipientMap.keySet())
-//  {
-//   System.out.println("Recpt: "+o);
-//  }
-
         return addressToRecipientMap.get(sAddress);
     }
 
+    @Override
     public void removeRecipient(MessageRecipient recipient, Address address) {
         MonitorsSet monitors = getMonitors(address.getLocal());
 
@@ -351,6 +343,7 @@ class AsyncRecipientMonitor extends RecipientMonitor {
     }
 
     // returns true if the monitor must be deleted from consumers list
+    @Override
     public void deliver(Message message) {
         recipient.receive(message);
         incHandedCounter();
@@ -365,6 +358,7 @@ class SyncRecipientMonitor extends RecipientMonitor {
     }
 
     // returns true if the monitor must be deleted from consumers list
+    @Override
     public void deliver(Message message) {
         synchronized (this) {
             this.message = message;
