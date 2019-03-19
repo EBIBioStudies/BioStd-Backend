@@ -13,8 +13,7 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @ConfigurationProperties(prefix = "jobs.ftp")
-class FtpPublisherProperties {
-
+public class FtpPublisherProperties {
     private String baseFtpPath;
     private String baseBioStudiesPath;
 }
