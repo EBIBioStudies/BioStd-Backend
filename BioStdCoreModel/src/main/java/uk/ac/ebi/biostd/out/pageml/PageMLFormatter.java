@@ -17,7 +17,6 @@ package uk.ac.ebi.biostd.out.pageml;
 
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCESS;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCNO;
-import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ACCNOGLOBAL;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.CLASS;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.ID;
 import static uk.ac.ebi.biostd.in.pageml.PageMLAttributes.RELPATH;
@@ -264,9 +263,6 @@ public class PageMLFormatter implements AbstractFormatter {
         if (sec.getAccNo() != null) {
             out.append("\" ").append(ACCNO.getAttrName()).append("=\"");
             xmlEscaped(sec.getAccNo(), out);
-
-            out.append("\" ").append(ACCNOGLOBAL.getAttrName()).append("=\"");
-            out.append("false");
         }
 
         String str = sec.getEntityClass();

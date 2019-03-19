@@ -1,13 +1,13 @@
 -- Submission
 INSERT INTO Submission (CTime, MTime, RTime, accNo, relPath, released, rootPath, title, version, owner_id, secretKey) VALUES (1460402396, 1460402396, 1460402396, 'S-EPMC2873748', 'S-EPMC/S-EPMCxxx748/S-EPMC2873748', true, 'S-EPMC/S-EPMCxxx748/S-EPMC2873748', 'Cost-effectiveness of a potential vaccine for human papillomavirus.', 1, 1, null);
-INSERT INTO SubmissionAttribute(name, reference, value, submission_id, ord) VALUES('AttachTo', 0, 0, 'BioImages', 1, 0);
+INSERT INTO SubmissionAttribute(name, reference, value, submission_id, ord) VALUES('AttachTo', 0, 'BioImages', 1, 0);
 
 -- Sections
-INSERT INTO Section (accNo,  parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES (null, false, -1, 'Study', null, 1, null);
-INSERT INTO Section (accNo,  parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES ('PMC2873748', false, -1, 'Publication', 1, 1, 0);
-INSERT INTO Section (accNo,  parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES ('a1', false, -1, 'Author', 1, 1, 1);
-INSERT INTO Section (accNo,  parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES ('a2', false, -1, 'Author', 1, 1, 2);
-INSERT INTO Section (accNo,  parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES ('o1', false, -1, 'Organization', 1, 1, 3);
+INSERT INTO Section (accNo, parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES (null, null, -1, 'Study', null, 1, null);
+INSERT INTO Section (accNo, parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES ('PMC2873748', null, -1, 'Publication', 1, 1, 0);
+INSERT INTO Section (accNo, parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES ('a1', null, -1, 'Author', 1, 1, 1);
+INSERT INTO Section (accNo, parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES ('a2', null, -1, 'Author', 1, 1, 2);
+INSERT INTO Section (accNo, parentAccNo, tableIndex, type, parent_id, submission_id, ord) VALUES ('o1', null, -1, 'Organization', 1, 1, 3);
 
 -- Set RootSection
 update Submission set rootSection_id = 1 where id = 1;
