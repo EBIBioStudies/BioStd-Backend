@@ -62,7 +62,8 @@ public class ClientServerMessenger extends ServerNetworkMessenger {
         sessMngr = sm;
     }
 
-    @Override public void asyncSend(Message message) throws RecipientNotFoundException, NetworkException {
+    @Override
+    public void asyncSend(Message message) throws RecipientNotFoundException, NetworkException {
         String sessID = message.getAddress().getSession();
 
         ClientSession cldata = sessMngr.getSession(sessID);

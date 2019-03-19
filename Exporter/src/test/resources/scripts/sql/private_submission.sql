@@ -24,7 +24,7 @@ INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, value
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Pages', null, false, '37-48', null, 2, 2);
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Publication date', null, false, '2003 Jan', null, 2, 3);
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Name', null, false, 'Sanders GD', null, 3, 0);
-INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('affiliation', null, 0, true, 'o1', null, 3, 1);
+INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('affiliation', null, true, 'o1', null, 3, 1);
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Name', null, false, 'Taira AV', null, 4, 0);
-INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('affiliation', null, 0, true, 'o1', null, 4, 1);
+INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('affiliation', null, true, 'o1', null, 4, 1);
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Name', null, false, '* Stanford University, Stanford, California, USA', null, 5, 0);
