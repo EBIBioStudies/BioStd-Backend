@@ -1,9 +1,12 @@
 package uk.ac.ebi.biostd.exporter.test;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -51,6 +54,9 @@ public class FtpServiceTest {
     @Test
     public void generateFtpLinks() {
         testInstance.execute();
+
+        assertTrue(Files.exists(Paths.get(
+            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/File1.txt")));
     }
 
     private void createSubmissionFolders() throws IOException {

@@ -35,7 +35,7 @@ public class FtpService {
                     Path source = file.toPath();
                     Path ftp = ftpFile.toPath();
 
-                    log.info("creating symbolic link {}, to {} in {}", count.getAndIncrement(), source, ftp);
+                    log.info("creating hard link {}, to {} in {}", count.getAndIncrement(), source, ftp);
                     Files.createLink(ftp, source);
                 } catch (IOException e) {
                     log.error("Could not create symbolic link path", e);
