@@ -27,7 +27,7 @@ public class FtpService {
     private void createLink(String submissionRelPath) {
         File submissionFiles = new File(properties.getBaseBioStudiesPath() + "/" + submissionRelPath + "/Files");
         if (submissionFiles.exists() && submissionFiles.listFiles() != null) {
-            Stream.of(submissionFiles.listFiles()).forEach(file -> {
+            Stream.of(submissionFiles.listFiles()).parallel().forEach(file -> {
                 try {
                     File ftpFile = new File(properties.getBaseFtpPath() + "/" + submissionRelPath + "/" + file.getName());
                     ftpFile.getParentFile().mkdirs();
