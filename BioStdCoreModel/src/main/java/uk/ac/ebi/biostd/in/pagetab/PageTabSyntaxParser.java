@@ -324,9 +324,6 @@ public class PageTabSyntaxParser extends Parser {
                         LogNode sln = pln.branch("(R" + lineNo + ",C1) Processing '" + c0 + "' section block");
 
                         Section s = new Section();
-
-                        s.setGlobal(false);
-
                         SectionOccurrence secOc = new SectionOccurrence();
 
                         secOc.setElementPointer(new CellPointer(lineNo, 1));
@@ -355,8 +352,6 @@ public class PageTabSyntaxParser extends Parser {
                             genAccNoMtch.reset(s.getAccNo());
 
                             if (genAccNoMtch.matches()) {
-                                s.setGlobal(true);
-
                                 String pfx = genAccNoMtch.group("pfx");
                                 String sfx = genAccNoMtch.group("sfx");
 

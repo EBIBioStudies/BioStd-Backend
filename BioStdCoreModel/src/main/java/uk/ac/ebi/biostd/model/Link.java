@@ -41,7 +41,6 @@ public class Link implements Node {
     private long id;
     private List<LinkAttribute> attributes;
     private String url;
-    private boolean local;
     private Section hostSection;
     private Collection<LinkTagRef> tagRefs;
     private Collection<AccessTag> accessTags;
@@ -95,14 +94,6 @@ public class Link implements Node {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public boolean isLocal() {
-        return local;
-    }
-
-    public void setLocal(boolean local) {
-        this.local = local;
     }
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

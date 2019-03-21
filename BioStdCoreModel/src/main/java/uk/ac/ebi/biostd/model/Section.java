@@ -42,20 +42,18 @@ import uk.ac.ebi.biostd.authz.TagRef;
 @Entity
 @NamedQueries({
         @NamedQuery(name = "Section.countByAcc",
-                query = "SELECT count(s) FROM Section s where s.accNo=:accNo AND s.global=true"),
+                query = "SELECT count(s) FROM Section s where s.accNo=:accNo"),
         @NamedQuery(name = "Section.countByAccActive",
                 query = "SELECT count(s) FROM Section s JOIN s.submission sbm where sbm.version > 0 AND s"
-                        + ".accNo=:accNo AND s.global=true")
+                        + ".accNo=:accNo")
 })
 @Table(indexes = {
-        @Index(name = "glob_idx", columnList = "global"),
         @Index(name = "acc_idx", columnList = "accNo"),
         @Index(name = "section_type_index", columnList = "type")
 })
 public class Section implements Node, Accessible {
 
     private long id;
-    private boolean global;
     private String parentAcc;
     private List<SectionAttribute> attributes;
     private Submission submission;
@@ -77,14 +75,6 @@ public class Section implements Node, Accessible {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public boolean isGlobal() {
-        return global;
-    }
-
-    public void setGlobal(boolean global) {
-        this.global = global;
     }
 
     public String getParentAccNo() {

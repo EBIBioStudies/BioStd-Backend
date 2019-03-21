@@ -62,15 +62,9 @@ public class ClientServerMessenger extends ServerNetworkMessenger {
         sessMngr = sm;
     }
 
+    @Override
     public void asyncSend(Message message) throws RecipientNotFoundException, NetworkException {
         String sessID = message.getAddress().getSession();
-
-  /*
-  UserCore uc = GlobalParameters.getDefault().getUserCore();
-  
-  if( uc == null )
-   throw new NetworkException("Server not ready");
-  */
 
         ClientSession cldata = sessMngr.getSession(sessID);
 
@@ -83,22 +77,24 @@ public class ClientServerMessenger extends ServerNetworkMessenger {
         cldata.getMessageQueue().enqueueMessage(message);
     }
 
+    @Override
     public void syncSend(Message message, @SuppressWarnings("unused") ProgressListener pLsnr)
             throws RecipientNotFoundException, NetworkException {
         syncSend(message);
     }
 
-    @SuppressWarnings("unused")
+    @Override @SuppressWarnings("unused")
     public void syncSend(Message message, ADOBFactory af) throws RecipientNotFoundException, NetworkException {
         throw new RuntimeException("Method not implemented");
     }
 
-    @SuppressWarnings("unused")
+    @Override @SuppressWarnings("unused")
     public void syncSend(Message message, ADOBFactory af, ProgressListener pLsnr)
             throws RecipientNotFoundException, NetworkException {
         throw new RuntimeException("Method not implemented");
     }
 
+    @Override
     public void syncSend(Message message) throws RecipientNotFoundException, NetworkException {
         message.setSync(true);
         message.setID(String.valueOf(msgCounter++));
@@ -138,6 +134,7 @@ public class ClientServerMessenger extends ServerNetworkMessenger {
 
     }
 
+    @Override
     public void processRequest(HttpConnection conn, ClientSession clData) {
         Message msg;
         TransferUnit tu;
@@ -426,6 +423,7 @@ public class ClientServerMessenger extends ServerNetworkMessenger {
                 }
             }
 
+            @Override
             public int read(byte[] buf) throws IOException {
                 try {
                     int ch = stream.read(buf);
@@ -441,6 +439,7 @@ public class ClientServerMessenger extends ServerNetworkMessenger {
                 }
             }
 
+            @Override
             public int read(byte[] buf, int offs, int len) throws IOException {
                 try {
                     int ch = stream.read(buf, offs, len);
@@ -461,6 +460,7 @@ public class ClientServerMessenger extends ServerNetworkMessenger {
 
     class MsgrADOBFactory implements ADOBFactory {
 
+        @Override
         public ADOB createADOB(String type, int size, String contID, String disp, InputStream is, Object meta,
                 boolean metaSerial, boolean canDelay) throws IOException {
             if (size > 0 && size <= config.getMaxInlineBodySize()) {

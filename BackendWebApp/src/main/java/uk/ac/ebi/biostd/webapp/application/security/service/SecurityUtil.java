@@ -91,10 +91,10 @@ class SecurityUtil {
                 return "http://ves-hx-f2.ebi.ac.uk:8120" + path;
             // BETA
             case "9c584ae3-678a-4462-b685-54c37a1bc047":
-                return "https://wwwdev.ebi.ac.uk/biostudies" + path;
+                return "https://wwwdev.ebi.ac.uk" + path;
             // PROD
             case "01ecc118-dbec-4df8-8fe8-f5cd7364b2b7":
-                return "https://www.ebi.ac.uk/biostudies" + path;
+                return "https://www.ebi.ac.uk" + path;
 
             default:
                 if (instanceKey.startsWith("http://localhost") ||

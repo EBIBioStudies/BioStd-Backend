@@ -219,7 +219,6 @@ CREATE TABLE FileAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
-    numValue             DOUBLE   NOT NULL,
     reference            BIT      NOT NULL,
     value                LONGTEXT NULL,
     valueQualifierString LONGTEXT NULL,
@@ -393,7 +392,6 @@ CREATE INDEX FKqm34wgkkt2ocpfa5xs3nkfgu5 ON IdGenProfUsrACR (subject_id);
 
 CREATE TABLE Link (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    local      BIT          NOT NULL,
     tableIndex INT          NOT NULL,
     url        VARCHAR(255) NULL,
     section_id BIGINT       NULL,
@@ -406,7 +404,6 @@ CREATE TABLE LinkAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
-    numValue             DOUBLE   NOT NULL,
     reference            BIT      NOT NULL,
     value                LONGTEXT NULL,
     valueQualifierString LONGTEXT NULL,
@@ -533,7 +530,6 @@ CREATE INDEX FKou02v5l7x6l67pl8l145qilhu ON PermissionProfile_PermissionProfile 
 CREATE TABLE Section (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     accNo         VARCHAR(255) NULL,
-    global        BIT          NOT NULL,
     parentAccNo   VARCHAR(255) NULL,
     tableIndex    INT          NOT NULL,
     type          VARCHAR(255) NULL,
@@ -547,7 +543,6 @@ CREATE TABLE Section (
 CREATE INDEX acc_idx ON Section (accNo);
 CREATE INDEX FK4bi0ld27mvrinwk6gleu9phf4 ON Section (submission_id);
 CREATE INDEX FKba6xolosvegauoq8xs1kj17ch ON Section (parent_id);
-CREATE INDEX glob_idx ON Section (global);
 
 CREATE INDEX section_type_index ON Section (type);
 ALTER TABLE FileRef ADD CONSTRAINT FK464kkuexjpycuic1n33q0yhe2
@@ -559,7 +554,6 @@ CREATE TABLE SectionAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
-    numValue             DOUBLE   NOT NULL,
     reference            BIT      NOT NULL,
     value                LONGTEXT NULL,
     valueQualifierString LONGTEXT NULL,
@@ -642,7 +636,6 @@ CREATE TABLE SubmissionAttribute (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     name                 LONGTEXT NULL,
     nameQualifierString  LONGTEXT NULL,
-    numValue             DOUBLE   NOT NULL,
     reference            BIT      NOT NULL,
     value                LONGTEXT NULL,
     valueQualifierString LONGTEXT NULL,
