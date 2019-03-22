@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
 import uk.ac.ebi.biostd.webapp.application.persitence.common.AuxInfo;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission;
 import uk.ac.ebi.biostd.webapp.application.persitence.entities.AccessPermission.AccessType;
@@ -23,6 +24,11 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 public class PermissionMapper {
 
     private static final String STATUS_OK = "OK";
+    private final MagicFolderUtil magicFolderUtil;
+
+    public PermissionMapper(MagicFolderUtil magicFolderUtil) {
+        this.magicFolderUtil = magicFolderUtil;
+    }
 
     public Map<String, String> getPermissionMap(User user) {
         Map<String, String> accessInfo = new LinkedHashMap<>(7);
@@ -69,7 +75,7 @@ public class PermissionMapper {
         loginResponse.setUsername(user.getFullName());
         loginResponse.setSessid(userData.getToken());
         loginResponse.setAux(getAuxInfo(user.getAuxProfileInfo()));
-        loginResponse.setSecret(user.getSecret());
+        loginResponse.setSecret(magicFolderUtil.getUserMagicFolderRelativePath(user.getId(),user.getSecret()).toString());
 
         return loginResponse;
     }

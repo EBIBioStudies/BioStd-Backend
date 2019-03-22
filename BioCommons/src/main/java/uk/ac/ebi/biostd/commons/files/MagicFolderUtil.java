@@ -49,12 +49,20 @@ public class MagicFolderUtil {
         return createMagicFolder(groupId, magicKey, GROUP_FOLDER_PREFIX);
     }
 
+    public Path getUserMagicFolderRelativePath(long userId, String secret) {
+        return getMagicFolderRelativePath(userId, secret, USER_FOLDER_PREFIX);
+    }
+
     public Path getUserMagicFolderPath(long userId, String secret) {
         return getMagicFolderPath(userId, secret, USER_FOLDER_PREFIX);
     }
 
     public Path getGroupMagicFolderPath(long groupId, String secret) {
         return getMagicFolderPath(groupId, secret, GROUP_FOLDER_PREFIX);
+    }
+
+    private Path getMagicFolderRelativePath(long id, String secret, String separator) {
+        return Paths.get(format("%s/%s-%s%d", secret.substring(0, 2), secret.substring(2), separator, id));
     }
 
     public void createUserSymlink(Path source, String userEmail) {
