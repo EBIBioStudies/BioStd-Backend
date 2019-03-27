@@ -19,7 +19,7 @@ INSERT INTO FileAttribute (name, nameQualifierString, reference, value, valueQua
 -- Section attributes
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Title', null, false, 'Cost-effectiveness of a potential vaccine for human papillomavirus.', null, 1, 0);
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Abstract', null, false, 'Human papillomavirus (HPV) ', null, 1, 1);
-INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Journal', null, false, 'Emerging infectious diseases', null, 2, 0);
+INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Journal', null, false, 'Emerging infectious diseases', 'Type=Magazine;Awarded', 2, 0);
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Volume', null, false, '9(1)', null, 2, 1);
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Pages', null, false, '37-48', null, 2, 2);
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord) VALUES ('Publication date', null, false, '2003 Jan', null, 2, 3);

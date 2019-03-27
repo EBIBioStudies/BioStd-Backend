@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import uk.ac.ebi.biostd.exporter.jobs.full.xml.parsing.BooleanAdapter;
 
 @Data
@@ -42,12 +43,14 @@ public class Attribute {
     @JsonIgnore
     @XmlElement(name = "valqual")
     public List<Valqual> getValquals() {
-        if (valueQualifierString != null) {
+        if (StringUtils.isNotBlank(valueQualifierString)) {
             List<Valqual> valquals = new ArrayList<>();
             String[] values = valueQualifierString.split(";");
             for (String value : values) {
                 String[] single = value.split("=");
-                valquals.add(new Valqual(single[0], single[1]));
+                Valqual valqual = single.length > 1 ? new Valqual(single[0], single[1]) : new Valqual(single[0], "");
+
+                valquals.add(valqual);
             }
 
             return valquals;
