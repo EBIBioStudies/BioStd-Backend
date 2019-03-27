@@ -65,7 +65,8 @@
             "attributes":[
               {
                 "name":"Journal",
-                "value":"Emerging infectious diseases"
+                "value":"Emerging infectious diseases",
+                "valqual": "Type=Magazine;Awarded"
               },
               {
                 "name":"Volume",

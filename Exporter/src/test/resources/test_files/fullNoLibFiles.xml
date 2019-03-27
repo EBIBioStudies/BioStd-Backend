@@ -47,6 +47,14 @@
               <attribute>
                 <name>Journal</name>
                 <value>Emerging infectious diseases</value>
+                <valqual>
+                  <name>Type</name>
+                  <value>Magazine</value>
+                </valqual>
+                <valqual>
+                  <name>Awarded</name>
+                  <value></value>
+                </valqual>
               </attribute>
               <attribute>
                 <name>Volume</name>
