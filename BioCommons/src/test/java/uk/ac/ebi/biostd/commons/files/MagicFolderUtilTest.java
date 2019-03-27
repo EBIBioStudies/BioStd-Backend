@@ -69,6 +69,12 @@ class MagicFolderUtilTest {
     }
 
     @Test
+    void getUserMagicFolderRelativePath() {
+        Path userMagicFolderRelativePath = testInstance.getUserMagicFolderRelativePath(TEST_ID, TEST_SECRET);
+        assertThat(userMagicFolderRelativePath).isEqualTo(getExpectedRelativePath(MagicFolderUtil.USER_FOLDER_PREFIX));
+    }
+
+    @Test
     void getGroupMagicFolderPath() {
         Path userMagicFolderPath = testInstance.getGroupMagicFolderPath(TEST_ID, TEST_SECRET);
         assertThat(userMagicFolderPath).isEqualTo(getExpectedPath(MagicFolderUtil.GROUP_FOLDER_PREFIX));
@@ -94,5 +100,10 @@ class MagicFolderUtilTest {
     private Path getExpectedPath(String prefix) {
         return Paths.get(String.format("%s/ab/c-123-%s%d", testFolderPath, prefix, TEST_ID));
     }
+
+    private Path getExpectedRelativePath(String prefix) {
+        return Paths.get(String.format("ab/c-123-%s%d", prefix, TEST_ID));
+    }
+
 }
 

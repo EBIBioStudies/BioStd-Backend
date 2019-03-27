@@ -58,7 +58,7 @@ public class SecurityService implements ISecurityService {
         Optional<User> optionalUser = userRepository.findByLoginOrEmail(login, login);
 
         if (!optionalUser.isPresent()) {
-            throw new SecurityException(format("Could find an user register with email or login '%s'", login));
+            throw new SecurityException("Invalid username or password");
         }
 
         if (!securityUtil.checkHash(hash, optionalUser.get().getPasswordDigest())) {
@@ -77,12 +77,8 @@ public class SecurityService implements ISecurityService {
     public UserData signIn(String login, String password) {
         Optional<User> user = userRepository.findByLoginOrEmail(login, login);
 
-        if (!user.isPresent()) {
-            throw new SecurityException(format("Could find an user register with email or login '%s'", login));
-        }
-
-        if (!securityUtil.checkPassword(user.get().getPasswordDigest(), password)) {
-            throw new SecurityException(format("Given password do not match for user '%s'", login));
+        if (!user.isPresent() || !securityUtil.checkPassword(user.get().getPasswordDigest(), password)) {
+            throw new SecurityException("Invalid username or password");
         }
 
         String token = securityUtil.createToken(user.get());
@@ -101,7 +97,7 @@ public class SecurityService implements ISecurityService {
     public void addUser(SignUpRequest signUpRequest) {
         Optional<User> created = userRepository.findByEmail(signUpRequest.getEmail());
         created.ifPresent(user -> {
-            throw new SecurityException(format("There is already a user register with email %s", user.getEmail()));
+            throw new SecurityException(format("Username %s is not available", user.getEmail()));
         });
 
         User user = new User();
@@ -250,7 +246,7 @@ public class SecurityService implements ISecurityService {
                 return isAuthor || isSuperUser || hasTag;
         }
 
-        throw new IllegalStateException("Not supported access type ");
+        throw new IllegalStateException("Access type not supported");
     }
 
     @Override
