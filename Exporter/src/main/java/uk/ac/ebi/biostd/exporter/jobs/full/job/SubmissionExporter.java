@@ -18,11 +18,11 @@ import uk.ac.ebi.biostd.exporter.jobs.common.job.LogBatchListener;
 import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportFileProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.configuration.FullExportJobProperties;
 import uk.ac.ebi.biostd.exporter.jobs.full.json.JsonBufferedFileWriter;
-import uk.ac.ebi.biostd.exporter.jobs.full.xml.XmlBufferedFileWriter;
 
 @Component
 @AllArgsConstructor
 public class SubmissionExporter {
+
     public static final String XML_EXTENSION = ".xml";
     public static final String JSON_EXTENSION = ".json";
 
@@ -46,7 +46,7 @@ public class SubmissionExporter {
                 .reader(new BlockingQueueRecordReader(processQueue, workers))
                 .filter(recordFilter)
                 .processor(recordProcessor)
-                .writer(getRecordWriter(fileName, fileExtension))
+                .writer(getRecordWriter(fileName))
                 .batchListener(new LogBatchListener(jobName))
                 .jobListener(new FileUpdater(fileUtils, fileName, jobProperties.getRecordsThreshold()))
                 .build();
@@ -58,19 +58,7 @@ public class SubmissionExporter {
         return config.getFilePath() + config.getFileName() + fileExtension;
     }
 
-    private RecordWriter getRecordWriter(String fileName, String fileExtension) {
-        RecordWriter recordWriter;
-        switch (fileExtension) {
-            case XML_EXTENSION:
-                recordWriter = new XmlBufferedFileWriter(fileName);
-                break;
-
-            case JSON_EXTENSION:
-            default:
-                recordWriter = new JsonBufferedFileWriter(fileName);
-                break;
-        }
-
-        return recordWriter;
+    private RecordWriter getRecordWriter(String fileName) {
+        return new JsonBufferedFileWriter(fileName);
     }
 }
