@@ -10,7 +10,6 @@ import org.easybatch.core.job.Job;
 import org.easybatch.core.processor.RecordProcessor;
 import org.easybatch.core.reader.BlockingQueueRecordReader;
 import org.easybatch.core.record.Record;
-import org.easybatch.core.writer.RecordWriter;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.commons.FileUtils;
 import uk.ac.ebi.biostd.exporter.jobs.common.base.QueueJob;
@@ -23,7 +22,6 @@ import uk.ac.ebi.biostd.exporter.jobs.full.json.JsonBufferedFileWriter;
 @AllArgsConstructor
 public class SubmissionExporter {
 
-    public static final String XML_EXTENSION = ".xml";
     public static final String JSON_EXTENSION = ".json";
 
     private final FileUtils fileUtils;
@@ -46,7 +44,7 @@ public class SubmissionExporter {
                 .reader(new BlockingQueueRecordReader(processQueue, workers))
                 .filter(recordFilter)
                 .processor(recordProcessor)
-                .writer(getRecordWriter(fileName))
+                .writer(new JsonBufferedFileWriter(fileName))
                 .batchListener(new LogBatchListener(jobName))
                 .jobListener(new FileUpdater(fileUtils, fileName, jobProperties.getRecordsThreshold()))
                 .build();
@@ -56,9 +54,5 @@ public class SubmissionExporter {
 
     public String buildFileName(FullExportFileProperties config, String fileExtension) {
         return config.getFilePath() + config.getFileName() + fileExtension;
-    }
-
-    private RecordWriter getRecordWriter(String fileName) {
-        return new JsonBufferedFileWriter(fileName);
     }
 }
