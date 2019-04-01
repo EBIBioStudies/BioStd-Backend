@@ -30,7 +30,7 @@ public class ExportPipeline {
     private final JobsFactory jobsFactory;
 
     public final String execute() {
-        log.info("executing pmc export file job at {}", Instant.now());
+        log.info("executing export pipeline job at {}", Instant.now());
         TaskReports reports = execute(workers);
         ExecutionStats stats = ExecutionStats.builder()
                 .startTimeTS(reports.getStartTime())
