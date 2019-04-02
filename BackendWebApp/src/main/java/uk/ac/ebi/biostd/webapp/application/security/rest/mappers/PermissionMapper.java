@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.commons.files.MagicFolderUtil;
@@ -21,14 +23,11 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.dto.PermissionDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
 @Component
+@AllArgsConstructor
 public class PermissionMapper {
 
     private static final String STATUS_OK = "OK";
     private final MagicFolderUtil magicFolderUtil;
-
-    public PermissionMapper(MagicFolderUtil magicFolderUtil) {
-        this.magicFolderUtil = magicFolderUtil;
-    }
 
     public Map<String, String> getPermissionMap(User user) {
         Map<String, String> accessInfo = new LinkedHashMap<>(7);

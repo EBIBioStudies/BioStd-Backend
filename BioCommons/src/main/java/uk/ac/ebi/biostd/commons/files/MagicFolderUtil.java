@@ -88,8 +88,7 @@ public class MagicFolderUtil {
 
 
     private Path getMagicFolderPath(long id, String secret, String separator) {
-        String parent = format("%s/%s", basePath, secret.substring(0, 2));
-        return Paths.get(format("%s/%s-%s%d", parent, secret.substring(2), separator, id));
+        return Paths.get(basePath , getMagicFolderRelativePath(id, secret, separator).toString());
     }
 
     @SneakyThrows
