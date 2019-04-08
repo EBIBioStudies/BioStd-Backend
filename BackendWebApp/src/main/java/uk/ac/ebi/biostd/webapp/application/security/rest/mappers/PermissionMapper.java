@@ -1,13 +1,6 @@
 package uk.ac.ebi.biostd.webapp.application.security.rest.mappers;
 
-import static uk.ac.ebi.biostd.webapp.application.security.service.SecurityService.PUBLIC_ACCESS_TAG;
-
 import com.google.common.base.MoreObjects;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -22,6 +15,14 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.PermissionDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static uk.ac.ebi.biostd.webapp.application.security.service.SecurityService.PUBLIC_ACCESS_TAG;
+
 @Component
 @AllArgsConstructor
 public class PermissionMapper {
@@ -29,10 +30,14 @@ public class PermissionMapper {
     private static final String STATUS_OK = "OK";
     private final MagicFolderUtil magicFolderUtil;
 
+    /**
+     * Deprecated in favor of {@link PermissionMapper#getLoginResponse(UserData userData)}
+     */
+    @Deprecated
     public Map<String, String> getPermissionMap(User user) {
         Map<String, String> accessInfo = new LinkedHashMap<>(7);
         accessInfo.put("Status", STATUS_OK);
-        accessInfo.put("Allow", getUserAllows(user));
+        accessInfo.put("Allow", StringUtils.join(getUserAllows(user),';'));
         accessInfo.put("Deny", StringUtils.EMPTY);
         accessInfo.put("Superuser", String.valueOf(user.isSuperuser()));
         accessInfo.put("Name", user.getFullName());
@@ -41,10 +46,14 @@ public class PermissionMapper {
         return accessInfo;
     }
 
+    /**
+     * Deprecated in favor of {@link PermissionMapper#getLoginResponse(UserData userData)}
+     */
+    @Deprecated
     public PermissionDto getPermissionDto(User user) {
         return PermissionDto.builder()
                 .status(STATUS_OK)
-                .allow(getUserAllows(user))
+                .allow( StringUtils.join(getUserAllows(user),';'))
                 .deny(StringUtils.EMPTY)
                 .superuser(user.isSuperuser())
                 .name(user.getFullName())
@@ -53,7 +62,7 @@ public class PermissionMapper {
                 .build();
     }
 
-    private String getUserAllows(User user) {
+    private List<String> getUserAllows(User user) {
         List<String> accessTags = user.getAccessPermissions()
                 .stream()
                 .filter(permission -> permission.getAccessType().equals(AccessType.READ))
@@ -61,21 +70,25 @@ public class PermissionMapper {
                 .map(AccessTag::getName)
                 .collect(Collectors.toList());
         accessTags.add(PUBLIC_ACCESS_TAG);
-        return "~" + user.getEmail() + ";#" + user.getId() + ";" + String.join(";", accessTags);
+        accessTags.add(user.getEmail());
+        accessTags.add("#" + user.getId());
+        return accessTags;
     }
 
     public LoginResponseDto getLoginResponse(UserData userData) {
         LoginResponseDto loginResponse = new LoginResponseDto();
         User user = userData.getUser();
 
+        loginResponse.setUsername(user.getLogin());
+        loginResponse.setFullname(user.getFullName());
         loginResponse.setEmail(user.getEmail());
         loginResponse.setSuperuser(String.valueOf(user.isSuperuser()));
-        loginResponse.setStatus(STATUS_OK);
-        loginResponse.setUsername(user.getFullName());
         loginResponse.setSessid(userData.getToken());
         loginResponse.setAux(getAuxInfo(user.getAuxProfileInfo()));
         loginResponse.setSecret(magicFolderUtil.getUserMagicFolderRelativePath(user.getId(),user.getSecret()).toString());
-
+        loginResponse.setAllow(getUserAllows(user));
+        loginResponse.setDeny(Collections.EMPTY_LIST); // TODO: Check why there is no deny list being tracked
+        loginResponse.setStatus(STATUS_OK);
         return loginResponse;
     }
 

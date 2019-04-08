@@ -80,6 +80,10 @@ public class SecurityController {
                 .body(PlainFileFormat.asPlainFile(permissions));
     }
 
+    /**
+     * Deprecated in favor of {@link SecurityController#getPermissions(Authentication)}
+     */
+    @Deprecated
     @PostMapping(value = "/auth/check-access")
     public PermissionDto checkAccess(@ModelAttribute LoginRequest loginInfo) {
         return permissionMapper.getPermissionDto(securityService.getUser(loginInfo));
