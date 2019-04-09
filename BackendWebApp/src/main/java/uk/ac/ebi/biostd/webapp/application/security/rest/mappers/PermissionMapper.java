@@ -15,10 +15,7 @@ import uk.ac.ebi.biostd.webapp.application.security.rest.dto.LoginResponseDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.dto.PermissionDto;
 import uk.ac.ebi.biostd.webapp.application.security.rest.model.UserData;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static uk.ac.ebi.biostd.webapp.application.security.service.SecurityService.PUBLIC_ACCESS_TAG;
@@ -63,15 +60,16 @@ public class PermissionMapper {
     }
 
     private List<String> getUserAllows(User user) {
-        List<String> accessTags = user.getAccessPermissions()
+        List<String> accessTags =  new ArrayList<>();
+        accessTags.add("~" + user.getEmail());
+        accessTags.add("#" + user.getId());
+        accessTags.add (PUBLIC_ACCESS_TAG);
+        accessTags.addAll( user.getAccessPermissions()
                 .stream()
                 .filter(permission -> permission.getAccessType().equals(AccessType.READ))
                 .map(AccessPermission::getAccessTag)
                 .map(AccessTag::getName)
-                .collect(Collectors.toList());
-        accessTags.add(PUBLIC_ACCESS_TAG);
-        accessTags.add(user.getEmail());
-        accessTags.add("#" + user.getId());
+                .collect(Collectors.toList()));
         return accessTags;
     }
 
