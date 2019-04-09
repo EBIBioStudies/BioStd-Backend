@@ -115,7 +115,7 @@ jobs:
     queryModified:
     notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
-    recordsThreshold: 1000000
+    recordsThreshold: 1000
   pmc:
     import:
       user: admin_user@ebi.ac.uk
@@ -170,7 +170,7 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
-    recordsThreshold: 1000000
+    recordsThreshold: 500000
   ftp:
     baseFtpPath: /nfs/biostudies/.adm/databases/beta/ftp
     baseBioStudiesPath: /nfs/biostudies/.adm/databases/beta/submission
@@ -217,7 +217,7 @@ jobs:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     deleteNotificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/delete/
     cron: 0 0 22 * * ? # everyday at 10 p.m.
-    recordsThreshold: 1000000
+    recordsThreshold: 500000
   pmc:
     export:
       enabled: true
