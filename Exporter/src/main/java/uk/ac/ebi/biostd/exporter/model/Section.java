@@ -19,7 +19,6 @@ import org.springframework.util.CollectionUtils;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "section")
 public class Section {
-
     @JsonIgnore
     private long id;
 

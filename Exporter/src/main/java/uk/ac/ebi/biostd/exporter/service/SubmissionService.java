@@ -16,13 +16,13 @@ import uk.ac.ebi.biostd.exporter.persistence.dao.SectionDao;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 import uk.ac.ebi.biostd.exporter.utils.DateUtils;
 
-
 @Slf4j
 @Service
 @AllArgsConstructor
 public class SubmissionService {
     private static final String SEPARATOR = ".";
-    private static final String LIB_FILE_SUFFIX = ".files.json";
+    private static final String LIB_FILE_SUFFIX = ".files";
+    private static final String LIB_FILE_EXTENSION = ".json";
 
     private final SubmissionDao submissionDao;
     private final SectionDao sectionDao;
@@ -94,13 +94,23 @@ public class SubmissionService {
     }
 
     private String getLibFileName(Submission parentSubmission, Section section) {
-        StringBuilder libFile = new StringBuilder();
-        libFile.append(parentSubmission.getAccno())
-                .append(SEPARATOR)
-                .append(section.getId())
-                .append(LIB_FILE_SUFFIX);
+        String libFileName = section.getLibraryFile();
+        StringBuilder libFileNameBuilder = new StringBuilder();
 
-        return libFile.toString();
+        if (libFileName == null) {
+            libFileNameBuilder
+                    .append(parentSubmission.getAccno())
+                    .append(SEPARATOR)
+                    .append(section.getId())
+                    .append(LIB_FILE_SUFFIX)
+                    .append(LIB_FILE_EXTENSION);
+        } else {
+            libFileNameBuilder
+                    .append(libFileName)
+                    .append(LIB_FILE_EXTENSION);
+        }
+
+        return libFileNameBuilder.toString();
     }
 
     public Submission getSubmission(String accNo) {
