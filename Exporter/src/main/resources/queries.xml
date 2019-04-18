@@ -57,7 +57,7 @@
               FROM Section se WHERE se.submission_id = su.id AND se.libraryFile IS NOT NULL) > 0 THEN 1
         ELSE 0
       END) isLibFile
-    FROM Submission
+    FROM Submission su
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
   </entry>
 
