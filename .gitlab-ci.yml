@@ -5,7 +5,7 @@ stages:
   
 build:
   stage: build
-  script: gradle clean build bootJar
+  script: gradle clean build bootJar deploy
   artifacts:
     paths:
       - "BackendWebApp/build/libs/biostudy-$(date +'%Y%m%d').jar"
