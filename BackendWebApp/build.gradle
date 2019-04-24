@@ -116,7 +116,7 @@ task deploy {
     doLast {
         ssh.run {
             session(remotes.webServer) {
-                put from: "./build/libs/biostudy-${buildTime()}.jar", into: "/ebi/teams/biostudies/backend/temp/biostudy-${buildTime()}.jar"
+                put from: "./BackendWebApp/build/libs/biostudy-${buildTime()}.jar", into: "/ebi/teams/biostudies/backend/temp/biostudy-${buildTime()}.jar"
             }
         }
     }
