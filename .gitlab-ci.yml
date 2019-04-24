@@ -2,7 +2,10 @@ image: dockerhub.ebi.ac.uk/jhoanmanuelms/biostd-backend/backend-ci:0.1
 
 stages:
   - build
-  
+
+variables:
+  SSH_PASSWORD: $SSH_PASSWORD
+
 build:
   stage: build
   script: gradle clean build bootJar deploy
