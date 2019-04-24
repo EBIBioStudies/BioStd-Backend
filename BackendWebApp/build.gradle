@@ -108,6 +108,10 @@ remotes {
     }
 }
 
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
+
 task deploy {
     doLast {
         ssh.run {
