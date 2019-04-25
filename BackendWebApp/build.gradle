@@ -68,6 +68,10 @@ bootJar {
     }
 }
 
+springBoot {
+    buildInfo()
+}
+
 bootJar.dependsOn asciidoctor
 
 repositories {
@@ -101,7 +105,7 @@ task openCoverageReport {
 }
 
 remotes {
-    webServer {
+    dev {
         host = 'biostudy-bia.ebi.ac.uk'
         user = 'ma-svc'
     }
@@ -113,10 +117,12 @@ ssh.settings {
 }
 
 task deploy {
+    def devPath = '/ebi/teams/biostudies/backend/apps/webapp'
     doLast {
         ssh.run {
-            session(remotes.webServer) {
-                put from: "./BackendWebApp/build/libs/biostudy-${buildTime()}.jar", into: "/ebi/teams/biostudies/backend/temp/biostudy-${buildTime()}.jar"
+            session(remotes.dev) {
+                put from: "./BackendWebApp/build/libs/biostudy-${buildTime()}.jar", into: "$devPath/biostudy.jar"
+                execute "execute $devPath/scripts/update.sh"
             }
         }
     }

@@ -1,16 +1,33 @@
 image: dockerhub.ebi.ac.uk/jhoanmanuelms/biostd-backend/backend-ci:0.1
 
 stages:
+  - clean
+  - compile
+  - test
   - build
+  - deploy
 
-variables:
-  SSH_PASSWORD: $SSH_PASSWORD
+clean-job:
+  stage: clean
+  script: gradle clean
 
-build:
+compile-job:
+  stage: compile
+  script: gradle build -x test
+
+test-job:
+  stage: test
+  script: gradle test
+
+build-job:
   stage: build
-  script: gradle clean build bootJar deploy
+  script: gradle bootJar
   artifacts:
     paths:
       - "BackendWebApp/build/libs/biostudy-$(date +'%Y%m%d').jar"
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
 
+deploy-job:
+  stage: deploy
+  when: manual
+  script: gradle deploy
