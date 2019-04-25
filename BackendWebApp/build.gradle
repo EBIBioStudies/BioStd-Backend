@@ -103,13 +103,13 @@ task openCoverageReport {
 remotes {
     webServer {
         host = 'biostudy-bia.ebi.ac.uk'
-        user = 'jcamilorada'
-        password = System.getenv('SSH_PASSWORD')
+        user = 'ma-svc'
     }
 }
 
 ssh.settings {
     knownHosts = allowAnyHosts
+    identity = System.getenv('SSH_KEY')
 }
 
 task deploy {
