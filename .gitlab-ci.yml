@@ -30,4 +30,6 @@ build-job:
 deploy-job:
   stage: deploy
   when: manual
+  dependencies:
+    - build-job
   script: gradle deploy
