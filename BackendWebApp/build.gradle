@@ -118,11 +118,13 @@ ssh.settings {
 
 task deploy {
     def devPath = '/ebi/teams/biostudies/backend/apps/webapp'
+
     doLast {
         ssh.run {
             session(remotes.dev) {
                 put from: "./BackendWebApp/build/libs/biostudy-${buildTime()}.jar", into: "$devPath/biostudy.jar"
                 execute "sh $devPath/scripts/update.sh"
+                execute "sh $devPath/scripts/run_backend.sh"
             }
         }
     }
