@@ -27,7 +27,7 @@ build-job:
       - "BackendWebApp/build/libs/biostudy-$(date +'%Y%m%d').jar"
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
 
-deploy-job:
+deploy-dev-job:
   stage: deploy
   when: manual
   dependencies:

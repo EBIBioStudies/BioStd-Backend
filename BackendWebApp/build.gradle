@@ -114,6 +114,7 @@ remotes {
 ssh.settings {
     knownHosts = allowAnyHosts
     identity = System.getenv('SSH_KEY')
+    logging = 'stdout'
 }
 
 task deploy {
@@ -124,7 +125,6 @@ task deploy {
             session(remotes.dev) {
                 put from: "./BackendWebApp/build/libs/biostudy-${buildTime()}.jar", into: "$devPath/biostudy.jar"
                 execute "sh $devPath/scripts/update.sh"
-                execute "sh $devPath/scripts/run_backend.sh"
             }
         }
     }

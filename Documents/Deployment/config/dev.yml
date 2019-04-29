@@ -1,0 +1,9 @@
+biostd:
+  baseDir: /ebi/teams/biostudies/backend/development
+  environment: DEV
+
+eutoxrisk-file-validator:
+  enabled: true
+
+spring:
+  mail: smtp.ebi.ac.uk
