@@ -41,11 +41,11 @@ deploy-beta-job:
   when: manual
   dependencies:
     - build-job
-  script: gradle deploy -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/
+  script: gradle deploy -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/beta
 
 deploy-prod-job:
   stage: deploy-prod
   when: manual
   dependencies:
     - build-job
-  script: gradle deploy -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/
+  script: gradle deploy -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/prod
