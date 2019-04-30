@@ -32,4 +32,4 @@ deploy-dev-job:
   when: manual
   dependencies:
     - build-job
-  script: gradle deploy
+  script: gradle deploy -Penv=dev -PdeployPath=/ebi/teams/biostudies/backend/apps/webapp
