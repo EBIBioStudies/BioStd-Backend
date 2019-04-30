@@ -5,7 +5,9 @@ stages:
   - compile
   - test
   - build
-  - deploy
+  - deploy-dev
+  - deploy-beta
+  - deploy-prod
 
 clean-job:
   stage: clean
@@ -28,8 +30,22 @@ build-job:
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
 
 deploy-dev-job:
-  stage: deploy
+  stage: deploy-dev
   when: manual
   dependencies:
     - build-job
   script: gradle deploy -Penv=dev -PdeployPath=/ebi/teams/biostudies/backend/apps/webapp
+
+deploy-beta-job:
+  stage: deploy-beta
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deploy -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/
+
+deploy-prod-job:
+  stage: deploy-prod
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deploy -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/
