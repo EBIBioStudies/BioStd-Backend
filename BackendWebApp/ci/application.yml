@@ -1,4 +1,6 @@
 server:
+  servlet:
+    contextPath: /biostd
   tomcat:
     basedir: ${APP_TOMCAT_DIR}
 
@@ -7,4 +9,19 @@ biostd:
   environment: ${APP_ENV}
   tokenHash: ${APP_SEC_HASH}
   eutoxrisk-file-validator:
-    enabled: ${APP_EUTOXRISK_ENABLED}
+    enabled: false
+    project-id: EU-ToxRisk
+    endpoint: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
+
+spring:
+  mail:
+    host: smtp.ebi.ac.uk
+  thymeleaf:
+    prefix: classpath:/email/
+    suffix: .html
+    mode: LEGACYHTML5
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10240MB
+      max-request-size: 10240MB

@@ -14,19 +14,19 @@ import org.thymeleaf.context.Context;
 @AllArgsConstructor
 public class EmailSender {
 
-    private final JavaMailSender emailSender;
+    private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
 
     @SneakyThrows
     public void sendSimpleMessage(String from, String to, String subject, Map<String, Object> context,
             String template) {
-        MimeMessage mail = emailSender.createMimeMessage();
+        MimeMessage mail = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mail, true);
         helper.setTo(to);
         helper.setFrom(from);
         helper.setSubject(subject);
         helper.setText(getText(context, template), true);
-        emailSender.send(mail);
+        javaMailSender.send(mail);
     }
 
     private String getText(Map<String, Object> data, String template) {

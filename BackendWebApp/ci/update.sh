@@ -8,17 +8,18 @@
 #   2: application port
 #   3: deploy jar artifact name, i.e. biostudy-20190430.jar
 #
+# Example execution
+#
+#  ./update.sh /ebi/teams/biostudies/backend/apps/webapp 8586 biostudy-20190430.jar
+#
 cd $(dirname $0)
 
-netstat -nap | grep 8586
-
-
 ## kill current application
-#PID=$(netstat -antp 2>/dev/null -tlnp | awk '/:8586 */ {split($NF,a,"/"); print a[1]}')
-#while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
+PID=$(netstat -antp 2>/dev/null -tlnp | awk '/:8586 */ {split($NF,a,"/"); print a[1]}')
+while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
 
 ## set specific application environment properties
-source environment.sh
+source $1/environment.sh
 
 ## deploy new version of application
 nohup $JAVA_HOME/bin/java \
