@@ -34,18 +34,18 @@ deploy-dev-job:
   when: manual
   dependencies:
     - build-job
-  script: gradle deploy -Penv=dev -PdeployPath=/ebi/teams/biostudies/backend/apps/webapp
+  script: gradle deploy -Penv=dev -PdeployPath=/ebi/teams/biostudies/backend/apps/webapp -PappPort=8586
 
 deploy-beta-job:
   stage: deploy-beta
   when: manual
   dependencies:
     - build-job
-  script: gradle deploy -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/beta
+  script: gradle deploy -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/beta -PappPort=10180
 
 deploy-prod-job:
   stage: deploy-prod
   when: manual
   dependencies:
     - build-job
-  script: gradle deploy -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/prod
+  script: gradle deploy -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/prod -PappPort=10080

@@ -131,8 +131,16 @@ task deploy {
     doLast {
         ssh.run {
             session(remotes[env]) {
-                put from: "./BackendWebApp/build/libs/biostudy-${buildTime()}.jar", into: "$deployPath/biostudy.jar"
-                execute "sh $deployPath/scripts/update.sh $env $deployPath"
+                def artifact = "biostudy-${buildTime()}.jar"
+
+                // Copy required artifacts
+                put from: "./BackendWebApp/build/libs/$artifact", into: "$deployPath/$artifact"
+                put from: "./BackendWebApp/ci/application.yml", into: "$deployPath/application.yml"
+                put from: "./BackendWebApp/ci/update.sh", into: "$deployPath/update.sh"
+
+                // Update application
+                execute "chmod +x update.sh"
+                execute "sh $deployPath/scripts/update.sh $env $deployPath $appPort $artifact"
             }
         }
     }

@@ -1,0 +1,10 @@
+server:
+  tomcat:
+    basedir: ${APP_TOMCAT_DIR}
+
+biostd:
+  baseDir: ${APP_BASE_DIR}
+  environment: ${APP_ENV}
+  tokenHash: ${APP_SEC_HASH}
+  eutoxrisk-file-validator:
+    enabled: ${APP_EUTOXRISK_ENABLED}

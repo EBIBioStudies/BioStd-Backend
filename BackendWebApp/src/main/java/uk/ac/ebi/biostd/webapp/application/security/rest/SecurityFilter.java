@@ -27,7 +27,7 @@ public class SecurityFilter extends GenericFilterBean {
 
     public static final String HEADER_NAME = "X-Session-Token";
     public static final String COOKIE_NAME = "BIOSTDSESS";
-    public static final String ENV_VAR = "biostudy.environment";
+    public static final String ENV_VAR = "biostd.environment";
 
     private final ISecurityService securityService;
     private final SecurityManager securityManager;

@@ -6,14 +6,15 @@ server:
 
 biostd:
   baseDir: # main file system location, config.properties file is expected to be at root level.
+  tokenHash: biostd
 
 biostudy:
-  tokenHash: biostd
+
   environment: DEV
 
 spring:
   mail:
-    host: localhost
+    host: smtp.ebi.ac.uk
   thymeleaf:
     prefix: classpath:/email/
     suffix: .html
