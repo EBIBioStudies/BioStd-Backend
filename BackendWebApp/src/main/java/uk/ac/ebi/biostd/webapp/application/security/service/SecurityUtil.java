@@ -28,7 +28,7 @@ class SecurityUtil {
     private final MessageDigest sha1;
     private final JwtParser jwtParser;
 
-    SecurityUtil(ObjectMapper objectMapper, @Value("${biostudy.tokenHash}") String tokenHash, JwtParser jwtParser)
+    SecurityUtil(ObjectMapper objectMapper, @Value("${biostd.tokenHash}") String tokenHash, JwtParser jwtParser)
             throws NoSuchAlgorithmException {
         this.objectMapper = objectMapper;
         this.tokenHash = tokenHash;

@@ -6,11 +6,12 @@ server:
 
 biostd:
   baseDir: # main file system location, config.properties file is expected to be at root level.
-  tokenHash: biostd
-
-biostudy:
-
   environment: DEV
+  tokenHash: biostd
+  eutoxrisk-file-validator:
+    enabled: false
+    project-id: EU-ToxRisk
+    endpoint: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
 
 spring:
   mail:
@@ -25,7 +26,3 @@ spring:
       max-file-size: 10240MB
       max-request-size: 10240MB
 
-eutoxrisk-file-validator:
-  enabled: false
-  project-id: EU-ToxRisk
-  endpoint: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
