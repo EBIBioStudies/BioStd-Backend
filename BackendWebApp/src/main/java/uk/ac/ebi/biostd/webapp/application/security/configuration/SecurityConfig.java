@@ -35,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/retryact",
             "/auth/check-access",
             "/checkAccess",
-            "build-properties",
+            "/build-properties",
             "/test/**"
     };
 
