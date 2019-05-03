@@ -14,8 +14,10 @@
 #
 cd $(dirname $0)
 
-## kill current application
-PID=$(netstat -antp 2>/dev/null -tlnp | awk '/:8586 */ {split($NF,a,"/"); print a[1]}')
+# kill current application in specified port
+PID=$(netstat -antp 2>/dev/null -tlnp | awk '/:'"$2"' */ {split($NF,a,"/"); print a[1]}')
+
+# Wait kill to finish
 while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
 
 ## set specific application environment properties

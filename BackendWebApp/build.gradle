@@ -139,6 +139,7 @@ task deploy {
                 put from: "./BackendWebApp/ci/update.sh", into: "$deployPath/update.sh"
 
                 // Update application
+                println("Executing in server sh $deployPath/update.sh $deployPath $appPort $artifact")
                 execute "chmod +x $deployPath/update.sh"
                 execute "sh $deployPath/update.sh $deployPath $appPort $artifact"
             }
