@@ -35,6 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/retryact",
             "/auth/check-access",
             "/checkAccess",
+            "build-properties",
             "/test/**"
     };
 
@@ -46,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .addFilterBefore(
-                        new SecurityFilter(securityService, securityManager, config),BasicAuthenticationFilter.class)
+                        new SecurityFilter(securityService, securityManager, config), BasicAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
