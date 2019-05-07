@@ -63,7 +63,7 @@ public class EUToxRiskFileValidatorConfig {
     }
 
     @Bean
-    @ConfigurationProperties("eutoxrisk-file-validator")
+    @ConfigurationProperties("biostd.eutoxrisk-file-validator")
     public EUToxRiskFileValidatorProperties validatorProperties() {
         return new EUToxRiskFileValidatorProperties();
     }

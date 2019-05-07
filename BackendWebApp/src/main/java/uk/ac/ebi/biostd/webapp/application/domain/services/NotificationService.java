@@ -18,7 +18,7 @@ public class NotificationService {
     private static final String FROM = "biostudies@ebi.ac.uk";
     private static final String EMAIL_FROM = "BioStudy <biostudies@ebi.ac.uk>";
 
-    private final EmailSender emailUtil;
+    private final EmailSender emailSender;
 
     @Async
     @TransactionalEventListener
@@ -28,7 +28,7 @@ public class NotificationService {
 
         Map<String, Object> context = getBaseContextMap(user, activationLink);
 
-        emailUtil.sendSimpleMessage(
+        emailSender.sendSimpleMessage(
                 EMAIL_FROM,
                 user.getEmail(),
                 "Biostudy DB account activation",
@@ -43,7 +43,7 @@ public class NotificationService {
         String activationLink = getWithKey(passResetRequest.getActivationLink(), user.getActivationKey());
         Map<String, Object> context = getBaseContextMap(user, activationLink);
 
-        emailUtil.sendSimpleMessage(
+        emailSender.sendSimpleMessage(
                 EMAIL_FROM,
                 user.getEmail(),
                 "Biostudy DB account activation",
