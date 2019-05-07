@@ -14,10 +14,10 @@
 #
 cd $(dirname $0)
 
-# kill current application in specified port
+# Obtain the process id by checking any process running in the expected port
 PID=$(netstat -antp 2>/dev/null -tlnp | awk '/:'"$2"' */ {split($NF,a,"/"); print a[1]}')
 
-# Wait kill to finish
+# Kill and wait for process to be finished
 while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
 
 ## set specific application environment properties
