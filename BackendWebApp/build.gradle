@@ -70,11 +70,8 @@ bootJar {
     }
 }
 
-springBoot {
-    buildInfo()
-}
-
 bootJar.dependsOn asciidoctor
+bootJar.dependsOn generateGitProperties
 
 repositories {
     maven { url "http://repo.maven.apache.org/maven2" }
@@ -105,6 +102,10 @@ task openCoverageReport {
     doLast {
         Desktop.getDesktop().open(new File("${buildDir}/${jacocoReportPath}/index.html"))
     }
+}
+
+gitProperties {
+    keys = ['git.branch','git.commit.id','git.commit.time']
 }
 
 remotes {
