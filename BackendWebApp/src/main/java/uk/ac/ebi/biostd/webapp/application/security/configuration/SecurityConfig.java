@@ -36,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/auth/check-access",
             "/checkAccess",
             "/build-properties",
+            "/actuator/**",
             "/test/**"
     };
 
