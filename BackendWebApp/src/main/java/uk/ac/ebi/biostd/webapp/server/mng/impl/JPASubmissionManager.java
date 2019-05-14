@@ -776,6 +776,7 @@ public class JPASubmissionManager implements SubmissionManager {
                 SubmissionMapping sMap = new SubmissionMapping();
                 sMap.getSubmissionMapping().setOrigAcc(si.getAccNoOriginal());
                 sMap.getSubmissionMapping().setPosition(new int[]{sbmNo});
+                sMap.getSubmissionMapping().setAssignedAcc(subm.getAccNo());
 
                 res.addSubmissionMapping(sMap);
 
