@@ -51,15 +51,25 @@
 
   <entry key="updatedSubmissionsQuery">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-           (CASE WHEN accno IN (:libFileStudies) THEN 1 ELSE 0 END) isLibFile
-    FROM Submission
+      (CASE
+        WHEN accno IN (:libFileStudies) THEN 1
+        WHEN (SELECT count(se.id)
+              FROM Section se WHERE se.submission_id = su.id AND se.libraryFile IS NOT NULL) > 0 THEN 1
+        ELSE 0
+      END) isLibFile
+    FROM Submission su
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
   </entry>
 
   <entry key="submissionsQueryByAccNo">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-           (CASE WHEN accno IN (:libFileStudies) THEN 1 ELSE 0 END) isLibFile
-    FROM Submission
+      (CASE
+        WHEN accno IN (:libFileStudies) THEN 1
+        WHEN (SELECT count(se.id)
+              FROM Section se WHERE se.submission_id = su.id AND se.libraryFile IS NOT NULL) > 0 THEN 1
+        ELSE 0
+      END) isLibFile
+    FROM Submission su
     WHERE version > 0 and accno = :accno
   </entry>
 
@@ -72,7 +82,15 @@
 
   <entry key="submissionsQuery">
     SELECT su.id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-          (CASE WHEN su.accno IN (:libFileStudies) THEN 1 ELSE 0 END) isLibFile,
+          (CASE
+            WHEN accno IN (:libFileStudies) THEN 1
+            WHEN (SELECT count(se.id)
+                  FROM Section se WHERE se.submission_id = su.id AND se.libraryFile IS NOT NULL) > 0 THEN 1
+            ELSE 0
+          END) isLibFile,
+          (SELECT count(rf.id)
+            FROM Section se, LibraryFile lf, ReferencedFile rf
+            WHERE se.submission_id = su.id AND se.libraryFile = lf.name AND rf.libraryFile = lf.name) refFilesCount,
           (SELECT COUNT(fr.id)
             FROM FileRef fr, Section se
             WHERE fr.sectionId = se.id AND
@@ -134,12 +152,16 @@
     select count(id) from FileRef where sectionId = :section_id
   </entry>
 
+  <entry key="sectionReferencedFilesCountQuery">
+    SELECT count(rf.id) FROM Section se, ReferencedFile rf WHERE se.libraryFile = rf.libraryFile AND se.id = :section_id
+  </entry>
+
   <entry key="sectionSectionsQuery">
-    select id, accno, type from Section where parent_id = :section_id
+    select id, accno, type, libraryFile from Section where parent_id = :section_id
   </entry>
 
   <entry key="sectionByIdQuery">
-    select id, accno, type from Section where id = :section_id
+    select id, accno, type, libraryFile from Section where id = :section_id
   </entry>
 
   <entry key="submissionAccessTagQuery">

@@ -11,7 +11,7 @@ public class DetailedSubmissionMapper extends SubmissionMapper {
     public Submission mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Submission submission = super.mapRow(resultSet, rowNum);
         submission.setLibFileSubmission(resultSet.getBoolean("isLibFile"));
-        submission.setFilesCount(resultSet.getInt("filesCount"));
+        submission.setFilesCount(resultSet.getInt("filesCount") + resultSet.getInt("refFilesCount"));
 
         return submission;
     }

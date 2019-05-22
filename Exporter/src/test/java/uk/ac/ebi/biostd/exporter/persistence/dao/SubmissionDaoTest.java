@@ -28,7 +28,8 @@ import uk.ac.ebi.biostd.exporter.utils.DateUtils;
 @ContextConfiguration(classes = TestConfiguration.class)
 public class SubmissionDaoTest extends PersistenceTest {
     private static final String SUB_ID = "Test-Submission-01/01/2018";
-    private static final String LIB_FILE_SUB_ID = "S-BIAD2";
+    private static final String LIB_FILE_SUB_ID = "S-BIAD3";
+    private static final String CONFIGURED_LIB_FILE_SUB_ID = "S-BIAD2";
     private static final String ADMIN_EMAIL = "biostudies-dev@ebi.ac.uk";
     private static final String ADMIN_NAME = "Biostudy manager";
     private static final String PUBLIC_TAG = "Public";
@@ -41,15 +42,16 @@ public class SubmissionDaoTest extends PersistenceTest {
 
     @Before
     public void setUp() {
-        when(exporterGeneralProperties.getLibFileStudies()).thenReturn(Arrays.asList(LIB_FILE_SUB_ID));
+        when(exporterGeneralProperties.getLibFileStudies()).thenReturn(Arrays.asList(CONFIGURED_LIB_FILE_SUB_ID));
     }
 
     @Test
     public void getPendingToReleaseSub() {
         List<SubAndUserInfo> infoResult = submissionDao.getPendingToReleaseSub(0, DateUtils.now().toEpochSecond());
-        assertThat(infoResult).hasSize(2);
+        assertThat(infoResult).hasSize(3);
         assertResultInfo(infoResult.get(0));
         assertResultInfo(infoResult.get(1));
+        assertResultInfo(infoResult.get(2));
     }
 
     @Test
@@ -68,6 +70,9 @@ public class SubmissionDaoTest extends PersistenceTest {
 
         Submission libFileSubmission = submissionDao.getSubmissionByAccNo(LIB_FILE_SUB_ID);
         assertTrue(libFileSubmission.isLibFileSubmission());
+
+        Submission configuredLibFileSubmission = submissionDao.getSubmissionByAccNo(CONFIGURED_LIB_FILE_SUB_ID);
+        assertTrue(configuredLibFileSubmission.isLibFileSubmission());
     }
 
     private void assertResultInfo(SubAndUserInfo subAndUserInfo) {

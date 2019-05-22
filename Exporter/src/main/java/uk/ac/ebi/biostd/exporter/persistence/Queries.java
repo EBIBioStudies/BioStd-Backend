@@ -21,6 +21,7 @@ public class Queries {
     private String sectionAttributesQuery;
     private String sectionFilesQuery;
     private String sectionFilesCountQuery;
+    private String sectionReferencedFilesCountQuery;
     private String sectionSectionsQuery;
     private String sectionByIdQuery;
     private String submissionAccessTagQuery;

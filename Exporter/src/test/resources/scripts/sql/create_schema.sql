@@ -256,6 +256,39 @@ CREATE INDEX FK464kkuexjpycuic1n33q0yhe2 ON FileRef (sectionId);
 
 ALTER TABLE FileAttribute ADD CONSTRAINT FKek4om17ruuhrjo2gmirdxevay FOREIGN KEY (file_id) REFERENCES FileRef (id);
 
+CREATE TABLE ReferencedFileAttribute (
+    id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name                 LONGTEXT NULL,
+    nameQualifierString  LONGTEXT NULL,
+    reference            BIT      NOT NULL,
+    value                LONGTEXT NULL,
+    valueQualifierString LONGTEXT NULL,
+    referenced_file_id   BIGINT   NULL,
+    ord                  INT      NULL
+);
+
+CREATE INDEX ReferencedFileAttrFileId_IDX ON ReferencedFileAttribute (referenced_file_id);
+
+CREATE TABLE ReferencedFile (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name           VARCHAR(255) NULL,
+    size           BIGINT       NOT NULL,
+    libraryFile    VARCHAR(100) NOT NULL,
+    path           VARCHAR(255) NULL
+);
+
+CREATE INDEX ReferencedFile_LibraryFile_IDX ON ReferencedFile (libraryFile);
+
+ALTER TABLE ReferencedFileAttribute
+ADD CONSTRAINT ReferencedFile_ReferencedFileAttr_FRG_KEY FOREIGN KEY (referenced_file_id) REFERENCES ReferencedFile(id);
+
+CREATE TABLE LibraryFile(
+  name         VARCHAR(100) NOT NULL PRIMARY KEY
+);
+
+ALTER TABLE ReferencedFile
+ADD CONSTRAINT ReferencedFile_LibraryFile_FRG_KEY FOREIGN KEY (libraryFile) REFERENCES LibraryFile(name);
+
 CREATE TABLE FileRef_AccessTag (
     FileRef_id    BIGINT NOT NULL,
     accessTags_id BIGINT NOT NULL,
@@ -535,9 +568,11 @@ CREATE TABLE Section (
     type          VARCHAR(255) NULL,
     parent_id     BIGINT       NULL,
     submission_id BIGINT       NULL,
+    libraryFile   VARCHAR(100) NULL,
     ord           INT          NULL,
     CONSTRAINT FKba6xolosvegauoq8xs1kj17ch
-    FOREIGN KEY (parent_id) REFERENCES Section (id)
+    FOREIGN KEY (parent_id) REFERENCES Section (id),
+    CONSTRAINT LibraryFile_Section_FRG_KEY FOREIGN KEY (libraryFile) REFERENCES LibraryFile(name) ON DELETE CASCADE
 );
 
 CREATE INDEX acc_idx ON Section (accNo);
