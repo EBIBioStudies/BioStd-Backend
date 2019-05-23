@@ -48,8 +48,8 @@ public class DefaultConfiguration {
         dbConf.put("hibernate.ejb.discard_pc_on_close", "true");
         dbConf.put(HibernateDBConnectionURLParameter, "jdbc:h2:db/appdb;IFEXISTS=FALSE");
         dbConf.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-        dbConf.put("hibernate.hbm2ddl.auto", "update");
-        dbConf.put("hibernate.c3p0.max_size", "30");
+        dbConf.put("hibernate.hbm2ddl.auto", "none");
+        dbConf.put("hibernate.c3p0.max_size", "20");
         dbConf.put("hibernate.c3p0.min_size", "0");
         dbConf.put("hibernate.c3p0.timeout", "5000");
         dbConf.put("hibernate.c3p0.max_statements", "0");

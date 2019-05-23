@@ -1,13 +1,51 @@
 image: dockerhub.ebi.ac.uk/jhoanmanuelms/biostd-backend/backend-ci:0.1
 
 stages:
+  - clean
+  - compile
+  - test
   - build
-  
-build:
+  - deploy-dev
+  - deploy-beta
+  - deploy-prod
+
+clean-job:
+  stage: clean
+  script: gradle clean
+
+compile-job:
+  stage: compile
+  script: gradle build -x test
+
+test-job:
+  stage: test
+  script: gradle test
+
+build-job:
   stage: build
-  script: gradle clean build bootJar
+  script: gradle bootJar
   artifacts:
     paths:
       - "BackendWebApp/build/libs/biostudy-$(date +'%Y%m%d').jar"
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
 
+deploy-dev-job:
+  stage: deploy-dev
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deploy -Penv=dev -PdeployPath=/ebi/teams/biostudies/backend/apps/webapp -PappPort=8586
+
+deploy-beta-job:
+  stage: deploy-beta
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deploy -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/beta -PappPort=10180
+
+deploy-prod-job:
+  stage: deploy-prod
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deploy -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/prod -PappPort=10080

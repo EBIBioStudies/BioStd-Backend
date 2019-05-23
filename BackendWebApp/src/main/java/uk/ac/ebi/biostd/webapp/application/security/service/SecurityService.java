@@ -149,7 +149,7 @@ public class SecurityService implements ISecurityService {
     @Override
     public void retryActivation(RetryActivationRequest request) {
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
-        userOptional.filter(User::isActive).ifPresent(user -> {
+        userOptional.filter(user -> !user.isActive()).ifPresent(user -> {
             String activationUrl = securityUtil.getInstanceUrl(request.getInstanceKey(), request.getPath());
             retryActivate(user, activationUrl);
         });

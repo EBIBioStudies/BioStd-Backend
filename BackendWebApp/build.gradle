@@ -15,6 +15,8 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.3")
+        classpath "org.hidetake:gradle-ssh-plugin:2.10.1"
+        classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.0.0"
     }
 }
 
@@ -24,6 +26,8 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'jacoco'
 apply plugin: 'org.asciidoctor.convert'
+apply plugin: "org.hidetake.ssh"
+apply plugin: "com.gorylenko.gradle-git-properties"
 
 group = 'uk.ac.ebi.biostd'
 version = '0.0.1'
@@ -65,7 +69,9 @@ bootJar {
         into 'static/docs/api'
     }
 }
+
 bootJar.dependsOn asciidoctor
+bootJar.dependsOn generateGitProperties
 
 repositories {
     maven { url "http://repo.maven.apache.org/maven2" }
@@ -89,11 +95,59 @@ asciidoctor {
     outputDir 'build/asciidoc'
     inputs.dir file("build/docs/snippets")
 }
+
 asciidoctor.dependsOn copyDocIndex
 
 task openCoverageReport {
     doLast {
         Desktop.getDesktop().open(new File("${buildDir}/${jacocoReportPath}/index.html"))
+    }
+}
+
+gitProperties {
+    keys = ['git.branch','git.commit.id','git.commit.time']
+}
+
+remotes {
+    dev {
+        host = 'biostudy-bia.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+
+    beta {
+        host = 'biostudy-dev.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+
+    prod {
+        host = 'biostudy-prod.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+}
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+    identity = System.getenv('SSH_KEY')
+    logging = 'stdout'
+}
+
+task deploy {
+    doLast {
+        ssh.run {
+            session(remotes[env]) {
+                def artifact = "biostudy-${buildTime()}.jar"
+
+                // Copy required artifacts
+                put from: "./BackendWebApp/build/libs/$artifact", into: "$deployPath/$artifact"
+                put from: "./BackendWebApp/ci/application.yml", into: "$deployPath/application.yml"
+                put from: "./BackendWebApp/ci/update.sh", into: "$deployPath/update.sh"
+
+                // Update application
+                println("Executing in server sh $deployPath/update.sh $deployPath $appPort $artifact")
+                execute "chmod +x $deployPath/update.sh"
+                execute "sh $deployPath/update.sh $deployPath $appPort $artifact"
+            }
+        }
     }
 }
 
@@ -115,6 +169,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-mail")
     compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+
 
     compile("org.apache.tomcat:tomcat-jdbc:8.5.30")
     compile("io.jsonwebtoken:jjwt:0.9.0")
