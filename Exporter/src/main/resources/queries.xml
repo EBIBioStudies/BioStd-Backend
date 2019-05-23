@@ -54,7 +54,7 @@
       (CASE
         WHEN accno IN (:libFileStudies) THEN 1
         WHEN (SELECT count(se.id)
-              FROM Section se WHERE se.submission_id = su.id AND se.libraryFile IS NOT NULL) > 0 THEN 1
+              FROM Section se WHERE se.submission_id = su.id AND se.libraryFileId IS NOT NULL) > 0 THEN 1
         ELSE 0
       END) isLibFile
     FROM Submission su
@@ -66,7 +66,7 @@
       (CASE
         WHEN accno IN (:libFileStudies) THEN 1
         WHEN (SELECT count(se.id)
-              FROM Section se WHERE se.submission_id = su.id AND se.libraryFile IS NOT NULL) > 0 THEN 1
+              FROM Section se WHERE se.submission_id = su.id AND se.libraryFileId IS NOT NULL) > 0 THEN 1
         ELSE 0
       END) isLibFile
     FROM Submission su
@@ -85,12 +85,12 @@
           (CASE
             WHEN accno IN (:libFileStudies) THEN 1
             WHEN (SELECT count(se.id)
-                  FROM Section se WHERE se.submission_id = su.id AND se.libraryFile IS NOT NULL) > 0 THEN 1
+                  FROM Section se WHERE se.submission_id = su.id AND se.libraryFileId IS NOT NULL) > 0 THEN 1
             ELSE 0
           END) isLibFile,
           (SELECT count(rf.id)
             FROM Section se, LibraryFile lf, ReferencedFile rf
-            WHERE se.submission_id = su.id AND se.libraryFile = lf.name AND rf.libraryFile = lf.name) refFilesCount,
+            WHERE se.submission_id = su.id AND se.libraryFileId = lf.id AND rf.libraryFileId = lf.id) refFilesCount,
           (SELECT COUNT(fr.id)
             FROM FileRef fr, Section se
             WHERE fr.sectionId = se.id AND
@@ -153,15 +153,30 @@
   </entry>
 
   <entry key="sectionReferencedFilesCountQuery">
-    SELECT count(rf.id) FROM Section se, ReferencedFile rf WHERE se.libraryFile = rf.libraryFile AND se.id = :section_id
+    SELECT count(rf.id)
+    FROM Section se, ReferencedFile rf
+    WHERE se.libraryFileId = rf.libraryFileId AND
+          se.id = :section_id
   </entry>
 
   <entry key="sectionSectionsQuery">
-    select id, accno, type, libraryFile from Section where parent_id = :section_id
+    SELECT se.id, se.accno, se.type,
+      (CASE
+        WHEN se.libraryFileId IS NOT NULL THEN (SELECT lf.name FROM LibraryFile lf WHERE se.libraryFileId = lf.id)
+        ELSE NULL
+      END) libraryFile
+    FROM Section se
+    WHERE se.parent_id = :section_id
   </entry>
 
   <entry key="sectionByIdQuery">
-    select id, accno, type, libraryFile from Section where id = :section_id
+    SELECT se.id, se.accno, se.type,
+      (CASE
+        WHEN se.libraryFileId IS NOT NULL THEN (SELECT lf.name FROM LibraryFile lf WHERE se.libraryFileId = lf.id)
+        ELSE NULL
+      END) libraryFile
+    FROM Section se
+    WHERE se.id = :section_id
   </entry>
 
   <entry key="submissionAccessTagQuery">

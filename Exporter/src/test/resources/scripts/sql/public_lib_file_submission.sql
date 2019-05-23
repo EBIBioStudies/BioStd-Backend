@@ -25,15 +25,14 @@ VALUES ('o1', null, -1, 'Organization', 11, 3, 3);
 update Submission set rootSection_id = 11 where id = 3;
 
 -- Library File
-INSERT INTO LibraryFile VALUES('S-EPMC3343634.SECT-001.files');
+INSERT INTO LibraryFile(name) VALUES('S-EPMC3343634.SECT-001.files');
 
-INSERT INTO ReferencedFile (name, size, libraryFile, path)
-VALUES ('NIHMS40251-supplement-1.pdf', 9170139, 'S-EPMC3343634.SECT-001.files', null);
+INSERT INTO ReferencedFile (name, size, libraryFileId, path) VALUES ('NIHMS40251-supplement-1.pdf', 9170139, 1, null);
 
 INSERT INTO ReferencedFileAttribute (name, reference, value, referenced_file_id, ord)
 VALUES ('Type', false, 'application(pdf)', 1, 0);
 
-UPDATE Section SET libraryFile = 'S-EPMC3343634.SECT-001.files' WHERE id = 11;
+UPDATE Section SET libraryFileId = 1 WHERE id = 11;
 
 -- Section attributes
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord)
