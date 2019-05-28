@@ -64,7 +64,7 @@ bootWar {
 
 bootJar {
     enabled = true
-    archiveName = "biostudy-${buildTime()}.jar"
+    archiveName = "biostudy.jar"
     from("build/asciidoc/html5") {
         into 'static/docs/api'
     }
