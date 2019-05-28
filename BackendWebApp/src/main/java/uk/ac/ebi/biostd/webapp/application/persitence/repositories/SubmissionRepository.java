@@ -9,10 +9,10 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long>, J
 
     String PROJECT_TYPE = "Project";
 
-    List<Submission> findByRootSectionTypeAndAccessTagIdInAndVersionGreaterThan(
+    List<Submission> findDistinctByRootSectionTypeAndAccessTagIdInAndVersionGreaterThan(
             String type, List<Long> accessTags, int version);
 
     default List<Submission> findProjectByAccessTagIdIn(List<Long> accessTags) {
-        return findByRootSectionTypeAndAccessTagIdInAndVersionGreaterThan(PROJECT_TYPE, accessTags, 0);
+        return findDistinctByRootSectionTypeAndAccessTagIdInAndVersionGreaterThan(PROJECT_TYPE, accessTags, 0);
     }
 }
