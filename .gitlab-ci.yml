@@ -1,4 +1,4 @@
-image: dockerhub.ebi.ac.uk/jhoanmanuelms/biostd-backend/backend-ci:0.1
+image: azul/zulu-openjdk:8
 
 stages:
   - clean
@@ -26,7 +26,7 @@ build-job:
   script: gradle bootJar
   artifacts:
     paths:
-      - "BackendWebApp/build/libs/biostudy-$(date +'%Y%m%d').jar"
+      - "BackendWebApp/build/libs/biostudy.jar"
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
 
 deploy-dev-job:

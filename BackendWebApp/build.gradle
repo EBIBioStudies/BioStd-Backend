@@ -135,7 +135,7 @@ task deploy {
     doLast {
         ssh.run {
             session(remotes[env]) {
-                def artifact = "biostudy-${buildTime()}.jar"
+                def artifact = "biostudy.jar"
 
                 // Copy required artifacts
                 put from: "./BackendWebApp/build/libs/$artifact", into: "$deployPath/$artifact"
