@@ -109,6 +109,16 @@
             FROM FileRef fr, Section se
             WHERE fr.sectionId = se.id AND
               se.submission_id = su.id) submissionFilesSize,
+          (SELECT count(rf.id)
+            FROM Section se, LibraryFile lf, ReferencedFile rf
+            WHERE se.submission_id = su.id AND
+                  se.libraryFileId = lf.id AND
+                  rf.libraryFileId = lf.id) refFilesCount,
+          (SELECT sum(size)
+            FROM Section se, LibraryFile lf, ReferencedFile rf
+            WHERE se.submission_id = su.id AND
+                  se.libraryFileId = lf.id AND
+                  rf.libraryFileId = lf.id) refFilesSize,
           (SELECT count(sua.id)
             FROM SubmissionAttribute sua
             WHERE su.id = sua.submission_id AND

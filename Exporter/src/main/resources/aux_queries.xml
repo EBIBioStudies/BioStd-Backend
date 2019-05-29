@@ -3,10 +3,17 @@
 <properties>
 
   <entry key="submissionsTotalFileSize">
-    SELECT COALESCE(sum(SIZE),0)
-    FROM FileRef fr
-      INNER JOIN Section sec ON sec.id = fr.sectionId
-      INNER JOIN Submission sub ON sub.id = sec.submission_id
-    WHERE sub.version > 0
+    SELECT
+      (SELECT sum(size) FROM FileRef fr, Section se, Submission su
+        WHERE se.id = fr.sectionId AND
+              su.id = se.submission_id AND
+              su.version > 0)
+      +
+      (SELECT sum(size) FROM ReferencedFile rf, LibraryFile lf, Section se, Submission su
+        WHERE se.libraryFileId = lf.id AND
+              se.libraryFileId = rf.libraryFileId AND
+              su.id = se.submission_id AND
+              su.version > 0)
+    AS submissionsTotalFileSize
   </entry>
 </properties>
