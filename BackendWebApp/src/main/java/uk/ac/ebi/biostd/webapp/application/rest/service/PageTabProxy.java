@@ -1,9 +1,17 @@
 package uk.ac.ebi.biostd.webapp.application.rest.service;
 
+import static java.util.stream.Collectors.toList;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,6 +20,7 @@ import java.util.stream.StreamSupport;
 public class PageTabProxy {
 
     private interface InnerProxy {
+
         Optional<String> getTextField(String name);
 
         void setTextField(String name, String value);
@@ -59,14 +68,14 @@ public class PageTabProxy {
                             .filter(attrNameFilter(attrName).negate()),
                     values.stream().map(value ->
                             objectMapper.createObjectNode().put(NAME_FIELD, attrName).put(VALUE_FIELD, value)
-                    )).collect(Collectors.toList());
+                    )).collect(toList());
 
             ((ObjectNode) pageTab).set(ATTRIBUTES_FIELD, objectMapper.createArrayNode().addAll(attrNodes));
         }
 
         private List<JsonNode> getAttributes(JsonNode node) {
             List<JsonNode> list = new ArrayList<>();
-            final String attributesProp = ATTRIBUTES_FIELD;
+            String attributesProp = ATTRIBUTES_FIELD;
             if (node.has(attributesProp)) {
                 JsonNode attributesNode = node.get(attributesProp);
                 if (attributesNode.isArray()) {
@@ -74,10 +83,15 @@ public class PageTabProxy {
                 }
             }
             // NB: only submission node has 'section' property
-            Optional.ofNullable(node.get(SECTION_FIELD)).ifPresent(sectionNode -> {
-                list.addAll(getAttributes(sectionNode));
-            });
+            Optional.ofNullable(node.get(SECTION_FIELD))
+                    .ifPresent(sectionNode -> list.addAll(getToCopyAttributes(sectionNode)));
             return list;
+        }
+
+        private List<JsonNode> getToCopyAttributes(JsonNode sectionNode) {
+            return getAttributes(sectionNode).stream()
+                    .filter(attrNode -> attrNode.get("name").textValue().equalsIgnoreCase("title"))
+                    .collect(toList());
         }
 
         private Predicate<JsonNode> attrNameFilter(String attrName) {
@@ -139,7 +153,8 @@ public class PageTabProxy {
         this.root = node;
 
         Optional<JsonNode> opNode = Optional.ofNullable(node);
-        Iterable<Map.Entry<String, JsonNode>> iterable = () -> opNode.map(JsonNode::fields).orElse(Collections.emptyIterator());
+        Iterable<Map.Entry<String, JsonNode>> iterable = () -> opNode.map(JsonNode::fields)
+                .orElse(Collections.emptyIterator());
 
         Optional<JsonNode> submissions = StreamSupport.stream(iterable.spliterator(), false)
                 .filter(field -> field.getKey().equalsIgnoreCase("submissions"))
