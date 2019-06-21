@@ -64,7 +64,7 @@ public class SubmissionService {
 
     private List<Attribute> getAttributes(Submission submission) {
         List<Attribute> subAttributes = submissionDao.getAttributes(submission.getId());
-        subAttributes.add(new Attribute("RootPSubmissionath", submission.getRelPath()));
+        subAttributes.add(new Attribute("RootSubmissionPath", submission.getRelPath()));
         subAttributes
                 .add(new Attribute("ReleaseDate", DateUtils.getFromEpochSeconds(Long.valueOf(submission.getRTime()))));
         subAttributes.add(new Attribute("Title", submission.getTitle()));
@@ -74,8 +74,8 @@ public class SubmissionService {
     private Section processSection(Section section, Submission parentSubmission) {
         section.setAttributes(sectionDao.getSectionAttributes(section.getId()));
 
-        if (parentSubmission.isLibFileSubmission() && sectionDao.getSectionFilesCount(section.getId()) > 0) {
-            section.setLibraryFile(getLibFileName(parentSubmission, section));
+        if (parentSubmission.isFileListSubmission() && sectionDao.getSectionFilesCount(section.getId()) > 0) {
+            section.setFileList(getFileListName(parentSubmission, section));
         } else {
             List<File> files = sectionDao.getSectionFiles(section.getId());
             files.forEach(file -> file.setAttributes(filesDao.getFilesAttributes(file.getId())));
@@ -93,24 +93,24 @@ public class SubmissionService {
         return section;
     }
 
-    private String getLibFileName(Submission parentSubmission, Section section) {
-        String libFileName = section.getLibraryFile();
-        StringBuilder libFileNameBuilder = new StringBuilder();
+    private String getFileListName(Submission parentSubmission, Section section) {
+        String fileListName = section.getFileList();
+        StringBuilder fileListNameBuilder = new StringBuilder();
 
-        if (libFileName == null) {
-            libFileNameBuilder
+        if (fileListName == null) {
+            fileListNameBuilder
                     .append(parentSubmission.getAccno())
                     .append(SEPARATOR)
                     .append(section.getId())
                     .append(LIB_FILE_SUFFIX)
                     .append(LIB_FILE_EXTENSION);
         } else {
-            libFileNameBuilder
-                    .append(libFileName)
+            fileListNameBuilder
+                    .append(fileListName)
                     .append(LIB_FILE_EXTENSION);
         }
 
-        return libFileNameBuilder.toString();
+        return fileListNameBuilder.toString();
     }
 
     public Submission getSubmission(String accNo) {

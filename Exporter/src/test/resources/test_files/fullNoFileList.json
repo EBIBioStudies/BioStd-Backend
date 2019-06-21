@@ -16,7 +16,7 @@
       ],
       "attributes":[
         {
-          "name":"RootPSubmissionath",
+          "name":"RootSubmissionPath",
           "value":"S-EPMC/S-EPMCxxx748/S-EPMC2873748"
         },
         {
@@ -139,7 +139,7 @@
       ],
       "attributes":[
         {
-          "name":"RootPSubmissionath",
+          "name":"RootSubmissionPath",
           "value":"S-EPMC/S-EPMCxxx633/S-EPMC3343633"
         },
         {
@@ -257,7 +257,7 @@
       ],
       "attributes":[
         {
-          "name":"RootPSubmissionath",
+          "name":"RootSubmissionPath",
           "value":"S-EPMC/S-EPMCxxx634/S-EPMC3343634"
         },
         {
@@ -282,7 +282,7 @@
             "value":"Nuocytes are essential in innate type 3 immunity"
           }
         ],
-        "libraryFile": "S-EPMC3343634.SECT-001.files.json",
+        "fileList": "S-EPMC3343634.SECT-001.files.json",
         "subsections":[
           {
             "accno":"PMC3343635",

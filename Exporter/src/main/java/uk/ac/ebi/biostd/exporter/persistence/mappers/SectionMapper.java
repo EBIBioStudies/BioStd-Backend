@@ -16,7 +16,7 @@ public class SectionMapper implements RowMapper<Section> {
         section.setId(rs.getLong("id"));
         section.setAccNo(rs.getString("accno"));
         section.setType(rs.getString("type"));
-        section.setLibraryFile(rs.getString("libraryFile"));
+        section.setFileList(rs.getString("fileList"));
         return section;
     }
 }

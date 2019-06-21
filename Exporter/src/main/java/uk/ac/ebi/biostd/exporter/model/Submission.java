@@ -71,7 +71,7 @@ public class Submission {
     private boolean released;
 
     @JsonIgnore
-    private boolean libFileSubmission;
+    private boolean fileListSubmission;
 
     @JsonIgnore
     private boolean imagingSubmission;

@@ -8,7 +8,7 @@ spring:
     generate-unique-name: true
 jobs:
   backend-url: http://localhost:8181/biostd
-  libFileStudies:
+  fileListStudies:
   - S-EPMC2873748
   pmc:
     export:
@@ -31,7 +31,7 @@ jobs:
       filePath: ./publicOnly/
       fileName: studies
   stats:
-    libFileProjects:
+    fileListProjects:
       - BioImages
       - BioVideos
     basePath: /nfs/biostudies/.adm/databases/beta/submission

@@ -52,11 +52,11 @@
   <entry key="updatedSubmissionsQuery">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
       (CASE
-        WHEN accno IN (:libFileStudies) THEN 1
+        WHEN accno IN (:fileListStudies) THEN 1
         WHEN (SELECT count(se.id)
-              FROM Section se WHERE se.submission_id = su.id AND se.libraryFileId IS NOT NULL) > 0 THEN 1
+              FROM Section se WHERE se.submission_id = su.id AND se.fileListId IS NOT NULL) > 0 THEN 1
         ELSE 0
-      END) isLibFile
+      END) isFileList
     FROM Submission su
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
   </entry>
@@ -64,11 +64,11 @@
   <entry key="submissionsQueryByAccNo">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
       (CASE
-        WHEN accno IN (:libFileStudies) THEN 1
+        WHEN accno IN (:fileListStudies) THEN 1
         WHEN (SELECT count(se.id)
-              FROM Section se WHERE se.submission_id = su.id AND se.libraryFileId IS NOT NULL) > 0 THEN 1
+              FROM Section se WHERE se.submission_id = su.id AND se.fileListId IS NOT NULL) > 0 THEN 1
         ELSE 0
-      END) isLibFile
+      END) isFileList
     FROM Submission su
     WHERE version > 0 and accno = :accno
   </entry>
@@ -83,14 +83,14 @@
   <entry key="submissionsQuery">
     SELECT su.id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
           (CASE
-            WHEN accno IN (:libFileStudies) THEN 1
+            WHEN accno IN (:fileListStudies) THEN 1
             WHEN (SELECT count(se.id)
-                  FROM Section se WHERE se.submission_id = su.id AND se.libraryFileId IS NOT NULL) > 0 THEN 1
+                  FROM Section se WHERE se.submission_id = su.id AND se.fileListId IS NOT NULL) > 0 THEN 1
             ELSE 0
-          END) isLibFile,
+          END) isFileList,
           (SELECT count(rf.id)
-            FROM Section se, LibraryFile lf, ReferencedFile rf
-            WHERE se.submission_id = su.id AND se.libraryFileId = lf.id AND rf.libraryFileId = lf.id) refFilesCount,
+            FROM Section se, FileList fl, ReferencedFile rf
+            WHERE se.submission_id = su.id AND se.fileListId = fl.id AND rf.fileListId = fl.id) refFilesCount,
           (SELECT COUNT(fr.id)
             FROM FileRef fr, Section se
             WHERE fr.sectionId = se.id AND
@@ -155,16 +155,16 @@
   <entry key="sectionReferencedFilesCountQuery">
     SELECT count(rf.id)
     FROM Section se, ReferencedFile rf
-    WHERE se.libraryFileId = rf.libraryFileId AND
+    WHERE se.fileListId = rf.fileListId AND
           se.id = :section_id
   </entry>
 
   <entry key="sectionSectionsQuery">
     SELECT se.id, se.accno, se.type,
       (CASE
-        WHEN se.libraryFileId IS NOT NULL THEN (SELECT lf.name FROM LibraryFile lf WHERE se.libraryFileId = lf.id)
+        WHEN se.fileListId IS NOT NULL THEN (SELECT fl.name FROM FileList fl WHERE se.fileListId = fl.id)
         ELSE NULL
-      END) libraryFile
+      END) fileList
     FROM Section se
     WHERE se.parent_id = :section_id
   </entry>
@@ -172,9 +172,9 @@
   <entry key="sectionByIdQuery">
     SELECT se.id, se.accno, se.type,
       (CASE
-        WHEN se.libraryFileId IS NOT NULL THEN (SELECT lf.name FROM LibraryFile lf WHERE se.libraryFileId = lf.id)
+        WHEN se.fileListId IS NOT NULL THEN (SELECT fl.name FROM FileList fl WHERE se.fileListId = fl.id)
         ELSE NULL
-      END) libraryFile
+      END) fileList
     FROM Section se
     WHERE se.id = :section_id
   </entry>
