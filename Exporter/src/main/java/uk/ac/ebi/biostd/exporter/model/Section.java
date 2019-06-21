@@ -37,9 +37,9 @@ public class Section {
     @JsonInclude(Include.NON_EMPTY)
     private List<File> files;
 
-    @JsonProperty("libraryFile")
+    @JsonProperty("fileList")
     @JsonInclude(Include.NON_NULL)
-    private String libraryFile;
+    private String fileList;
 
     @JsonProperty("links")
     @JsonInclude(Include.NON_EMPTY)

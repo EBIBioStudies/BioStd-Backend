@@ -17,7 +17,7 @@ import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
-import uk.ac.ebi.biostd.exporter.persistence.mappers.LibFileSubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.FileListSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.StatsSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
@@ -33,7 +33,7 @@ public class SubmissionDao {
     private final NamedParameterJdbcTemplate template;
     private final ExporterGeneralProperties properties;
     private final StatsSubmissionMapper statsSubmissionMapper;
-    private final LibFileSubmissionMapper libFileSubmissionMapper;
+    private final FileListSubmissionMapper fileListSubmissionMapper;
     private final DetailedSubmissionMapper detailedSubmissionMapper;
 
     public void releaseSubmission(long submissionId) {
@@ -55,15 +55,15 @@ public class SubmissionDao {
     public List<Submission> getUpdatedSubmissions(long syncTime) {
         return template.query(
                 queries.getUpdatedSubmissionsQuery(),
-                ImmutableMap.of("sync_time", syncTime, "libFileStudies", properties.getLibFileStudies()),
-                libFileSubmissionMapper);
+                ImmutableMap.of("sync_time", syncTime, "fileListStudies", properties.getFileListStudies()),
+                fileListSubmissionMapper);
     }
 
     public Submission getSubmissionByAccNo(String accNo) {
         return template.queryForObject(
                 queries.getSubmissionsQueryByAccNo(),
-                ImmutableMap.of("accno", accNo, "libFileStudies", properties.getLibFileStudies()),
-                libFileSubmissionMapper);
+                ImmutableMap.of("accno", accNo, "fileListStudies", properties.getFileListStudies()),
+                fileListSubmissionMapper);
     }
 
     public List<String> getDeletedSubmissions(long syncTime) {
@@ -90,7 +90,7 @@ public class SubmissionDao {
     public List<Submission> getSubmissions() {
         return template.query(
                 queries.getSubmissionsQuery(),
-                singletonMap("libFileStudies", properties.getLibFileStudies()),
+                singletonMap("fileListStudies", properties.getFileListStudies()),
                 detailedSubmissionMapper);
     }
 

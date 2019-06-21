@@ -29,7 +29,7 @@ spring:
 
 jobs:
   backend-url: http://localhost:8586/biostd
-  libFileStudies:
+  fileListStudies:
     - S-BSST637
     - S-BSMS-PGPC3
   stats:
@@ -82,7 +82,7 @@ spring:
   profiles: dev
 jobs:
   backend-url: http://biostudy-bia.ebi.ac.uk:8586/biostd
-  libFileStudies:
+  fileListStudies:
     - S-BSMS6
     - S-BSST637
     - S-BSMS-PGPC3
@@ -135,7 +135,7 @@ spring:
   profiles: beta
 jobs:
   backend-url: http://biostudy-dev.ebi.ac.uk:10180/biostd-beta
-  libFileStudies:
+  fileListStudies:
     - S-BSMS6
     - S-BSST637
     - S-BSMS-PGPC1
@@ -185,7 +185,7 @@ spring:
   profiles: prod
 jobs:
   backend-url: http://biostudy-prod.ebi.ac.uk:10080/biostd-prod
-  libFileStudies:
+  fileListStudies:
     - NON_EXISTING
   dummy:
     enabled: false
