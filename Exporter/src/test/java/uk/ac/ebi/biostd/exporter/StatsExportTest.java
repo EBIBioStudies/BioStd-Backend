@@ -70,6 +70,7 @@ public class StatsExportTest extends BaseIntegrationTest {
         when(properties.getImagingProjects()).thenReturn(Arrays.asList("BioImages", "BioVideos"));
     }
 
+    // TODO check queries results
     @Test
     public void testStatsExport() throws Exception {
         assertStatsJob(EXPECTED_STATS_SUBMISSION_1, EXPECTED_STATS_SUBMISSION_2);

@@ -14,10 +14,12 @@ import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
+import uk.ac.ebi.biostd.exporter.model.SubmissionStats;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.FileListSubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.ImagingSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.StatsSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
@@ -33,6 +35,7 @@ public class SubmissionDao {
     private final NamedParameterJdbcTemplate template;
     private final ExporterGeneralProperties properties;
     private final StatsSubmissionMapper statsSubmissionMapper;
+    private final ImagingSubmissionMapper imagingSubmissionMapper;
     private final FileListSubmissionMapper fileListSubmissionMapper;
     private final DetailedSubmissionMapper detailedSubmissionMapper;
 
@@ -95,13 +98,16 @@ public class SubmissionDao {
     }
 
     public List<Submission> getSimplifiedSubmissions() {
-        return template.query(queries.getSimpleSubmissionsQuery(), submissionMapper);
+        return template.query(
+            queries.getSimpleSubmissionsQuery(),
+            singletonMap("imagingProjects", statsProperties.getImagingProjects()),
+            imagingSubmissionMapper);
     }
 
-    public Submission getSubmissionStats(String accNo) {
+    public SubmissionStats getSubmissionStats(Long id) {
         return template.queryForObject(
                 queries.getSubmissionsStatsQuery(),
-                ImmutableMap.of("imagingProjects", statsProperties.getImagingProjects(), "accNo", accNo),
+                singletonMap("submission_id", id),
                 statsSubmissionMapper);
     }
 
