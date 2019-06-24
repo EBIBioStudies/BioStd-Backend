@@ -94,10 +94,14 @@ public class SubmissionDao {
                 detailedSubmissionMapper);
     }
 
-    public List<Submission> getStatsSubmissions() {
-        return template.query(
+    public List<Submission> getSimplifiedSubmissions() {
+        return template.query(queries.getSimpleSubmissionsQuery(), submissionMapper);
+    }
+
+    public Submission getSubmissionStats(String accNo) {
+        return template.queryForObject(
                 queries.getSubmissionsStatsQuery(),
-                singletonMap("imagingProjects", statsProperties.getImagingProjects()),
+                ImmutableMap.of("imagingProjects", statsProperties.getImagingProjects(), "accNo", accNo),
                 statsSubmissionMapper);
     }
 

@@ -99,6 +99,12 @@
     WHERE su.version > 0
   </entry>
 
+  <entry key="simpleSubmissionsQuery">
+    SELECT id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id
+    FROM Submission
+    WHERE version > 0
+  </entry>
+
   <entry key="submissionsStatsQuery">
     SELECT su.id, su.accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
           (SELECT COUNT(fr.id)
@@ -115,7 +121,7 @@
               sua.name = 'AttachTo' AND
               sua.value IN (:imagingProjects)) isImagingSubmission
     FROM Submission su, Section root
-    WHERE su.rootSection_id = root.id AND su.version > 0
+    WHERE su.rootSection_id = root.id AND su.accno = :accNo AND su.version > 0
   </entry>
 
   <entry key="submissionsPmcQuery">

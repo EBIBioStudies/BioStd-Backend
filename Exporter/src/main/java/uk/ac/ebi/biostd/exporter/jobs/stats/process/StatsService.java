@@ -6,22 +6,24 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.jobs.stats.model.SubStats;
 import uk.ac.ebi.biostd.exporter.model.Submission;
-import uk.ac.ebi.biostd.exporter.persistence.dao.MetricsDao;
+import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 
 @AllArgsConstructor
 @Service
 public class StatsService {
+    private final SubmissionDao submissionDao;
     private final StatsProperties startProperties;
 
     SubStats processSubmission(Submission submission) {
         String accNo = submission.getAccno();
+        Submission submissionStats = submissionDao.getSubmissionStats(accNo);
 
         return SubStats.builder()
                 .accNo(accNo)
-                .imaging(submission.isImagingSubmission())
-                .files((int) submission.getFilesCount())
-                .filesSize(submission.getFilesSize())
-                .subFileSize(getFileSize(accNo, submission.getRelPath()))
+                .imaging(submissionStats.isImagingSubmission())
+                .files((int) submissionStats.getFilesCount())
+                .filesSize(submissionStats.getFilesSize())
+                .subFileSize(getFileSize(accNo, submissionStats.getRelPath()))
                 .build();
     }
 
