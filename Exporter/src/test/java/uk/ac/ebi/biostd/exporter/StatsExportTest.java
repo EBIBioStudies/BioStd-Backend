@@ -35,12 +35,14 @@ import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
         "classpath:scripts/sql/create_schema.sql",
         "classpath:scripts/sql/init-full-export.sql",
         "classpath:scripts/sql/private_submission.sql",
-        "classpath:scripts/sql/public_submission.sql"})
+        "classpath:scripts/sql/public_submission.sql",
+        "classpath:scripts/sql/public_file_list_submission.sql"})
 @Sql(executionPhase = AFTER_TEST_METHOD, scripts = { "classpath:scripts/sql/drop_schema.sql" })
 public class StatsExportTest extends BaseIntegrationTest {
     private static final String EXPECTED_STATS_SUBMISSION_1_NO_IMG = "\"S-EPMC2873748\",\"0\",\"1\",\"34984\",\"false\"";
     private static final String EXPECTED_STATS_SUBMISSION_1 = "\"S-EPMC2873748\",\"0\",\"1\",\"34984\",\"true\"";
     private static final String EXPECTED_STATS_SUBMISSION_2 = "\"S-EPMC3343633\",\"0\",\"1\",\"9170139\",\"false\"";
+    private static final String EXPECTED_STATS_SUBMISSION_3 = "\"S-EPMC3343634\",\"0\",\"1\",\"9170140\",\"false\"";
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -72,13 +74,13 @@ public class StatsExportTest extends BaseIntegrationTest {
 
     @Test
     public void testStatsExport() throws Exception {
-        assertStatsJob(EXPECTED_STATS_SUBMISSION_1, EXPECTED_STATS_SUBMISSION_2);
+        assertStatsJob(EXPECTED_STATS_SUBMISSION_1, EXPECTED_STATS_SUBMISSION_2, EXPECTED_STATS_SUBMISSION_3);
     }
 
     @Test
     public void testStatsExportNoImagingProjects() throws Exception {
         when(properties.getImagingProjects()).thenReturn(Collections.emptyList());
-        assertStatsJob(EXPECTED_STATS_SUBMISSION_1_NO_IMG, EXPECTED_STATS_SUBMISSION_2);
+        assertStatsJob(EXPECTED_STATS_SUBMISSION_1_NO_IMG, EXPECTED_STATS_SUBMISSION_2, EXPECTED_STATS_SUBMISSION_3);
     }
 
     private void assertStatsJob(String... expectedStats) throws Exception {

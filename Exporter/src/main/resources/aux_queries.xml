@@ -14,6 +14,12 @@
           root.id = fr.sectionId AND
           su.rootSection_id = root.id AND
           su.version > 0)
+    +
+      (SELECT sum(size) FROM ReferencedFile rf, FileList fl, Section se, Submission su
+        WHERE se.fileListId = fl.id AND
+          se.fileListId = rf.fileListId AND
+          su.id = se.submission_id AND
+          su.version > 0)
     AS submissionsTotalFileSize
   </entry>
 </properties>
