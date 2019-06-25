@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.exporter.jobs.stats.process;
 
 import java.io.File;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.jobs.stats.model.SubStats;
@@ -17,12 +18,19 @@ public class StatsService {
 
     SubStats processSubmission(Submission submission) {
         String accNo = submission.getAccno();
-        SubmissionStats submissionStats = submissionDao.getSubmissionStats(submission.getId());
+        SubmissionStats submissionStats = new SubmissionStats();
+
+        try {
+            submissionStats = submissionDao.getSubmissionStats(submission.getId());
+        } catch (EmptyResultDataAccessException exception) {
+            submissionStats.setFilesCount(0);
+            submissionStats.setFilesSize(0);
+        }
 
         return SubStats.builder()
                 .accNo(accNo)
                 .imaging(submission.isImagingSubmission())
-                .files((int) submissionStats.getFilesCount())
+                .files(submissionStats.getFilesCount())
                 .filesSize(submissionStats.getFilesSize())
                 .subFileSize(getFileSize(accNo, submission.getRelPath()))
                 .build();

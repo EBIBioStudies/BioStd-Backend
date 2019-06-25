@@ -111,10 +111,11 @@
   </entry>
 
   <entry key="submissionsStatsQuery">
-    SELECT SUM(fr.size) submissionFilesSize, count(fr.id) filesCount
+    SELECT SUM(fr.size) submissionFilesSize, COUNT(fr.id) filesCount
     FROM FileRef fr, Submission su, Section se
     WHERE su.version > 0 AND
       (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
+      fr.sectionId = se.id AND
       su.id = :submission_id
     GROUP BY su.accNo
   </entry>
