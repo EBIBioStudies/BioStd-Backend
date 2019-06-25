@@ -123,11 +123,13 @@
       (SELECT COALESCE(SUM(rf.size), 0)
         FROM ReferencedFile rf, FileList fl, Section se
         WHERE (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
-          rf.fileListId = se.fileListId) refFilesSize,
+          rf.fileListId = fl.id AND
+          se.fileListId = fl.id) refFilesSize,
       (SELECT COUNT(rf.id)
         FROM ReferencedFile rf, FileList fl, Section se
         WHERE (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
-          rf.fileListId = se.fileListId) refFilesCount
+          rf.fileListId = fl.id AND
+          se.fileListId = fl.id) refFilesCount
     FROM Submission su
     WHERE su.version > 0 AND
       su.id = :submission_id
