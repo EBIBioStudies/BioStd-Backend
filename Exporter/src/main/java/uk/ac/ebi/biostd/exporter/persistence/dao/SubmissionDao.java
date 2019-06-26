@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -14,10 +15,12 @@ import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
+import uk.ac.ebi.biostd.exporter.model.SubmissionFileListStats;
 import uk.ac.ebi.biostd.exporter.model.SubmissionStats;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.FileListStatsMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.FileListSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.ImagingSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.StatsSubmissionMapper;
@@ -34,6 +37,7 @@ public class SubmissionDao {
     private final SubmissionMapper submissionMapper;
     private final NamedParameterJdbcTemplate template;
     private final ExporterGeneralProperties properties;
+    private final FileListStatsMapper fileListStatsMapper;
     private final StatsSubmissionMapper statsSubmissionMapper;
     private final ImagingSubmissionMapper imagingSubmissionMapper;
     private final FileListSubmissionMapper fileListSubmissionMapper;
@@ -105,10 +109,31 @@ public class SubmissionDao {
     }
 
     public SubmissionStats getSubmissionStats(Long id) {
-        return template.queryForObject(
-                queries.getSubmissionsStatsQuery(),
-                singletonMap("submission_id", id),
-                statsSubmissionMapper);
+        SubmissionStats stats = new SubmissionStats();
+
+        try {
+            stats = template.queryForObject(
+                queries.getSubmissionsStatsQuery(), singletonMap("submission_id", id), statsSubmissionMapper);
+        } catch (EmptyResultDataAccessException exception) {
+            stats.setFilesSize(0);
+            stats.setFilesCount(0);
+        }
+
+        return stats;
+    }
+
+    public SubmissionFileListStats getSubmissionFileListStats(Long id) {
+        SubmissionFileListStats fileListStats = new SubmissionFileListStats();
+
+        try {
+            fileListStats = template.queryForObject(
+                    queries.getSubmissionFileListStatsQuery(), singletonMap("submission_id", id), fileListStatsMapper);
+        } catch (EmptyResultDataAccessException exception) {
+            fileListStats.setRefFilesSize(0);
+            fileListStats.setRefFilesCount(0);
+        }
+
+        return fileListStats;
     }
 
     public List<Submission> getPmcSubmissions() {

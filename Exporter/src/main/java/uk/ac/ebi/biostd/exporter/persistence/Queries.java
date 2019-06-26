@@ -15,6 +15,7 @@ public class Queries {
     private String submissionsQuery;
     private String simpleSubmissionsQuery;
     private String submissionsStatsQuery;
+    private String submissionFileListStatsQuery;
     private String submissionsPmcQuery;
     private String fileAttributesQuery;
     private String linkAttributesQuery;

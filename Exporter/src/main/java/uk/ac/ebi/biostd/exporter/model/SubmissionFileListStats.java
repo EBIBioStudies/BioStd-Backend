@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class SubmissionStats {
-    private int filesCount;
-    private long filesSize;
+public class SubmissionFileListStats {
+    private int refFilesCount;
+    private long refFilesSize;
 }

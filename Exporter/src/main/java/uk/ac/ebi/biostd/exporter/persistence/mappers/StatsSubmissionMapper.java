@@ -13,8 +13,6 @@ public class StatsSubmissionMapper implements RowMapper<SubmissionStats> {
         SubmissionStats stats = new SubmissionStats();
         stats.setFilesCount(resultSet.getInt("filesCount"));
         stats.setFilesSize(resultSet.getLong("submissionFilesSize"));
-        stats.setRefFilesCount(resultSet.getInt("refFilesCount"));
-        stats.setRefFilesSize(resultSet.getLong("refFilesSize"));
 
         return stats;
     }

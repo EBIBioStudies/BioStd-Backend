@@ -111,28 +111,24 @@
   </entry>
 
   <entry key="submissionsStatsQuery">
-    SELECT
-      (SELECT COALESCE(SUM(fr.size), 0)
-        FROM FileRef fr, Section se
-        WHERE (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
-          fr.sectionId = se.id) submissionFilesSize,
-      (SELECT COUNT(fr.id)
-        FROM FileRef fr, Section se
-        WHERE (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
-          fr.sectionId = se.id) filesCount,
-      (SELECT COALESCE(SUM(rf.size), 0)
-        FROM ReferencedFile rf, FileList fl, Section se
-        WHERE (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
-          rf.fileListId = fl.id AND
-          se.fileListId = fl.id) refFilesSize,
-      (SELECT COUNT(rf.id)
-        FROM ReferencedFile rf, FileList fl, Section se
-        WHERE (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
-          rf.fileListId = fl.id AND
-          se.fileListId = fl.id) refFilesCount
-    FROM Submission su
+    SELECT SUM(fr.size) submissionFilesSize, COUNT(fr.id) filesCount
+    FROM FileRef fr, Submission su, Section se
     WHERE su.version > 0 AND
+      (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
+      fr.sectionId = se.id AND
       su.id = :submission_id
+    GROUP BY su.accNo;
+  </entry>
+
+  <entry key="submissionFileListStatsQuery">
+    SELECT SUM(rf.size) refFilesSize, COUNT(rf.id) refFilesCount
+    FROM ReferencedFile rf, FileList fl, Submission su, Section se
+    WHERE su.version > 0 AND
+      se.fileListId IS NOT NULL AND
+      (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
+      rf.fileListId = se.fileListId AND
+      su.id = :submission_id
+    GROUP BY su.accNo;
   </entry>
 
   <entry key="submissionsPmcQuery">
