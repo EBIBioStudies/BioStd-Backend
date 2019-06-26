@@ -126,7 +126,8 @@
     WHERE su.version > 0 AND
       se.fileListId IS NOT NULL AND
       (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
-      rf.fileListId = se.fileListId AND
+      rf.fileListId = fl.id AND
+      se.fileListId = fl.id AND
       su.id = :submission_id
     GROUP BY su.accNo;
   </entry>
