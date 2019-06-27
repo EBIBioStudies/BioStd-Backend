@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -109,31 +108,17 @@ public class SubmissionDao {
     }
 
     public SubmissionStats getSubmissionStats(Long id) {
-        SubmissionStats stats = new SubmissionStats();
-
-        try {
-            stats = template.queryForObject(
+        List<SubmissionStats> stats = template.query(
                 queries.getSubmissionsStatsQuery(), singletonMap("submission_id", id), statsSubmissionMapper);
-        } catch (EmptyResultDataAccessException exception) {
-            stats.setFilesSize(0);
-            stats.setFilesCount(0);
-        }
 
-        return stats;
+        return stats.isEmpty() ? new SubmissionStats() : stats.get(0);
     }
 
     public SubmissionFileListStats getSubmissionFileListStats(Long id) {
-        SubmissionFileListStats fileListStats = new SubmissionFileListStats();
+        List<SubmissionFileListStats> fileListStats = template.query(
+                queries.getSubmissionFileListStatsQuery(), singletonMap("submission_id", id), fileListStatsMapper);
 
-        try {
-            fileListStats = template.queryForObject(
-                    queries.getSubmissionFileListStatsQuery(), singletonMap("submission_id", id), fileListStatsMapper);
-        } catch (EmptyResultDataAccessException exception) {
-            fileListStats.setRefFilesSize(0);
-            fileListStats.setRefFilesCount(0);
-        }
-
-        return fileListStats;
+        return fileListStats.isEmpty() ? new SubmissionFileListStats() : fileListStats.get(0);
     }
 
     public List<Submission> getPmcSubmissions() {
