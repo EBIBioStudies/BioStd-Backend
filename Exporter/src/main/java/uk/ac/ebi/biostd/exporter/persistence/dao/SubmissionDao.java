@@ -14,10 +14,14 @@ import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
+import uk.ac.ebi.biostd.exporter.model.SubmissionFileListStats;
+import uk.ac.ebi.biostd.exporter.model.SubmissionStats;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.FileListStatsMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.FileListSubmissionMapper;
+import uk.ac.ebi.biostd.exporter.persistence.mappers.ImagingSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.StatsSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.model.SubAndUserInfo;
@@ -32,7 +36,9 @@ public class SubmissionDao {
     private final SubmissionMapper submissionMapper;
     private final NamedParameterJdbcTemplate template;
     private final ExporterGeneralProperties properties;
+    private final FileListStatsMapper fileListStatsMapper;
     private final StatsSubmissionMapper statsSubmissionMapper;
+    private final ImagingSubmissionMapper imagingSubmissionMapper;
     private final FileListSubmissionMapper fileListSubmissionMapper;
     private final DetailedSubmissionMapper detailedSubmissionMapper;
 
@@ -94,11 +100,25 @@ public class SubmissionDao {
                 detailedSubmissionMapper);
     }
 
-    public List<Submission> getStatsSubmissions() {
+    public List<Submission> getSimplifiedSubmissions() {
         return template.query(
-                queries.getSubmissionsStatsQuery(),
-                singletonMap("imagingProjects", statsProperties.getImagingProjects()),
-                statsSubmissionMapper);
+            queries.getSimpleSubmissionsQuery(),
+            singletonMap("imagingProjects", statsProperties.getImagingProjects()),
+            imagingSubmissionMapper);
+    }
+
+    public SubmissionStats getSubmissionStats(Long id) {
+        List<SubmissionStats> stats = template.query(
+                queries.getSubmissionsStatsQuery(), singletonMap("submission_id", id), statsSubmissionMapper);
+
+        return stats.isEmpty() ? new SubmissionStats() : stats.get(0);
+    }
+
+    public SubmissionFileListStats getSubmissionFileListStats(Long id) {
+        List<SubmissionFileListStats> fileListStats = template.query(
+                queries.getSubmissionFileListStatsQuery(), singletonMap("submission_id", id), fileListStatsMapper);
+
+        return fileListStats.isEmpty() ? new SubmissionFileListStats() : fileListStats.get(0);
     }
 
     public List<Submission> getPmcSubmissions() {

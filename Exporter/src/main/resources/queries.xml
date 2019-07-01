@@ -99,23 +99,37 @@
     WHERE su.version > 0
   </entry>
 
+  <entry key="simpleSubmissionsQuery">
+    SELECT su.id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
+      (SELECT count(sua.id)
+        FROM SubmissionAttribute sua
+        WHERE su.id = sua.submission_id AND
+          sua.name = 'AttachTo' AND
+          sua.value IN (:imagingProjects)) isImagingSubmission
+    FROM Submission su
+    WHERE su.version > 0
+  </entry>
+
   <entry key="submissionsStatsQuery">
-    SELECT su.id, su.accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-          (SELECT COUNT(fr.id)
-            FROM FileRef fr, Section se
-            WHERE fr.sectionId = se.id AND
-              (se.parent_id = root.id OR se.id = root.id)) filesCount,
-          (SELECT COALESCE(SUM(size), 0)
-            FROM FileRef fr, Section se
-            WHERE fr.sectionId = se.id AND
-              (se.parent_id = root.id OR se.id = root.id)) submissionFilesSize,
-          (SELECT count(sua.id)
-            FROM SubmissionAttribute sua
-            WHERE su.id = sua.submission_id AND
-              sua.name = 'AttachTo' AND
-              sua.value IN (:imagingProjects)) isImagingSubmission
-    FROM Submission su, Section root
-    WHERE su.rootSection_id = root.id AND su.version > 0
+    SELECT SUM(fr.size) submissionFilesSize, COUNT(fr.id) filesCount
+    FROM FileRef fr, Submission su, Section se
+    WHERE su.version > 0 AND
+      (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
+      fr.sectionId = se.id AND
+      su.id = :submission_id
+    GROUP BY su.accNo;
+  </entry>
+
+  <entry key="submissionFileListStatsQuery">
+    SELECT SUM(rf.size) refFilesSize, COUNT(rf.id) refFilesCount
+    FROM ReferencedFile rf, FileList fl, Submission su, Section se
+    WHERE su.version > 0 AND
+      se.fileListId IS NOT NULL AND
+      (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
+      rf.fileListId = fl.id AND
+      se.fileListId = fl.id AND
+      su.id = :submission_id
+    GROUP BY su.accNo;
   </entry>
 
   <entry key="submissionsPmcQuery">

@@ -2,18 +2,18 @@ package uk.ac.ebi.biostd.exporter.persistence.mappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.exporter.model.Submission;
+import uk.ac.ebi.biostd.exporter.model.SubmissionStats;
 
 @Component
-public class StatsSubmissionMapper extends SubmissionMapper {
+public class StatsSubmissionMapper implements RowMapper<SubmissionStats> {
     @Override
-    public Submission mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        Submission submission = super.mapRow(resultSet, rowNum);
-        submission.setFilesCount(resultSet.getInt("filesCount"));
-        submission.setFilesSize(resultSet.getLong("submissionFilesSize"));
-        submission.setImagingSubmission(resultSet.getBoolean("isImagingSubmission"));
+    public SubmissionStats mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+        SubmissionStats stats = new SubmissionStats();
+        stats.setFilesCount(resultSet.getInt("filesCount"));
+        stats.setFilesSize(resultSet.getLong("submissionFilesSize"));
 
-        return submission;
+        return stats;
     }
 }
