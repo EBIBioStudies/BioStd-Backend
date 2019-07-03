@@ -108,7 +108,7 @@ jobs:
     queryModified:
     notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
-    recordsThreshold: 1000
+    recordsThreshold: 1
   pmc:
     import:
       user: admin_user@ebi.ac.uk
