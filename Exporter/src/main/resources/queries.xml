@@ -50,25 +50,13 @@
   </entry>
 
   <entry key="updatedSubmissionsQuery">
-    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-      (CASE
-        WHEN accno IN (:fileListStudies) THEN 1
-        WHEN (SELECT count(se.id)
-              FROM Section se WHERE se.submission_id = su.id AND se.fileListId IS NOT NULL) > 0 THEN 1
-        ELSE 0
-      END) isFileList
+    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id
     FROM Submission su
     WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
   </entry>
 
   <entry key="submissionsQueryByAccNo">
-    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-      (CASE
-        WHEN accno IN (:fileListStudies) THEN 1
-        WHEN (SELECT count(se.id)
-              FROM Section se WHERE se.submission_id = su.id AND se.fileListId IS NOT NULL) > 0 THEN 1
-        ELSE 0
-      END) isFileList
+    SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id
     FROM Submission su
     WHERE version > 0 and accno = :accno
   </entry>
@@ -82,12 +70,6 @@
 
   <entry key="submissionsQuery">
     SELECT su.id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-          (CASE
-            WHEN accno IN (:fileListStudies) THEN 1
-            WHEN (SELECT count(se.id)
-                  FROM Section se WHERE se.submission_id = su.id AND se.fileListId IS NOT NULL) > 0 THEN 1
-            ELSE 0
-          END) isFileList,
           (SELECT count(rf.id)
             FROM Section se, FileList fl, ReferencedFile rf
             WHERE se.submission_id = su.id AND se.fileListId = fl.id AND rf.fileListId = fl.id) refFilesCount,

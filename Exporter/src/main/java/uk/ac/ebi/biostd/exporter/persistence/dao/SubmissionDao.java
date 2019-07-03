@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.Submission;
@@ -20,7 +19,6 @@ import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.DetailedSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.FileListStatsMapper;
-import uk.ac.ebi.biostd.exporter.persistence.mappers.FileListSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.ImagingSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.StatsSubmissionMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SubmissionMapper;
@@ -35,11 +33,9 @@ public class SubmissionDao {
     private final StatsProperties statsProperties;
     private final SubmissionMapper submissionMapper;
     private final NamedParameterJdbcTemplate template;
-    private final ExporterGeneralProperties properties;
     private final FileListStatsMapper fileListStatsMapper;
     private final StatsSubmissionMapper statsSubmissionMapper;
     private final ImagingSubmissionMapper imagingSubmissionMapper;
-    private final FileListSubmissionMapper fileListSubmissionMapper;
     private final DetailedSubmissionMapper detailedSubmissionMapper;
 
     public void releaseSubmission(long submissionId) {
@@ -60,16 +56,12 @@ public class SubmissionDao {
 
     public List<Submission> getUpdatedSubmissions(long syncTime) {
         return template.query(
-                queries.getUpdatedSubmissionsQuery(),
-                ImmutableMap.of("sync_time", syncTime, "fileListStudies", properties.getFileListStudies()),
-                fileListSubmissionMapper);
+                queries.getUpdatedSubmissionsQuery(), singletonMap("sync_time", syncTime), submissionMapper);
     }
 
     public Submission getSubmissionByAccNo(String accNo) {
         return template.queryForObject(
-                queries.getSubmissionsQueryByAccNo(),
-                ImmutableMap.of("accno", accNo, "fileListStudies", properties.getFileListStudies()),
-                fileListSubmissionMapper);
+                queries.getSubmissionsQueryByAccNo(), singletonMap("accno", accNo), submissionMapper);
     }
 
     public List<String> getDeletedSubmissions(long syncTime) {
@@ -94,10 +86,7 @@ public class SubmissionDao {
     }
 
     public List<Submission> getSubmissions() {
-        return template.query(
-                queries.getSubmissionsQuery(),
-                singletonMap("fileListStudies", properties.getFileListStudies()),
-                detailedSubmissionMapper);
+        return template.query(queries.getSubmissionsQuery(), detailedSubmissionMapper);
     }
 
     public List<Submission> getSimplifiedSubmissions() {

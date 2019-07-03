@@ -6,10 +6,8 @@ import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import uk.ac.ebi.biostd.exporter.commons.FileUtils;
-import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
 import uk.ac.ebi.biostd.exporter.configuration.GeneralConfiguration;
 import uk.ac.ebi.biostd.exporter.jobs.JobsPipelinesConfiguration;
-import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 import uk.ac.ebi.biostd.exporter.persistence.Queries;
 import uk.ac.ebi.biostd.exporter.rest.NotificationController;
 import uk.ac.ebi.biostd.exporter.rest.TasksController;
@@ -18,7 +16,7 @@ import uk.ac.ebi.biostd.exporter.test.IgnoreDuringScan;
 import uk.ac.ebi.biostd.remote.service.RemoteService;
 
 @Configuration
-@Import({ GeneralConfiguration.class, ExporterGeneralProperties.class })
+@Import({ GeneralConfiguration.class })
 @ComponentScan(basePackageClasses = {
         JobsPipelinesConfiguration.class,
         Queries.class,
