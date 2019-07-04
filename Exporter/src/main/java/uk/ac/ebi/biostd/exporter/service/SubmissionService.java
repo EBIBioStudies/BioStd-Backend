@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.exporter.service;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -49,6 +51,12 @@ public class SubmissionService {
         return submission;
     }
 
+    public Submission getSubmission(String accNo) {
+        Submission submission = submissionDao.getSubmissionByAccNo(accNo);
+        processSubmission(submission);
+        return submission;
+    }
+
     private List<String> getAccessTags(Submission submission) {
         List<String> tags = new ArrayList<>();
         tags.add(submissionDao.getUserEmail(submission.getOwner_id()));
@@ -68,26 +76,40 @@ public class SubmissionService {
     }
 
     private Section processSection(Section section) {
+        long sectionId = section.getId();
+
         section.setAttributes(sectionDao.getSectionAttributes(section.getId()));
-
-        List<File> files = sectionDao.getSectionFiles(section.getId());
-        files.forEach(file -> file.setAttributes(filesDao.getFilesAttributes(file.getId())));
-        section.setFiles(files);
-
-        List<Link> links = linksDao.getLinks(section.getId());
-        links.forEach(link -> link.setAttributes(linksDao.getLinkAttributes(link.getId())));
-        section.setLinks(links);
-
-        List<Section> subSections = sectionDao.getSectionSections(section.getId());
-        subSections.forEach(subSection -> processSection(subSection));
-        section.setSubsections(subSections);
+        section.setFiles(getSectionFiles(sectionId));
+        section.setLinks(getSectionLinks(sectionId));
+        section.setSubsections(getSubsections(sectionId));
 
         return section;
     }
 
-    public Submission getSubmission(String accNo) {
-        Submission submission = submissionDao.getSubmissionByAccNo(accNo);
-        processSubmission(submission);
-        return submission;
+    private List<File> getSectionFiles(long sectionId) {
+        return sectionDao.getSectionFiles(sectionId)
+                .stream()
+                .map(file -> {
+                    file.setAttributes(filesDao.getFilesAttributes(file.getId()));
+                    return file;
+                })
+                .collect(toList());
+    }
+
+    private List<Link> getSectionLinks(long sectionId) {
+        return linksDao.getLinks(sectionId)
+                .stream()
+                .map(link -> {
+                    link.setAttributes(linksDao.getLinkAttributes(link.getId()));
+                    return link;
+                })
+                .collect(toList());
+    }
+
+    private List<Section> getSubsections(long sectionId) {
+        return sectionDao.getSectionSections(sectionId)
+                .stream()
+                .map(subsection -> processSection(subsection))
+                .collect(toList());
     }
 }
