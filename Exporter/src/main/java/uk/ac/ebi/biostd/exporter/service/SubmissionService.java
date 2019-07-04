@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostd.exporter.service;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -20,10 +22,6 @@ import uk.ac.ebi.biostd.exporter.utils.DateUtils;
 @Service
 @AllArgsConstructor
 public class SubmissionService {
-    private static final String SEPARATOR = ".";
-    private static final String LIB_FILE_SUFFIX = ".files";
-    private static final String LIB_FILE_EXTENSION = ".json";
-
     private final SubmissionDao submissionDao;
     private final SectionDao sectionDao;
     private final FilesDao filesDao;
@@ -47,9 +45,15 @@ public class SubmissionService {
         submission.setAttributes(attributes);
 
         if (submission.getRootSection_id() != 0) {
-            submission.setSection(processSection(sectionDao.getSection(submission.getRootSection_id()), submission));
+            submission.setSection(processSection(sectionDao.getSection(submission.getRootSection_id())));
         }
 
+        return submission;
+    }
+
+    public Submission getSubmission(String accNo) {
+        Submission submission = submissionDao.getSubmissionByAccNo(accNo);
+        processSubmission(submission);
         return submission;
     }
 
@@ -71,51 +75,41 @@ public class SubmissionService {
         return subAttributes;
     }
 
-    private Section processSection(Section section, Submission parentSubmission) {
+    private Section processSection(Section section) {
+        long sectionId = section.getId();
+
         section.setAttributes(sectionDao.getSectionAttributes(section.getId()));
-
-        if (parentSubmission.isFileListSubmission() && sectionDao.getSectionFilesCount(section.getId()) > 0) {
-            section.setFileList(getFileListName(parentSubmission, section));
-        } else {
-            List<File> files = sectionDao.getSectionFiles(section.getId());
-            files.forEach(file -> file.setAttributes(filesDao.getFilesAttributes(file.getId())));
-            section.setFiles(files);
-        }
-
-        List<Link> links = linksDao.getLinks(section.getId());
-        links.forEach(link -> link.setAttributes(linksDao.getLinkAttributes(link.getId())));
-        section.setLinks(links);
-
-        List<Section> subSections = sectionDao.getSectionSections(section.getId());
-        subSections.forEach(subSection -> processSection(subSection, parentSubmission));
-        section.setSubsections(subSections);
+        section.setFiles(getSectionFiles(sectionId));
+        section.setLinks(getSectionLinks(sectionId));
+        section.setSubsections(getSubsections(sectionId));
 
         return section;
     }
 
-    private String getFileListName(Submission parentSubmission, Section section) {
-        String fileListName = section.getFileList();
-        StringBuilder fileListNameBuilder = new StringBuilder();
-
-        if (fileListName == null) {
-            fileListNameBuilder
-                    .append(parentSubmission.getAccno())
-                    .append(SEPARATOR)
-                    .append(section.getId())
-                    .append(LIB_FILE_SUFFIX)
-                    .append(LIB_FILE_EXTENSION);
-        } else {
-            fileListNameBuilder
-                    .append(fileListName)
-                    .append(LIB_FILE_EXTENSION);
-        }
-
-        return fileListNameBuilder.toString();
+    private List<File> getSectionFiles(long sectionId) {
+        return sectionDao.getSectionFiles(sectionId)
+                .stream()
+                .map(file -> {
+                    file.setAttributes(filesDao.getFilesAttributes(file.getId()));
+                    return file;
+                })
+                .collect(toList());
     }
 
-    public Submission getSubmission(String accNo) {
-        Submission submission = submissionDao.getSubmissionByAccNo(accNo);
-        processSubmission(submission);
-        return submission;
+    private List<Link> getSectionLinks(long sectionId) {
+        return linksDao.getLinks(sectionId)
+                .stream()
+                .map(link -> {
+                    link.setAttributes(linksDao.getLinkAttributes(link.getId()));
+                    return link;
+                })
+                .collect(toList());
+    }
+
+    private List<Section> getSubsections(long sectionId) {
+        return sectionDao.getSectionSections(sectionId)
+                .stream()
+                .map(subsection -> processSection(subsection))
+                .collect(toList());
     }
 }

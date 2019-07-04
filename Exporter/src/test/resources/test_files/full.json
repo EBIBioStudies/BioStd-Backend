@@ -41,10 +41,23 @@
           },
           {
             "name":"Abstract",
-            "value":"Human papillomavirus (HPV) "
+            "value":"Human papillomavirus (HPV)"
           }
         ],
-        "fileList":"S-EPMC2873748.1.files.json",
+        "files": [
+          {
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "application(pdf)"
+              }
+            ],
+            "name": "02-0168_appT-s1.pdf",
+            "path": null,
+            "size": 34984,
+            "type": "file"
+          }
+        ],
         "subsections":[
           {
             "accno":"PMC2873748",
@@ -267,9 +280,12 @@
           {
             "name":"Abstract",
             "value":"Nuocytes are essential in innate type 3 immunity"
+          },
+          {
+            "name": "File List",
+            "value": "S-EPMC3343634.SECT-001.files"
           }
         ],
-        "fileList": "S-EPMC3343634.SECT-001.files.json",
         "subsections":[
           {
             "accno":"PMC3343635",

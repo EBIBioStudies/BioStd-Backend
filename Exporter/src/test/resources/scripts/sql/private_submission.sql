@@ -35,7 +35,7 @@ INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, value
 VALUES ('Title', null, false, 'Cost-effectiveness of a potential vaccine for human papillomavirus.', null, 1, 0);
 
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord)
-VALUES ('Abstract', null, false, 'Human papillomavirus (HPV) ', null, 1, 1);
+VALUES ('Abstract', null, false, 'Human papillomavirus (HPV)', null, 1, 1);
 
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord)
 VALUES ('Journal', null, false, 'Emerging infectious diseases', 'Type=Magazine;Awarded', 2, 0);

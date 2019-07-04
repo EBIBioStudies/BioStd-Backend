@@ -10,7 +10,6 @@ public class DetailedSubmissionMapper extends SubmissionMapper {
     @Override
     public Submission mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Submission submission = super.mapRow(resultSet, rowNum);
-        submission.setFileListSubmission(resultSet.getBoolean("isFileList"));
         submission.setFilesCount(resultSet.getInt("filesCount") + resultSet.getInt("refFilesCount"));
 
         return submission;

@@ -9,7 +9,6 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +23,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.biostd.TestConfiguration;
-import uk.ac.ebi.biostd.exporter.configuration.ExporterGeneralProperties;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullExport;
 import uk.ac.ebi.biostd.exporter.jobs.full.FullJobJobsFactory;
@@ -51,7 +49,6 @@ public class FullExportTest extends BaseIntegrationTest {
     private static final String NOTIFICATION_URL = "http://localhost:8181/api/update/full";
     private static final String EXPECTED_OUTPUT_PATH = "/test_files/";
     private static final String EXPECTED_FULL_JSON_PATH = EXPECTED_OUTPUT_PATH + "full.json";
-    private static final String EXPECTED_FULL_NO_FILE_LIST_JSON_PATH = EXPECTED_OUTPUT_PATH + "fullNoFileList.json";
     private static final String EXPECTED_PUBLIC_ONLY_JSON_PATH = EXPECTED_OUTPUT_PATH + "publicOnly.json";
     private static final String[] IGNORED_FIELDS = new String[]{"rtime", "ctime", "mtime", "@startTimeTS", "@endTimeTS",
             "@startTime", "@endTime", "@elapsedTime"};
@@ -63,9 +60,6 @@ public class FullExportTest extends BaseIntegrationTest {
 
     @MockBean
     private FullExportJobProperties exportProperties;
-
-    @MockBean
-    private ExporterGeneralProperties exporterGeneralProperties;
 
     @Mock
     private FullExportAllSubmissionsProperties allSubmissionsProperties;
@@ -83,7 +77,6 @@ public class FullExportTest extends BaseIntegrationTest {
     public void setup() {
         exportPipeline = new ExportPipeline(1, ImmutableList.of(fullExport), fullJobsFactory);
 
-        when(exporterGeneralProperties.getFileListStudies()).thenReturn(Arrays.asList("S-EPMC2873748"));
         when(allSubmissionsProperties.getFilePath()).thenReturn(folder.getRoot().getAbsolutePath() + "/");
         when(allSubmissionsProperties.getFileName()).thenReturn(FULL_EXPORT_NAME);
         when(publicOnlySubmissionsProperties.getFilePath()).thenReturn(folder.getRoot().getAbsolutePath() + "/");
@@ -98,12 +91,6 @@ public class FullExportTest extends BaseIntegrationTest {
     @Test
     public void testFullExport() {
         assertExportJobResults(EXPECTED_FULL_JSON_PATH);
-    }
-
-    @Test
-    public void testFullExportWithoutLibFileStudies() {
-        when(exporterGeneralProperties.getFileListStudies()).thenReturn(Collections.emptyList());
-        assertExportJobResults(EXPECTED_FULL_NO_FILE_LIST_JSON_PATH);
     }
 
     private void assertExportJobResults(String expectedFullJson) {
