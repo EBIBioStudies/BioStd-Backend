@@ -14,6 +14,10 @@ biostd:
     endpoint: https://eutoxrisk-validator.cloud.douglasconnect.com/v1/validate
 
 spring:
+  boot:
+    admin:
+      client:
+        url: http://biostudy-prod.ebi.ac.uk:8590
   mail:
     host: smtp.ebi.ac.uk
   thymeleaf:
@@ -26,3 +30,13 @@ spring:
       max-file-size: 10240MB
       max-request-size: 10240MB
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+    shutdown:
+      enabled: false

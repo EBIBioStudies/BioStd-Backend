@@ -34,7 +34,7 @@ deploy-dev-job:
   when: manual
   dependencies:
     - build-job
-  script: ./gradlew deploy -Penv=dev -PdeployPath=/ebi/teams/biostudies/backend/apps/webapp -PappPort=8586
+  script: ./gradlew deploy -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/webapp/dev -PappPort=8586
 
 deploy-beta-job:
   stage: deploy-beta
