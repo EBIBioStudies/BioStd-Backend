@@ -159,7 +159,7 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
-    recordsThreshold: 50000
+    recordsThreshold: 500000
   ftp:
     baseFtpPath: /nfs/biostudies/.adm/databases/beta/ftp
     baseBioStudiesPath: /nfs/biostudies/.adm/databases/beta/submission

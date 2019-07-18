@@ -14,7 +14,7 @@ stages:
 
 build-job:
   stage: build-test
-  script: ./gradlew clean build bootJar
+  script: gradle clean build bootJar
   artifacts:
     paths:
       - "BackendWebApp/build/libs/biostudy.jar"
