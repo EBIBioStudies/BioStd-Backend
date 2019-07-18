@@ -13,8 +13,8 @@ stages:
   - deploy-prod-exporter
 
 build-job:
-  stage: build
-  script: ./gradlew bootJar
+  stage: build-test
+  script: ./gradlew clean build bootJar
   artifacts:
     paths:
       - "BackendWebApp/build/libs/biostudy.jar"
