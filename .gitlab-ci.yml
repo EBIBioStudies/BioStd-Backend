@@ -1,25 +1,16 @@
-image: azul/zulu-openjdk:8
+image: gradle:5.4.1-jdk8
+include:
+  - local: '/ci/webapp.yml'
+  - local: '/ci/exporter.yml'
 
 stages:
-  - clean
-  - compile
-  - test
-  - build
-  - deploy-dev
-  - deploy-beta
-  - deploy-prod
-
-clean-job:
-  stage: clean
-  script: ./gradlew clean
-
-compile-job:
-  stage: compile
-  script: ./gradlew build -x test
-
-test-job:
-  stage: test
-  script: ./gradlew test
+  - build-test
+  - deploy-dev-webapp
+  - deploy-beta-webapp
+  - deploy-prod-webapp
+  - deploy-dev-exporter
+  - deploy-beta-exporter
+  - deploy-prod-exporter
 
 build-job:
   stage: build
@@ -28,24 +19,3 @@ build-job:
     paths:
       - "BackendWebApp/build/libs/biostudy.jar"
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
-
-deploy-dev-job:
-  stage: deploy-dev
-  when: manual
-  dependencies:
-    - build-job
-  script: ./gradlew deploy -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/webapp/dev -PappPort=8586
-
-deploy-beta-job:
-  stage: deploy-beta
-  when: manual
-  dependencies:
-    - build-job
-  script: ./gradlew deploy -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/beta -PappPort=10180
-
-deploy-prod-job:
-  stage: deploy-prod
-  when: manual
-  dependencies:
-    - build-job
-  script: ./gradlew deploy -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/prod -PappPort=10080

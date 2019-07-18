@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.exporter.schedulers;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ import uk.ac.ebi.biostd.exporter.jobs.releaser.ReleaserJob;
 @Slf4j
 @Component
 public class ScheduledTasksConfiguration {
+
     private final ExportPipeline fullExporter;
     private final ExportPipeline pmcExporter;
     private final ExportPipeline statsExporter;
@@ -58,38 +60,82 @@ public class ScheduledTasksConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "jobs.dummy", name="enabled", havingValue="true")
+    @ConditionalOnProperty(prefix = "jobs.dummy", name = "enabled", havingValue = "true")
     public CronTask dummyScheduler() {
         return new CronTask(() -> log.info("Hi there, I'm the dummy task"), dummyCron);
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "jobs.full", name="enabled", havingValue="true")
+    @ConditionalOnProperty(prefix = "jobs.full", name = "enabled", havingValue = "true")
     public CronTask fullScheduler() {
-        return new CronTask(fullExporter::execute, fullCron);
+        return new CronTask(new FullExportJob(fullExporter::execute), fullCron);
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "jobs.partial", name="enabled", havingValue="true")
+    @ConditionalOnProperty(prefix = "jobs.partial", name = "enabled", havingValue = "true")
     public CronTask partialScheduler() {
-        return new CronTask(partialExporter::execute, partialCron);
+        return new CronTask(new PartialExportJob(partialExporter::execute), partialCron);
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "jobs.pmc", name="enabled", havingValue="true")
+    @ConditionalOnProperty(prefix = "jobs.pmc.export", name = "enabled", havingValue = "true")
     public CronTask pmcScheduler() {
-        return new CronTask(pmcExporter::execute, pmcCron);
+        return new CronTask(new PmcLinksExportJob(pmcExporter::execute), pmcCron);
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "jobs.stats", name="enabled", havingValue="true")
+    @ConditionalOnProperty(prefix = "jobs.stats", name = "enabled", havingValue = "true")
     public CronTask statsScheduler() {
-        return new CronTask(statsExporter::execute, statsCron);
+        return new CronTask(new StartsExportJob(statsExporter::execute), statsCron);
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "jobs.releaser", name = "enabled", havingValue = "true")
     public CronTask releaser() {
         return new CronTask(releaserJob::execute, releaserCron);
+    }
+
+    @AllArgsConstructor
+    public static class FullExportJob implements Runnable {
+
+        private final Runnable runnable;
+
+        @Override
+        public void run() {
+            runnable.run();
+        }
+    }
+
+    @AllArgsConstructor
+    public static class PartialExportJob implements Runnable {
+
+        private final Runnable runnable;
+
+        @Override
+        public void run() {
+            runnable.run();
+        }
+    }
+
+    @AllArgsConstructor
+    public static class PmcLinksExportJob implements Runnable {
+
+        private final Runnable runnable;
+
+        @Override
+        public void run() {
+            runnable.run();
+        }
+    }
+
+    @AllArgsConstructor
+    public static class StartsExportJob implements Runnable {
+
+        private final Runnable runnable;
+
+        @Override
+        public void run() {
+            runnable.run();
+        }
     }
 }
