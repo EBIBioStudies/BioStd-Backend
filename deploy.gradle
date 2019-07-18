@@ -1,0 +1,61 @@
+remotes {
+    dev {
+        host = 'biostudy-bia.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+
+    beta {
+        host = 'biostudy-dev.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+
+    prod {
+        host = 'biostudy-prod.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+}
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+    identity = System.getenv('MASVC_SSH_KEY')
+    logging = 'stdout'
+}
+
+task deployWebApp {
+    doFirst {
+        project.ext.artifactPath = "BackendWebApp/build/libs"
+        project.ext.artifactName = "biostudy.jar"
+        project.ext.debugPort= "8008"
+    }
+
+    finalizedBy "deploy"
+}
+
+task deployExporter{
+    doFirst {
+        project.ext.artifactPath = "Exporter/build/libs"
+        project.ext.artifactName = "Exporter-0.0.1-SNAPSHOT.jar"
+        project.ext.debugPort= "8002"
+    }
+
+    finalizedBy "deploy"
+}
+
+task deploy {
+    doLast {
+        ssh.run {
+            session(remotes[env]) {
+                put from: "$artifactPath/$artifactName", into: "$deployPath/$artifactName"
+                put from: "./ci/update.sh", into: "$deployPath/update.sh"
+
+                execute "sed -i -e 's~APP_PATH~$deployPath~g' $deployPath/update.sh"
+                execute "sed -i -e 's~APP_PORT~$appPort~g' $deployPath/update.sh"
+                execute "sed -i -e 's~APP_NAME~$artifactName~g' $deployPath/update.sh"
+                execute "sed -i -e 's~DEBUG_PORT~$debugPort~g' $deployPath/update.sh"
+
+                execute "chmod +x $deployPath/update.sh"
+                execute "sh $deployPath/update.sh"
+            }
+        }
+    }
+}

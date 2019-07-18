@@ -1,0 +1,20 @@
+deploy-dev-webapp-job:
+  stage: deploy-dev-webapp
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deployWebApp -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/webapp/dev -PappPort=8586
+
+deploy-beta-webapp-job:
+  stage: deploy-beta-webapp
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deployWebApp -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/beta -PappPort=10180
+
+deploy-prod-webapp-job:
+  stage: deploy-prod-webapp
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deployWebApp -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/prod -PappPort=10080

@@ -1,13 +1,22 @@
-group 'uk.ac.ebi.biostd'
-version '1.0-SNAPSHOT'
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "org.hidetake:gradle-ssh-plugin:2.10.1"
+    }
+}
 
-apply plugin: 'java'
+apply plugin: "java"
+apply plugin: "org.hidetake.ssh"
+apply from: "deploy.gradle"
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-}
-
-dependencies {
 }
