@@ -136,9 +136,10 @@ jobs:
     enabled: true
     imagingProjects:
       - BioImages
+      - JCB
     basePath: /nfs/biostudies/.adm/databases/beta/submission
     outFilePath: /nfs/biostudies/.adm/databases/beta/updates/stats.csv
-    workers: 4
+    workers: 2
     cron: 0 0 22 4 * * # the fourth of each month at 10 p.m.
   partial:
     enabled: true
@@ -155,7 +156,7 @@ jobs:
     publicOnlySubmissions:
       filePath: /nfs/biostudies/.adm/databases/beta/updates/
       fileName: publicOnlyStudies
-    workers: 4
+    workers: 2
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     cron: 0 0 19 * * ? # everyday at 7 p.m.
@@ -181,6 +182,7 @@ jobs:
     enabled: true
     imagingProjects:
       - BioImages
+      - JCB
     basePath: /nfs/biostudies/.adm/databases/prod/submission
     outFilePath: /nfs/biostudies/.adm/databases/prod/updates/stats.csv
     workers: 4

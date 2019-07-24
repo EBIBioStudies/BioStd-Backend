@@ -109,7 +109,7 @@ public class SubmissionService {
     private List<Section> getSubsections(long sectionId) {
         return sectionDao.getSectionSections(sectionId)
                 .stream()
-                .map(subsection -> processSection(subsection))
+                .map(this::processSection)
                 .collect(toList());
     }
 }
