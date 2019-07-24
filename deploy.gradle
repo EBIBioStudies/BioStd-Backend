@@ -25,7 +25,7 @@ task deployWebApp {
     doFirst {
         project.ext.artifactPath = "BackendWebApp/build/libs"
         project.ext.artifactName = "biostudy.jar"
-        project.ext.debugPort= "8008"
+        project.ext.debugPort = "8008"
     }
 
     finalizedBy "deploy"
@@ -35,7 +35,8 @@ task deployExporter{
     doFirst {
         project.ext.artifactPath = "Exporter/build/libs"
         project.ext.artifactName = "Exporter-0.0.1-SNAPSHOT.jar"
-        project.ext.debugPort= "8002"
+        project.ext.appPort = "8181"
+        project.ext.debugPort = "8002"
     }
 
     finalizedBy "deploy"
@@ -52,6 +53,7 @@ task deploy {
                 execute "sed -i -e 's~APP_PORT~$appPort~g' $deployPath/update.sh"
                 execute "sed -i -e 's~APP_NAME~$artifactName~g' $deployPath/update.sh"
                 execute "sed -i -e 's~DEBUG_PORT~$debugPort~g' $deployPath/update.sh"
+                execute "sed -i -e 's~JVM_PARAMS~$jvmParms~g' $deployPath/update.sh"
 
                 execute "chmod +x $deployPath/update.sh"
                 execute "sh $deployPath/update.sh"

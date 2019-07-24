@@ -3,18 +3,18 @@ deploy-dev-exporter-job:
   when: manual
   dependencies:
     - build-job
-  script: gradle deployExporter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/exporter/dev -PappPort=8181
+  script: gradle deployExporter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/exporter/dev
 
 deploy-beta-exporter-job:
   stage: deploy-beta-exporter
   when: manual
   dependencies:
     - build-job
-  script: gradle deployExporter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/exporter/beta -PappPort=8181
+  script: gradle deployExporter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/exporter/beta -PjvmParams=-Xmx4g
 
 deploy-prod-exporter-job:
   stage: deploy-prod-exporter
   when: manual
   dependencies:
     - build-job
-  script: gradle deployExporter -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/exporter/prod -PappPort=8181
+  script: gradle deployExporter -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/exporter/prod -PjvmParams=-Xmx4g

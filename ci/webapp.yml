@@ -10,11 +10,11 @@ deploy-beta-webapp-job:
   when: manual
   dependencies:
     - build-job
-  script: gradle deployWebApp -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/beta -PappPort=10180
+  script: gradle deployWebApp -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/webapp/beta -PappPort=10180 -PjvmParams=-Xmx2g
 
 deploy-prod-webapp-job:
   stage: deploy-prod-webapp
   when: manual
   dependencies:
     - build-job
-  script: gradle deployWebApp -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/prod -PappPort=10080
+  script: gradle deployWebApp -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/webapp/prod -PappPort=10080 -PjvmParams=-Xmx2g
