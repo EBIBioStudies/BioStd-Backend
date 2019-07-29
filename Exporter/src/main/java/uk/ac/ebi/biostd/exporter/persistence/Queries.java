@@ -35,6 +35,7 @@ public class Queries {
     private String deletedSubmissionsQuery;
     private String submissionPublicationQuery;
     private String publicSubmissions;
+    private String publicSubmissionsByAccNo;
     private String userDropboxes;
     private String pendingRelease;
     private String releaseSubmission;

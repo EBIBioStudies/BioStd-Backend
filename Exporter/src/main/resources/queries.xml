@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-
   <entry key="publicSubmissions">
     <![CDATA[
     SELECT s.relPath
@@ -16,6 +15,24 @@
         AND s.released = true
         AND s.rootSection_id = se.id
         AND se.type = 'Study'
+    ]]>
+  </entry>
+
+  <entry key="publicSubmissionsByAccNo">
+    <![CDATA[
+    SELECT s.relPath
+      FROM Submission s,
+           Submission_AccessTag sa,
+           AccessTag a,
+           Section se
+      WHERE sa.Submission_id = s.id
+        AND sa.accessTags_id = a.id
+        AND a.name = 'Public'
+        AND s.version > 0
+        AND s.released = true
+        AND s.rootSection_id = se.id
+        AND se.type = 'Study'
+        AND s.accNo = :accNo
     ]]>
   </entry>
 

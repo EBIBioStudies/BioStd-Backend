@@ -21,8 +21,17 @@ public class FtpService {
 
     public void execute() {
         submissionDao.getPublicSubmissionsPaths().forEach(this::createLink);
+        finish();
+    }
+
+    public void execute(String accNo) {
+        createLink(submissionDao.getPublicSubmissionPathByAccNo(accNo));
+        finish();
+    }
+
+    private void finish() {
         count.set(0);
-        log.info("Finish copying all files ");
+        log.info("Finished copying all files");
     }
 
     private void createLink(String submissionRelPath) {

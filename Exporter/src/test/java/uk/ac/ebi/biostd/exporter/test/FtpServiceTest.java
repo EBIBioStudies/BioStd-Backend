@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.exporter.test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -29,7 +30,8 @@ import uk.ac.ebi.biostd.exporter.jobs.ftp.FtpService;
         "classpath:scripts/sql/create_schema.sql",
         "classpath:scripts/sql/init-full-export.sql",
         "classpath:scripts/sql/private_submission.sql",
-        "classpath:scripts/sql/public_submission.sql"})
+        "classpath:scripts/sql/public_submission.sql",
+        "classpath:scripts/sql/public_file_list_submission.sql"})
 @Sql(executionPhase = AFTER_TEST_METHOD, scripts = { "classpath:scripts/sql/drop_schema.sql" })
 public class FtpServiceTest {
     @Rule
@@ -57,6 +59,18 @@ public class FtpServiceTest {
 
         assertTrue(Files.exists(Paths.get(
             folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/File1.txt")));
+        assertTrue(Files.exists(Paths.get(
+            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx634/S-EPMC3343634/File2.txt")));
+    }
+
+    @Test
+    public void generateFtpLinksByAccNo() {
+        testInstance.execute("S-EPMC3343634");
+
+        assertFalse(Files.exists(Paths.get(
+            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/File1.txt")));
+        assertTrue(Files.exists(Paths.get(
+            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx634/S-EPMC3343634/File2.txt")));
     }
 
     private void createSubmissionFolders() throws IOException {
@@ -64,9 +78,13 @@ public class FtpServiceTest {
 
         folder.newFolder("submissions", "S-EPMC");
         folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx633");
+        folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx634");
         folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx633", "S-EPMC3343633");
+        folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx634", "S-EPMC3343634");
         folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx633", "S-EPMC3343633", "Files");
+        folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx634", "S-EPMC3343634", "Files");
 
         folder.newFile("submissions/S-EPMC/S-EPMCxxx633/S-EPMC3343633/Files/File1.txt");
+        folder.newFile("submissions/S-EPMC/S-EPMCxxx634/S-EPMC3343634/Files/File2.txt");
     }
 }
