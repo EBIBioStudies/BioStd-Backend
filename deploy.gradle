@@ -26,6 +26,7 @@ task deployWebApp {
         project.ext.artifactPath = "BackendWebApp/build/libs"
         project.ext.artifactName = "biostudy.jar"
         project.ext.debugPort = "8008"
+        project.ext.jvmParams = "-Xmx1g"
     }
 
     finalizedBy "deploy"
@@ -37,6 +38,7 @@ task deployExporter{
         project.ext.artifactName = "Exporter-0.0.1-SNAPSHOT.jar"
         project.ext.appPort = "8181"
         project.ext.debugPort = "8002"
+        project.ext.jvmParams = "-Xmx1g"
     }
 
     finalizedBy "deploy"
