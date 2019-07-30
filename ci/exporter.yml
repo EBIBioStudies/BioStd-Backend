@@ -3,7 +3,7 @@ deploy-dev-exporter-job:
   when: manual
   dependencies:
     - build-job
-  script: gradle deployExporter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/exporter/dev
+  script: gradle deployExporter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/exporter/dev -PjvmParams=-Xmx1g
 
 deploy-beta-exporter-job:
   stage: deploy-beta-exporter
