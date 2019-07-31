@@ -3,7 +3,7 @@
     {
       "id":1,
       "accno":"S-EPMC2873748",
-      "seckey":null,
+      "seckey":"abf2b18b-86ed-49ba-b41d-77702a51e6bc",
       "relPath":"S-EPMC/S-EPMCxxx748/S-EPMC2873748",
       "rtime":"1460402396",
       "ctime":"1460402396",
@@ -125,7 +125,7 @@
     }, {
       "id":2,
       "accno":"S-EPMC3343633",
-      "seckey":null,
+      "seckey":"abf2b18b-86ed-49ba-b41d-77702a51e6de",
       "relPath":"S-EPMC/S-EPMCxxx633/S-EPMC3343633",
       "rtime":"1460389106",
       "ctime":"1460389106",
@@ -243,7 +243,7 @@
     }, {
       "id":3,
       "accno":"S-EPMC3343634",
-      "seckey":null,
+      "seckey":"abf2b18b-86ed-49ba-b41d-77702a51e6da",
       "relPath":"S-EPMC/S-EPMCxxx634/S-EPMC3343634",
       "rtime":"1460389106",
       "ctime":"1460389106",

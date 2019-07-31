@@ -1,6 +1,16 @@
 -- Submission
 INSERT INTO Submission (CTime, MTime, RTime, accNo, relPath, released, rootPath, title, version, owner_id, secretKey)
-VALUES (1460402396, 1460402396, 1460402396, 'S-EPMC2873748', 'S-EPMC/S-EPMCxxx748/S-EPMC2873748', true, 'S-EPMC/S-EPMCxxx748/S-EPMC2873748', 'Cost-effectiveness of a potential vaccine for human papillomavirus.', 1, 1, null);
+VALUES (1460402396,
+        1460402396,
+        1460402396,
+        'S-EPMC2873748',
+        'S-EPMC/S-EPMCxxx748/S-EPMC2873748',
+        true,
+        'S-EPMC/S-EPMCxxx748/S-EPMC2873748',
+        'Cost-effectiveness of a potential vaccine for human papillomavirus.',
+        1,
+        1,
+        'abf2b18b-86ed-49ba-b41d-77702a51e6bc');
 
 INSERT INTO SubmissionAttribute(name, reference, value, submission_id, ord) VALUES('AttachTo', 0, 'BioImages', 1, 0);
 

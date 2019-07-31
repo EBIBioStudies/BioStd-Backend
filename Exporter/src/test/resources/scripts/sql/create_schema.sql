@@ -650,7 +650,7 @@ CREATE TABLE Submission (
     version        INT          NOT NULL,
     owner_id       BIGINT       NULL,
     rootSection_id BIGINT       NULL,
-    secretKey      VARCHAR(255) NULL,
+    secretKey      VARCHAR(255) NOT NULL,
     CONSTRAINT UKalkiyx9bg56ika8jw65r99fll
     UNIQUE (accNo, version),
     CONSTRAINT FKhsm5gtat31dkrft0was3a7gr7
