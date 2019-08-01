@@ -123,6 +123,17 @@ jobs:
     symLinksPath: /ebi/teams/biostudies/backend/development/usergroup/Users
   releaser:
     enabled: false
+  pmc:
+    export:
+      enabled: false
+      workers: 1
+      user: elinks
+      password: # to be set in deployment script
+      ftpServer: labslink.ebi.ac.uk
+      outputFolder: zs11dw62/testdir/aaa
+      fileNameFormat: EPMCLinks.part%03d.xml
+      ftpPort: 21
+      cron: 0 0/1 * * * ? # each minute
 
 ---
 spring:
