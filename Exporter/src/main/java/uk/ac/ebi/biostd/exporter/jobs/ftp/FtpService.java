@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 
@@ -20,18 +21,35 @@ public class FtpService {
     private final AtomicInteger count = new AtomicInteger(0);
 
     public void execute() {
-        submissionDao.getPublicSubmissionsPaths().forEach(this::createLink);
+        submissionDao.getPublicSubmissionsPaths().forEach(this::generateLinks);
         finish();
     }
 
     public void execute(String accNo) {
-        createLink(submissionDao.getPublicSubmissionPathByAccNo(accNo));
+        generateLinks(submissionDao.getPublicSubmissionPathByAccNo(accNo));
         finish();
     }
 
     private void finish() {
         count.set(0);
         log.info("Finished copying all files");
+    }
+
+    private void generateLinks(String submissionRelPath) {
+        deleteOutdatedLinks(submissionRelPath);
+        createLink(submissionRelPath);
+    }
+
+    private void deleteOutdatedLinks(String submissionRelPath) {
+        File outdatedFtpLinks = new File(properties.getBaseFtpPath() + "/" +submissionRelPath);
+
+        if (outdatedFtpLinks.exists()) {
+            try {
+                FileUtils.deleteDirectory(outdatedFtpLinks);
+            } catch (IOException exception) {
+                log.info("Problem deleting outdated ftp links for {}", submissionRelPath);
+            }
+        }
     }
 
     private void createLink(String submissionRelPath) {

@@ -45,7 +45,7 @@ public class FtpServiceTest {
 
     @Before
     public void setUp() throws IOException {
-        folder.newFolder("ftp");
+        createOutdatedLinks();
         createSubmissionFolders();
 
         String basePath = folder.getRoot().getAbsolutePath();
@@ -61,6 +61,8 @@ public class FtpServiceTest {
             folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/File1.txt")));
         assertTrue(Files.exists(Paths.get(
             folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx634/S-EPMC3343634/File2.txt")));
+        assertFalse(Files.exists(Paths.get(
+            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/OutdatedFile1.txt")));
     }
 
     @Test
@@ -71,6 +73,8 @@ public class FtpServiceTest {
             folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/File1.txt")));
         assertTrue(Files.exists(Paths.get(
             folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx634/S-EPMC3343634/File2.txt")));
+        assertTrue(Files.exists(Paths.get(
+            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/OutdatedFile1.txt")));
     }
 
     private void createSubmissionFolders() throws IOException {
@@ -86,5 +90,15 @@ public class FtpServiceTest {
 
         folder.newFile("submissions/S-EPMC/S-EPMCxxx633/S-EPMC3343633/Files/File1.txt");
         folder.newFile("submissions/S-EPMC/S-EPMCxxx634/S-EPMC3343634/Files/File2.txt");
+    }
+
+    private void createOutdatedLinks() throws IOException {
+        folder.newFolder("ftp");
+
+        folder.newFolder("ftp", "S-EPMC");
+        folder.newFolder("ftp", "S-EPMC", "S-EPMCxxx633");
+        folder.newFolder("ftp", "S-EPMC", "S-EPMCxxx633", "S-EPMC3343633");
+
+        folder.newFile("ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/OutdatedFile1.txt");
     }
 }
