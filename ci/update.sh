@@ -20,8 +20,10 @@ while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
 rm -rf logs.txt
 
 ## deploy new version of application
+## Note that  spring boot will try to load a file with name application.yml in the deploy folder path and
+## application-{profile}.yml if any profile is active
 nohup ${JAVA_HOME}/bin/java JVM_PARAMS \
     -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=DEBUG_PORT,suspend=n \
     -jar APP_PATH/APP_NAME \
-    --spring.config.location=classpath:/application.yml,APP_PATH/application.yml \
+    --spring.config.location=classpath:/application.yml,APP_PATH/ \
     --server.port=APP_PORT >> logs.txt &
