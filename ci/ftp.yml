@@ -1,0 +1,13 @@
+deploy-dev-ftp-job:
+  stage: deploy-dev-ftp
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deployFtp -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/ftp/dev
+
+deploy-beta-ftp-job:
+  stage: deploy-beta-ftp
+  when: manual
+  dependencies:
+    - build-job
+  script: gradle deployFtp -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/ftp/beta
