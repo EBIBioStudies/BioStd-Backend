@@ -56,7 +56,7 @@ public class FtpApplication {
 
     private ConnectionConfig configureConnection() {
         ConnectionConfigFactory connectionConfigFactory = new ConnectionConfigFactory();
-        connectionConfigFactory.setAnonymousLoginEnabled(true);
+        connectionConfigFactory.setAnonymousLoginEnabled(false);
         return connectionConfigFactory.createConnectionConfig();
     }
 
