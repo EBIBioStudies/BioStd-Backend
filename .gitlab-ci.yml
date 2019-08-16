@@ -5,6 +5,8 @@ include:
 
 stages:
   - build-test
+  - deploy-dev-ftp
+  - deploy-beta-ftp
   - deploy-dev-webapp
   - deploy-beta-webapp
   - deploy-prod-webapp
@@ -17,5 +19,6 @@ build-job:
   script: gradle clean build bootJar
   artifacts:
     paths:
-      - "BackendWebApp/build/libs/biostudy.jar"
+      - BackendWebApp/build/libs/biostudy.jar
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
+      - FtpServer/build/libs/FtpServer-0.0.1-SNAPSHOT.jar

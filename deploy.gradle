@@ -42,6 +42,17 @@ task deployExporter{
     finalizedBy "deploy"
 }
 
+task deployFtp {
+    doFirst {
+        project.ext.artifactPath = "FtpServer/build/libs"
+        project.ext.artifactName = "FtpServer-0.0.1-SNAPSHOT.jar"
+        project.ext.appPort = "8032"
+        project.ext.debugPort = "8007"
+    }
+
+    finalizedBy "deploy"
+}
+
 task deploy {
     doLast {
         ssh.run {
