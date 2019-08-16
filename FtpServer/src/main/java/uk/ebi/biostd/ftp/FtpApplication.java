@@ -1,7 +1,7 @@
 package uk.ebi.biostd.ftp;
 
 import com.google.common.base.Preconditions;
-import com.sun.tools.javac.util.List;
+import java.util.Collections;
 import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,7 +50,7 @@ public class FtpApplication {
         user.setName("anonymous");
         user.setPassword(configProperties.getPassword());
         user.setHomeDirectory(configProperties.getPath());
-        user.setAuthorities(List.of(new WritePermission()));
+        user.setAuthorities(Collections.singletonList(new WritePermission()));
         return user;
     }
 
