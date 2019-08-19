@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.exporter.rest;
 
-import java.io.IOException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,8 +65,14 @@ public class TasksController {
     }
 
     @GetMapping("/api/force/ftp")
-    public String executeFtp() throws IOException {
+    public String executeFtp() {
         ftpService.execute();
+        return "ok";
+    }
+
+    @GetMapping("/api/force/ftp/{accNo}")
+    public String executeFtp(@PathVariable String accNo) {
+        ftpService.execute(accNo);
         return "ok";
     }
 
