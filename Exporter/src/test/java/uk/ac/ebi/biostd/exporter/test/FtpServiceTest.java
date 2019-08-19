@@ -57,34 +57,21 @@ public class FtpServiceTest {
     public void generateFtpLinks() {
         testInstance.execute();
 
-        assertTrue(Files.exists(Paths.get(
-            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/File1.txt")));
-        assertTrue(Files.exists(Paths.get(
-            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx634/S-EPMC3343634/File2.txt")));
-        assertFalse(Files.exists(Paths.get(
-            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/OutdatedFile1.txt")));
+        assertTrue(ftpFileExists("S-EPMCxxx633/S-EPMC3343633/File1.txt"));
+        assertTrue(ftpFileExists("S-EPMCxxx634/S-EPMC3343634/File2.txt"));
+        assertFalse(ftpFileExists("S-EPMCxxx633/S-EPMC3343633/OutdatedFile1.txt"));
     }
 
     @Test
     public void generateFtpLinksByAccNo() {
         testInstance.execute("S-EPMC3343634");
 
-        assertFalse(Files.exists(Paths.get(
-            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/File1.txt")));
-        assertTrue(Files.exists(Paths.get(
-            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx634/S-EPMC3343634/File2.txt")));
-        assertTrue(Files.exists(Paths.get(
-            folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/OutdatedFile1.txt")));
+        assertFalse(ftpFileExists("S-EPMCxxx633/S-EPMC3343633/File1.txt"));
+        assertTrue(ftpFileExists("S-EPMCxxx634/S-EPMC3343634/File2.txt"));
+        assertTrue(ftpFileExists("S-EPMCxxx633/S-EPMC3343633/OutdatedFile1.txt"));
     }
 
     private void createSubmissionFolders() throws IOException {
-        folder.newFolder("submissions");
-
-        folder.newFolder("submissions", "S-EPMC");
-        folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx633");
-        folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx634");
-        folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx633", "S-EPMC3343633");
-        folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx634", "S-EPMC3343634");
         folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx633", "S-EPMC3343633", "Files");
         folder.newFolder("submissions", "S-EPMC", "S-EPMCxxx634", "S-EPMC3343634", "Files");
 
@@ -93,12 +80,11 @@ public class FtpServiceTest {
     }
 
     private void createOutdatedLinks() throws IOException {
-        folder.newFolder("ftp");
-
-        folder.newFolder("ftp", "S-EPMC");
-        folder.newFolder("ftp", "S-EPMC", "S-EPMCxxx633");
         folder.newFolder("ftp", "S-EPMC", "S-EPMCxxx633", "S-EPMC3343633");
-
         folder.newFile("ftp/S-EPMC/S-EPMCxxx633/S-EPMC3343633/OutdatedFile1.txt");
+    }
+
+    private boolean ftpFileExists(String path) {
+        return Files.exists(Paths.get(folder.getRoot().getAbsolutePath() + "/ftp/S-EPMC/" + path));
     }
 }

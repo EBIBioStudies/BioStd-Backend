@@ -26,7 +26,7 @@ public class FtpService {
     }
 
     public void execute(String accNo) {
-        generateLinks(submissionDao.getPublicSubmissionPathByAccNo(accNo));
+        generateLinks(submissionDao.getSubmissionPathByAccNo(accNo));
         finish();
     }
 
@@ -47,7 +47,7 @@ public class FtpService {
             try {
                 FileUtils.deleteDirectory(outdatedFtpLinks);
             } catch (IOException exception) {
-                log.info("Problem deleting outdated ftp links for {}", submissionRelPath);
+                log.error("Problem deleting outdated ftp links for {}", submissionRelPath, exception);
             }
         }
     }

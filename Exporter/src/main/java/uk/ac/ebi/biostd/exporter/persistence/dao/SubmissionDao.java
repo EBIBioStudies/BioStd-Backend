@@ -54,7 +54,7 @@ public class SubmissionDao {
         return template.queryForList(queries.getPublicSubmissions(), emptyMap(), String.class);
     }
 
-    public String getPublicSubmissionPathByAccNo(String accNo) {
+    public String getSubmissionPathByAccNo(String accNo) {
         return template.queryForObject(
                 queries.getPublicSubmissionsByAccNo(), singletonMap("accNo", accNo), String.class);
     }
