@@ -15,7 +15,7 @@ import lombok.Data;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AuxInfo {
 
-    private static final String ORCID = "orcid";
+    private static final String ORCID = null;
 
     @XmlElement(name = "param")
     private List<Parameter> parameters;

@@ -26,7 +26,6 @@ task deployWebApp {
         project.ext.artifactPath = "BackendWebApp/build/libs"
         project.ext.artifactName = "biostudy.jar"
         project.ext.debugPort = "8008"
-        project.ext.jvmParams = "-Xmx1g"
     }
 
     finalizedBy "deploy"
@@ -38,7 +37,17 @@ task deployExporter{
         project.ext.artifactName = "Exporter-0.0.1-SNAPSHOT.jar"
         project.ext.appPort = "8181"
         project.ext.debugPort = "8002"
-        project.ext.jvmParams = "-Xmx1g"
+    }
+
+    finalizedBy "deploy"
+}
+
+task deployFtp {
+    doFirst {
+        project.ext.artifactPath = "FtpServer/build/libs"
+        project.ext.artifactName = "FtpServer-0.0.1-SNAPSHOT.jar"
+        project.ext.appPort = "8032"
+        project.ext.debugPort = "8007"
     }
 
     finalizedBy "deploy"
@@ -55,7 +64,12 @@ task deploy {
                 execute "sed -i -e 's~APP_PORT~$appPort~g' $deployPath/update.sh"
                 execute "sed -i -e 's~APP_NAME~$artifactName~g' $deployPath/update.sh"
                 execute "sed -i -e 's~DEBUG_PORT~$debugPort~g' $deployPath/update.sh"
-                execute "sed -i -e 's~JVM_PARAMS~$jvmParams~g' $deployPath/update.sh"
+
+                if (project.hasProperty("jvmParams")) {
+                    execute "sed -i -e 's~JVM_PARAMS~$jvmParams~g' $deployPath/update.sh"
+                } else {
+                    execute "sed -i -e 's~JVM_PARAMS~~g' $deployPath/update.sh"
+                }
 
                 execute "chmod +x $deployPath/update.sh"
                 execute "sh $deployPath/update.sh"
