@@ -1,2 +1,7 @@
 server:
-  port: 8181
+  port: 8032
+
+ftp:
+  port: # Port used to serve FTP files
+  path: # FTP server base path
+  password: # Password for the "anonymous" user

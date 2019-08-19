@@ -1,6 +1,7 @@
 package uk.ebi.biostd.ftp;
 
 import com.google.common.base.Preconditions;
+import java.util.Collections;
 import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import org.apache.ftpserver.ftplet.User;
 import org.apache.ftpserver.listener.Listener;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
+import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Component;
 @SpringBootApplication
 @Slf4j
 public class FtpApplication {
-
     public static void main(String[] args) {
         new SpringApplicationBuilder(FtpApplication.class).run(args);
     }
@@ -47,13 +48,15 @@ public class FtpApplication {
     private User configureUser() {
         BaseUser user = new BaseUser();
         user.setName("anonymous");
+        user.setPassword(configProperties.getPassword());
         user.setHomeDirectory(configProperties.getPath());
+        user.setAuthorities(Collections.singletonList(new WritePermission()));
         return user;
     }
 
     private ConnectionConfig configureConnection() {
         ConnectionConfigFactory connectionConfigFactory = new ConnectionConfigFactory();
-        connectionConfigFactory.setAnonymousLoginEnabled(true);
+        connectionConfigFactory.setAnonymousLoginEnabled(false);
         return connectionConfigFactory.createConnectionConfig();
     }
 
@@ -68,8 +71,8 @@ public class FtpApplication {
     @Setter
     @ConfigurationProperties(prefix = "ftp")
     public class ConfigProperties {
-
         private String path;
         private Integer port;
+        private String password;
     }
 }
