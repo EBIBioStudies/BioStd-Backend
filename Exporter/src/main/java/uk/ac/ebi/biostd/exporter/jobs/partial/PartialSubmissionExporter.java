@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.service.SubmissionService;
 
@@ -93,13 +94,21 @@ public class PartialSubmissionExporter {
         String fullFilePath = getFileName();
         Files.deleteIfExists(Paths.get(fullFilePath));
 
+        long startTimeTS = System.currentTimeMillis();
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(fullFilePath))) {
+            // Since we are delegating the actual writing to jackson, the end time is always going to be equal to the
+            // start time here. TODO: Refactor Partial/Full exporters to use the same code
+            ExecutionStats stats = ExecutionStats.builder()
+                    .startTimeTS(startTimeTS)
+                    .endTimeTS(System.currentTimeMillis())
+                    .submissions(submissions.size())
+                    .threads(1)
+                    .build();
             PartialUpdateFile updateFile = PartialUpdateFile.builder()
                     .submissions(submissions)
-                    .submissionsCount(submissions.size())
                     .updatedSubmissions(submissions.stream().map(Submission::getAccno).collect(toList()))
+                    .stats(stats)
                     .build();
-
             bw.write(objectMapper.writeValueAsString(updateFile));
         }
 
