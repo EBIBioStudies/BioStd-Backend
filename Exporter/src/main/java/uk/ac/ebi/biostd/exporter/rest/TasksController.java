@@ -7,17 +7,18 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.ftp.FtpService;
 import uk.ac.ebi.biostd.exporter.jobs.partial.PartialSubmissionExporter;
+import uk.ac.ebi.biostd.exporter.jobs.releaser.ReleaserJob;
 import uk.ac.ebi.biostd.exporter.jobs.users.UserService;
 
 @RestController
 public class TasksController {
-
     private final ExportPipeline fullExporter;
     private final ExportPipeline pmcExporter;
     private final PartialSubmissionExporter partialExporter;
     private final ExportPipeline statsExporter;
     private final FtpService ftpService;
     private final UserService userService;
+    private final ReleaserJob releaserJob;
 
     public TasksController(
             @Qualifier("full") ExportPipeline fullExporter,
@@ -25,13 +26,21 @@ public class TasksController {
             @Qualifier("stats") ExportPipeline statsExporter,
             PartialSubmissionExporter partialExporter,
             FtpService ftpService,
-            UserService userService) {
+            UserService userService,
+            ReleaserJob releaserJob) {
         this.fullExporter = fullExporter;
         this.pmcExporter = pmcExporter;
         this.partialExporter = partialExporter;
         this.statsExporter = statsExporter;
         this.ftpService = ftpService;
         this.userService = userService;
+        this.releaserJob = releaserJob;
+    }
+
+    @GetMapping("/api/force/release")
+    public String forceRelease() {
+        releaserJob.execute();
+        return "ok";
     }
 
     @GetMapping("/api/force/full")
