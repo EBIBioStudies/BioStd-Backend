@@ -179,7 +179,8 @@ jobs:
     baseDropboxPath: /nfs/biostudies/ftp/pub/.dropbox
     symLinksPath: /nfs/biostudies/.adm/databases/beta/usergroup/Users
   releaser:
-    enabled: false
+    enabled: true
+    cron: 0 0 18 * * ? # everyday at 6 p.m.
 
 ---
 spring:
@@ -233,7 +234,8 @@ jobs:
     baseDropboxPath: /nfs/biostudies/ftp/pub/.dropbox
     symLinksPath: /nfs/biostudies/.adm/databases/prod/usergroup/Users
   releaser:
-    enabled: false
+    enabled: true
+    cron: 0 0 21 * * ? # everyday at 9 p.m.
   ftp:
     baseFtpPath: /nfs/biostudies/ftp/pub
     baseBioStudiesPath: /nfs/biostudies/.adm/databases/prod/submission
