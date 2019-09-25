@@ -47,7 +47,7 @@ public class JsonBufferedFileWriter implements RecordWriter {
             if (writeSeparator.getAndSet(true)) {
                 bw.write(DATA_SEPARATOR);
             }
-            bw.write(record.getPayload().toString());
+            bw.write(record.getPayload().toString().replace("\u00A0", " "));
         }
 
         bw.flush();
