@@ -208,10 +208,10 @@ jobs:
   full:
     enabled: true
     allSubmissions:
-      filePath: /nfs/biostudies/.adm/databases/prod/updates/
+      filePath: /nfs/biostudies/.adm/databases/prod/updates/encoding/
       fileName: studies
     publicOnlySubmissions:
-      filePath: /nfs/biostudies/prod/external/
+      filePath: /nfs/biostudies/.adm/databases/prod/updates/encoding/
       fileName: publicOnlyStudies
     workers: 4
     queryModified:

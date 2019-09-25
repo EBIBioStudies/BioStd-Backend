@@ -95,7 +95,7 @@
             WHERE fr.sectionId = se.id AND
             se.submission_id = su.id) filesCount
     FROM Submission su
-    WHERE su.version > 0
+    WHERE su.version > 0 and su.accNo = 'S-BIAD8'
   </entry>
 
   <entry key="simpleSubmissionsQuery">
