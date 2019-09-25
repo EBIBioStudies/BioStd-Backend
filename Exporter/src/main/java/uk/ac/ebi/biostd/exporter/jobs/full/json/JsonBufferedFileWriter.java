@@ -4,7 +4,8 @@ import static java.lang.String.format;
 import static java.nio.file.Files.deleteIfExists;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class JsonBufferedFileWriter implements RecordWriter {
         writeSeparator = new AtomicBoolean(false);
 
         deleteIfExists(Paths.get(tempFileName));
-        bw = new BufferedWriter(new FileWriter(tempFileName));
+        bw = Files.newBufferedWriter(Paths.get(tempFileName), StandardCharsets.UTF_8);
         bw.write("{\n \"submissions\" :[\n");
         bw.flush();
     }
