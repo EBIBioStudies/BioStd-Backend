@@ -90,10 +90,9 @@ public class JPAAccessionManager implements AccessionManager {
             trn.begin();
 
             if (gen == null) {
-                Query q = em.createNamedQuery("IdGen.getByPfxSfx");
+                Query q = em.createNamedQuery("IdGen.getByPrefix");
 
                 q.setParameter("prefix", prefix);
-                q.setParameter("suffix", suffix);
 
                 @SuppressWarnings("unchecked")
                 List<IdGen> genList = q.getResultList();

@@ -40,13 +40,18 @@ import uk.ac.ebi.biostd.idgen.acr.IdGenProfGrpACR;
 import uk.ac.ebi.biostd.idgen.acr.IdGenProfUsrACR;
 
 @Entity
-@NamedQueries({@NamedQuery(name = IdGen.GetByPfxSfxQuery,
-        query = "SELECT g FROM IdGen g WHERE ( (:prefix is null AND g.prefix is null ) OR g.prefix=:prefix) "
-                + "AND ( (:suffix is null AND g.suffix is null ) OR g.suffix=:suffix)")})
+@NamedQueries({
+        @NamedQuery(name = IdGen.GetByPfxSfxQuery,
+            query = "SELECT g FROM IdGen g WHERE ( (:prefix is null AND g.prefix is null ) OR g.prefix=:prefix) "
+                    + "AND ( (:suffix is null AND g.suffix is null ) OR g.suffix=:suffix)"),
+        @NamedQuery(name = IdGen.GetByPrefixQuery,
+            query = "SELECT g FROM IdGen g WHERE ( (:prefix is null AND g.prefix is null ) OR g.prefix=:prefix) ")
+})
 @Table(indexes = {@Index(name = "pfxsfx_idx", columnList = "prefix,suffix", unique = true)})
 public class IdGen implements AuthzObject {
 
     public static final String GetByPfxSfxQuery = "IdGen.getByPfxSfx";
+    public static final String GetByPrefixQuery = "IdGen.getByPrefix";
     private long id;
     private String prefix;
     private String suffix;

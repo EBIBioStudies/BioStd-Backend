@@ -200,8 +200,6 @@ public class Main {
                         ps.getSubmission().setAccNo(
                                 (ps.getAccNoPrefix() != null ? ps.getAccNoPrefix() : "") + (gen++) + (
                                         ps.getAccNoSuffix() != null ? ps.getAccNoSuffix() : ""));
-                    } else if (ps.getSubmission().getAccNo() == null) {
-                        ps.getSubmission().setAccNo("S-BSST" + (gen++));
                     }
                 } else {
                     ps.getSubmission().setAccNo(ps.getAccNoOriginal());
