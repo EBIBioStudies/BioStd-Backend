@@ -138,7 +138,7 @@ public class JPAAccessionManager implements AccessionManager {
             if (cnt == null) {
                 cnt = new Counter();
                 cnt.setMaxCount(0);
-                cnt.setName("" + prefix + "000" + suffix);
+                cnt.setName(prefix);
 
                 TypedQuery<AuthorizationTemplate> ctq = em
                         .createNamedQuery("AuthorizationTemplate.getByClassName", AuthorizationTemplate.class);

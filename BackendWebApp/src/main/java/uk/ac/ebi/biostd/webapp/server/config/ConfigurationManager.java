@@ -96,7 +96,6 @@ public class ConfigurationManager {
     private static final String FrontendUpdateFormatParameter = "frontendUpdateFormat";
     private static final String UIURLParameter = "UIURL";
     private static final String DefaultSubmissionAccPrefixParameter = "defaultSubmissionAccNoPrefix";
-    private static final String DefaultSubmissionAccSuffixParameter = "defaultSubmissionAccNoSuffix";
     private static final String DataMountPathParameter = "dataMountPath";
     private static final String RecaptchaPublicKeyParameter = "recaptcha_public_key";
     private static final String RecaptchaPrivateKeyParameter = "recaptcha_private_key";
@@ -732,12 +731,6 @@ public class ConfigurationManager {
 
         if (DefaultSubmissionAccPrefixParameter.equals(param)) {
             cfg.setDefaultSubmissionAccPrefix(val);
-
-            return true;
-        }
-
-        if (DefaultSubmissionAccSuffixParameter.equals(param)) {
-            cfg.setDefaultSubmissionAccSuffix(val);
 
             return true;
         }
