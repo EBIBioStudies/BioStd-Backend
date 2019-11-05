@@ -68,7 +68,6 @@ public class SubmissionService {
 
     private List<Attribute> getAttributes(Submission submission) {
         List<Attribute> subAttributes = submissionDao.getAttributes(submission.getId());
-        subAttributes.add(new Attribute("RootSubmissionPath", submission.getRelPath()));
         subAttributes
                 .add(new Attribute("ReleaseDate", DateUtils.getFromEpochSeconds(Long.valueOf(submission.getRTime()))));
         subAttributes.add(new Attribute("Title", submission.getTitle()));
