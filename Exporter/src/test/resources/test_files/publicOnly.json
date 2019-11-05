@@ -17,10 +17,6 @@
       ],
       "attributes":[
         {
-          "name":"RootSubmissionPath",
-          "value":"S-EPMC/S-EPMCxxx633/S-EPMC3343633"
-        },
-        {
           "name":"ReleaseDate",
           "value":"2016-04-11"
         },
@@ -134,10 +130,6 @@
         "#1"
       ],
       "attributes":[
-        {
-          "name":"RootSubmissionPath",
-          "value":"S-EPMC/S-EPMCxxx634/S-EPMC3343634"
-        },
         {
           "name":"ReleaseDate",
           "value":"2016-04-11"

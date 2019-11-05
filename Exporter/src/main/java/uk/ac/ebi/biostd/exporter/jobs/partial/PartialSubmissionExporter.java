@@ -5,7 +5,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Clock;
@@ -95,7 +95,7 @@ public class PartialSubmissionExporter {
         Files.deleteIfExists(Paths.get(fullFilePath));
 
         long startTimeTS = System.currentTimeMillis();
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fullFilePath))) {
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get(fullFilePath), StandardCharsets.UTF_8)) {
             // Since we are delegating the actual writing to jackson, the end time is always going to be equal to the
             // start time here. TODO: Refactor Partial/Full exporters to use the same code
             ExecutionStats stats = ExecutionStats.builder()
