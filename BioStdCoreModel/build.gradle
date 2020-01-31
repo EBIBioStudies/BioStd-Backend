@@ -9,10 +9,7 @@ targetCompatibility = 1.8
 
 repositories {
     mavenLocal()
-    maven { url "http://www.ebi.ac.uk/~maven/m2repo" }
-    maven { url "http://www.ebi.ac.uk/~maven/m2repo_snapshots" }
-    maven { url "http://repo1.maven.org/maven2" }
-    maven { url "http://repo.maven.apache.org/maven2" }
+    mavenCentral()
 }
 
 dependencies {

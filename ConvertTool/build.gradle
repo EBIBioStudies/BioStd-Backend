@@ -17,13 +17,13 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    maven { url "http://repo.maven.apache.org/maven2" }
+    mavenCentral()
 }
 
 dependencies {
     compile project(":SpreadsheetReaders")
     compile project(":BioStdCoreModel")
-    compile ("com.lexicalscope.jewelcli:jewelcli:[0.8.9,)")
+    compile ("com.lexicalscope.jewelcli:jewelcli:0.8.9")
 }
 
 shadowJar {

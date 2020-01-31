@@ -8,10 +8,9 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-     maven { url "http://repo.maven.apache.org/maven2" }
-     maven { url "http://www.ebi.ac.uk/~maven/m2repo" }
-     maven { url "http://www.ebi.ac.uk/~maven/m2repo_snapshots" }
+    mavenCentral()
 }
+
 dependencies {
     compile project(":Commons")
     compile ("org.apache.poi:poi:3.11")

@@ -1,4 +1,4 @@
-import java.awt.Desktop
+import java.awt.*
 import java.text.SimpleDateFormat
 
 buildscript {
@@ -73,10 +73,8 @@ bootJar.dependsOn asciidoctor
 bootJar.dependsOn generateGitProperties
 
 repositories {
-    maven { url "http://repo.maven.apache.org/maven2" }
-    maven { url "http://repo1.maven.org/maven2" }
+    mavenCentral()
 }
-
 
 def jacocoReportPath = "reports/coverage"
 
@@ -106,7 +104,6 @@ task openCoverageReport {
 gitProperties {
     keys = ['git.branch','git.commit.id','git.commit.time']
 }
-
 
 dependencies {
     compile project(":Commons")
