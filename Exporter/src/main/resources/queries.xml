@@ -115,6 +115,7 @@
     WHERE su.version > 0 AND
       (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
       fr.sectionId = se.id AND
+      su.CTime &lt; 1580515200 AND
       su.id = :submission_id
     GROUP BY su.accNo;
   </entry>

@@ -14,6 +14,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import uk.ac.ebi.biostd.exporter.jobs.stats.StatsExport;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsJobsFactory;
 import uk.ac.ebi.biostd.exporter.jobs.stats.StatsProperties;
 
+@Disabled
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = TestConfiguration.class)
