@@ -913,7 +913,16 @@ public class JSONReader extends Parser {
                                     processSubSectionObject(sso, ln, path, myPath, si, sec);
                                 }
                             } else {
-                                processSubSectionObject(val, ln, path, myPath, si, sec);
+                                if (!(val instanceof JSONObject)) {
+                                    ln.log(Level.ERROR, "Path '" + pathToString(path) + "' JSON object expected");
+                                }
+
+                                SectionOccurrence sbso = processSection((JSONObject) val, ln, path, myPath, si);
+
+                                if (sbso != null) {
+                                    sbso.getSection().setTableIndex(0);
+                                    sec.addSection(sbso.getSection());
+                                }
                             }
                         } finally {
                             path.pop();
@@ -1069,12 +1078,10 @@ public class JSONReader extends Parser {
                     Object tsso = ((JSONArray) sso).get(k);
 
                     if (!(tsso instanceof JSONObject)) {
-                        ln.log(Level.ERROR,
-                                "Path '" + pathToString(path) + "' JSON object expected");
+                        ln.log(Level.ERROR, "Path '" + pathToString(path) + "' JSON object expected");
                     }
 
-                    SectionOccurrence sbso = processSection((JSONObject) tsso, ln, path, myPath,
-                            si);
+                    SectionOccurrence sbso = processSection((JSONObject) tsso, ln, path, myPath, si);
 
                     if (sbso != null) {
                         sbso.getSection().setTableIndex(k);
@@ -1087,9 +1094,7 @@ public class JSONReader extends Parser {
 
             }
         } else {
-            ln.log(Level.ERROR,
-                    "Path '" + pathToString(path) + "' unexpected class: " + sso.getClass()
-                            .getName());
+            ln.log(Level.ERROR, "Path '" + pathToString(path) + "' unexpected class: " + sso.getClass().getName());
         }
     }
 
