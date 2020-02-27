@@ -904,62 +904,19 @@ public class JSONReader extends Parser {
                         break;
 
                     case JSONFormatter.subsectionsProperty:
+                        try {
+                            if (val instanceof JSONArray) {
+                                for (int j = 0; j < ((JSONArray) val).length(); j++) {
+                                    path.push(String.valueOf(j));
 
-                        if (!(val instanceof JSONArray)) {
-                            ln.log(Level.ERROR, "Path '" + pathToString(path) + "' error: array expected here");
-                            continue;
-                        }
-
-                        for (int j = 0; j < ((JSONArray) val).length(); j++) {
-                            try {
-                                path.push(String.valueOf(j));
-
-                                Object sso = ((JSONArray) val).get(j);
-
-                                if (sso instanceof JSONObject) {
-                                    SectionOccurrence sbsec = processSection((JSONObject) sso, ln, path, myPath, si);
-
-                                    if (sbsec != null) {
-                                        if (sbsec.getSection().getAccNo() != null) {
-                                            si.addNonTableSection(sbsec);
-                                        }
-
-                                        sec.addSection(sbsec.getSection());
-                                    }
-
-                                } else if (sso instanceof JSONArray) {
-                                    for (int k = 0; k < ((JSONArray) sso).length(); k++) {
-                                        try {
-                                            path.push(String.valueOf(k));
-
-                                            Object tsso = ((JSONArray) sso).get(k);
-
-                                            if (!(tsso instanceof JSONObject)) {
-                                                ln.log(Level.ERROR,
-                                                        "Path '" + pathToString(path) + "' JSON object expected");
-                                            }
-
-                                            SectionOccurrence sbso = processSection((JSONObject) tsso, ln, path, myPath,
-                                                    si);
-
-                                            if (sbso != null) {
-                                                sbso.getSection().setTableIndex(k);
-                                                sec.addSection(sbso.getSection());
-                                            }
-
-                                        } finally {
-                                            path.pop();
-                                        }
-
-                                    }
-                                } else {
-                                    ln.log(Level.ERROR,
-                                            "Path '" + pathToString(path) + "' unexpected class: " + sso.getClass()
-                                                    .getName());
+                                    Object sso = ((JSONArray) val).get(j);
+                                    processSubSectionObject(sso, ln, path, myPath, si, sec);
                                 }
-                            } finally {
-                                path.pop();
+                            } else {
+                                processSubSectionObject(val, ln, path, myPath, si, sec);
                             }
+                        } finally {
+                            path.pop();
                         }
 
                         break;
@@ -1089,6 +1046,51 @@ public class JSONReader extends Parser {
         }
 
         return secOc;
+    }
+
+    private void processSubSectionObject(
+        Object sso, LogNode ln, Stack<String> path, List<SectionOccurrence> myPath, SubmissionInfo si, Section sec) {
+        if (sso instanceof JSONObject) {
+            SectionOccurrence sbsec = processSection((JSONObject) sso, ln, path, myPath, si);
+
+            if (sbsec != null) {
+                if (sbsec.getSection().getAccNo() != null) {
+                    si.addNonTableSection(sbsec);
+                }
+
+                sec.addSection(sbsec.getSection());
+            }
+
+        } else if (sso instanceof JSONArray) {
+            for (int k = 0; k < ((JSONArray) sso).length(); k++) {
+                try {
+                    path.push(String.valueOf(k));
+
+                    Object tsso = ((JSONArray) sso).get(k);
+
+                    if (!(tsso instanceof JSONObject)) {
+                        ln.log(Level.ERROR,
+                                "Path '" + pathToString(path) + "' JSON object expected");
+                    }
+
+                    SectionOccurrence sbso = processSection((JSONObject) tsso, ln, path, myPath,
+                            si);
+
+                    if (sbso != null) {
+                        sbso.getSection().setTableIndex(k);
+                        sec.addSection(sbso.getSection());
+                    }
+
+                } finally {
+                    path.pop();
+                }
+
+            }
+        } else {
+            ln.log(Level.ERROR,
+                    "Path '" + pathToString(path) + "' unexpected class: " + sso.getClass()
+                            .getName());
+        }
     }
 
     private void finalizeSubmission(SubmissionInfo si) {
