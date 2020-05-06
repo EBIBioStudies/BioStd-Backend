@@ -158,7 +158,7 @@
   </entry>
 
   <entry key="sectionFilesQuery">
-    select id, name, size, path from FileRef where sectionId = :section_id
+    select id, name, size, directory, path from FileRef where sectionId = :section_id
   </entry>
 
   <entry key="sectionFilesCountQuery">
