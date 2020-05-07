@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class File {
 
-    private static final String TYPE = "file";
-
     @JsonIgnore
     private long id;
 
@@ -24,12 +22,12 @@ public class File {
     @JsonProperty("size")
     private long size;
 
-    @JsonProperty("directory")
+    @JsonIgnore
     private boolean directory;
 
     @JsonProperty("type")
     public String getType() {
-        return TYPE;
+        return directory ? "directory" : "file";
     }
 
     @JsonProperty("attributes")

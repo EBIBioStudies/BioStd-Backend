@@ -51,7 +51,6 @@
             "name": "02-0168_appT-s1.pdf",
             "path": null,
             "size": 34984,
-            "directory": false,
             "type": "file"
           }
         ],
@@ -161,7 +160,6 @@
             "path": null,
             "name": "NIHMS40251-supplement-1.pdf",
             "size": 9170139,
-            "directory": false,
             "attributes": [
               {
                 "name": "Type",
