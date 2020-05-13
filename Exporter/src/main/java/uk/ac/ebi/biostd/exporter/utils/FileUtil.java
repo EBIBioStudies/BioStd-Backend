@@ -24,19 +24,12 @@ public class FileUtil {
         return Files.list(Paths.get(filePath)).map(Path::toFile).collect(toList());
     }
 
-    public static String filesAsStringList(List<File> files) {
-        StringBuilder builder = new StringBuilder();
-        files.forEach(file -> {
-            builder.append("- ");
-            builder.append(file.toPath());
-            builder.append("\n");
-        });
-
-        return builder.toString();
-    }
-
-    public static File[] listFilesMatching(String rootPath, String regex) {
-        Pattern p = Pattern.compile(regex);
-        return new File(rootPath).listFiles(file -> p.matcher(file.getName()).matches());
+    @SneakyThrows
+    public static List<File> listFilesMatching(String rootPath, String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        return Files.list(Paths.get(rootPath))
+            .map(Path::toFile)
+            .filter(file -> pattern.matcher(file.getName()).matches())
+            .collect(toList());
     }
 }
