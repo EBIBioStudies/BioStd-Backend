@@ -20,13 +20,11 @@ public class DateUtils {
 
     public String getFromEpochSeconds(long seconds) {
         OffsetDateTime dateTime = Instant.ofEpochSecond(seconds).atOffset(ZoneOffset.UTC);
-
         return String.format("%d-%02d-%02d", dateTime.getYear(), dateTime.getMonthValue(), dateTime.getDayOfMonth());
     }
 
     public String getFromEpochMilliseconds(long milliseconds) {
         OffsetDateTime dateTime = Instant.ofEpochMilli(milliseconds).atOffset(ZoneOffset.UTC);
-
         return String.format("%d-%02d-%02d %d:%02d:%02d", dateTime.getYear(), dateTime.getMonthValue(),
                 dateTime.getDayOfMonth(), dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond());
     }
