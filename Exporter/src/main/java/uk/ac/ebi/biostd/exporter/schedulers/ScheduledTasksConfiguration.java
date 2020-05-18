@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.config.CronTask;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
+import uk.ac.ebi.biostd.exporter.jobs.partial.PartialExportCleaner;
 import uk.ac.ebi.biostd.exporter.jobs.partial.PartialSubmissionExporter;
 import uk.ac.ebi.biostd.exporter.jobs.releaser.ReleaserJob;
 
@@ -26,6 +27,7 @@ public class ScheduledTasksConfiguration {
     private final ExportPipeline pmcExporter;
     private final ExportPipeline statsExporter;
     private final PartialSubmissionExporter partialExporter;
+    private final PartialExportCleaner partialExportCleaner;
     private final ReleaserJob releaserJob;
 
     @Value("${jobs.dummy.cron}")
@@ -36,6 +38,9 @@ public class ScheduledTasksConfiguration {
 
     @Value("${jobs.partial.cron:''}")
     private String partialCron;
+
+    @Value("${jobs.partial.cleanerCron:''}")
+    private String partialCleanerCron;
 
     @Value("${jobs.pmc.export.cron:''}")
     private String pmcCron;
@@ -51,9 +56,11 @@ public class ScheduledTasksConfiguration {
             @Qualifier("pmc") ExportPipeline pmcExporter,
             @Qualifier("stats") ExportPipeline statsExporter,
             PartialSubmissionExporter partialExporter,
+            PartialExportCleaner partialExportCleaner,
             ReleaserJob releaserJob) {
         this.fullExporter = fullExporter;
         this.partialExporter = partialExporter;
+        this.partialExportCleaner = partialExportCleaner;
         this.pmcExporter = pmcExporter;
         this.statsExporter = statsExporter;
         this.releaserJob = releaserJob;
@@ -75,6 +82,12 @@ public class ScheduledTasksConfiguration {
     @ConditionalOnProperty(prefix = "jobs.partial", name = "enabled", havingValue = "true")
     public CronTask partialScheduler() {
         return new CronTask(new PartialExportJob(partialExporter::execute), partialCron);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "jobs.partial", name = "enabled", havingValue = "true")
+    public CronTask partialCleanerScheduler() {
+        return new CronTask(new PartialExportCleanerJob(partialExportCleaner::execute), partialCleanerCron);
     }
 
     @Bean
@@ -108,6 +121,17 @@ public class ScheduledTasksConfiguration {
 
     @AllArgsConstructor
     public static class PartialExportJob implements Runnable {
+
+        private final Runnable runnable;
+
+        @Override
+        public void run() {
+            runnable.run();
+        }
+    }
+
+    @AllArgsConstructor
+    public static class PartialExportCleanerJob implements Runnable {
 
         private final Runnable runnable;
 
