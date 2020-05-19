@@ -1,8 +1,5 @@
 package uk.ac.ebi.biostd.exporter.persistence.dao;
 
-import static java.util.Collections.singletonMap;
-
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -14,9 +11,16 @@ import uk.ac.ebi.biostd.exporter.persistence.mappers.AttributeMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.FileMapper;
 import uk.ac.ebi.biostd.exporter.persistence.mappers.SectionMapper;
 
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.singletonMap;
+
 @Component
 @AllArgsConstructor
 public class SectionDao {
+
+    private static final String SEC_ID_PARAM = "section_id";
 
     private final Queries queries;
     private final NamedParameterJdbcTemplate template;
@@ -25,29 +29,22 @@ public class SectionDao {
     private final FileMapper fileMapper;
 
     public List<Attribute> getSectionAttributes(long sectionId) {
-        return template.query(
-                queries.getSectionAttributesQuery(), singletonMap("section_id", sectionId), attributeMapper);
+        return template.query(queries.getSectionAttributesQuery(), sectionId(sectionId), attributeMapper);
     }
 
     public List<File> getSectionFiles(long sectionId) {
-        return template.query(queries.getSectionFilesQuery(), singletonMap("section_id", sectionId), fileMapper);
-    }
-
-    public Long getSectionFilesCount(long sectionId) {
-        Long files = template.queryForObject(
-                queries.getSectionFilesCountQuery(), singletonMap("section_id", sectionId), Long.class);
-        Long referencedFiles = template.queryForObject(
-                queries.getSectionReferencedFilesCountQuery(), singletonMap("section_id", sectionId), Long.class);
-
-        return files + referencedFiles;
+        return template.query(queries.getSectionFilesQuery(), sectionId(sectionId), fileMapper);
     }
 
     public Section getSection(long sectionId) {
-        return template.queryForObject(
-                queries.getSectionByIdQuery(), singletonMap("section_id", sectionId), sectionMapper);
+        return template.queryForObject(queries.getSectionByIdQuery(), sectionId(sectionId), sectionMapper);
     }
 
     public List<Section> getSectionSections(long sectionId) {
-        return template.query(queries.getSectionSectionsQuery(), singletonMap("section_id", sectionId), sectionMapper);
+        return template.query(queries.getSectionSectionsQuery(), sectionId(sectionId), sectionMapper);
+    }
+
+    private Map<String, ?> sectionId(long sectionId) {
+        return singletonMap(SEC_ID_PARAM, sectionId);
     }
 }

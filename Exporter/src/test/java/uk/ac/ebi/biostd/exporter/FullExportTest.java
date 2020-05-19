@@ -90,10 +90,10 @@ public class FullExportTest extends BaseIntegrationTest {
 
     @Test
     public void testFullExport() {
-        assertExportJobResults(EXPECTED_FULL_JSON_PATH);
+        assertExportJobResults();
     }
 
-    private void assertExportJobResults(String expectedFullJson) {
+    private void assertExportJobResults() {
         exportPipeline.execute();
 
         File[] files = folder.getRoot().listFiles();
@@ -101,9 +101,8 @@ public class FullExportTest extends BaseIntegrationTest {
 
         Arrays.sort(files, Comparator.comparing(File::getName));
         assertThatJsonFile(files[0], EXPECTED_PUBLIC_ONLY_JSON_PATH);
-        assertThatJsonFile(files[1], expectedFullJson);
+        assertThatJsonFile(files[1], FullExportTest.EXPECTED_FULL_JSON_PATH);
     }
-
 
     private void assertThatJsonFile(File file, String expectedFilePath) {
         String content = FileUtil.readFile(file.getAbsolutePath());

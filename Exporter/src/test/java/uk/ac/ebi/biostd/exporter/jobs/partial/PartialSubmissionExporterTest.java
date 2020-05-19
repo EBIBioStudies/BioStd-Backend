@@ -48,7 +48,7 @@ public class PartialSubmissionExporterTest {
     @Mock
     private RestTemplate mockRestTemplate;
 
-    private Submission updatedSubmission = new Submission();
+    private final Submission updatedSubmission = new Submission();
 
     @InjectMocks
     private PartialSubmissionExporter testInstance;
@@ -56,7 +56,6 @@ public class PartialSubmissionExporterTest {
     @Before
     public void setup() throws Exception {
         updatedSubmission.setAccno(ACCNO);
-
         when(mockSubService.getUpdatedSubmissions(anyLong())).thenReturn(singletonList(updatedSubmission));
         when(mockSubService.getDeletedSubmissions(anyLong())).thenReturn(singletonList(ACCNO));
         when(mockProperties.getFilePath()).thenReturn(folder.getRoot().getAbsolutePath() + "/");

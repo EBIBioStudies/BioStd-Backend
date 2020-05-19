@@ -3,19 +3,15 @@ package uk.ac.ebi.biostd.exporter.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@XmlRootElement(name = "file")
-@XmlAccessorType(XmlAccessType.NONE)
 public class File {
 
-    private static final String TYPE = "file";
+    private static final String DIRECTORY_TYPE = "directory";
+    private static final String FILE_TYPE = "file";
 
     @JsonIgnore
     private long id;
@@ -29,9 +25,12 @@ public class File {
     @JsonProperty("size")
     private long size;
 
+    @JsonIgnore
+    private boolean directory;
+
     @JsonProperty("type")
     public String getType() {
-        return TYPE;
+        return directory ? DIRECTORY_TYPE : FILE_TYPE;
     }
 
     @JsonProperty("attributes")
