@@ -82,15 +82,8 @@ public class SubmissionService {
         }
 
         if (subAttributes.stream().noneMatch(attribute -> attribute.getName().equals(accessTag))) {
-            subAttributes.add(newAttribute("AttachTo", accessTag));
+            subAttributes.add(new Attribute("AttachTo", accessTag));
         }
-    }
-
-    private Attribute newAttribute(String name, String value) {
-        Attribute attribute = new Attribute();
-        attribute.setName(name);
-        attribute.setValue(value);
-        return attribute;
     }
 
     private Section processSection(Section section) {
