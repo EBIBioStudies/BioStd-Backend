@@ -1,6 +1,8 @@
 package uk.ac.ebi.biostd.exporter.service;
 
+import static java.lang.Long.parseLong;
 import static java.util.stream.Collectors.toList;
+import static uk.ac.ebi.biostd.exporter.utils.DateUtils.getFromEpochSeconds;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,6 @@ import uk.ac.ebi.biostd.exporter.persistence.dao.FilesDao;
 import uk.ac.ebi.biostd.exporter.persistence.dao.LinksDao;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SectionDao;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
-import uk.ac.ebi.biostd.exporter.utils.DateUtils;
 
 @Slf4j
 @Service
@@ -39,9 +40,11 @@ public class SubmissionService {
 
     public Submission processSubmission(Submission submission) {
         log.debug("processing submissions with accno: '{}' and id '{}'", submission.getAccno(), submission.getId());
-        List<Attribute> attributes = getAttributes(submission);
 
-        submission.setAccessTags(getAccessTags(submission));
+        List<String> accessTags = submissionDao.getAccessTags(submission.getId());
+        List<Attribute> attributes = getAttributes(submission, accessTags);
+
+        submission.setAccessTags(getAccessTags(submission, accessTags));
         submission.setAttributes(attributes);
 
         if (submission.getRootSection_id() != 0) {
@@ -57,52 +60,53 @@ public class SubmissionService {
         return submission;
     }
 
-    private List<String> getAccessTags(Submission submission) {
+    private List<String> getAccessTags(Submission submission, List<String> accessTags) {
         List<String> tags = new ArrayList<>();
         tags.add(submissionDao.getUserEmail(submission.getOwner_id()));
-        tags.addAll(submissionDao.getAccessTags(submission.getId()));
+        tags.addAll(accessTags);
         tags.add("#" + submission.getOwner_id());
-
         return tags;
     }
 
-    private List<Attribute> getAttributes(Submission submission) {
+    private List<Attribute> getAttributes(Submission submission, List<String> accessTags) {
         List<Attribute> subAttributes = submissionDao.getAttributes(submission.getId());
-        subAttributes
-                .add(new Attribute("ReleaseDate", DateUtils.getFromEpochSeconds(Long.valueOf(submission.getRTime()))));
+        subAttributes.add(new Attribute("ReleaseDate", getFromEpochSeconds(parseLong(submission.getRTime()))));
         subAttributes.add(new Attribute("Title", submission.getTitle()));
+        accessTags.forEach(tag -> addProjectAttribute(subAttributes, tag));
         return subAttributes;
+    }
+
+    private void addProjectAttribute(List<Attribute> subAttributes, String accessTag) {
+        if (accessTag.equals("Public")) {
+            return;
+        }
+
+        if (subAttributes.stream().noneMatch(attribute -> attribute.getName().equals(accessTag))) {
+            subAttributes.add(new Attribute("AttachTo", accessTag));
+        }
     }
 
     private Section processSection(Section section) {
         long sectionId = section.getId();
-
         section.setAttributes(sectionDao.getSectionAttributes(section.getId()));
         section.setFiles(getSectionFiles(sectionId));
         section.setLinks(getSectionLinks(sectionId));
         section.setSubsections(getSubsections(sectionId));
-
         return section;
     }
 
     private List<File> getSectionFiles(long sectionId) {
         return sectionDao.getSectionFiles(sectionId)
-                .stream()
-                .map(file -> {
-                    file.setAttributes(filesDao.getFilesAttributes(file.getId()));
-                    return file;
-                })
-                .collect(toList());
+            .stream()
+            .peek(file -> file.setAttributes(filesDao.getFilesAttributes(file.getId())))
+            .collect(toList());
     }
 
     private List<Link> getSectionLinks(long sectionId) {
         return linksDao.getLinks(sectionId)
-                .stream()
-                .map(link -> {
-                    link.setAttributes(linksDao.getLinkAttributes(link.getId()));
-                    return link;
-                })
-                .collect(toList());
+            .stream()
+            .peek(link -> link.setAttributes(linksDao.getLinkAttributes(link.getId())))
+            .collect(toList());
     }
 
     private List<Section> getSubsections(long sectionId) {
