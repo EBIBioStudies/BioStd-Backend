@@ -64,3 +64,5 @@ VALUES ('affiliation', null, true, 'o1', null, 9, 1);
 
 INSERT INTO SectionAttribute (name, nameQualifierString,  reference, value, valueQualifierString, section_id, ord)
 VALUES ('Name', null, false, 'MRC Laboratory of Molecular Biology, Hills Road, Cambridge, CB0QH, UK', null, 10, 0);
+
+INSERT INTO SubmissionStat(accNo, type, value) VALUES('S-EPMC3343633', 'VIEWS', 314);

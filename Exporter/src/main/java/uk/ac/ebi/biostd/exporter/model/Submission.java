@@ -12,12 +12,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@JsonPropertyOrder({"id", "accno", "title", "seckey", "relPath", "rtime", "ctime", "mtime", "type", "accessTags",
-        "attributes", "section"})
+@JsonPropertyOrder({"id", "accno", "title", "seckey", "relPath", "rtime", "ctime", "mtime", "views", "type",
+    "accessTags", "attributes", "section"})
 @XmlRootElement(name = "submission")
 @XmlAccessorType(XmlAccessType.NONE)
 public class Submission {
-
     private static final String SUBMISSION_TYPE = "submission";
 
     @JsonProperty("id")
@@ -43,6 +42,9 @@ public class Submission {
 
     @JsonProperty("mtime")
     private String mTime;
+
+    @JsonProperty("views")
+    private Integer views;
 
     @JsonIgnore
     private long owner_id;

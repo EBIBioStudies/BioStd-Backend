@@ -209,4 +209,7 @@
     select accNo from Section sec where sec.type = 'Publication' and sec.submission_id = :submissionId
   </entry>
 
+  <entry key="submissionStatsQuery">
+    SELECT value from SubmissionStat where accNo = :accNo and type = :type
+  </entry>
 </properties>
