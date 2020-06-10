@@ -662,6 +662,14 @@ CREATE INDEX FKidqs3m2ntuqyuiophfwikw81a ON Submission (owner_id);
 CREATE INDEX released_idx ON Submission (released);
 CREATE INDEX rtime_idx ON Submission (RTime);
 
+CREATE TABLE SubmissionStat(
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    accNo       VARCHAR(255) NOT NULL,
+    value       BIGINT       NOT NULL,
+    type        LONGTEXT     NOT NULL,
+    CONSTRAINT Submission_Stat_FRG_KEY FOREIGN KEY (accNo) REFERENCES Submission (accNo) ON DELETE CASCADE
+);
+
 ALTER TABLE AttributeSubscriptionMatchEvent ADD CONSTRAINT FKb13xop3ik6im4c9ibudfx7pu0
 FOREIGN KEY (submission_id) REFERENCES Submission (id);
 

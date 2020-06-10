@@ -40,4 +40,5 @@ public class Queries {
     private String pendingRelease;
     private String releaseSubmission;
     private String addPublicAccessTag;
+    private String submissionStatsQuery;
 }

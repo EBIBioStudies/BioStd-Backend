@@ -101,7 +101,7 @@ public class FullExportTest extends BaseIntegrationTest {
 
         Arrays.sort(files, Comparator.comparing(File::getName));
         assertThatJsonFile(files[0], EXPECTED_PUBLIC_ONLY_JSON_PATH);
-        assertThatJsonFile(files[1], FullExportTest.EXPECTED_FULL_JSON_PATH);
+        assertThatJsonFile(files[1], EXPECTED_FULL_JSON_PATH);
     }
 
     private void assertThatJsonFile(File file, String expectedFilePath) {

@@ -17,6 +17,7 @@ import uk.ac.ebi.biostd.exporter.model.Submission;
 import uk.ac.ebi.biostd.exporter.persistence.dao.FilesDao;
 import uk.ac.ebi.biostd.exporter.persistence.dao.LinksDao;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SectionDao;
+import uk.ac.ebi.biostd.exporter.persistence.dao.StatsDao;
 import uk.ac.ebi.biostd.exporter.persistence.dao.SubmissionDao;
 
 @Slf4j
@@ -27,6 +28,7 @@ public class SubmissionService {
     private final SectionDao sectionDao;
     private final FilesDao filesDao;
     private final LinksDao linksDao;
+    private final StatsDao statsDao;
 
     public List<Submission> getUpdatedSubmissions(long syncTime) {
         List<Submission> submissions = submissionDao.getUpdatedSubmissions(syncTime);
@@ -46,6 +48,7 @@ public class SubmissionService {
 
         submission.setAccessTags(getAccessTags(submission, accessTags));
         submission.setAttributes(attributes);
+        submission.setViews(statsDao.getViews(submission.getAccno()));
 
         if (submission.getRootSection_id() != 0) {
             submission.setSection(processSection(sectionDao.getSection(submission.getRootSection_id())));
