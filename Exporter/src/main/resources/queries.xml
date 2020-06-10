@@ -210,6 +210,6 @@
   </entry>
 
   <entry key="submissionStatsQuery">
-    SELECT value from SubmissionStat where accNo = :accNo and type = :type
+    SELECT IFNULL((SELECT value from SubmissionStat where accNo = :accNo and type = :type), 0)
   </entry>
 </properties>
