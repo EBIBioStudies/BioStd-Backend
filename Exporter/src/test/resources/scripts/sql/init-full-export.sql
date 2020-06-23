@@ -3,3 +3,4 @@ INSERT INTO User (activationKey, active, auxProfileInfo, email, fullName, keyTim
 
 -- AccessTags
 INSERT INTO AccessTag (id, description, name, owner_id, parent_tag_id) VALUES (1, null, 'Public', 1, null);
+INSERT INTO AccessTag (id, description, name, owner_id, parent_tag_id) VALUES (2, null, 'BioImages', 1, null);

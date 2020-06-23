@@ -4,6 +4,9 @@ VALUES (1460402396, 1460402396, 1460402396, 'S-EPMC2873748', 'S-EPMC/S-EPMCxxx74
 
 INSERT INTO SubmissionAttribute(name, reference, value, submission_id, ord) VALUES('AttachTo', 0, 'BioImages', 1, 0);
 
+-- Submission Access Tag
+INSERT INTO Submission_AccessTag (Submission_id, accessTags_id) VALUES (1, 2);
+
 -- Sections
 INSERT INTO Section (accNo, parentAccNo, tableIndex, type, parent_id, submission_id, ord)
 VALUES (null, null, -1, 'Study', null, 1, null);
