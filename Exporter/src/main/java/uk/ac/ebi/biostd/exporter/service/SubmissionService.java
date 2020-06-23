@@ -84,7 +84,7 @@ public class SubmissionService {
             return;
         }
 
-        if (subAttributes.stream().noneMatch(attribute -> attribute.getName().equals(accessTag))) {
+        if (subAttributes.stream().noneMatch(attribute -> attribute.getValue().equals(accessTag))) {
             subAttributes.add(new Attribute("AttachTo", accessTag));
         }
     }
