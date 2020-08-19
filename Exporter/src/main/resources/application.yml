@@ -103,7 +103,7 @@ jobs:
     notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/
     deleteNotificationUrl: http://ribs:8080/biostudies/api/v1/index/delete/
     cron: 0 0/5 5-19 * * ? # Every 5 minutes, between 05:00 AM and 07:59 PM.
-    cleanerCron: 0 3 1 * * ? # everyday at 1 a.m.
+    cleanerCron: 0 3 3 * * ? # everyday at 3 a.m.
   full:
     enabled: true
     allSubmissions:
@@ -115,7 +115,7 @@ jobs:
     workers: 4
     queryModified:
     notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/default
-    cron: 0 0 19 * * ? # everyday at 7 p.m.
+    cron: 0 0 21 * * ? # everyday at 9 p.m.
     recordsThreshold: 1
   ftp:
     baseFtpPath: /ebi/teams/biostudies/backend/development/ftp
@@ -161,7 +161,7 @@ jobs:
     notificationUrl: http://ves-ebi-6b:8080/biostudies/api/v1/index/reload/
     deleteNotificationUrl: http://ves-ebi-6b:8080/biostudies/api/v1/index/delete/
     cron: 0 0/5 5-19 * * ? # each five minutes between 5 am and 7 pm.
-    cleanerCron: 0 3 2 * * ? # everyday at 2 a.m.
+    cleanerCron: 0 3 3 * * ? # everyday at 3 a.m.
   full:
     enabled: true
     allSubmissions:
@@ -173,7 +173,7 @@ jobs:
     workers: 2
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
-    cron: 0 0 19 * * ? # everyday at 7 p.m.
+    cron: 0 0 21 * * ? # everyday at 9 p.m.
     recordsThreshold: 500000
   ftp:
     baseFtpPath: /nfs/biostudies/.adm/databases/beta/ftp
@@ -183,7 +183,7 @@ jobs:
     symLinksPath: /nfs/biostudies/.adm/databases/beta/usergroup/Users
   releaser:
     enabled: true
-    cron: 0 0 18 * * ? # everyday at 6 p.m.
+    cron: 0 0 20 * * ? # everyday at 8 p.m.
 
 ---
 spring:
@@ -201,7 +201,7 @@ jobs:
     basePath: /nfs/biostudies/.adm/databases/prod/submission
     outFilePath: /nfs/biostudies/.adm/databases/prod/updates/stats.csv
     workers: 4
-    cron: 0 0 22 4 * * # the fourth of each month at 10 p.m.
+    cron: 0 0 22 5 * * # the fourth of each month at 10 p.m.
   partial:
     enabled: true
     filePath: /nfs/biostudies/.adm/databases/prod/updates/
@@ -221,7 +221,7 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     deleteNotificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/delete/
-    cron: 0 0 22 * * ? # everyday at 10 p.m.
+    cron: 0 0 21 * * ? # everyday at 9 p.m.
     recordsThreshold: 500000
   pmc:
     export:
@@ -239,7 +239,7 @@ jobs:
     symLinksPath: /nfs/biostudies/.adm/databases/prod/usergroup/Users
   releaser:
     enabled: true
-    cron: 0 0 21 * * ? # everyday at 9 p.m.
+    cron: 0 0 20 * * ? # everyday at 8 p.m.
   ftp:
     baseFtpPath: /nfs/biostudies/ftp/pub
     baseBioStudiesPath: /nfs/biostudies/.adm/databases/prod/submission
