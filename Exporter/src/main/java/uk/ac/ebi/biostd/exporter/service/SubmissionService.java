@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.exporter.service;
 
 import static java.lang.Long.parseLong;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static uk.ac.ebi.biostd.exporter.utils.DateUtils.getFromEpochSeconds;
 
 import java.util.ArrayList;
@@ -73,9 +74,12 @@ public class SubmissionService {
 
     private List<Attribute> getAttributes(Submission submission, List<String> accessTags) {
         List<Attribute> subAttributes = submissionDao.getAttributes(submission.getId());
+        String submissionTitle = submission.getTitle() != null ? submission.getTitle() : EMPTY;
+
+        subAttributes.add(new Attribute("Title", submissionTitle));
         subAttributes.add(new Attribute("ReleaseDate", getFromEpochSeconds(parseLong(submission.getRTime()))));
-        subAttributes.add(new Attribute("Title", submission.getTitle()));
         accessTags.forEach(tag -> addProjectAttribute(subAttributes, tag));
+
         return subAttributes;
     }
 
@@ -84,9 +88,13 @@ public class SubmissionService {
             return;
         }
 
-        if (subAttributes.stream().noneMatch(attribute -> attribute.getValue().equals(accessTag))) {
+        if (subAttributes.stream().noneMatch(attribute -> hasSameValue(attribute, accessTag))) {
             subAttributes.add(new Attribute("AttachTo", accessTag));
         }
+    }
+
+    private Boolean hasSameValue(Attribute attribute, String value) {
+        return attribute.getValue() != null && attribute.getValue().equals(value);
     }
 
     private Section processSection(Section section) {
