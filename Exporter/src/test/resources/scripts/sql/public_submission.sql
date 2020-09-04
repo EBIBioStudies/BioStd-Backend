@@ -1,6 +1,18 @@
 -- Submission
-INSERT INTO Submission (CTime, MTime, RTime, accNo, relPath, released, rootPath, title, version, owner_id, secretKey)
-VALUES (1460389106, 1460389106, 1460389106, 'S-EPMC3343633', 'S-EPMC/S-EPMCxxx633/S-EPMC3343633', true, 'S-EPMC/S-EPMCxxx633/S-EPMC3343633', 'Transcription factor RORα is critical for nuocyte development.', 1, 1, null);
+INSERT INTO Submission (
+    CTime, MTime, RTime, accNo, relPath, method, released, rootPath, title, version, owner_id, submitter_id)
+VALUES (1460389106,
+        1460389106,
+        1460389106,
+        'S-EPMC3343633',
+        'S-EPMC/S-EPMCxxx633/S-EPMC3343633',
+        'PAGE_TAB',
+        true,
+        'S-EPMC/S-EPMCxxx633/S-EPMC3343633',
+        'Transcription factor RORα is critical for nuocyte development.',
+        1,
+        1,
+        1);
 
 -- Submission Access Tag
 INSERT INTO Submission_AccessTag (Submission_id, accessTags_id) VALUES (2, 1);

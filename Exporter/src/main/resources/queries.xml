@@ -12,6 +12,7 @@
         AND sa.accessTags_id = a.id
         AND a.name = 'Public'
         AND s.version > 0
+        AND s.status = 'PROCESSED'
         AND s.released = true
         AND s.rootSection_id = se.id
         AND se.type = 'Study'
@@ -29,6 +30,7 @@
         AND sa.accessTags_id = a.id
         AND a.name = 'Public'
         AND s.version > 0
+        AND s.status = 'PROCESSED'
         AND s.released = true
         AND s.rootSection_id = se.id
         AND se.type = 'Study'
@@ -45,6 +47,7 @@
         AND s.released = false
         AND s.RTime BETWEEN :from AND :to
         AND s.version > 0
+        AND s.status = 'PROCESSED'
      ]]>
   </entry>
 
@@ -69,13 +72,13 @@
   <entry key="updatedSubmissionsQuery">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id
     FROM Submission su
-    WHERE version > 0 and (cTime > :sync_time or mTime > :sync_time)
+    WHERE version > 0 and status = 'PROCESSED' and (cTime > :sync_time or mTime > :sync_time)
   </entry>
 
   <entry key="submissionsQueryByAccNo">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id
     FROM Submission su
-    WHERE version > 0 and accno = :accno
+    WHERE version > 0 and status = 'PROCESSED' and accno = :accno
   </entry>
 
   <entry key="deletedSubmissionsQuery">
@@ -95,7 +98,7 @@
             WHERE fr.sectionId = se.id AND
             se.submission_id = su.id) filesCount
     FROM Submission su
-    WHERE su.version > 0
+    WHERE su.version > 0 AND su.status = 'PROCESSED'
   </entry>
 
   <entry key="simpleSubmissionsQuery">
@@ -106,13 +109,14 @@
           sua.name = 'AttachTo' AND
           sua.value IN (:imagingProjects)) isImagingSubmission
     FROM Submission su
-    WHERE su.version > 0
+    WHERE su.version > 0 AND su.status = 'PROCESSED'
   </entry>
 
   <entry key="submissionsStatsQuery">
     SELECT SUM(fr.size) submissionFilesSize, COUNT(fr.id) filesCount
     FROM FileRef fr, Submission su, Section se
     WHERE su.version > 0 AND
+      su.status = 'PROCESSED' AND
       (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
       fr.sectionId = se.id AND
       su.id = :submission_id
@@ -123,6 +127,7 @@
     SELECT SUM(rf.size) refFilesSize, COUNT(rf.id) refFilesCount
     FROM ReferencedFile rf, FileList fl, Submission su, Section se
     WHERE su.version > 0 AND
+      su.status = 'PROCESSED' AND
       se.fileListId IS NOT NULL AND
       (su.rootSection_id = se.id OR se.parent_id = su.rootSection_id) AND
       rf.fileListId = fl.id AND
@@ -133,12 +138,12 @@
 
   <entry key="submissionsPmcQuery">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
-    WHERE version > 0 AND accNo LIKE 'S-EPMC%'
+    WHERE version > 0 AND status = 'PROCESSED' AND accNo LIKE 'S-EPMC%'
   </entry>
 
   <entry key="singleSubmissionQuery">
     SELECT id, accno, released, title, secretKey, relPath, rTime, cTime, mTime, rootSection_id, owner_id from Submission
-    WHERE version > 0 and id = :submissionId
+    WHERE version > 0 AND status = 'PROCESSED' and id = :submissionId
   </entry>
 
   <entry key="fileAttributesQuery">

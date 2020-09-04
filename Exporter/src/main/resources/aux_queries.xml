@@ -7,19 +7,19 @@
       (SELECT COALESCE(SUM(size), 0) FROM FileRef fr, Section se, Submission su
         WHERE se.id = fr.sectionId AND
           su.id = se.submission_id AND
-          su.version > 0)
+          su.version > 0 AND su.status = 'PROCESSED')
     +
       (SELECT COALESCE(SUM(size), 0) FROM FileRef fr, Section root, Submission su
         WHERE root.submission_id IS NULL AND
           root.id = fr.sectionId AND
           su.rootSection_id = root.id AND
-          su.version > 0)
+          su.version > 0 AND su.status = 'PROCESSED')
     +
       (SELECT sum(size) FROM ReferencedFile rf, FileList fl, Section se, Submission su
         WHERE se.fileListId = fl.id AND
           se.fileListId = rf.fileListId AND
           su.id = se.submission_id AND
-          su.version > 0)
+          su.version > 0 AND su.status = 'PROCESSED')
     AS submissionsTotalFileSize
   </entry>
 </properties>

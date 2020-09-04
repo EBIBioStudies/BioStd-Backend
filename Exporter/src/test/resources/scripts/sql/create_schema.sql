@@ -644,17 +644,18 @@ CREATE TABLE Submission (
     RTime          BIGINT       NOT NULL,
     accNo          VARCHAR(255) NULL,
     relPath        LONGTEXT     NULL,
+    method         LONGTEXT     NULL,
     released       BIT          NOT NULL,
     rootPath       LONGTEXT     NULL,
     title          LONGTEXT     NULL,
     version        INT          NOT NULL,
     owner_id       BIGINT       NULL,
+    submitter_id   BIGINT       NULL,
     rootSection_id BIGINT       NULL,
     secretKey      VARCHAR(255) NULL,
-    CONSTRAINT UKalkiyx9bg56ika8jw65r99fll
-    UNIQUE (accNo, version),
-    CONSTRAINT FKhsm5gtat31dkrft0was3a7gr7
-    FOREIGN KEY (rootSection_id) REFERENCES Section (id)
+    status         VARCHAR(20)  NOT NULL DEFAULT 'PROCESSED',
+    CONSTRAINT UKalkiyx9bg56ika8jw65r99fll UNIQUE (accNo, version),
+    CONSTRAINT FKhsm5gtat31dkrft0was3a7gr7 FOREIGN KEY (rootSection_id) REFERENCES Section (id)
 );
 
 CREATE INDEX FKhsm5gtat31dkrft0was3a7gr7 ON Submission (rootSection_id);
