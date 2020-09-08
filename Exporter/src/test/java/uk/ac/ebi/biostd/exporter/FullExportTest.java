@@ -36,22 +36,24 @@ import uk.ac.ebi.biostd.test.util.JsonComparator;
 @SpringBootTest
 @ContextConfiguration(classes = TestConfiguration.class)
 @Sql(scripts = {
-        "classpath:scripts/sql/create_schema.sql",
-        "classpath:scripts/sql/init-full-export.sql",
-        "classpath:scripts/sql/private_submission.sql",
-        "classpath:scripts/sql/public_submission.sql",
-        "classpath:scripts/sql/public_file_list_submission.sql"})
+    "classpath:scripts/sql/create_schema.sql",
+    "classpath:scripts/sql/init-full-export.sql",
+    "classpath:scripts/sql/private_submission.sql",
+    "classpath:scripts/sql/public_submission.sql",
+    "classpath:scripts/sql/public_file_list_submission.sql",
+    "classpath:scripts/sql/processing_submission.sql",
+    "classpath:scripts/sql/requested_submission.sql"
+})
 @Sql(executionPhase = AFTER_TEST_METHOD, scripts = {"classpath:scripts/sql/drop_schema.sql"})
 public class FullExportTest extends BaseIntegrationTest {
-
     private static final String FULL_EXPORT_NAME = "studies";
     private static final String PUBLIC_ONLY_EXPORT_NAME = "publicOnlyStudies";
     private static final String NOTIFICATION_URL = "http://localhost:8181/api/update/full";
     private static final String EXPECTED_OUTPUT_PATH = "/test_files/";
     private static final String EXPECTED_FULL_JSON_PATH = EXPECTED_OUTPUT_PATH + "full.json";
     private static final String EXPECTED_PUBLIC_ONLY_JSON_PATH = EXPECTED_OUTPUT_PATH + "publicOnly.json";
-    private static final String[] IGNORED_FIELDS = new String[]{"rtime", "ctime", "mtime", "@startTimeTS", "@endTimeTS",
-            "@startTime", "@endTime", "@elapsedTime"};
+    private static final String[] IGNORED_FIELDS = new String[]{
+        "rtime", "ctime", "mtime", "@startTimeTS", "@endTimeTS", "@startTime", "@endTime", "@elapsedTime"};
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();

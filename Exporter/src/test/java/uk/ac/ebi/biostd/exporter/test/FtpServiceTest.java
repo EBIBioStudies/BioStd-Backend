@@ -27,11 +27,14 @@ import uk.ac.ebi.biostd.exporter.jobs.ftp.FtpService;
 @SpringBootTest
 @ContextConfiguration(classes = TestConfiguration.class)
 @Sql(scripts = {
-        "classpath:scripts/sql/create_schema.sql",
-        "classpath:scripts/sql/init-full-export.sql",
-        "classpath:scripts/sql/private_submission.sql",
-        "classpath:scripts/sql/public_submission.sql",
-        "classpath:scripts/sql/public_file_list_submission.sql"})
+    "classpath:scripts/sql/create_schema.sql",
+    "classpath:scripts/sql/init-full-export.sql",
+    "classpath:scripts/sql/private_submission.sql",
+    "classpath:scripts/sql/public_submission.sql",
+    "classpath:scripts/sql/public_file_list_submission.sql",
+    "classpath:scripts/sql/processing_submission.sql",
+    "classpath:scripts/sql/requested_submission.sql"
+})
 @Sql(executionPhase = AFTER_TEST_METHOD, scripts = { "classpath:scripts/sql/drop_schema.sql" })
 public class FtpServiceTest {
     @Rule
