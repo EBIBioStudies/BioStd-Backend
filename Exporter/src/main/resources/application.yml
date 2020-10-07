@@ -155,7 +155,7 @@ jobs:
     workers: 2
     cron: 0 0 22 4 * * # the fourth of each month at 10 p.m.
   partial:
-    enabled: true
+    enabled: false
     filePath: /nfs/biostudies/.adm/databases/beta/updates/
     fileName: studies_partial
     notificationUrl: http://ves-ebi-6b:8080/biostudies/api/v1/index/reload/
