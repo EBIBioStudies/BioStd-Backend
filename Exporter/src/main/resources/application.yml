@@ -115,7 +115,7 @@ jobs:
     workers: 4
     queryModified:
     notificationUrl: http://ribs:8080/biostudies/api/v1/index/reload/default
-    cron: 0 0 21 * * ? # everyday at 9 p.m.
+    cron: 0 0 20 * * ? # everyday at 8 p.m.
     recordsThreshold: 1
   ftp:
     baseFtpPath: /ebi/teams/biostudies/backend/development/ftp
@@ -173,7 +173,7 @@ jobs:
     workers: 2
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
-    cron: 0 0 21 * * ? # everyday at 9 p.m.
+    cron: 0 0 20 * * ? # everyday at 8 p.m.
     recordsThreshold: 500000
   ftp:
     baseFtpPath: /nfs/biostudies/.adm/databases/beta/ftp
@@ -221,7 +221,7 @@ jobs:
     queryModified:
     notificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/reload/default
     deleteNotificationUrl: http://ves-ebi-6f:8080/biostudies/api/v1/index/delete/
-    cron: 0 0 21 * * ? # everyday at 9 p.m.
+    cron: 0 0 20 * * ? # everyday at 8 p.m.
     recordsThreshold: 500000
   pmc:
     export:
