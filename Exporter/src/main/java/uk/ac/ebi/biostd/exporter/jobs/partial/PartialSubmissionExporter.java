@@ -65,6 +65,13 @@ public class PartialSubmissionExporter {
         processCreatedAndUpdatedSubmissions(Collections.singletonList(submission));
     }
 
+    public void execute(List<String> accNumbers) {
+        List<Submission> submission = accNumbers.stream()
+            .map(submissionService::getSubmission)
+            .collect(toList());
+        processCreatedAndUpdatedSubmissions(submission);
+    }
+
     private void processDeletedSubmissions() {
         submissionService.getDeletedSubmissions(lastSyncTime).forEach(this::notifyDeletion);
     }

@@ -1,8 +1,10 @@
 package uk.ac.ebi.biostd.exporter.rest;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostd.exporter.jobs.common.api.ExportPipeline;
 import uk.ac.ebi.biostd.exporter.jobs.ftp.FtpService;
@@ -58,6 +60,12 @@ public class TasksController {
     @GetMapping("/api/force/partial/{accNo}")
     public String forcePartial(@PathVariable String accNo) {
         partialExporter.execute(accNo);
+        return "ok";
+    }
+
+    @GetMapping("/api/force/partial")
+    public String forcePartial(@RequestParam List<String> accNumbers) {
+        partialExporter.execute(accNumbers);
         return "ok";
     }
 
