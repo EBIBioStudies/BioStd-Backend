@@ -63,7 +63,7 @@ public class TasksController {
         return "ok";
     }
 
-    @GetMapping("/api/force/partial")
+    @GetMapping("/api/force/partial-multiple")
     public String forcePartial(@RequestParam List<String> accNumbers) {
         partialExporter.execute(accNumbers);
         return "ok";
