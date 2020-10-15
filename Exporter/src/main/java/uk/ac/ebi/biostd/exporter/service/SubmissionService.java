@@ -3,10 +3,13 @@ package uk.ac.ebi.biostd.exporter.service;
 import static java.lang.Long.parseLong;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static uk.ac.ebi.biostd.exporter.jobs.full.job.PublicSubmissionFilter.PUBLIC_ACCESS_TAG;
 import static uk.ac.ebi.biostd.exporter.utils.DateUtils.getFromEpochSeconds;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -65,11 +68,15 @@ public class SubmissionService {
     }
 
     private List<String> getAccessTags(Submission submission, List<String> accessTags) {
-        List<String> tags = new ArrayList<>();
+        Set<String> tags = new HashSet<>();
         tags.add(submissionDao.getUserEmail(submission.getOwner_id()));
         tags.addAll(accessTags);
         tags.add("#" + submission.getOwner_id());
-        return tags;
+        if (submission.isReleased()) {
+            tags.add(PUBLIC_ACCESS_TAG);
+        }
+
+        return new ArrayList<>(tags);
     }
 
     private List<Attribute> getAttributes(Submission submission, List<String> accessTags) {
