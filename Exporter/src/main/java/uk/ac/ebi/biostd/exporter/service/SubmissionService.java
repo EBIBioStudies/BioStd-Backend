@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.exporter.service;
 import static java.lang.Long.parseLong;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static uk.ac.ebi.biostd.exporter.jobs.full.job.PublicSubmissionFilter.PUBLIC_ACCESS_TAG;
 import static uk.ac.ebi.biostd.exporter.utils.DateUtils.getFromEpochSeconds;
 
 import java.util.ArrayList;
@@ -69,6 +70,11 @@ public class SubmissionService {
         tags.add(submissionDao.getUserEmail(submission.getOwner_id()));
         tags.addAll(accessTags);
         tags.add("#" + submission.getOwner_id());
+
+        if (submission.isReleased()) {
+            tags.add(PUBLIC_ACCESS_TAG);
+        }
+
         return tags;
     }
 
