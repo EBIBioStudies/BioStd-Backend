@@ -10,11 +10,11 @@ deploy-beta-exporter-job:
   when: manual
   dependencies:
     - build-job
-  script: gradle deployExporter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/exporter/beta -PjvmParams=-Xmx6g
+  script: gradle deployExporter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/exporter/beta -PjvmParams=-Xmx12g
 
 deploy-prod-exporter-job:
   stage: deploy-prod-exporter
   when: manual
   dependencies:
     - build-job
-  script: gradle deployExporter -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/exporter/prod -PjvmParams=-Xmx6g
+  script: gradle deployExporter -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/exporter/prod -PjvmParams=-Xmx12g
