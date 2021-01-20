@@ -106,11 +106,22 @@ public class SubmissionService {
 
     private Section processSection(Section section) {
         long sectionId = section.getId();
-        section.setAttributes(sectionDao.getSectionAttributes(section.getId()));
+        section.setAttributes(getSectionAttributes(section));
         section.setFiles(getSectionFiles(sectionId));
         section.setLinks(getSectionLinks(sectionId));
         section.setSubsections(getSubsections(sectionId));
         return section;
+    }
+
+    private List<Attribute> getSectionAttributes(Section section) {
+        String fileListName = section.getFileListName();
+        List<Attribute> attributes = sectionDao.getSectionAttributes(section.getId());
+
+        if (fileListName != null && !fileListName.isEmpty()) {
+            attributes.add(new Attribute("File List", fileListName + ".json"));
+        }
+
+        return attributes;
     }
 
     private List<File> getSectionFiles(long sectionId) {

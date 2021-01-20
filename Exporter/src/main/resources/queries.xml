@@ -182,7 +182,7 @@
       (CASE
         WHEN se.fileListId IS NOT NULL THEN (SELECT fl.name FROM FileList fl WHERE se.fileListId = fl.id)
         ELSE NULL
-      END) fileList
+      END) fileListName
     FROM Section se
     WHERE se.parent_id = :section_id
   </entry>
@@ -192,7 +192,7 @@
       (CASE
         WHEN se.fileListId IS NOT NULL THEN (SELECT fl.name FROM FileList fl WHERE se.fileListId = fl.id)
         ELSE NULL
-      END) fileList
+      END) fileListName
     FROM Section se
     WHERE se.id = :section_id
   </entry>

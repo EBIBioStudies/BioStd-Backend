@@ -42,6 +42,9 @@ public class Section {
     private List<Link> links;
 
     @JsonIgnore
+    private String fileListName;
+
+    @JsonIgnore
     public Links getXmlLinks() {
         return CollectionUtils.isEmpty(links) ? null : new Links(links);
     }
