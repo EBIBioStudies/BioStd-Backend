@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostd.exporter.model.Attribute;
 import uk.ac.ebi.biostd.exporter.model.File;
@@ -106,11 +107,27 @@ public class SubmissionService {
 
     private Section processSection(Section section) {
         long sectionId = section.getId();
-        section.setAttributes(sectionDao.getSectionAttributes(section.getId()));
+        section.setAttributes(getSectionAttributes(section));
         section.setFiles(getSectionFiles(sectionId));
         section.setLinks(getSectionLinks(sectionId));
         section.setSubsections(getSubsections(sectionId));
         return section;
+    }
+
+    private List<Attribute> getSectionAttributes(Section section) {
+        String fileListName = section.getFileListName();
+        List<Attribute> attributes =
+            sectionDao
+                .getSectionAttributes(section.getId())
+                .stream()
+                .filter(attribute -> !attribute.getName().equals("File List"))
+                .collect(toList());
+
+        if (StringUtils.isNotEmpty(fileListName)) {
+            attributes.add(new Attribute("File List", fileListName + ".json"));
+        }
+
+        return attributes;
     }
 
     private List<File> getSectionFiles(long sectionId) {

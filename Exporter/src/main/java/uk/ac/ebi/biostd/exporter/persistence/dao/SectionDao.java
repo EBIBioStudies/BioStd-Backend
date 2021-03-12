@@ -19,7 +19,6 @@ import static java.util.Collections.singletonMap;
 @Component
 @AllArgsConstructor
 public class SectionDao {
-
     private static final String SEC_ID_PARAM = "section_id";
 
     private final Queries queries;

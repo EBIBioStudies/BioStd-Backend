@@ -54,9 +54,6 @@ INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, value
 VALUES ('Abstract', null, false, 'Nuocytes are essential in innate type 3 immunity', null, 11, 1);
 
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord)
-VALUES ('File List', null, false, 'S-EPMC3343634.SECT-001.files', null, 11, 1);
-
-INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord)
 VALUES ('Journal', null, false, 'Nature immunology', null, 12, 0);
 
 INSERT INTO SectionAttribute (name, nameQualifierString, reference, value, valueQualifierString, section_id, ord)
