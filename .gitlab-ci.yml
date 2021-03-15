@@ -1,4 +1,4 @@
-image: gradle:5.4.1-jdk8
+image: gradle:6.5.1-jdk8
 include:
   - local: '/ci/ftp.yml'
   - local: '/ci/webapp.yml'
