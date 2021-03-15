@@ -16,7 +16,6 @@ buildscript {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("org.asciidoctor:asciidoctor-gradle-plugin:1.5.3")
         classpath "org.hidetake:gradle-ssh-plugin:2.10.1"
-        classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:2.0.0"
     }
 }
 
@@ -26,7 +25,6 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'jacoco'
 apply plugin: 'org.asciidoctor.convert'
-apply plugin: "com.gorylenko.gradle-git-properties"
 
 group = 'uk.ac.ebi.biostd'
 version = '0.0.1'
