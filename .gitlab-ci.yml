@@ -17,9 +17,7 @@ stages:
 
 build-job:
   stage: build-test
-  script: gradle clean build bootJar
+  script: gradle clean :Exporter:build :Exporter:bootJar
   artifacts:
     paths:
-      - BackendWebApp/build/libs/biostudy.jar
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
-      - FtpServer/build/libs/FtpServer-0.0.1-SNAPSHOT.jar
