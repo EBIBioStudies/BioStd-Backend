@@ -109,7 +109,7 @@
           suat.accesstags_id = at.id AND
           at.name IN (:imagingProjects)) isImagingSubmission
     FROM Submission su
-    WHERE su.version > 0 AND su.status = 'PROCESSED' AND cTime &lt;= 1612137599
+    WHERE su.version > 0 AND su.status = 'PROCESSED'
   </entry>
 
   <entry key="submissionsStatsQuery">
