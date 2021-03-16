@@ -1,16 +1,9 @@
 image: gradle:6.5.1-jdk8
 include:
-  - local: '/ci/ftp.yml'
-  - local: '/ci/webapp.yml'
   - local: '/ci/exporter.yml'
 
 stages:
   - build-test
-  - deploy-dev-ftp
-  - deploy-beta-ftp
-  - deploy-dev-webapp
-  - deploy-beta-webapp
-  - deploy-prod-webapp
   - deploy-dev-exporter
   - deploy-beta-exporter
   - deploy-prod-exporter
