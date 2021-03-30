@@ -4,13 +4,17 @@ include:
 
 stages:
   - build-test
+  - deploy-dev-ftp
+  - deploy-beta-ftp
+  - deploy-prod-ftp
   - deploy-dev-exporter
   - deploy-beta-exporter
   - deploy-prod-exporter
 
 build-job:
   stage: build-test
-  script: gradle clean :Exporter:build :Exporter:bootJar
+  script: gradle clean :Exporter:build :Exporter:bootJar :FtpServer:build :FtpServer:bootJar
   artifacts:
     paths:
       - Exporter/build/libs/Exporter-0.0.1-SNAPSHOT.jar
+      - FtpServer/build/libs/FtpServer-0.0.1-SNAPSHOT.jar
