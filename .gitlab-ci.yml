@@ -1,5 +1,6 @@
 image: gradle:6.5.1-jdk8
 include:
+  - local: '/ci/ftp.yml'
   - local: '/ci/exporter.yml'
 
 stages:
