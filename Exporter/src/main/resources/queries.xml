@@ -103,11 +103,11 @@
 
   <entry key="simpleSubmissionsQuery">
     SELECT su.id, accno, title, secretKey, released, relPath, rTime, cTime, mTime, rootSection_id, owner_id,
-      (SELECT count(sua.id)
-        FROM SubmissionAttribute sua
-        WHERE su.id = sua.submission_id AND
-          sua.name = 'AttachTo' AND
-          sua.value IN (:imagingProjects)) isImagingSubmission
+      (SELECT count(at.id)
+        FROM Submission_AccessTag suat, AccessTag at
+        WHERE su.id = suat.submission_id AND
+          suat.accesstags_id = at.id AND
+          at.name IN (:imagingProjects)) isImagingSubmission
     FROM Submission su
     WHERE su.version > 0 AND su.status = 'PROCESSED'
   </entry>
