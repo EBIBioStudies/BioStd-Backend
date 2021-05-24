@@ -11,11 +11,7 @@
       "views": 314,
       "type":"submission",
       "filesCount": 1,
-      "accessTags":[
-        "biostudies-dev@ebi.ac.uk",
-        "Public",
-        "#1"
-      ],
+      "accessTags":[],
       "attributes":[
         {
           "name":"ReleaseDate",
@@ -126,11 +122,7 @@
       "views": 714,
       "type":"submission",
       "filesCount": 1,
-      "accessTags":[
-        "biostudies-dev@ebi.ac.uk",
-        "Public",
-        "#1"
-      ],
+      "accessTags":[],
       "attributes":[
         {
           "name":"ReleaseDate",

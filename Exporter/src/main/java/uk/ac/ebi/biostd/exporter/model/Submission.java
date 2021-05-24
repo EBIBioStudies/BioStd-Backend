@@ -77,4 +77,29 @@ public class Submission {
 
     @JsonIgnore
     private long filesSize;
+
+    @Override
+    public Submission clone() {
+        Submission cloned = new Submission();
+        cloned.id = id;
+        cloned.accno = accno;
+        cloned.title = title;
+        cloned.secretKey = secretKey;
+        cloned.relPath = relPath;
+        cloned.rTime = rTime;
+        cloned.cTime = cTime;
+        cloned.mTime = mTime;
+        cloned.views = views;
+        cloned.owner_id = owner_id;
+        cloned.filesCount = filesCount;
+        cloned.rootSection_id = rootSection_id;
+        cloned.accessTags = accessTags;
+        cloned.attributes = attributes;
+        cloned.section = section;
+        cloned.released = released;
+        cloned.imagingSubmission = imagingSubmission;
+        cloned.filesSize = filesSize;
+
+        return cloned;
+    }
 }
