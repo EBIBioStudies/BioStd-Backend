@@ -22,7 +22,7 @@ import uk.ac.ebi.biostd.exporter.model.ExecutionStats;
 public final class JsonPublicOnlySubmissionExporter implements FullExportJob {
     private static final String JOB_NAME = "join-job-public-only";
 
-    private final JsonSubmissionProcessor jsonSubmissionProcessor;
+    private final JsonPublicOnlySubmissionProcessor jsonPublicOnlySubmissionProcessor;
     private final FullExportJobProperties jobProperties;
     private final SubmissionExporter submissionExporter;
 
@@ -35,7 +35,7 @@ public final class JsonPublicOnlySubmissionExporter implements FullExportJob {
                 workers,
                 JOB_NAME,
                 processQueue,
-                jsonSubmissionProcessor,
+                jsonPublicOnlySubmissionProcessor,
                 new PublicSubmissionFilter(),
                 jobProperties,
                 jobProperties.getPublicOnlySubmissions(),
