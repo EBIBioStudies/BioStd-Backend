@@ -7,11 +7,11 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
+@Builder(toBuilder = true)
 @JsonPropertyOrder({"id", "accno", "title", "seckey", "relPath", "rtime", "ctime", "mtime", "views", "type",
     "accessTags", "attributes", "section"})
 @XmlRootElement(name = "submission")
@@ -77,29 +77,4 @@ public class Submission {
 
     @JsonIgnore
     private long filesSize;
-
-    @Override
-    public Submission clone() {
-        Submission cloned = new Submission();
-        cloned.id = id;
-        cloned.accno = accno;
-        cloned.title = title;
-        cloned.secretKey = secretKey;
-        cloned.relPath = relPath;
-        cloned.rTime = rTime;
-        cloned.cTime = cTime;
-        cloned.mTime = mTime;
-        cloned.views = views;
-        cloned.owner_id = owner_id;
-        cloned.filesCount = filesCount;
-        cloned.rootSection_id = rootSection_id;
-        cloned.accessTags = accessTags;
-        cloned.attributes = attributes;
-        cloned.section = section;
-        cloned.released = released;
-        cloned.imagingSubmission = imagingSubmission;
-        cloned.filesSize = filesSize;
-
-        return cloned;
-    }
 }

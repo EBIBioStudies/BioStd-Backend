@@ -1,7 +1,8 @@
 package uk.ac.ebi.biostd.exporter.jobs.full.json;
 
+import static java.util.Collections.emptyList;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import org.easybatch.core.processor.RecordProcessor;
 import org.easybatch.core.record.Record;
 import org.springframework.stereotype.Component;
@@ -19,8 +20,7 @@ public class JsonPublicOnlySubmissionProcessor implements RecordProcessor<Record
     @Override
     public Record processRecord(Record<Submission> record) throws Exception {
         if (record.getPayload() instanceof Submission) {
-            Submission submission = record.getPayload().clone();
-            submission.setAccessTags(Lists.newArrayList());
+            Submission submission = record.getPayload().toBuilder().accessTags(emptyList()).build();
 
             return new StringContentRecord(record.getHeader(), objectMapper.writeValueAsString(submission));
         }
