@@ -20,11 +20,25 @@ public class JsonPublicOnlySubmissionProcessor implements RecordProcessor<Record
     @Override
     public Record processRecord(Record<Submission> record) throws Exception {
         if (record.getPayload() instanceof Submission) {
-            Submission submission = record.getPayload().toBuilder().accessTags(emptyList()).build();
-
-            return new StringContentRecord(record.getHeader(), objectMapper.writeValueAsString(submission));
+            Submission publicSubmission = publicSubmission(record);
+            return new StringContentRecord(record.getHeader(), objectMapper.writeValueAsString(publicSubmission));
         }
 
         return record;
+    }
+
+    private Submission publicSubmission(Record<Submission> record) {
+        return record
+            .getPayload()
+            .toBuilder()
+            .accessTags(emptyList())
+            .id(null)
+            .secretKey(null)
+            .relPath(null)
+            .rtime(null)
+            .ctime(null)
+            .mtime(null)
+            .views(null)
+            .build();
     }
 }

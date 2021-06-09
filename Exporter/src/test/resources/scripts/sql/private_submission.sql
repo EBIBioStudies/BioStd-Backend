@@ -1,6 +1,6 @@
 -- Submission
 INSERT INTO Submission (
-    CTime, MTime, RTime, accNo, relPath, method, released, rootPath, title, version, owner_id, submitter_id)
+    CTime, MTime, RTime, accNo, relPath, method, released, rootPath, title, secretKey, version, owner_id, submitter_id)
 VALUES (1460402396,
         1460402396,
         1460402396,
@@ -10,6 +10,7 @@ VALUES (1460402396,
         false,
         'S-EPMC/S-EPMCxxx748/S-EPMC2873748',
         null,
+        'the-secret-key',
         1,
         1,
         1);
