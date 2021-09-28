@@ -1,17 +1,9 @@
 {
   "submissions":[
     {
-      "id":2,
       "accno":"S-EPMC3343633",
-      "seckey":null,
-      "relPath":"S-EPMC/S-EPMCxxx633/S-EPMC3343633",
-      "rtime":"1460389106",
-      "ctime":"1460389106",
-      "mtime":"1460389106",
-      "views": 314,
       "type":"submission",
       "filesCount": 1,
-      "accessTags":[],
       "attributes":[
         {
           "name":"ReleaseDate",
@@ -112,17 +104,9 @@
         ]
       }
     }, {
-      "id":3,
       "accno":"S-EPMC3343634",
-      "seckey":null,
-      "relPath":"S-EPMC/S-EPMCxxx634/S-EPMC3343634",
-      "rtime":"1460389106",
-      "ctime":"1460389106",
-      "mtime":"1460389106",
-      "views": 714,
       "type":"submission",
       "filesCount": 1,
-      "accessTags":[],
       "attributes":[
         {
           "name":"ReleaseDate",

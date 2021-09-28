@@ -2,8 +2,8 @@
   "submissions":[
     {
       "id":1,
+      "seckey": "the-secret-key",
       "accno":"S-EPMC2873748",
-      "seckey":null,
       "relPath":"S-EPMC/S-EPMCxxx748/S-EPMC2873748",
       "rtime":"1460402396",
       "ctime":"1460402396",
@@ -123,7 +123,6 @@
     }, {
       "id":2,
       "accno":"S-EPMC3343633",
-      "seckey":null,
       "relPath":"S-EPMC/S-EPMCxxx633/S-EPMC3343633",
       "rtime":"1460389106",
       "ctime":"1460389106",
@@ -238,7 +237,6 @@
     }, {
       "id":3,
       "accno":"S-EPMC3343634",
-      "seckey":null,
       "relPath":"S-EPMC/S-EPMCxxx634/S-EPMC3343634",
       "rtime":"1460389106",
       "ctime":"1460389106",

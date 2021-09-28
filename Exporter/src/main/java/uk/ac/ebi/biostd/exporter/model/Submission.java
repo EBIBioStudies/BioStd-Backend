@@ -1,6 +1,10 @@
 package uk.ac.ebi.biostd.exporter.model;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
@@ -12,7 +16,7 @@ import lombok.Data;
 
 @Data
 @Builder(toBuilder = true)
-@JsonPropertyOrder({"id", "accno", "title", "seckey", "relPath", "rtime", "ctime", "mtime", "views", "type",
+@JsonPropertyOrder({"id", "accno", "title", "seckey", "relPath", "rTime", "cTime", "mTime", "views", "type",
     "accessTags", "attributes", "section"})
 @XmlRootElement(name = "submission")
 @XmlAccessorType(XmlAccessType.NONE)
@@ -20,7 +24,8 @@ public class Submission {
     private static final String SUBMISSION_TYPE = "submission";
 
     @JsonProperty("id")
-    private long id;
+    @JsonInclude(NON_NULL)
+    private Long id;
 
     @JsonProperty("accno")
     private String accno;
@@ -29,21 +34,27 @@ public class Submission {
     private String title;
 
     @JsonProperty("seckey")
+    @JsonInclude(NON_NULL)
     private String secretKey;
 
     @JsonProperty("relPath")
+    @JsonInclude(NON_NULL)
     private String relPath;
 
     @JsonProperty("rtime")
-    private String rTime;
+    @JsonInclude(NON_NULL)
+    private String rtime;
 
     @JsonProperty("ctime")
-    private String cTime;
+    @JsonInclude(NON_NULL)
+    private String ctime;
 
     @JsonProperty("mtime")
-    private String mTime;
+    @JsonInclude(NON_NULL)
+    private String mtime;
 
     @JsonProperty("views")
+    @JsonInclude(NON_NULL)
     private Integer views;
 
     @JsonIgnore
@@ -61,6 +72,7 @@ public class Submission {
     private long rootSection_id;
 
     @JsonProperty("accessTags")
+    @JsonInclude(NON_EMPTY)
     private List<String> accessTags;
 
     @JsonProperty("attributes")

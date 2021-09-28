@@ -85,7 +85,7 @@ public class SubmissionService {
         String submissionTitle = submission.getTitle() != null ? submission.getTitle() : EMPTY;
 
         subAttributes.add(new Attribute("Title", submissionTitle));
-        subAttributes.add(new Attribute("ReleaseDate", getFromEpochSeconds(parseLong(submission.getRTime()))));
+        subAttributes.add(new Attribute("ReleaseDate", getFromEpochSeconds(parseLong(submission.getRtime()))));
         accessTags.forEach(tag -> addProjectAttribute(subAttributes, tag));
 
         return subAttributes;
