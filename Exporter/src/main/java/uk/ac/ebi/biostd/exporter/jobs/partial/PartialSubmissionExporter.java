@@ -31,7 +31,6 @@ import uk.ac.ebi.biostd.exporter.service.SubmissionService;
 @Component
 @RequiredArgsConstructor
 public class PartialSubmissionExporter {
-
     private static final String FILE_FORMAT = "%s%s_%s.json";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
 
@@ -45,11 +44,10 @@ public class PartialSubmissionExporter {
     public void execute() {
         log.info("executing partial export file job at {}", Instant.now(Clock.systemUTC()));
 
-        long beforeSyncDate = getNowEpoch();
+        lastSyncTime = getNowEpoch();
         processCreatedAndUpdatedSubmissions(submissionService.getUpdatedSubmissions(lastSyncTime));
         processDeletedSubmissions();
 
-        lastSyncTime = beforeSyncDate;
         log.info("finish processing updated/deleting submissions");
     }
 
